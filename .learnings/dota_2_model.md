@@ -46,7 +46,7 @@ Read these rules before data, timing, or backtest work.
 - Reject a prior only when `|radiant_price + dire_price - 1| > 0.05`. Do not add age or timestamp-skew gates without new measurements.
 - The model predicts `signal_market_p_radiant_300s - market_p_radiant`. Restore price with `clip(market_p_radiant + predicted_delta, 0, 1)`.
 - `market_p_radiant` is a feature. `market_radiant_prior` is audit and dataset-gate data, not a feature or `init_score`.
-- Train on seconds `0, 60, ..., 540` with contemporaneous game and market. Validation rows are 1 Hz for decision seconds `8..899` with game at `T-8` and market at `T`; evaluate the model on `8..599`. Feature `second` on valid/backtest is the GRID clock (`T-8`); the parquet row key stays decision `T`.
+- Train on seconds `0, 60, ..., 540` with game at `T` and market at `T+8`. Validation rows are 1 Hz for decision seconds `8..899` with game at `T-8` and market at `T`; evaluate the model on `8..599`. Feature `second` on valid/backtest is the GRID clock (`T-8`); the parquet row key stays decision `T`.
 - Backtest emits a model tick every `POLL_INTERVAL_SECONDS` (10); `MAX_SIGNAL_AGE_SECONDS = 10` so the last poll stays usable until the next. Fair between polls is live book + frozen `predicted_delta`. There is no `SIGNAL_LAG_SECONDS`.
 - Require a published prior before dataset inclusion. Derive validation and backtest selection from that gated dataset.
 - Quote on the `0.01` grid. Keep instrument `price_precision = 3`; log off-grid archived book prices and continue.
