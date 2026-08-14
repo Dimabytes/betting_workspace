@@ -11,3 +11,20 @@
 - Marked US-001 `passes: true`.
 - **Learnings for future iterations:**
     - The project lived at `.../polymarket/dota_2_model` and now lives at `.../polymarket/dota_2_bot/dota_2_model`. Recreate the venv after a move.
+
+## 2026-08-14 - US-002
+- Added editable path dependency `polymaker` pointing to `../poly-maker` in `pyproject.toml` and updated `uv.lock`.
+- Extracted `normalize_team_name`, `score_team_name`, `TEAM_ALIASES`, `PAIR_SCORE_MIN`, and `SIDE_SCORE_MIN` to `src/shared/utils/team_names.py`.
+- Replaced local implementations in `src/collect/02_link_opendota.py` with imports from `shared.utils.team_names`.
+- Added unit tests in `tests/test_team_names.py` for normalization, probe generation, token sorting, scoring, and thresholds.
+- **Learnings for future iterations:**
+    - `polymaker` provides `py.typed`, ensuring full type-checking compatibility under basedpyright strict.
+    - When matching team names in discovery (US-007), use `score_team_name` with `PAIR_SCORE_MIN` and `SIDE_SCORE_MIN` from `shared.utils.team_names`.
+
+## 2026-08-14 - US-001 A4
+- Closed A4: new model `20260814T165239Z` in `current/`, old rotated to `20260813T233731Z/`. Comparison table in `current-task/model_comparison.md`.
+- Level timelines: allow equal seconds; short `len < final level` is a prepare counter, not a drop. `dota_levels` no longer imports dataset window constants.
+- **Learnings for future iterations:**
+    - Two level-ups in one second are real STRATZ data, not corruption.
+    - A missing last level-up after second 899 does not change train/valid XP in the model window. Do not shrink train for it.
+

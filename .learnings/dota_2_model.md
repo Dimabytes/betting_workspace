@@ -51,8 +51,10 @@ Read these rules before data, timing, or backtest work.
 - Reject a prior only when `|radiant_price + dire_price - 1| > 0.05`. Do not add age or timestamp-skew gates without new measurements.
 - The model predicts `signal_market_p_radiant_300s - market_p_radiant`. Restore price with `clip(market_p_radiant + predicted_delta, 0, 1)`.
 - `market_p_radiant` is a feature. `market_radiant_prior` is audit and dataset-gate data, not a feature or `init_score`.
-- Train on seconds `0, 60, ..., 540` with game at `T` and market at `T+8`. Validation rows are 1 Hz for decision seconds `8..899` with game at `T-8` and market at `T`; evaluate the model on `8..599`. Feature `second` on valid/backtest is the GRID clock (`T-8`); the parquet row key stays decision `T`.
-- Backtest emits a model tick every `POLL_INTERVAL_SECONDS` (10); `MAX_SIGNAL_AGE_SECONDS = 10` so the last poll stays usable until the next. Fair between polls is live book + frozen `predicted_delta`. There is no `SIGNAL_LAG_SECONDS`.
+- Train on seconds `0, 60, ..., 540` with game at `T` and market at `T+2`. Validation rows are 1 Hz for decision seconds `2..899` with game at `T-2` and market at `T`; evaluate the model on `2..599`. Feature `second` on valid/backtest is the GRID clock (`T-2`); the parquet row key stays decision `T`.
+- Backtest emits a model tick every `POLL_INTERVAL_SECONDS` (1); `MAX_SIGNAL_AGE_SECONDS = 1` so the last poll stays usable until the next. Fair between polls is live book + frozen `predicted_delta`. There is no `SIGNAL_LAG_SECONDS`.
+- STRATZ `stats.level` may repeat a second (two level-ups in one second). `assert_level_timeline` only rejects time going backwards. 54/1748 train matches and 11/328 valid matches are short by one late level-up after second 899; that is a prepare log, not a drop gate.
+- A4 (model `20260814T165239Z` vs `20260813T233731Z`, 327/328 matches, b0+s2): MAE gain 0.233 vs 0.235 cents (overlapping CI). s2 PnL +29.57 / +0.1808% vs old +17.01 / +0.1040%. b0 PnL -67.13 vs old -43.54. s32 was not run. Live go/no-go is not in US-001.
 - Require a published prior before dataset inclusion. Derive validation and backtest selection from that gated dataset.
 - Quote on the `0.01` grid. Keep instrument `price_precision = 3`; log off-grid archived book prices and continue.
 - Radiant and Dire books and trades mirror each other. Do not quote both equivalent levels; Nautilus duplicates fills. Keep trades for queue-position replay.

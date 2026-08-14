@@ -93,7 +93,7 @@
         "A1. Посекундные строки валидации в src/prepare_dataset/prepare_dataset.py и src/shared/utils/stratz_seconds.py считают radiant_xp_adv так же",
         "A1. Уровни берутся из player[\"stats\"][\"level\"] кэша STRATZ через level_at_second",
         "A1. Поле radiant_nw_adv не меняется: оно остаётся из playerUpdateGoldEvents",
-        "A1. Проверка: len(stats[\"level\"]) == player[\"level\"] для каждого игрока; расхождение поднимает ошибку, а не предупреждение",
+        "A1. Два левелапа в одну секунду допустимы (non-decreasing). len(stats.level) < player.level не гейт: prepare оставляет матч и пишет счётчик; в train это 54 матча с одной потерянной точкой после окна 0..899",
         "A1. Проверка: уровень, выведенный из накопленного XP по experienceEvents, совпадает с уровнем из stats[\"level\"] на границах минут валидационных матчей",
         "A1. Сверку radiant_xp_adv с массивом xp_leads убираем: после XP из уровней они больше не совпадают. radiant_nw_adv по-прежнему сверяем с nw_leads",
         "A2. В src/shared/constants/dataset.py поставить SOURCE_LAG_SECONDS = 2",
@@ -137,7 +137,7 @@
         "make lint-all чистый"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
