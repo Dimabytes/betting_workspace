@@ -9,7 +9,7 @@ todos:
     content: SOURCE_LAG_SECONDS 8 -> 2, POLL_INTERVAL_SECONDS 10 -> 1
     status: pending
   - id: retrain
-    content: Пересобрать датасеты, переобучить модель, сравнить метрики со старой (гейт запуска)
+    content: Пересобрать датасеты, переобучить в новый каталог, сравнить метрики; бэктест --validation на 4 шардах с --name, чтобы старый прогон остался
     status: pending
   - id: deps
     content: polymaker как path-зависимость в pyproject.toml; проверить импорт Engine и compute_fair_value
@@ -24,7 +24,7 @@ todos:
     content: "match_meta.py: JSON матча при старте и при завершении, со ссылкой на рынок и победителем"
     status: pending
   - id: discovery
-    content: "discovery.py: читает metadata/markets коллектора, отбирает Game N Winner, связывает со Steam по именам + overrides.json"
+    content: "discovery.py: читает сайдкары коллектора; торгуем map_winner и series_winner на Bo1 (как classify_inventory), связка со Steam тем же матчером"
     status: pending
   - id: model-server
     content: "model_server.py: Booster, вектор FEATURE_COLUMNS, predict_fair"
@@ -39,22 +39,28 @@ todos:
     content: "config.toml и профиль dota-map под карту: debounce_ms, quoter_tick_s, ws_stale_halt_s, тики; слежение за сменой tickSize"
     status: pending
   - id: keys-notify
-    content: "STEAM_KEYS: случайный выбор ключа на запрос; счётчик расхода; notify.py с уведомлениями в Telegram"
+    content: "STEAM_KEYS: ключ 1 пока не 429, потом ключ 2; Telegram на переключении"
     status: pending
   - id: orchestrator
-    content: "orchestrator.py: цикл дискавери, надзор за сессиями, счёт расхода ключей; make live-paper"
+    content: "orchestrator.py: цикл дискавери, надзор за сессиями; make live-paper"
+    status: pending
+  - id: shared-extract
+    content: "Вынести TEAM_ALIASES/score_team_name и LEVEL_XP в src/shared; live_paper и collect читают оттуда. Из collect не импортируем"
     status: pending
   - id: parquet-convert
-    content: "state_to_parquet.py: gzip-JSONL матча -> parquet; отдельный запуск, не в лайве"
+    content: "state_to_parquet.py: gzip-JSONL матча -> parquet для train/valid; отдельный запуск, не в лайве. winner=null добираем из OpenDota здесь, не в демоне"
     status: pending
   - id: report
-    content: "report.py + make live-report: PnL по матчам и итог"
+    content: "report.py + make live-report: PnL по матчам и итог (отдельный от parquet)"
+    status: pending
+  - id: docker
+    content: "compose.yaml в dota_2_model: демон live-paper, restart unless-stopped, тот же ARCHIVE_ROOT что у коллектора; parquet и report — one-shot"
     status: pending
   - id: tests-lint
     content: Юнит-тесты (уровень->XP, правило филла, ориентация, гейт окна, пауза) + чистый make lint-all
     status: pending
   - id: docs
-    content: "Обновить .learnings/dota_2_model.md и README: запуск локально, запуск на VPS, ключи Steam"
+    content: "Обновить .learnings/dota_2_model.md и README: Docker на VPS рядом с коллектором, ключи Steam, два офлайн-скрипта. Лайв локально не гоняем"
     status: pending
 isProject: false
 ---
@@ -77,22 +83,25 @@ isProject: false
 - **XP из уровней.** Steam отдаёт `level` игрока, но не XP. Считаем XP по фиксированной таблице порогов уровней. Тот же расчёт применяем в обучении, иначе фича в лайве и в обучении разные.
 - **Лаг источника 2 секунды.** Steam отстаёт от игрового сервера на 1.4-2.3 секунды. GRID отставал на 8.
 - **Опрос раз в секунду, всегда.** Steam пересобирает снапшот 1 Гц. Гейт «данные приходят раз в 10 секунд» из бэктеста снимаем. Частоту не снижаем ни при каком расходе запросов.
-- **Несколько ключей Steam.** Список в `.env`, выбор ключа на каждый запрос случайный. Расход считаем и шлём в Telegram, работу не режем.
+- **Два ключа Steam по очереди.** Все запросы ключом 1. Первый 429 — ключ 2 и Telegram. Счётчика расхода нет.
 - **Движок — poly-maker, `paper=True`.** Проверяем ровно тот код, через который потом пойдут реальные деньги.
 - **Пишем только матчи с рынком.** Матч без рынка не пишем.
 - **Сырые снапшоты, без parquet в лайве.** Лайв пишет gzip-JSONL. Parquet собирает отдельный скрипт по требованию.
 - **Один матч — один подпроцесс.** Оркестратор следит за подпроцессами.
 - **На паузе котировки снимаем.** Цель модели — цена через 300 секунд реального времени. На паузе этот горизонт не соответствует ничему в обучении.
 - **Метадата пишется дважды:** при старте и при завершении матча.
-- **Связка рынка и матча:** имена команд плюс ручной `overrides.json`.
-- **Запуск:** сначала локально под присмотром, потом на VPS.
+- **Связка рынка и матча:** тот же матчер, что в `02_link_opendota.py` (`score_team_name` + `TEAM_ALIASES`). Ручной `overrides.json` не нужен: алиасы уже есть, а лиги без имён на Steam на Polymarket не торгуются. Новый алиас — строка в `TEAM_ALIASES`, не отдельный файл.
+- **Лайв-демон OpenDota не вызывает.** `server_steam_id` только из `GetTopLiveGame`. Победителя, которого не дали здания Steam, добираем из OpenDota позже, когда разбираем JSON (конвертер / отчёт).
+- **Запуск сразу на VPS.** Сайдкаров коллектора на ноутбуке нет, второй коллектор локально не поднимаем. Код и тесты — локально, живой демон — Docker Compose на VPS рядом с коллектором, `restart: unless-stopped`, тот же `ARCHIVE_ROOT`. Первый матч смотрим по логам и Telegram, не с локальной машины.
 
 ## Что уже есть и не переписываем
 
 - **`polymarket-collector`** — TypeScript-демон на VPS в Docker. Опрашивает Gamma по тегу `102366` раз в 60 секунд, отбирает `series_winner` и `map_winner`, стримит книгу и сделки в журнал, раз в день собирает Telonex-совместимый parquet. Пишет `metadata/markets/<condition_id>.json` со всем, что нужно нашему боту: `conditionId`, `marketSlug`, `marketKind`, `mapNumber`, `outcomes[].name` и `outcomes[].tokenId`, `tickSize`, `minOrderSize`, `negRisk`, `active`, `closed`, `acceptingOrders`, `startAt`, `gridSeriesId`. Корень задаёт `ARCHIVE_ROOT`. Контракт: `polymarket-collector/docs/polymarket_dota_archive_contracts.md`.
-- **`scripts/watch_steam_live.py`** — рабочий клиент Steam. Умеет список живых лиговых игр, выбор матча, опрос `GetRealtimeStats` 1 Гц с вычетом времени запроса, счёт башен по выжившим, детект паузы и конца игры. Из него забираем логику, а сам скрипт оставляем как ручной инструмент.
+- **`scripts/watch_steam_live.py`** — рабочий клиент Steam. Умеет список живых лиговых игр, выбор матча, опрос `GetRealtimeStats` 1 Гц с вычетом времени запроса, счёт башен по выжившим, детект паузы и конца игры. Логику забираем в `steam_feed.py`, скрипт оставляем как ручной инструмент. Вызов OpenDota `/live` из вотчера в демон **не** переносим.
+- **`src/shared/`** — сюда выносим то, что нужно и лайву, и пайплайну: `LEVEL_XP`, `score_team_name`, `TEAM_ALIASES`, `normalize_team_name`. Сейчас матчер живёт в `src/collect/02_link_opendota.py`; из `collect` не импортируем (это старый код). После выноса `02_link_opendota.py` читает shared, как и discovery.
 - **`src/shared/types/steam.py`** — типы Steam-ответов. Дополняем полями, которые начнём читать.
-- **poly-maker Engine** — `Engine(cfg, paper=True)` уже есть (`src/polymaker/engine.py:48`). `compute_fair_value` импортирован в `engine.py:40` и вызывается в `_recompute_locked`.
+- **poly-maker Engine** — `Engine(cfg, paper=True)` уже есть (`src/polymaker/engine.py:48`). `compute_fair_value` импортирован в `engine.py:40` и вызывается в `_recompute_locked`. Форк не меняем, только path-зависимость и монкейпатч.
+- **Коллектор на TypeScript — не проблема и не дубль.** Он уже пишет сайдкары и книгу. Бот читает файлы с диска. Gamma и книгу заново не собираем. Язык другой — это нормально: два процесса, один контракт на `ARCHIVE_ROOT`.
 
 ## Архитектура
 
@@ -103,8 +112,8 @@ flowchart LR
     coll --> pq["ARCHIVE_ROOT/parquet: book_snapshot_full, trades"]
   end
   subgraph orch [Оркестратор: один процесс]
-    meta --> disc["discovery: Game N Winner, active и не closed"]
-    steam["GetLiveLeagueGames + GetTopLiveGame раз в 60с"] --> disc
+    meta --> disc["discovery: map_winner + Bo1 series_winner"]
+    steam["GetLiveLeagueGames + GetTopLiveGame раз в 60с, без OpenDota"] --> disc
     disc --> spawn["Запуск сессии на каждый связанный матч"]
   end
   subgraph sess [Сессия: один подпроцесс на матч]
@@ -118,10 +127,10 @@ flowchart LR
     eng --> gw["PaperGateway: филлы, позиции, кэш"]
     gw --> eng
   end
-  raw --> conv["state_to_parquet.py: по требованию"]
+  raw --> conv["state_to_parquet.py: по требованию, OpenDota только тут если winner=null"]
   eng --> jsonl["data/live_paper/<match_id>/session.jsonl"]
   feed --> mj["data/live_paper/<match_id>/match.json"]
-  jsonl --> report["make live-report"]
+  jsonl --> report["make live-report: PnL paper, не датасет"]
 ```
 
 ## Часть A — модель под контракт Steam (гейт запуска)
@@ -166,7 +175,18 @@ Steam не отдаёт XP. `SteamRealtimePlayer` несёт `level`. Поэто
 1. Пересобрать `training_dataset.parquet` и `validation_dataset.parquet`.
 2. Переобучить, сохранить в новый каталог модели, старую `data/new_model/model.txt` не затирать.
 3. Сравнить метрики старой и новой модели на одном сплите. Записать числа в learnings.
-4. Прогнать бэктест на новой модели с `POLL_INTERVAL_SECONDS = 1` и сравнить PnL со старым прогоном.
+4. Прогнать validation-бэктест на новой модели с `POLL_INTERVAL_SECONDS = 1`. Старый прогон не трогаем: новое имя папки через `--name`. Четыре шарда, потом merge.
+
+```bash
+# четыре воркера, одна новая папка рядом со старым прогоном
+make backtest ARGS="--validation --shard 0/4 --name steam-xp-lag2-1hz"
+make backtest ARGS="--validation --shard 1/4 --name steam-xp-lag2-1hz"
+make backtest ARGS="--validation --shard 2/4 --name steam-xp-lag2-1hz"
+make backtest ARGS="--validation --shard 3/4 --name steam-xp-lag2-1hz"
+make backtest ARGS="--validation --merge-shards 4 --name steam-xp-lag2-1hz"
+```
+
+Папка будет `data/backtests/dota_maker/validation_<profiles>_..._steam-xp-lag2-1hz/`. Старый каталог без суффикса остаётся для сравнения PnL.
 
 Гейт: если новая модель заметно хуже старой, в лайв не идём. Сначала разбираемся, что именно просело — квантование XP, лаг или частота. Каждое изменение можно включить по отдельности.
 
@@ -195,14 +215,14 @@ class GameSnapshot:
 - Смерти — сумма `death_count` игроков стороны. Сверяем с `score` соперника; расхождение логируем и продолжаем.
 - Пауза — рост `timestamp - game_time` между снапшотами. `game_time` на паузе замирает.
 - Конец — `game_state >= 6`.
-- `server_steam_id` берём из `GetTopLiveGame`, при промахе — из OpenDota `/live`. `GetLiveLeagueGames` его не несёт.
+- `server_steam_id` берём только из `GetTopLiveGame`. `GetLiveLeagueGames` его не несёт. OpenDota `/live` в демоне не вызываем.
 
 **Слабое звено: `server_steam_id`.** Без него `GetRealtimeStats` не вызвать, а матч не записать. Замеры 2026-08-14:
 
 - `GetLiveLeagueGames` не отдаёт `server_steam_id` ни в общем списке, ни с фильтрами `league_id` и `match_id`. В объекте есть `lobby_id`, и он не подходит.
 - `GetRealtimeStats` не принимает `match_id`. Подстановка `match_id` или `lobby_id` в `server_steam_id` даёт HTTP 400.
 - `GetTopLiveGame` даёт 10 записей на слот `partner`. Когда живых тир-1 игр нет, все 40 записей при `partner` 0..3 — пабы с `league_id = 0`.
-- OpenDota `/live` держит завершённые матчи часами. Как источник живости не годится, только как запасной источник `server_steam_id`.
+- OpenDota `/live` в лайв-процесс не входит. Цена: если `GetTopLiveGame` матч не отдал, `GetRealtimeStats` не вызвать. Тогда сессия ретраит поиск и шлёт Telegram, без второго источника.
 
 **Замер на живом матче TI, 2026-08-14** (`league 19719`, Aurora Gaming против Team Yandex, `match_id 8944931337`, карта 2 серии Bo3):
 
@@ -234,31 +254,26 @@ class GameSnapshot:
 
 В `buildings` три типа: `0` — башня, `1` — барак, `2` — ancient. Фонтана в списке нет. Разрушенное здание теряет `team` и `type` и становится обезличенным `team=0 type=0 destroyed=true`. Поэтому снесённый ancient от снесённой башни не отличить. Считаем по выжившим: проиграла сторона, у которой ноль зданий с `type == 2`. Проверено на живом матче: 9 стоящих башен Radiant, 6 у Dire, 7 обезличенных обломков, всего 22 = 11 башен на сторону.
 
-Риск: последний снапшот может не дойти. Сервер снимает матч сразу после конца, и `buildings` в поздних ответах бывает пустым. Тогда пишем `null` и добираем результат из OpenDota отдельным шагом.
+Риск: последний снапшот может не дойти. Сервер снимает матч сразу после конца, и `buildings` в поздних ответах бывает пустым. Тогда пишем `winner: null`. OpenDota в демоне не зовём. Добор `radiant_win` — шаг конвертера `state_to_parquet.py` (или отдельный проход по `match.json` с `winner=null`) уже после матча, когда разбираем архив.
 
-### B4. `src/live_paper/state_to_parquet.py`
+### B4. Два офлайн-скрипта, не демон
 
-Отдельный скрипт, в лайве не запускается. Читает `state.jsonl.gz` одного матча или всех, раскладывает в колонки и пишет parquet рядом. Колонки: секунда, состояние игры, netWorth и уровни по игрокам, счёт, смерти, живые здания, флаг паузы. Схема живёт в `src/shared/types/steam.py`.
+Демон только пишет gzip-JSONL и `match.json`. После матча (или пачкой) два разных запуска:
 
-### B5. Ключи Steam и бюджет запросов
+1. **`state_to_parquet.py` / `make live-parquet`.** Архив состояния → parquet, чтобы эти матчи можно было потом сунуть в train или valid. Колонки: секунда, состояние игры, netWorth и уровни по игрокам, счёт, смерти, живые здания, флаг паузы. Схема в `src/shared/types/steam.py`. Здесь же, если в `match.json` `winner=null`, один запрос OpenDota на матч и дописываем победителя. Это единственное место, где OpenDota появляется.
+2. **`report.py` / `make live-report`.** Не parquet. Таблица по тем матчам, которые мы **торговали** в paper: филлы, реализованный и нереализованный PnL, аптайм фида, покрытие сигналом, пропуски секунд, итог. Нужен, чтобы смотреть «сколько модель заработала бы», а не чтобы учить.
 
-Лимит — 100000 запросов в сутки **на ключ**.
+### B5. Ключи Steam
 
-- Один матч 1 Гц, 40 минут: 2400 запросов.
-- Поиск матчей: `GetLiveLeagueGames` плюс `GetTopLiveGame` раз в 60 секунд — 2880 в сутки. Каталог сайдкаров читается с диска и в бюджет не входит.
-- Четыре матча одновременно по 10 часов: 144000. Одного ключа не хватает.
+Лимит 100000/сутки на ключ есть в [Terms of Use](https://steamcommunity.com/dev/apiterms), но endpoint остатка у Steam нет. Сами не считаем.
 
-Решение — несколько ключей. `STEAM_KEYS` в `.env`: ключи через запятую. Перед каждым запросом берём `random.choice(keys)`. Старый `STEAM_KEY` остаётся рабочим как список из одного элемента.
+Два ключа в `STEAM_KEYS` через запятую. Старый `STEAM_KEY` = один ключ. Все запросы идут ключом 1. Первый HTTP 429 (или 403) на нём — переключаемся на ключ 2 и пишем в Telegram. Дальше ключ 2 до рестарта процесса. Если 429 и на втором — Telegram, ретраи на ключе 2, частоту не режем.
 
-Частоту опроса **не снижаем никогда**. Матч пишется 1 Гц от подключения до конца, независимо от расхода.
-
-Расход считаем и показываем. Счётчик за сутки на процесс. При переходе через 80% от `100000 * число_ключей` уходит уведомление в Telegram. Дальше — по одному уведомлению на каждые следующие 10%. Работу это не меняет.
+После рестарта Docker снова ключ 1. Если он ещё выжат, первый же 429 снова пересадит на второй.
 
 ```python
-# ponytail: случайный выбор ключа без учёта расхода по каждому. На тысячах
-# запросов разброс мал. Если один ключ начнёт упираться в лимит — перейти
-# на выбор наименее нагруженного.
-# ponytail: суточный счётчик в памяти процесса; после рестарта считает с нуля.
+# ponytail: индекс текущего ключа в памяти — не счётчик расхода, только
+# «сейчас какой». После рестарта снова ключ 1.
 ```
 
 ### B6. `src/live_paper/notify.py`
@@ -267,7 +282,7 @@ class GameSnapshot:
 
 Три точки вызова:
 
-1. Расход ключей перешёл очередной порог (B5).
+1. Перешли на второй ключ Steam, или 429 уже на втором (B5).
 2. Матч найден, но связать рынок и матч Steam не вышло. Это тихая потеря матча, о ней надо знать сразу.
 3. Сессия упала и не поднялась после повторов.
 
@@ -302,9 +317,21 @@ polymaker = { path = "../poly-maker", editable = true }
 
 Читает каталог `ARCHIVE_ROOT/metadata/markets/*.json` коллектора. Свою дискавери Gamma не пишем: коллектор уже опрашивает тег, фильтрует рынки и держит сайдкары актуальными.
 
-Отбор: `marketKind == "map_winner"`, `active`, не `closed`, `acceptingOrders`, `enableOrderBook`. Из сайдкара берём `conditionId`, `marketSlug`, `outcomes[].name` и `outcomes[].tokenId`, `tickSize`, `minOrderSize`, `negRisk`.
+Коллектор статистики **не меняем**. Он уже пишет оба вида: `map_winner` и `series_winner`, включая Bo1. Книга Match Winner на диске остаётся.
 
-**Рынков на одно событие много.** Замер на событии `dota2-aur1-ty-2026-08-14`: 30 рынков, из них `map_winner` только два — `Game 1 Winner` и `Game 2 Winner`. Остальное — Match Winner, гандикапы, тоталы килов, Roshan, first blood, rampage. Фильтр `sportsMarketType == "child_moneyline"` у коллектора их уже отсекает, но объём каталога это показывает.
+Лайв-бот из этого каталога **торгует** по тому же правилу, что `classify_inventory` в `01_build_universe.py`: карта, либо победитель серии **если серия Bo1** (там серия = единственная карта, `game_number = 1`).
+
+Отбор сайдкара: `active`, не `closed`, `acceptingOrders`, `enableOrderBook`, и одно из:
+
+| Gamma `sportsMarketType` | `groupItemTitle` | `marketKind` | Торгуем в paper? |
+| --- | --- | --- | --- |
+| `child_moneyline` | `Game 1/2/N Winner` | `map_winner` | да |
+| `moneyline` | `Match Winner` | `series_winner` | да, **только если Bo1** |
+| остальное | гандикапы, тоталы, … | нет в winner-сайдкарах | нет |
+
+Bo1 узнаём из Steam `series_type` (`GetLiveLeagueGames`, та же таблица что в линковке: `0 → Bo1`, `1 → Bo3`, `2 → Bo5`, `3 → Bo2`). Если на Bo1 висят и `Game 1 Winner`, и `Match Winner` — торгуем Game 1, Match Winner пропускаем, чтобы одну карту не котировать дважды.
+
+Из сайдкара берём `conditionId`, `marketSlug`, `outcomes[].name` и `outcomes[].tokenId`, `tickSize`, `minOrderSize`, `negRisk`. `child_moneyline` — это не третий вид рынка, это как раз Game N Winner. Замер на `dota2-aur1-ty-2026-08-14`: 30 рынков события, `map_winner` два (Game 1 и Game 2), плюс отдельно Match Winner.
 
 **Каталог растёт вечно.** Сайдкар пишется на каждый рынок доты, который коллектор когда-либо видел, и не удаляется. Закрытый рынок получает terminal payload с `closed=true` и `closedAt`, поэтому фильтр по флагам верный, но читать весь каталог каждый цикл — лишняя работа. Предфильтр: `os.scandir` и `st_mtime` за последние 2 часа. Коллектор перезаписывает сайдкар при изменении, у завершённого рынка mtime замирает.
 
@@ -319,17 +346,15 @@ polymaker = { path = "../poly-maker", editable = true }
 
 Опрос сайдкаров бесплатный — это чтение локального диска.
 
-Связка со Steam: имена из `outcomes[].name` сопоставляем с `radiant_team.team_name` и `dire_team.team_name` из `GetLiveLeagueGames`. Используем `score_team_name` и `TEAM_ALIASES` из `src/collect/02_link_opendota.py`. Тот же матчер уже связывает Polymarket с OpenDota в `match_series_names`; берём его как есть, новый не пишем. Пороги оттуда же: `PAIR_SCORE_MIN = 0.82` на пару и `SIDE_SCORE_MIN = 0.72` на сторону. Отсюда же берём `yes_is_radiant`. Промах — пропуск и громкая строка в логе.
+Связка со Steam: имена из `outcomes[].name` сопоставляем с `radiant_team.team_name` и `dire_team.team_name` из `GetLiveLeagueGames`. Матчер тот же: `score_team_name`, `normalize_team_name`, `TEAM_ALIASES`. Перед этим выносим их из `02_link_opendota.py` в `src/shared/utils/team_names.py`. Новый матчер не пишем. Пороги те же: `PAIR_SCORE_MIN = 0.82` на пару и `SIDE_SCORE_MIN = 0.72` на сторону. Отсюда же `yes_is_radiant`. Промах — пропуск, лог, Telegram.
 
 **Проверено на живом матче TI 2026-08-14.** Polymarket даёт `outcomes = ["Aurora", "Team Yandex"]`, Steam — `Aurora Gaming` и `Team Yandex`. `normalize_team_name` выбрасывает `gaming` как стоп-слово, поэтому обе стороны дают 1.000. Прямая сумма 2.000 против обратной 0.333, `yes_is_radiant = True`. Матчер проходит без правок.
 
-**Имена команд есть не всегда.** Замер 2026-08-14 на 14 живых лиговых играх: оба имени несут только 5 объектов. Лиги 17599 (FACEIT), 19886 и 19739 не отдают `radiant_team` и `dire_team` вовсе. Ключи просто отсутствуют, это не пустая строка. Для таких лиг связка по именам невозможна, остаётся `overrides.json`. На рынках Polymarket это не проблема: замер на TI дал оба имени. Низкие лиги на Polymarket не торгуются.
-
-Ручной перебив: `data/live_paper/overrides.json`, отображение `condition_id -> match_id`. Читается на каждом цикле дискавери, перезапуск не нужен.
+**Почему без `overrides.json`.** Алиасы уже есть в `TEAM_ALIASES`: переименование команды = одна строка в таблице, тот же путь, что у линковки OpenDota. Файл `condition_id -> match_id` нужен был бы только когда Steam **вообще не отдаёт имена**. Замер 2026-08-14: из 14 живых лиговых игр оба имени несут только 5; FACEIT и низкие лиги ключи `radiant_team`/`dire_team` не шлют. Эти лиги на Polymarket не торгуются. На TI оба имени были. Значит для рынков, которые мы берём, матчер + алиасы закрывают связку. Если имя не сойдётся — правим `TEAM_ALIASES`, не заводим второй механизм.
 
 Номер карты: `mapNumber` из сайдкара против `radiant_series_wins + dire_series_wins + 1` из `GetLiveLeagueGames`. Расхождение — не торгуем, пишем в лог. Поля серии добавляем в `SteamLeagueGame`.
 
-Локальный запуск требует доступа к `ARCHIVE_ROOT`. Варианта два: поднять коллектор локально через его `compose.yaml`, либо примонтировать каталог с VPS. Путь задаём переменной окружения.
+Лайв на ноутбуке не гоняем: `ARCHIVE_ROOT` живёт на VPS, локальной копии нет. Путь задаём переменной окружения в compose на сервере.
 
 ### C2. `src/live_paper/model_server.py`
 
@@ -367,11 +392,11 @@ polymaker = { path = "../poly-maker", editable = true }
 
 ### C5. `src/live_paper/orchestrator.py`
 
-Главный цикл: дискавери, запуск и остановка подпроцессов, переход между картами серии, перезапуск упавших с backoff, бюджет запросов Steam из B5, раскладка `data/live_paper/`. Цель `make live-paper`.
+Главный цикл: дискавери, запуск и остановка подпроцессов, переход между картами серии, перезапуск упавших с backoff, раскладка `data/live_paper/`. Цель `make live-paper`.
 
 ## Часть D — отчёт
 
-`src/live_paper/report.py` и `make live-report`. Таблица по матчам и итог: филлы, реализованный PnL, нереализованный PnL, аптайм фида, покрытие сигналом, число пропущенных секунд.
+См. B4, скрипт 2. `src/live_paper/report.py` и `make live-report`. Это PnL paper-торговли, не датасет.
 
 Маркет-мейкерский ребейт считаем только в постобработке: `0.15 * 0.05 * qty * p * (1 - p)`. Комиссию тейкера ставим в ноль.
 
@@ -402,45 +427,86 @@ polymaker = { path = "../poly-maker", editable = true }
 
 `ws_stale_halt_s = 10.0` в `[risk]` — отдельный риск. Книга карты доты может молчать дольше десяти секунд, и тогда движок снимет рынок посреди окна модели. Ставим 30 и смотрим по логам, сколько было halt.
 
-`daily_loss_kill_usdc = 40` при ордерах по 50 сработает на первом же убыточном матче. В paper ставим 1000.
+`daily_loss_kill_usdc` — это **не размер сделки**. Это аварийный стоп по суммарному убытку за сутки. Дефолт форка 40 (в `RiskConfig` даже 250, в живом конфиге политического бота бывает 40). При `base_size_usdc = 50` один плохой матч легко съест 40, и движок снимет все котировки. В paper ставим 1000, чтобы kill switch не маскировал реальный PnL. Размер симулируемого ордера задаёт `base_size_usdc`, не это поле.
 
-### D2. Профиль `dota-map` в `strategy.toml`
+### D2. Профиль `dota-map`: что делает каждый ключ
 
-Стартовые значения. Все ключи существуют в `StrategyProfile` (`src/polymaker/config.py:71`), `extra="forbid"` не пропустит опечатку.
+Все ключи есть в `StrategyProfile` (`src/polymaker/config.py:71`), `extra="forbid"` не пропустит опечатку. Формула котировки: reservation `r = FV − skew`, half-spread `δ = base + c_vol·σ + c_tox·toxicity`. Ставим BUY YES по `r − δ` и BUY NO по `(1 − r) − δ`.
 
-```toml
-[profiles.dota-map]
-micro_levels         = 3
-flow_ewma_halflife_s = 30      # 120: карта живёт 40 минут, поток надо видеть быстро
-gamma                = 0.6
-delta_min_ticks      = 1       # 2: при тике 0.01 это спред 4 цента, филлов не будет
-c_vol                = 1.2
-c_tox                = 2.0
-vol_short_halflife_s = 10
-vol_long_halflife_s  = 120     # 900: окно модели 600 секунд, длинная оценка не успеет сойтись
-base_size_usdc       = 50.0
-q_max_usdc           = 200.0
-q_soft_frac          = 0.6
-layers               = 2
-layer_step_ticks     = 2
-reward_size_mult     = 1.0     # наличие reward-программы на картах доты не проверено
-reprice_ticks        = 1       # 2: при тике 0.01 два тика — это два цента, движение карты мы пропустим
-resize_frac          = 0.2
-min_edge_ticks       = 1
-event_cooloff_s      = 20      # 60: на карте это треть окна модели
-event_jump_ticks     = 15      # 8: тимфайт двигает карту на 5-15 центов, модель ровно это и предсказывает
-event_sweep_mult     = 4.0
-event_sweep_frac     = 0.8
-trend_flow_z         = 1.5
-trend_vol_ratio      = 2.0
-end_date_taper_days  = 7.0
-reduce_only_hours    = 0.0     # гейт по игровым секундам заменяет halt по датам
-halt_before_hours    = 0.0
-exit_urgency_s       = 300     # 900: длиннее всего окна торговли
-merge_min_size       = 20.0
-```
+**Размеры в USDC — три разных числа, не путать.**
 
-Три знака, по которым тюним после первых матчей: доля тактов в cool-off, доля тактов с halt по `ws_stale_halt_s`, число `requote` на матч.
+| Поле | Значение | Что это |
+| --- | --- | --- |
+| `base_size_usdc` | **50** | Номинал **одного** входа. Симулированные филлы идут примерно по $50, не по $5. При цене 0.50 это ~100 шаров. В `livecfg` политического бота стоит 5 — это осторожный live-tiny, не наш контракт. Минимум биржи на доте часто 5 **шаров**, не 5 долларов. |
+| `q_max_usdc` | **200** | Потолок нетто-инвентаря на рынок. 4 полных филла по 50 и добавляющая сторона выключается. |
+| `daily_loss_kill_usdc` | **1000** (в `config.toml`, не в профиле) | Стоп по дневному убытку. Не размер сделки. Поднят, чтобы 50-долларовые ордера не убивали сессию на первом минусе. |
+
+Paper-PnL будет примерно в 10 раз больше, чем при `base_size_usdc = 5`. Это масштаб, не альфа. С бэктестом всё равно не сравниваем.
+
+**Справедливая цена и поток**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `micro_levels` | 3 (дефолт) | Сколько уровней книги участвует в микропрайсе: средневзвешенная цена по глубине, не просто mid. 3 — обычный дефолт, на доте не крутим. Наш патч подменяет FV модели, но движок всё равно считает микропрайс для потока и режима. |
+| `flow_ewma_halflife_s` | 30 (дефолт 120) | Период полураспада EWMA знака сделок. Больше число — поток помнит дольше. На политике 120 с: рынок вялый. На карте 40 минут, 120 с — почти вся память. 30 с, чтобы видеть текущий поток, а не прошлый тимфайт. |
+
+**Спред и скью**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `gamma` | 0.6 | Насколько инвентарь двигает котировки. Long YES → YES-бид ниже, NO-бид выше, чтобы докупить противоположную ногу. 0 = игнор позиции. Больше — сильнее «хочу разгрузиться». |
+| `delta_min_ticks` | 1 (дефолт 2) | Пол спреда в тиках. При тике 0.01 дефолт 2 = 4 цента между YES-бидом и NO-бидом, филлов почти не будет. 1 тик = 2 цента, иначе на живой карте нас не коснутся. |
+| `c_vol` | 1.2 | На сколько волатильность расширяет полуспред. Спокойный рынок — узко, дёрганый — шире. |
+| `c_tox` | 2.0 | То же для токсичности (насколько нас недавно забирали в убыток). Если нас пикают, спред шире и размер меньше. |
+
+**Волатильность**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `vol_short_halflife_s` | 10 | Короткая реализованная вола. Идёт в спред и в скью. 10 с — «что было только что». |
+| `vol_long_halflife_s` | 120 (дефолт 900) | Длинная вола. Отношение short/long включает режим TRENDING. Дефолт 900 с длиннее всего окна модели, оценка не успеет сойтись. 120 с. |
+
+**Размер и слои**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `q_soft_frac` | 0.6 | Доля `q_max`, после которой перестаём докупать в ту же сторону. При 0.6 и q_max=200 — после ~$120 нетто в YES новые BUY YES не ставим, BUY NO ещё можно. |
+| `layers` | 2 | Сколько ордеров на сторону. 2 слоя по ~$25 вместо одного на $50. |
+| `layer_step_ticks` | 2 | Шаг между слоями. Второй ордер на 2 тика дальше от касания. |
+| `reward_size_mult` | 1.0 | Множитель к min-size reward-программы. 1.0 = не раздуваем. На картах доты reward не проверен. |
+
+**Когда переставляем ордер**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `reprice_ticks` | 1 (дефолт 2) | Не трогаем живой ордер, пока новая цена уехала меньше чем на N тиков. Дефолт 2 при тике 0.01 = 2 цента, карту пропустим. 1 тик — следуем плотнее, больше churn. |
+| `resize_frac` | 0.2 | Не ресайзим, пока размер не уехал больше чем на 20%. Держит очередь. |
+| `min_edge_ticks` | 1 | Не биддим ближе к FV, чем на 1 тик. Не платим через справедливую цену. |
+
+**Режимы EVENT / TRENDING**
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `event_cooloff_s` | 20 (дефолт 60) | После свипа или скачка FV снимаем котировки на N секунд. Дефолт 60 — треть окна модели. 20 с. |
+| `event_jump_ticks` | 15 (дефолт 8) | Скачок FV на N тиков = EVENT. Тимфайт двигает карту на 5–15 центов, модель это и предсказывает. 8 тиков (8 центов) будет дёргать cool-off слишком часто. |
+| `event_sweep_mult` | 4.0 | Свип: принт ≥ 4 наших размеров. |
+| `event_sweep_frac` | 0.8 | И этот принт съел ≥ 80% ближней глубины. Оба условия сразу. |
+| `trend_flow_z` | 1.5 | \|z-score потока\| выше порога → TRENDING: половинный размер. |
+| `trend_vol_ratio` | 2.0 | short/long vol выше порога → тоже TRENDING. |
+
+**Жизненный цикл политики — на доте выключаем**
+
+Эти ключи для рынков с датой резолюции через недели. У нас гейт 0..600 игровых секунд.
+
+| Ключ | Дота | Что делает |
+| --- | --- | --- |
+| `end_date_taper_days` | 7.0 | За N дней до end date сужает размер. На 40-минутной карте бессмысленно, оставляем дефолт, он не успеет сработать. |
+| `reduce_only_hours` | 0 | За N часов до конца только выходы. 0 = выкл. |
+| `halt_before_hours` | 0 | За N часов до конца halt. 0 = выкл. |
+| `exit_urgency_s` | 300 (дефолт 900) | За сколько секунд холда SELL сдвигается от «далеко за FV» к касанию. 900 длиннее всего окна. 300 с — за 5 минут начинаем выходить активнее. |
+| `merge_min_size` | 20 | Минимальный размер пары YES+NO, которую движок сливает обратно в USDC. В paper merge не идёт (форк его в paper пропускает). Число на симуляцию почти не влияет. |
+
+Стартовый toml тот же набор значений, что в таблице. Три знака, по которым тюним после первых матчей: доля тактов в cool-off, доля тактов с halt по `ws_stale_halt_s`, число `requote` на матч.
 
 ### D3. Тик рынка меняется по ходу
 
@@ -459,22 +525,65 @@ Polymarket уменьшает шаг цены, когда цена уходит 
 # в центах и переводить в тики на каждом пересчёте.
 ```
 
+## Часть E — Docker и VPS
+
+Коллектор уже крутится на VPS: `polymarket-collector/compose.yaml`, bind-mount `/var/lib/polymarket-dota-archive`. Лайв-бот — второй демон в `dota_2_model`. Коллектор не трогаем. На ноутбуке коллектор не поднимаем и `ARCHIVE_ROOT` не монтируем.
+
+На VPS рядом лежат checkout `dota_2_model` и `poly-maker` (path-зависимость). Первый запуск живого демона — там же, `docker compose up -d`. Присмотр = `docker compose logs -f` и Telegram, не локальный процесс.
+
+`dota_2_model/compose.yaml`:
+
+```yaml
+services:
+  live-paper:
+    build:
+      context: ..
+      dockerfile: dota_2_model/Dockerfile
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    env_file: .env
+    environment:
+      ARCHIVE_ROOT: /archive
+    volumes:
+      - /var/lib/polymarket-dota-archive:/archive:ro
+      - ./data/live_paper:/app/data/live_paper
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "5"
+```
+
+Почему `context: ..`: `polymaker = { path = "../poly-maker" }`. Образ копирует оба репозитория. `Dockerfile` — Python 3.13, `uv sync`, `CMD` = оркестратор.
+
+Падение: Docker поднимает оркестратор заново. Сессии — подпроцессы, умирают вместе с родителем. После рестарта оркестратор читает сайдкары, находит ещё живые матчи, открывает `state.jsonl.gz` на добавление. Разрыв виден по прыжку `game_time`.
+
+Два офлайн-скрипта в контейнере не крутятся сами. На VPS:
+
+```bash
+docker compose run --rm live-paper make live-parquet
+docker compose run --rm live-paper make live-report
+```
+
+Локально остаются только тесты, линт, пересборка датасета и бэктест. Живой фид и paper — только VPS.
+
 ## Проверка
 
-- Юнит-тесты: уровень в XP, уровень из `stats.level` на границе секунды, правило филла (касание против прохода), разворот ориентации, гейт окна, детект паузы, клип в `predict_fair`.
-- Проверки датасета из A1 идут в самом шаге подготовки и падают на расхождении.
-- Чистый `make lint-all`. Строгий basedpyright на `src/live_paper/`.
-- Сухой прогон: сессия на любом открытом рынке доты с выключенной моделью. Доказывает цепочку сайдкар -> движок -> paper-котировки -> JSONL без ключей.
-- Первый живой матч под присмотром локально. Смотрим три вещи: секунды не пропадают, ориентация верная, котировки снимаются на паузе.
-- После матча: сверить наш `session.jsonl` с архивом книги коллектора за тот же день. Проверить, что филлы стоят на реальных проходах цены.
-- Только потом — VPS без присмотра.
+- Юнит-тесты и `make lint-all` — локально. Строгий basedpyright на `src/live_paper/`. Проверки датасета из A1 — в шаге подготовки.
+- На VPS сухой прогон: сессия на любом открытом рынке доты с выключенной моделью. Цепочка сайдкар → движок → paper-котировки → JSONL, без Steam-ключей если рынок уже в каталоге.
+- Первый живой матч на VPS под присмотром логов. Три вещи: секунды не пропадают, ориентация верная, котировки снимаются на паузе.
+- После матча: сверить `session.jsonl` с архивом книги коллектора за тот же день. Филлы должны стоять на реальных проходах цены.
 
 ## Вне скоупа
 
 - Реальные деньги.
 - Правки `polymarket-collector` и `poly-maker`.
+- `overrides.json`. Связка = матчер + `TEAM_ALIASES`.
+- Вызовы OpenDota из лайв-демона (добор победителя — офлайн, в конвертере).
 - Реплей журналов в Nautilus как отдельный продукт (сверка после матча — часть проверки, не отдельная система).
 - Правки `src/live_dashboard/`.
 - Автотюнинг параметров мейкера.
 - Матчи без рынка на Polymarket.
 - Сбор XP через `xp_per_min` из `GetLiveLeagueGames`.
+- Торговля `Match Winner` на Bo3/Bo5 (серия ≠ карта). Bo1 `series_winner` — в скоупе, как в `classify_inventory`.
