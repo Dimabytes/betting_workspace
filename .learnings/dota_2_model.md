@@ -55,7 +55,9 @@ Read these rules before data, timing, or backtest work.
 - Keep the framework checkout at `c76e77af00ef53472a9da8f66dae7fdd2d3e5928` clean. Patch `closedTime` expiration and `replay_end` locally.
 - Schedule a clock alert for each order and cancel release. Nautilus drains latency queues only at visited timestamps.
 - Keep one process-owned Nautilus log guard. Clear `set_backtest_force_stop(False)` before each batch.
-- `--shard i/n` writes `shard_{i}of{n}/` under the canonical run dir; `--merge-shards n` concatenates those parquets into the parent checkpoint and writes summary.
+- `--shard i/n` writes `shard_{i}of{n}/` under the canonical run dir; `--merge-shards n` concatenates those parquets into the parent checkpoint and writes summary. Merge does not require a parent `manifest.json` — shards-only dirs are valid.
+- B0 fair is book mid and ignores `min_abs_delta`. That gate is S2-only so B0 stays a model-free baseline.
+- 30s gold velocity is `|nw[t] - nw[t-30]|`. Missing t-30 is NaN and gates as `missing_nw`, not a fallback to the match's first nw.
 - Treat framework result dictionaries as untrusted input. Require both instrument results and exclude `terminated_early` rows from PnL aggregates.
 - Replay metadata cache misses call Gamma and CLOB per market. If local DNS blocks Polymarket, run with the VPN.
 - Set engine `taker_fee` to zero. Calculate maker rebate only in post-processing: `0.15 * 0.05 * qty * p * (1 - p)`.
