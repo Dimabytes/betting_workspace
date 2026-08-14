@@ -73,7 +73,7 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
 - `match.game_time` is the horn clock with no offset: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring.
 - The server rebuilds the snapshot once per second. A faster poll returns identical bytes. Subtract the request time from the sleep or the cycle drifts to 1.3s and drops every third second.
 - A pause freezes `game_time` while `match.timestamp` keeps ticking. Pause length is the growth of `timestamp - game_time`.
-- A destroyed building is replaced by an anonymous zeroed stub (`team` 0, `tier` 0, `destroyed` true). Count survivors against 11 towers, 6 barracks and 1 ancient per side.
+- `buildings` carries three `type` values: 0 tower, 1 barracks, 2 ancient. The fountain is not listed. A destroyed building loses its identity and becomes an anonymous stub (`team` 0, `type` 0, `tier` 0, `destroyed` true). Count survivors against 11 towers, 6 barracks and 1 ancient per side. The loser is the side with zero surviving `type` 2 buildings.
 - `server_steam_id` comes from `GetTopLiveGame` (top 10 games) or OpenDota `/live`. `GetLiveLeagueGames` does not carry it.
 - `graph_data.graph_gold` is a fixed 128-point downsample of the whole match. Use it for late-join backfill, not as a time series.
 - Players carry `level`, not XP. STRATZ `radiantExperienceLeads` has no exact Steam equivalent. `xp_per_min` lives in `GetLiveLeagueGames`, together with Roshan and respawn timers.
