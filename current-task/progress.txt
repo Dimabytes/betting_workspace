@@ -1,0 +1,13 @@
+## 2026-08-14 - US-001
+- Implemented A0-A3: model registry, level-based XP, 2-second lag, 1 Hz polling, and model-name manifests.
+- Updated tests, README paths, and the one-time XP verification script.
+- A4 remains pending user code review and approval.
+- **Learnings for future iterations:**
+    - Model rotation must move `split.parquet` into the new `current/` directory.
+    - After the repo move, `.venv/bin` shebangs still pointed at the old path. `uv run pre-commit` and `uv run pytest` fail with ENOENT; `python -m` works.
+
+## 2026-08-14 - US-001 review
+- Restored `len(stats["level"]) == player["level"]`, dropped the one-value minute-lead field, passed full-window stats into model.json, and staged split.parquet before current/ is empty.
+- Marked US-001 `passes: true`.
+- **Learnings for future iterations:**
+    - The project lived at `.../polymarket/dota_2_model` and now lives at `.../polymarket/dota_2_bot/dota_2_model`. Recreate the venv after a move.

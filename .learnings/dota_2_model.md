@@ -6,6 +6,11 @@
 - Own full pipeline: collect data → datasets → LightGBM price-delta model → maker backtest. Not a fork.
 - Predicts the Polymarket midpoint 300 seconds ahead during the first ten minutes of a Dota 2 map. STRATZ / OpenDota / GRID / Polymarket.
 - Python 3.13+, `uv`, `make install` / `make help`. Run scripts with `uv run python` or `make run F=<script>`.
+- After a folder move, `.venv/bin/*` shebangs still point at the old path.
+  `uv run pre-commit` and `uv run pytest` then fail with `No such file or directory`
+  even though the files exist. Recreate scripts with `uv sync --reinstall`.
+  `make lint-all` and `make test` call `uv run python -m pre_commit` /
+  `uv run python -m pytest`, which do not use those shebangs.
 - Does not place live orders. Execution lives in sibling `poly-maker`.
 - Backtests go through sibling `prediction-market-backtesting` (read-only source checkout) plus `nautilus_trader` as a package.
 
