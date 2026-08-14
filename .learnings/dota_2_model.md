@@ -62,3 +62,21 @@ Read these rules before data, timing, or backtest work.
 - Replay metadata cache misses call Gamma and CLOB per market. If local DNS blocks Polymarket, run with the VPN.
 - Set engine `taker_fee` to zero. Calculate maker rebate only in post-processing: `0.15 * 0.05 * qty * p * (1 - p)`.
 - Audit archived validation terms with `scripts/check_gamma_trading_terms.py`. Do not reject old training markets inside shared loaders.
+
+## Steam live feed
+
+Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_steam_live.py`.
+
+- Steam is the free live source. Key in `.env` as `STEAM_KEY`, 100k requests/day. `GetRealtimeStats` is fresh on every request; `GetLiveLeagueGames` refreshes every 15s; OpenDota `/live` every 60s.
+- The feed runs 1.4-2.3s behind the game server. Derive the lag as `match.start_timestamp + match.timestamp` minus the local clock. Valve does not apply the league `stream_delay_s` to the API.
+- The tournament stream runs about 7s behind the game: our feed beats it by 5s, measured on two kills.
+- `match.game_time` is the horn clock with no offset: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring.
+- The server rebuilds the snapshot once per second. A faster poll returns identical bytes. Subtract the request time from the sleep or the cycle drifts to 1.3s and drops every third second.
+- A pause freezes `game_time` while `match.timestamp` keeps ticking. Pause length is the growth of `timestamp - game_time`.
+- A destroyed building is replaced by an anonymous zeroed stub (`team` 0, `tier` 0, `destroyed` true). Count survivors against 11 towers, 6 barracks and 1 ancient per side.
+- `server_steam_id` comes from `GetTopLiveGame` (top 10 games) or OpenDota `/live`. `GetLiveLeagueGames` does not carry it.
+- `graph_data.graph_gold` is a fixed 128-point downsample of the whole match. Use it for late-join backfill, not as a time series.
+- Players carry `level`, not XP. STRATZ `radiantExperienceLeads` has no exact Steam equivalent. `xp_per_min` lives in `GetLiveLeagueGames`, together with Roshan and respawn timers.
+- `GetMatchDetails` is dead: 500 on recent match ids, empty `{}` on old ones. Take the winner from the last snapshot's destroyed ancient, or keep OpenDota for `radiant_win`.
+- Steam has no history. It records forward only; past matches stay with STRATZ and OpenDota.
+- One snapshot is 16.6 KB, 3.6 KB gzipped. 1 Hz on a 40-minute match is 2400 requests. The daily budget is 27 hours of tracked game time; tracking only seconds 0..599 costs 600 requests per match.
