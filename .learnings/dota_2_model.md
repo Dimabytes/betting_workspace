@@ -15,6 +15,8 @@
 - Backtests go through sibling `prediction-market-backtesting` (read-only source checkout) plus `nautilus_trader` as a package.
 
 ## Agent rules
+- `make lint-all` runs `pre-commit run --all-files`, which skips untracked new files: `git add`
+  new files and re-run lint before committing, or the commit hook may reformat/fail on them.
 
 - Python 3.13+. No `from __future__ import annotations`.
 - Type-check: basedpyright strict (`pyrightconfig.json`).
@@ -78,6 +80,13 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
 - The feed runs 1.4-2.3s behind the game server. Derive the lag as `match.start_timestamp + match.timestamp` minus the local clock. Valve does not apply the league `stream_delay_s` to the API.
 - The tournament stream runs about 7s behind the game: our feed beats it by 5s, measured on two kills.
 - `match.game_time` is the horn clock with no offset: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring.
+- `match.match_id` is null on a live draft and on a dead server. Liveness comes only from `game_state` (7 = disconnect); never branch on `match_id`.
+- Steam team numbers are fixed: 2 = Radiant, 3 = Dire. Resolve sides by `team_number`, never by list order.
+- The feed's pause flag is True on the first tick (unknown), then the growth of `timestamp - game_time` vs the previous snapshot; a repeated `game_time` with an equal offset is a duplicate response, not a pause.
+- httpx 0.28 `Response.json()` is stdlib `json.loads` on the raw bytes: invalid UTF-8 raises `UnicodeDecodeError`, bad JSON raises `JSONDecodeError` - catch both at the decode boundary.
+- Wrong-shaped 2xx JSON passes a TypedDict cast and blows up in the reduction as `KeyError`/`TypeError`/`ValueError` (out-of-range Steam `level` from `experience_at_level`); treat all three as one failed tick so a malformed Steam response cannot kill the feed.
+- `game_state >= 6` yields one finished event even when `teams` cannot be parsed (header-only snapshot with zero NW/XP/deaths) so `finalize_match` sees a terminal record. State 7 still ends with no event.
+- After `yield`, measure the sleep from the request-cycle monotonic start on resumption: the consumer's archive/model work between yields counts against the 1 Hz period.
 - The server rebuilds the snapshot once per second. A faster poll returns identical bytes. Subtract the request time from the sleep or the cycle drifts to 1.3s and drops every third second.
 - A pause freezes `game_time` while `match.timestamp` keeps ticking. Pause length is the growth of `timestamp - game_time`.
 - `buildings` carries three `type` values: 0 tower, 1 barracks, 2 ancient. The fountain is not listed. A destroyed building loses its identity and becomes an anonymous stub (`team` 0, `type` 0, `tier` 0, `destroyed` true). Count survivors against 11 towers, 6 barracks and 1 ancient per side. The loser is the side with zero surviving `type` 2 buildings.
@@ -87,3 +96,90 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
 - `GetMatchDetails` is dead: 500 on recent match ids, empty `{}` on old ones. Take the winner from the last snapshot's destroyed ancient, or keep OpenDota for `radiant_win`.
 - Steam has no history. It records forward only; past matches stay with STRATZ and OpenDota.
 - One snapshot is 16.6 KB, 3.6 KB gzipped. 1 Hz on a 40-minute match is 2400 requests. The daily budget is 27 hours of tracked game time; tracking only seconds 0..599 costs 600 requests per match.
+
+## Live paper daemon
+
+- `src/live_paper/` is a namespace package (no `__init__.py`), on PYTHONPATH via src/.
+- Telegram: `notify.send_telegram_message(message)` reads TG_BOT_API_TOKEN / TG_CHAT_ID
+  (same env names as polymarket-collector), never raises, and keeps the token-bearing URL
+  out of logs (httpx INFO suppressed, status/type-only logging). `notify.notify_in_background`
+  delivers that send on a daemon thread so Steam retries and discovery cycles are not stalled.
+- Steam keys: `steam_client.load_steam_keys()` reads STEAM_KEYS (comma-separated) with
+  legacy STEAM_KEY fallback; `SteamClient.get(url, params)` injects the current key with
+  `follow_redirects=False` (the key is in the query string) and rotates one key forward on
+  HTTP 429/403, Telegram-alerting once per response with status + 1-based ordinal. No
+  persistence: restart = key 1 again. Callers that want failed ticks use `get_ok` +
+  `decode_json` (JSON `null` is a successful decode of None, not `JSON_FAILED`).
+- No `from __future__ import annotations` anywhere: a classmethod returning its own class
+  must annotate with `typing.Self` (a plain class-name annotation raises NameError).
+- httpx logs the full request URL at INFO; any module that puts secrets in URLs must
+  silence the `httpx` logger (watch_steam_live does `logging.getLogger("httpx")` ->
+  WARNING, notify does it internally).
+
+- `state.jsonl` archive record (US-005): `{request_started_at_utc, received_at_utc,
+  payload}` — the raw decoded GetRealtimeStats object plus the two process wall-clock
+  stamps captured in the feed (request start, response receipt), never write-time.
+- `StateWriter` appends one fsynced compact JSON line per feed event and on reopen
+  truncates only an unterminated crash tail after the last newline; completed records
+  are never parsed or rewritten. The writer never reads `payload["match"]["match_id"]`
+  (null in draft/live); the match id comes from the discovery/session boundary.
+
+- `StateWriter` validates `match_id` before touching the filesystem: one relative path
+  component only (ValueError for empty/dot/absolute/separator ids), because
+  `Path(root) / absolute_id` silently replaces the archive root. Canonical ids are ASCII
+  decimal Steam match ids. Per record the writer emits exactly one compact LF-terminated
+  UTF-8 JSON line, then write -> flush -> fsync in that order; all three error types
+  propagate (a lost snapshot must not be silent).
+
+- The match_id path guard lives once in `live_paper.archive_paths`
+  (`validate_match_id`, `match_archive_dir(root, match_id)`); StateWriter and match_meta
+  both resolve their directory through it, so `state.jsonl` and `match.json` can only land
+  in `data/live_paper/<match_id>/`.
+- `match.json` v1 (US-006): start document (schema_version 1, binding fields, joined_at_second,
+  joined_at_utc, horn_at_utc, market with string decimals, model name/trained_at, final null)
+  replaced at finish with the same fields plus final (duration, winner, pause_seconds,
+  missing_seconds, snapshot_count, pnl-or-null). Winner = the side whose ancient still stands
+  in the LAST snapshot: 0 Radiant + >=1 Dire surviving ancients => "dire", 0 Dire + >=1
+  Radiant => "radiant", anything else null. Writes are temp + fsync + atomic rename + dir
+  sync; a reader sees the full start or the full finalized document, never a partial one.
+- Finish ordering: close StateWriter before `finalize_match`; the archive must end in a
+  terminal snapshot (game_state >= 6), otherwise final stays null for a restart. Pause total
+  = positive adjacent growth of `timestamp - game_time`; missing seconds = positive
+  `game_time` jumps minus 1 between consecutive records (duplicates and late joins are not gaps).
+
+- Binding types live in `live_paper.bindings`: `DiscoveredMatch` is the discovery output;
+  `MatchStart` subclasses it with `model`; US-011 uses `discovered.with_model(model)`.
+  `match_meta` only writes JSON. Sidecar scan/validation is `live_paper.collector_sidecars`
+  (`load_archive_root`, frozen `FreshSidecar`). `poll_discoveries` lives in
+  `live_paper.cadence`; US-012 async-fors it and owns no loop/sleep of its own.
+- `live_paper.discovery` (US-007) finds tradable markets per cycle: scan frozen collector-v1
+  sidecars (`ARCHIVE_ROOT/metadata/markets/*.json`, mtime >= now - 2h, schemaVersion 1,
+  exact scalar types, two distinct canonical outcomes, file name `<conditionId>.json`),
+  require `active is True`, `closed is False`, `acceptingOrders is True`,
+  `enableOrderBook is True`, then one GetLiveLeagueGames + the four GetTopLiveGame partners
+  through the injected SteamClient. The module never writes the external archive, never
+  calls OpenDota, and the collector remains the sole Gamma/CLOB producer. ARCHIVE_ROOT is
+  a bind mount and intentionally lives outside `shared.constants.paths`.
+- Discovery linking: `pick_pair_orientation` in `team_names` (same rule as OpenDota linker);
+  exact ties rejected; `yes_is_radiant` = accepted forward. `map_winner` trades when
+  mapNumber equals radiant+dire series wins + 1; `series_winner` only on exact
+  series_type == 0 (Bo1, implicit map 1), and an eligible Game-1 sidecar for the same event
+  suppresses the Match Winner (fail-closed). Ambiguities (sidecar -> 2 games, or match -> 2
+  conditions) emit nothing; conflicting server ids and conflicting live-list rows for one
+  match_id fail closed; missing server id is an info skip. Results sort by (numeric match
+  id, condition id).
+- `poll_discoveries(discovery)` in `live_paper.cadence` is the US-012 cadence seam: async-for
+  over it, first result immediate, `asyncio.to_thread` serializes `discover()` (never overlap
+  on the rotating client), sleep = max(0, 60 - elapsed from cycle start) including consumer
+  time. US-012 owns no loop/sleep of its own.
+- Discovery Telegram policy: at most one alert per condition while it stays in the fresh
+  flag-eligible set (dedupe set pruned when the condition leaves it), and only for a name-link
+  miss or ambiguity with a nonempty usable Steam list; map mismatch, missing server, no live
+  games, malformed sidecars and Steam failures are log-only. Alerts go through
+  `notify.notify_in_background`. Alert text carries public market identifiers and the reason,
+  never secrets.
+- basedpyright strict gotchas when validating JSON: `isinstance(x, T)` is flagged unnecessary
+  once a TypedDict `.get()` already returns `T` — use `type(x) is not T` for exact runtime
+  checks (also rejects bool-as-int). An `object`-annotated local still leaks its initializer's
+  type into isinstance narrowing; route container validation through an object-typed parameter
+  or `cast(object, ...)` first, then `cast(list[object], ...)` to iterate.

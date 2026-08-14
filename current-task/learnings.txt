@@ -1,0 +1,96 @@
+US-003 handoff notes for US-004+:
+
+- Reuse `live_paper.notify.send_telegram_message` for all daemon alerts; it never raises
+  and hides secrets. No second notification helper.
+- Reuse `live_paper.steam_client.SteamClient.from_environment(http_client())` for all
+  Steam API calls in the daemon (steam_feed, discovery, orchestrator). Do NOT use
+  `shared.utils.common.get_json` for Steam: it hides the 429 response and its retries
+  would defeat key rotation.
+- Keys rotate only forward on 429/403; alert text is `steam <status> on key <n>: ...`.
+- `typing.Self` is required for classmethod -> own-class annotations (no future imports).
+- Keep the `httpx` logger at WARNING wherever URLs carry tokens (already handled inside
+  notify for Telegram; daemon main must do the same for Steam URLs).
+
+US-004 handoff notes for US-005+:
+
+- Use `live_paper.steam_feed.follow_realtime_stats(steam_client, server_steam_id)` as the
+  single feed: it yields `SteamFeedEvent(payload, snapshot)` per live 1 Hz tick and stops
+  by itself (state >= 6 terminal, state == 7 dead server). Do not re-add polling/backoff.
+- `GameSnapshot`: second (raw game_time, may be negative pre-horn), server_timestamp,
+  game_state, radiant_nw_adv, radiant_xp_adv, deaths_radiant/dire (player-summed), paused,
+  finished. Pause = growth of `timestamp - game_time`; cadence = interval minus request.
+- Resolve sides by Steam team number (2 Radiant, 3 Dire), never list order.
+- `SteamRealtimeMatch.match_id` is `str | None`: null on a live draft and a dead server;
+  liveness must come from `game_state` (7 = disconnect), never from match_id.
+- The feed never calls get_json; the US-003 SteamClient (key rotation) stays in charge.
+US-005 handoff notes for US-006+:
+
+- Archive contract: `data/live_paper/<match_id>/state.jsonl`, one compact UTF-8 JSON
+  record per tick: {request_started_at_utc, received_at_utc, payload} where payload is
+  the full decoded GetRealtimeStats object. No snapshot fields, no gzip, fsync per line.
+- `StateWriter(match_id)` never reads payload["match"]["match_id"] (null in draft/live);
+  the canonical match id comes from discovery/session (US-007/US-011). Session calls
+  writer.write(event) for EVERY yielded event (pre-horn, paused, >600s, terminal) before
+  model/trading work, then closes in teardown; the 0..600 trading gate lives in the
+  session, not the writer.
+- Timestamps are feed-captured process wall clock (request start / response receipt);
+  do not re-time at write. Feed event fields: request_started_at_utc, received_at_utc.
+- Reopen is restart-safe: unterminated tail is truncated (fsynced); completed lines are
+  never parsed/rewritten/deduplicated. US-013 (parquet converter) reads these records.
+US-006 handoff notes for US-007+:
+
+- Archive path guard lives in `live_paper.archive_paths`: `validate_match_id(match_id)` and
+  `match_archive_dir(root, match_id)` (both args required). StateWriter and match_meta both
+  resolve through it, so state.jsonl and match.json can only land in data/live_paper/<match_id>/.
+  Never add a second validator.
+- `match_meta.write_match_start(start, first_event)` persists match.json v1 at start: immutable
+  binding (match_id from discovery, server_steam_id, league_id, sides, map_number, market
+  reference incl. yes_is_radiant and string decimals, model name/trained_at) + joined_at_second
+  (snapshot.second), joined_at_utc (feed received_at_utc), horn_at_utc (server_timestamp -
+  second, UTC-Z). It never reads payload["match"]["match_id"]. Start is write-once: same
+  bindings reuse the original join/horn, conflict or completed file raises.
+- `match_meta.finalize_match(match_id, session_pnl)` is the completion entry point.
+  `session_pnl` is required even when None (SessionPnl | None); values must be finite floats.
+  It reads the closed state.jsonl through the pure `summarize_archive(records)` helper:
+  snapshot_count = every record; duration = last game_time; missing = max(0, game_time jump - 1);
+  pause = positive adjacent growth of timestamp - game_time; winner from the LAST record's
+  surviving type-2 ancients (0 Radiant + >=1 Dire => "dire", 0 Dire + >=1 Radiant => "radiant",
+  anything else null). Archive must end terminal (game_state >= 6), else ValueError and
+  final stays null. Finish is idempotent only for the same computed final block.
+- Session lifecycle for US-011: create MatchStart from discovery + the already-loaded model meta
+  (read_model_meta(MODEL_META_PATH), pass only name/trained_at), wait for the first yielded feed
+  event, write_match_start, then write every event (incl. terminal) with StateWriter. On
+  snapshot.finished: close StateWriter first, then finalize_match with the session's engine PnL
+  (or None). Abnormal/no-terminal exits leave final: null for a restart.
+- match.json writes are temp + fsync + atomic rename + dir sync; a leftover .match.json.tmp is
+  never metadata. US-013 (state_to_parquet) reads match.json and may emit radiant_win from
+  winner=null; US-006 never calls OpenDota.
+US-007 handoff notes for US-011/US-012:
+
+- `live_paper.bindings.DiscoveredMatch` is the only discovery output: match_id (str),
+  server_steam_id, league_id, sides (TeamSides: raw Steam team names), map_number,
+  market (MarketReference incl. yes_is_radiant and string/null decimals). US-011 builds
+  `MatchStart` via `discovered.with_model(model)`; do not re-match names or re-read sidecars.
+- US-012 composes ONCE at daemon start: `collector_sidecars.load_archive_root()` (RuntimeError
+  when ARCHIVE_ROOT is blank; returns Path without creating/validating the mount) and
+  `SteamClient.from_environment(http_client())`. The Steam client must keep
+  `follow_redirects=False` (get() already pins this per request). Retain ONE
+  `MarketDiscovery(archive_root, steam_client)` for the process: it owns the alert-dedupe
+  set (keyed by conditionId, pruned when a condition leaves the fresh flag-eligible set)
+  and must never be recreated per cycle.
+- US-012 consumes `cadence.poll_discoveries(discovery)` via async-for and owns NO loop/sleep
+  of its own: the generator yields the first result immediately, serializes `discovery.discover`
+  through `asyncio.to_thread` (never overlap calls on the rotating client), and sleeps
+  max(0, 60 - elapsed-from-cycle-start) including the consumer's own time. Cancellation just
+  stops the generator.
+- The collector stays the only Gamma/CLOB producer. Discovery reads only
+  ARCHIVE_ROOT/metadata/markets/*.json (never books/journal/parquet) and writes nothing to
+  the external archive. No OpenDota call in the daemon; server_steam_id comes only from
+  GetTopLiveGame partners 0..3.
+- Discovery alerts fire at most once per condition per eligible lifetime, and only
+  for a name-link miss or ambiguity with a nonempty usable Steam list. Map mismatch, missing
+  server id, no live games, malformed sidecars and Steam failures are log-only. Reuse
+  `live_paper.notify.notify_in_background`; no second notifier.
+- Feed: out-of-range Steam `level` is a failed tick (`ValueError`); the first snapshot is
+  paused (fail-closed); `game_state >= 6` with empty teams still yields a finished header
+  snapshot so finalize can run. State 7 still ends with no event.
