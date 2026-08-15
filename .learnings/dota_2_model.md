@@ -81,16 +81,17 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
 - The tournament stream runs about 7s behind the game: our feed beats it by 5s, measured on two kills.
 - `match.game_time` is the horn clock with no offset: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring.
 - `match.match_id` is null on a live draft and on a dead server. Liveness comes only from `game_state` (7 = disconnect); never branch on `match_id`.
+- `match.timestamp` is seconds since `match.start_timestamp` (Unix lobby/server start), not Unix itself. Horn Unix = `start_timestamp + timestamp - game_time`. Treating `timestamp` as Unix writes `horn_at_utc` in 1970.
 - Steam team numbers are fixed: 2 = Radiant, 3 = Dire. Resolve sides by `team_number`, never by list order.
 - The feed's pause flag is True on the first tick (unknown), then the growth of `timestamp - game_time` vs the previous snapshot; a repeated `game_time` with an equal offset is a duplicate response, not a pause.
 - httpx 0.28 `Response.json()` is stdlib `json.loads` on the raw bytes: invalid UTF-8 raises `UnicodeDecodeError`, bad JSON raises `JSONDecodeError` - catch both at the decode boundary.
-- Wrong-shaped 2xx JSON passes a TypedDict cast and blows up in the reduction as `KeyError`/`TypeError`/`ValueError` (out-of-range Steam `level` from `experience_at_level`); treat all three as one failed tick so a malformed Steam response cannot kill the feed.
-- `game_state >= 6` yields one finished event even when `teams` cannot be parsed (header-only snapshot with zero NW/XP/deaths) so `finalize_match` sees a terminal record. State 7 still ends with no event.
+- Wrong-shaped 2xx JSON passes a TypedDict cast and blows up in the reduction as `KeyError`/`TypeError`/`ValueError` (Steam `level` 31+ from `experience_at_level`); treat all three as one failed tick so a malformed Steam response cannot kill the feed. Draft `level: 0` is 0 XP, not malformed — archiving pre-horn ticks is required.
+- Finished is exactly `game_state == 6` (post-game). State 7 still ends with no event. State 8 is team showcase during draft; `>= 6` treats it as post-game, writes a one-tick `final`, and the orchestrator never relaunches. Empty teams on state 6 still yield one header-only finished event so `finalize_match` sees a terminal record.
 - After `yield`, measure the sleep from the request-cycle monotonic start on resumption: the consumer's archive/model work between yields counts against the 1 Hz period.
 - The server rebuilds the snapshot once per second. A faster poll returns identical bytes. Subtract the request time from the sleep or the cycle drifts to 1.3s and drops every third second.
 - A pause freezes `game_time` while `match.timestamp` keeps ticking. Pause length is the growth of `timestamp - game_time`.
 - `buildings` carries three `type` values: 0 tower, 1 barracks, 2 ancient. The fountain is not listed. A destroyed building loses its identity and becomes an anonymous stub (`team` 0, `type` 0, `tier` 0, `destroyed` true). Count survivors against 11 towers, 6 barracks and 1 ancient per side. The loser is the side with zero surviving `type` 2 buildings.
-- `server_steam_id` comes from `GetTopLiveGame` (top 10 games) or OpenDota `/live`. `GetLiveLeagueGames` does not carry it.
+- `server_steam_id` comes from `GetTopLiveGame` (top 10 games) or OpenDota `/live`. `GetLiveLeagueGames` does not carry it. GetTopLiveGame `match_id` is a decimal JSON string (`"8946860406"`), not an int — `require_int` drops every top-live row. Discovery reads int or ASCII decimal string. Draft still has a server id (`game_time` negative); a miss is a parse miss, not "still in draft".
 - `graph_data.graph_gold` is a fixed 128-point downsample of the whole match. Use it for late-join backfill, not as a time series.
 - Players carry `level`, not XP. STRATZ `radiantExperienceLeads` has no exact Steam equivalent. `xp_per_min` lives in `GetLiveLeagueGames`, together with Roshan and respawn timers.
 - `GetMatchDetails` is dead: 500 on recent match ids, empty `{}` on old ones. Take the winner from the last snapshot's destroyed ancient, or keep OpenDota for `radiant_win`.
@@ -140,14 +141,14 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   both resolve their directory through it, so `state.jsonl` and `match.json` can only land
   in `data/live_paper/<match_id>/`.
 - `match.json` v1 (US-006): start document (schema_version 1, binding fields, joined_at_second,
-  joined_at_utc, horn_at_utc, market with string decimals, model name/trained_at, final null)
+  joined_at_utc, horn_at_utc = start_timestamp + timestamp - game_time as UTC-Z, market with string decimals, model name/trained_at, final null)
   replaced at finish with the same fields plus final (duration, winner, pause_seconds,
   missing_seconds, snapshot_count, pnl-or-null). Winner = the side whose ancient still stands
   in the LAST snapshot: 0 Radiant + >=1 Dire surviving ancients => "dire", 0 Dire + >=1
   Radiant => "radiant", anything else null. Writes are temp + fsync + atomic rename + dir
   sync; a reader sees the full start or the full finalized document, never a partial one.
 - Finish ordering: close StateWriter before `finalize_match`; the archive must end in a
-  terminal snapshot (game_state >= 6), otherwise final stays null for a restart. Pause total
+  terminal snapshot (`game_state == 6`), otherwise final stays null for a restart. Pause total
   = positive adjacent growth of `timestamp - game_time`; missing seconds = positive
   `game_time` jumps minus 1 between consecutive records (duplicates and late joins are not gaps).
 
@@ -233,12 +234,16 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   over it, first result immediate, `asyncio.to_thread` serializes `discover()` (never overlap
   on the rotating client), sleep = max(0, 60 - elapsed from cycle start) including consumer
   time. US-012 owns no loop/sleep of its own.
-- Discovery Telegram policy: at most one alert per condition while it stays in the fresh
-  flag-eligible set (dedupe set pruned when the condition leaves it), and only for a name-link
-  miss or ambiguity with a nonempty usable Steam list; map mismatch, missing server, no live
-  games, malformed sidecars and Steam failures are log-only. Alerts go through
-  `notify.notify_in_background`. Alert text carries public market identifiers and the reason,
-  never secrets.
+- Discovery Telegram policy: name-link misses, ambiguities, map mismatch, missing server,
+  no live games, malformed sidecars and Steam failures are log-only. Telegram fires once
+  when the orchestrator actually spawns a polling child (`live-paper session started:`
+  plus public match/sides/map/market/kind/condition ids, never secrets/tokens/paths).
+  A crash restart of the same match_id does not send a second start page. Exhaustion
+  after MAX_CRASH_RESTARTS still pages once. On Steam post-game the child also sends
+  `live-paper session finished:` with realized (`net_cash`), IMV (`inventory_value` at
+  last FV mark, leftover is not resolved to 0/1), post-process maker rebate (same
+  formula as `make live-report`), net = realized+IMV+rebate, and leftover YES/NO sizes.
+  Missing engine cash renders as `n/a`. Alerts go through `notify.notify_in_background`.
 - basedpyright strict gotchas when validating JSON: `isinstance(x, T)` is flagged unnecessary
   once a TypedDict `.get()` already returns `T` — use `type(x) is not T` for exact runtime
   checks (also rejects bool-as-int). An `object`-annotated local still leaks its initializer's
@@ -743,7 +748,9 @@ The live daemon runs in Docker Compose on the VPS beside polymarket-collector,
 reading the same host path `/var/lib/polymarket-dota-archive` as `/archive`.
 The local machine keeps datasets, train, and backtest. There is no dry-run
 flag; the first live check is a real match. Session `git_commit` is `"unknown"`
-in Docker (no `.git` mount).
+in Docker (no `.git` mount). `orchestrator.main()` calls `setup_logging()`
+before daemon or session dispatch (root INFO). Without that, Docker's default
+WARNING hides discovery cycle summaries, map mismatches, and missing server ids.
 
 ### What changed — what to restart
 

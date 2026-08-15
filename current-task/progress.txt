@@ -1028,3 +1028,44 @@
     - Context after ignore was 2.14 MB. Without the ignore file the parent would send datasets and sibling repos.
     - `uv run` inside the image may rebuild the editable polymaker path on first start; that is expected and still `--frozen`.
 
+## 2026-08-15 12:25 UTC - live-paper first TI run: discovery miss noise + Telegram policy flip
+- First live daemon alert was `no threshold-passing team name link` for
+  `dota2-boombo-flc-2026-08-15` Match Winner (BoomBoys vs Team Falcons, TI GS BO3).
+  Polymarket outcomes were fine (`BoomBoys` / `Team Falcons`). Steam
+  `GetLiveLeagueGames` did not have that series: game 1 had left the live list,
+  game 2 was not in it yet. Later Steam showed a new match_id for the same series
+  at 1-0 in draft (`game_time=-9`). Discovery only uses Steam; it never calls
+  OpenDota. OpenDota `/live` still showing the finished game-1 match_id was
+  investigator evidence only.
+- Telegram policy flip: name-link misses/ambiguities are log-only. Orchestrator
+  pages once when it actually spawns a polling child
+  (`live-paper session started:` + public match/sides/map/market/kind/condition).
+  Same match_id crash-restart does not re-page. Exhaustion tombstone still pages
+  once. Restarted `dota_2_model` compose service `live-paper` so the parent loaded
+  the new code (container restart kills in-flight children).
+- **Learnings for future iterations:**
+    - Steam drops a series between maps. A miss against unrelated live games is
+      "this market is not on the live list right now", not "TI names are broken".
+    - Successful discovery is silent unless we page on spawn. Miss Telegram during
+      TI is mostly leftover eligible sidecars vs whoever Steam currently lists.
+    - `docker compose restart live-paper` reloads parent orchestrator/discovery and
+      kills every child in that container. Session-only file saves do not need a
+      restart; the next child import picks them up from the `src` bind mount.
+
+## 2026-08-15 - live Steam draft: state 8, level 0, relative timestamp
+- First TI sessions joined during team showcase (`game_state=8`, `game_time=-15`,
+  `level=0`) and finalized after one snapshot because the feed treated
+  `game_state >= 6` as post-game. Orchestrator saw a durable `final` and never
+  relaunched while Steam still listed the matches. Draft `level=0` also logged
+  `steam payload malformed: ValueError` every second (`experience_at_level`
+  rejected 0). `horn_at_utc` was 1970 because `match.timestamp` is relative
+  seconds since `start_timestamp`, not Unix.
+- Finished is now exactly state 6. Level 0 is 0 XP. Horn Unix is
+  `start_timestamp + timestamp - game_time`. Deleted the three one-tick archives
+  and restarted `live-paper`.
+- **Learnings for future iterations:**
+    - Steam GetRealtimeStats: 6 post-game, 7 disconnect, 8 team showcase (draft).
+      Never use `>= 6`.
+    - `match.timestamp` is not Unix. Horn = `start_timestamp + timestamp - game_time`.
+    - Draft players are level 0; that is a live tick, not a malformed payload.
+
