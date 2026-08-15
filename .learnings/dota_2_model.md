@@ -665,3 +665,96 @@ moved.
   compensating in `on_event` (1), dropping `os.fsync` from
   `FsyncedJsonlWriter.write_record` (6), accepting `bool` in
   `strict_json.require_int` (5).
+
+## Live paper offline converter (US-013)
+
+- `make live-parquet` runs `uv run python -m live_paper.state_to_parquet`
+  (argparse CLI, `--root` defaults to LIVE_PAPER_DIR). Idempotent by design:
+  run it after any batch of finished matches; nonzero exit only when a match
+  failed. The converter is the ONLY live-archive caller of OpenDota.
+- Per-match artifact `data/live_paper/<match_id>/state.parquet`, one row per
+  state.jsonl record (duplicate game_times kept, so len == final.snapshot_count
+  stays an honest completeness check). The complete parquet IS the converted
+  marker — no manifest. Write is atomic (state.parquet.tmp + replace); a stale
+  tmp is ignored and rewritten.
+- Row schema = `SteamStateParquetRow` TypedDict in shared/types/steam.py;
+  column order derived from its `__annotations__`. Player lists per side are
+  equal-length and sorted by accountid (Steam has no slot). Building counters
+  count survivors per side per type (0 tower / 1 barracks / 2 ancient).
+  Pause comes from the public `build_game_snapshot` chain; header-only
+  terminal rows (teams unparseable) fall back to zeros/empty lists via the
+  now-public `build_header_snapshot`. `_resolve_teams` became public
+  `resolve_teams` for the same reuse (basedpyright reportPrivateUsage).
+- Winner resolution: match.json winner wins outright; `winner: null` triggers
+  exactly one GET `{OPENDOTA_API}/matches/{id}` per run. 404 / missing key /
+  non-bool / transport error -> `pending_winner`, no parquet, retried next
+  run. Deliberately NOT `get_json`: tenacity retries would turn a 404 into
+  five requests. `opendota_params()` puts api_key in the query string, so the
+  fetch calls `suppress_http_url_logging()` first. match.json is never
+  rewritten by the backfill; `radiant_win` lives only in parquet.
+- Completeness check: readable parquet, all schema columns present, bool
+  dtype `radiant_win` with no nulls (one None makes pandas read the column as
+  object dtype), len(rows) == final.snapshot_count.
+- Statuses: converted / skipped_complete / skipped_unfinalized (unfinalized or
+  malformed meta never converts — a running match must never be marked ready)
+  / pending_winner / failed (per-match isolation, type-only log, exit 1).
+
+## Live paper operations (US-015)
+
+Operator layout. Implementation details stay in the sections above.
+
+### Model registry
+
+Live loads `data/new_model/current/` (`model.txt` + `model.json` + `split.parquet`).
+`make train` calls `rotate_current_model_dir`: read the name from
+`current/model.json`, move `split.parquet` aside, rename `current/` to
+`data/new_model/<name>/`, create a new `current/`. A running session pins one
+booster; the next match sees the new `current/`.
+
+### Steam contract
+
+`SOURCE_LAG_SECONDS = 2`, `POLL_INTERVAL_SECONDS = 1` in
+`src/shared/constants/dataset.py`. `radiant_xp_adv` comes from player levels
+via `LEVEL_XP` / `radiant_xp_advantage` — the same helper in prepare and live.
+`model.json` stores lag, poll, and features; `load_current_model()` refuses a
+mismatch.
+
+### Archive layout, Steam keys, offline scripts
+
+```
+data/live_paper/<match_id>/
+  state.jsonl      # 1 Hz raw Steam, fsynced JSONL
+  match.json       # start binding + final summary
+  session.jsonl    # paper decisions
+  state.parquet    # make live-parquet (complete file = converted marker)
+```
+
+`STEAM_KEYS` is a comma-separated list. All requests use key 1 until HTTP
+429/403, then key 2 for the process lifetime, with one Telegram alert per
+rotation. Restart (including Docker restart) returns to key 1. Legacy
+`STEAM_KEY` is still one key.
+
+Offline only: `make live-parquet` (the only OpenDota caller; winner=null
+backfill) and `make live-report` (session.jsonl PnL, no network).
+
+### Where it runs
+
+The live daemon runs in Docker Compose on the VPS beside polymarket-collector,
+reading the same host path `/var/lib/polymarket-dota-archive` as `/archive`.
+The local machine keeps datasets, train, and backtest. There is no dry-run
+flag; the first live check is a real match. Session `git_commit` is `"unknown"`
+in Docker (no `.git` mount).
+
+### What changed — what to restart
+
+| What changed                             | What to do                     | Running matches                |
+| ---------------------------------------- | ------------------------------ | ------------------------------ |
+| Numbers in `config/dota-map.toml`        | save the file                  | keep the old numbers           |
+| Session / strategy / model / feed Python | save the file                  | keep the old code              |
+| `current/` model                         | put the directory in place     | keep the old booster           |
+| Orchestrator or discovery                | `docker compose restart`       | die; archive resumes by append |
+| Deps, `pyproject.toml`, Dockerfile       | `docker compose up -d --build` | die; archive resumes by append |
+
+`src`, `config`, and `data/new_model` are bind-mounted, so the next session
+picks up a saved file with no rebuild. `poly-maker` is copied into the image,
+not mounted.

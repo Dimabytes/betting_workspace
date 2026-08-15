@@ -94,3 +94,385 @@ US-007 handoff notes for US-011/US-012:
 - Feed: out-of-range Steam `level` is a failed tick (`ValueError`); the first snapshot is
   paused (fail-closed); `game_state >= 6` with empty teams still yields a finished header
   snapshot so finalize can run. State 7 still ends with no event.
+
+US-008 handoff notes for US-011+:
+
+- `live_paper.model_server.load_current_model()` is the only model loader: it
+  verifies the canonical `data/new_model/current/` pair, pins one booster and
+  returns a frozen `ModelServer(model_reference, _booster)`. Any failure logs and
+  alerts once via `notify.notify_in_background("live-paper model startup blocked:
+  <reason>")` and re-raises `ModelLoadError`/`ModelContractError` — the session
+  must not start. There is no module cache: the session keeps the returned object
+  for the whole match (one model per match, next match picks up a new `current/`).
+- `server.predict_fair(snapshot, market_p_radiant)` returns the RADIANT fair price
+  `clip(market_p_radiant + delta, 0, 1)`, never a YES price. `market_p_radiant`
+  must be finite and in `[0, 1]`; the snapshot fields are validated
+  (bool/non-numeric/non-finite -> `ModelPredictionError`, no I/O). `second` is
+  sent as-is — do NOT subtract `SOURCE_LAG_SECONDS` again. No window/pause gate
+  here; US-011 owns the 0..600 gate.
+- `yes_fair_from_model(radiant_fair, yes_is_radiant)` is the only Radiant->YES
+  conversion (pure; True preserves, False complements exactly once). The US-011 FV
+  wrapper closes over the last computed YES fair (mid pair -> market_p_radiant ->
+  `predict_fair` -> `yes_fair_from_model`) and falls back to the original
+  `compute_fair_value` when there is no signal; never use `predict_fair` itself as
+  the engine FV — different signature and it returns a Radiant price.
+- The model identity for `MatchStart.with_model` comes from
+  `server.model_reference` (name/trained_at), not from re-reading model.json.
+
+US-008 review-fix handoff notes (carry into US-011+):
+
+- LightGBM writes its native fatal diagnostics (with the model path) to the raw
+  stderr fd, not to Python logging: any call into `lgb.Booster(model_file=...)` or
+  `booster.predict` outside `live_paper.model_server` must be wrapped in the same
+  `_SilencedStderr` fd-level suppression or it leaks paths to the daemon log.
+- Every failed `load_current_model()` produces exactly ONE warning
+  ("live-paper model startup blocked: <reason>") and one background alert; inner
+  conversion steps log type-only at DEBUG. Keep that split — do not re-add warning
+  logs inside the loader.
+- `ModelPredictionError` per tick is silent: no log, no Telegram, no stderr (the
+  predict call runs under `_SilencedStderr`). US-011's trading try/except is the
+  only place that reports it.
+
+US-008 review round-2 handoff notes (carry into US-011+):
+
+- `_SilencedStderr` in `live_paper.model_server` is now thread-safe (process
+  RLock across the full redirect window) and exception-safe. Any future
+  module that redirects process fds must follow the same pattern: lock across
+  enter-body-exit, cleanup-and-reraise on partial enter, restore+close+release
+  in __exit__ finally. Never redirect fd 2 without it.
+- If the daemon ever needs another native-suppressed call, reuse
+  `_SilencedStderr` instead of writing a second fd juggler.
+
+US-008 review round-3 handoff notes (carry into US-011+):
+
+- `_SilencedStderr` in live_paper.model_server is now hardened end-to-end:
+  process RLock across the whole window with unconditional finally release on
+  every failure path, independent best-effort descriptor closes, and a
+  documented fail-safe for irrecoverable restore failure (CRITICAL line to the
+  saved stderr channel + raise + _stderr_restore_broken flag that makes every
+  later suppression attempt fail closed until process restart). Reuse it
+  as-is; never write a second fd-2 juggler.
+- If the daemon ever logs "process stderr suppression is broken after a
+  failed restore; restart required" (as a ModelLoadError/ModelPredictionError),
+  restart the process: in-process recovery is impossible once the restore
+  failed.
+
+US-009 handoff notes for US-011:
+
+- `live_paper.paper_gateway.PaperGateway` is the engine gateway for the whole paper
+  daemon. US-011 patches ONLY `polymaker.engine.ExecutionGateway` to PaperGateway
+  (the engine module calls that name in `Engine.__init__`); patching
+  `polymaker.strategy.quoting` has no effect on the gateway.
+- The constructor is the exact fork signature `(cfg, journal=None, *, paper=False)` and
+  raises ValueError unless `paper=True`; never pass Engine/StateStore into it. Build
+  `Engine(cfg, paper=True)` with journal enabled so paper fills/orders land in
+  journal/paper.jsonl.
+- After `Engine(...)` and BEFORE the market WS runs, compose exactly once:
+  `engine.gateway.bind_fill_sink(engine.state, engine._on_fill)`. Rebinding or processing
+  market data before the bind raises RuntimeError. This is the only private-Engine
+  boundary the gateway touches; `_on_fill` (risk.note_fill + markout) runs for every
+  applied fill after the durable StateStore position update.
+- Feed market data inline from the existing MarketDataService callback path: after
+  `OrderBook.apply_snapshot`/`apply_delta` call
+  `gateway.process_book_update(token_id, book)`; on a trade print call
+  `gateway.process_trade_print(trade)`. Both are synchronous, return the applied fills,
+  and must run on the engine loop (documented same-loop contract — never add locks).
+- Fill rules are strict: BUY fills only on best_ask.price < limit or trade.price < limit;
+  SELL mirrors with >; touch never fills; each crossed order produces one full-size maker
+  fill at the order's own limit price with trade_id `<order_id>:fill`; malformed sources
+  and one-sided books fail closed; a SELL bigger than the position stays open.
+- Order ids are `paper-<uuid4-hex>-<counter>`, always LIVE; `open_orders()` is never
+  empty after place, so the engine's 20s reconcile keeps them. The gateway owns no
+  SQLite/store of its own and never builds a ClobClient; paper mode therefore never
+  performs live requests even with wallet secrets present.
+- Error policy for US-011: an `apply_fill` raise propagates and leaves the order live for
+  the next input to retry; a callback (`engine._on_fill`) raise propagates with the
+  position already durable and the order terminal — do not retry the callback
+  (risk.note_fill is not cash-idempotent); the session-level try/except owns reporting.
+
+US-009 review-fix handoff notes (carry into US-011+):
+
+- Book fills now require BOTH book sides to be valid: `process_book_update` returns [] when
+  best_bid or best_ask is missing or carries a zero/nonfinite/out-of-range price or a
+  non-positive/nonfinite size. A one-sided or malformed book frame never fills; strict
+  crossing (< for BUY, > for SELL) applies only after both sides pass.
+- The callback-side process methods are synchronous by contract (test-pinned): they never
+  await, so a fill transaction cannot interleave with cancel/reconcile on the engine loop.
+  Do not add locks; a future thread producer must marshal into the loop.
+
+## US-010 (dota-map config)
+- config/dota-map.toml is a three-table source template: [engine], [risk], [profiles.dota-map].
+  Not consumable by polymaker Config.load (that reads a dir: config/strategy/markets.toml).
+- US-011 must materialize: [engine]/[risk] -> generated config.toml, [profiles.dota-map] ->
+  generated strategy.toml, discovered market -> generated markets.toml; never Config.load
+  on the template file itself.
+- TOML literals must match fork Pydantic field types: int fields as bare integers, float
+  fields as .0/decimal literals (fields are ordinary numeric, not strict).
+- Only StrategyProfile is extra="forbid"; EngineConfig/RiskConfig accept extras silently,
+  so tests pin raw key sets for engine/risk ownership.
+- US-015 mounts ./config read-only into the container so this committed file is visible;
+  sessions materialize it at startup (existing sessions keep loaded settings).
+
+## US-010 review (Luna P2)
+- Pydantic numeric fields coerce literals; schema tests must assert type() of raw parsed
+  TOML values (type(x) is int excludes bool) before validating the model.
+- A key-set assertion before model_validate never exercises extra="forbid" behaviorally;
+  add pytest.raises(ValidationError) on one foreign-key model_validate.
+
+US-011 handoff notes for US-012+:
+
+- `live_paper.session.run_session(discovered, steam_client, archive_root)` is the
+  one session entry point: it loads the model once, builds MatchStart via
+  `discovered.with_model(model.model_reference)`, follows the feed, archives every
+  event first and trades through the paper engine. US-012 starts it per matched
+  match (one subprocess per match is the invariant that makes the engine module
+  globals safe — they prohibit concurrent sessions in one interpreter).
+- A model-load/contract failure re-raises out of run_session (US-008 loader already
+  logged + alerted once): the runner must not start, and the orchestrator's restart
+  policy owns retries. All post-start trading failures are isolated: archive
+  continues, trading degrades to safe reduce-only.
+- The first feed event is archived (match.json start + session.jsonl provenance +
+  state.jsonl) BEFORE the engine exists; `_PaperTrading.start()` wakes the cid once
+  with the empty already-safe cell. Only later events feed trading decisions.
+- Collector is the sole Gamma metadata source: the session's per-engine no-op
+  override of `refresh_market_metadata` (instance attribute assigned before
+  Engine.start) plus the CatalogStore seeding are what prevent Gamma traffic —
+  never assume seeding alone does. The sidecar refresh loop owns
+  accepting/closed/min/tick and never imports polymaker.catalog.scanner.
+- Engine module globals (`polymaker.engine.compute_fair_value`,
+  `polymaker.engine.ExecutionGateway`) must stay patched from before Engine(...)
+  until after `await engine.shutdown()` AND the gather over
+  `engine._tasks`/`_aux_tasks` (shutdown cancels but does not await). Restore also
+  on constructor/start failure paths.
+- REDUCE_ONLY is enforced by the session's `_GatedRegimeMachine` proxy (subclass
+  installed on `engine.regime_m[cid]` after start), because the fork's EVENT
+  priority beats `risk_reduce_only`; genuine HALTED passes through. The forced
+  gate pairs with `_cancel_entry_buys` under `engine._locks[cid]` (BUY-only,
+  successful ids removed from StateStore, SELLs preserved). A position below
+  `meta.min_order_size` cannot legally get a SELL (fork `_maybe_exit` gate).
+- session.jsonl record contract for US-014: session_start (schema_version 1,
+  match/condition ids, model name/trained_at, git commit), signal (raw bid/ask/
+  mids, market_p_radiant, radiant_fair, yes_fair, reason), quote (decision
+  normal/reduce_only, fv_source model/engine, placed quotes, canceled ids), fill
+  (token/side/price/size/is_maker/position_after/net_cash), tick_size_change
+  (collector decimal strings), trading_error (phase + exception type only),
+  session_end (positions, net_cash/inventory_value/equity or null). Never config/
+  env/URLs/exception text/secrets/raw payloads/books. SessionJournal is loop-owned
+  and shares `archive_paths.truncate_after_last_newline` with StateWriter.
+- Terminal order: safe-gate trading -> close StateWriter -> session_end -> risk
+  snapshot -> engine shutdown/join -> finalize_match(match_id, SessionPnl | None).
+  PnL = (risk.net_cash, risk.inventory_value) only when finite; no resolution PnL,
+  no OpenDota.
+- US-012 needs: `collector_sidecars.load_archive_root()` + one SteamClient +
+  one MarketDiscovery per process; `cadence.poll_discoveries` via async-for;
+  subprocess per DiscoveredMatch calling run_session; backoff/restart on failure;
+  Make target live-paper.
+
+US-011 review-fix handoff notes (carry into US-012+):
+
+- The fair/gate cell starts FORCED (reduce-only): an engine wake before the first Steam
+  snapshot must never quote entries on the original fork FV. Only a valid in-window
+  snapshot opens it (set_fair). Keep this invariant in any future session changes.
+- One-event terminal feeds are valid: after the first event's archival, a finished
+  snapshot finalizes (writer close -> session_end -> finalize_match) WITHOUT starting
+  the engine. Orchestrator restart logic must treat a finalized one-event match as done.
+- The fill sink is the session wrapper `_fill_sink_callback` (calls engine._on_fill
+  once, swallows callback errors into type-only fault + safe mode) so a durable fill is
+  ALWAYS journaled exactly once — never bind raw engine._on_fill. The wrapper never
+  journals; the MDS bridge does.
+- Both the gateway processing AND the original MDS callback invocation are guarded
+  independently in the bridged handlers; a raising original must never kill MDS and a
+  durable fill before the fault is never replayed.
+- Session lifecycle (Terra rule): failure-prone seams (bind/journaling/bridge) live in
+  the async start path, not sync __init__; a start failure runs the full shutdown()
+  (session tasks + engine shutdown + engine-task join + closes + globals + tempdir)
+  before re-raising. `_close_engine_resources(engine)` is the shared idempotent close.
+- Immutable sidecar binding is the full frozen identity (event_id/event_slug/condition/
+  slug/kind/map/ordered names+tokens/neg_risk/grid_series_id); tick/min are the only
+  dynamic meta fields, liveness flags are the no-trade gate, question is display-only.
+  Any binding change fails closed permanently and the refresh loop stops after the
+  first semantic SidecarUnavailable (never rescan a dead session).
+- Both YES/NO in-memory book tick sizes are set unconditionally on every refresh AND
+  right after engine start (fresh OrderBooks carry the fork default 0.001).
+- Strict no-Gamma: per-engine instance closures replace BOTH Engine.start boundaries —
+  `_resolve_markets` (reproduces native per-market state from the seeded CatalogStore,
+  no GammaClient construction) and `refresh_market_metadata` (noop). A real-start test
+  with GammaClient raising + idle md.run proves it end to end.
+- shutdown() cancels and gathers `_scheduled_cancels` (and the refresh task, watchdog)
+  before engine shutdown/close/global restore — a stuck scoped cancel must never act
+  after shutdown.
+- SessionJournal writes with allow_nan=False; nonfinite raw diagnostics are sanitized
+  to null + reason label before dumps. Readers may parse with parse_constant=raise.
+- Template schema is pinned in session (exact key sets, raw literal types, finite
+  non-negative ranges); zero is valid for reduce_only_hours/halt_before_hours.
+- Window/stale/pause/finished gates are evaluated BEFORE pair diagnostics and the
+  books are not read once a gate fired; finite out-of-range levels are labeled
+  out_of_range_pair, nonfinite_pair is strictly nonfinite.
+- Test-harness rule: bound "loop must exit" tests with asyncio.wait_for so a removed
+  break fails deterministically; pkill -f patterns can match the calling shell.
+
+US-011 review round-3 handoff notes (carry into US-012+):
+
+- Session cleanup is cancellation-proof by construction: start() catches BaseException
+  and shields the shutdown call; shutdown() runs close/join/lease-restore/temp-cleanup
+  in a pure-sync innermost finally; _start_trading and run_session clean partial
+  trading under cancellation. Keep this structure in any future lifecycle edits.
+- DiscoveredMatch.market_kind is the explicit immutable kind from discovery
+  (kw_only, compare=False): the session requires fresh sidecar kind == handoff before
+  any Engine (map_winner: same map number; series_winner: Bo1 map 1 + null sidecar
+  map; missing/legacy kind fails closed). Do not reconstruct/compare it in match_meta.
+- The canonical nonsecret sidecar binding is pinned in the session.jsonl provenance
+  (session_start.sidecar_binding) at first acceptance and re-read on resume; trading
+  setup compares the fresh sidecar against it. A changed static sidecar across a
+  restart is a typed TradingDisabled with no Engine. Do NOT extend match.json for it.
+- Archive-first: StateWriter.write(first_event) runs before any session-journal
+  setup; a journal fault disables trading (one type-only alert) and the archive still
+  finalizes. SessionJournal and StateWriter sanitize nonfinite floats to null and
+  dump with allow_nan=False - corrupt floats never lose a record or emit invalid JSON.
+- Journal-wrapped place/cancel must never diverge engine state and gateway: a
+  failing quote-journal write cancels the just-placed orders, flips safe mode and
+  returns [] (engine quarantine path); a failing cancel-journal keeps ok=True.
+- Raw levels: full 0 < bid < ask < 1; zero/negative ask is out_of_range_pair.
+
+US-011 review round-4 handoff notes (carry into US-012+):
+
+- One canonical serialized naming convention for the sidecar binding record; reader
+  and writer use the same key (grid_series_id). Roundtrip-test non-null values.
+- Fault boundaries: reporter.report is no-raise (journal write failures are
+  type-only logs); safe gate/clear-fair and gateway/state compensation run BEFORE
+  best-effort journal/Telegram reporting in on_event, journaling_place and
+  journaling_cancel. A broken session journal must never leave a stale fair or an
+  untracked live order.
+- shutdown() entry is fully synchronous before its first await: latch, watchdog
+  disarm, refresh-task cancel, snapshot+cancel of _scheduled_cancels; the
+  innermost finally is pure-sync close/restore/temp-cleanup. _cancel_entry_buys is
+  a no-op once _shutdown_done is set (tasks that ignore cancellation cannot act).
+- A corrupt/malformed session.jsonl provenance is a trading-disabled setup fault:
+  close the corrupt journal, alert once type-only, keep archiving and finalize.
+- _open_session_journal closes the opened journal if write_start fails (no handle
+  leak).
+- Test tips: asyncio skips a cancelled-but-never-started task's coroutine — sleep(0)
+  first when testing cancellation-ignoring tasks; mutation anchors must survive
+  formatter line-wrapping (anchor the smallest stable statement).
+
+US-011 review round-5 handoff notes (carry into US-012+):
+
+- first_binding(match_id, condition_id) validates the full session_start root
+  (schema/kind/match/condition/model/git_commit) with exact type(x) is checks and
+  the nested binding schema_version is exact-int; corrupt provenance is
+  archive-only TradingDisabled.
+- session_end journal write is best-effort; finalize_match runs in a finally
+  around trading.shutdown() so a terminal match is always finalized and a
+  shutdown exception propagates after finalization.
+- Tick changes: run the required off-grid cancel BEFORE the best-effort tick
+  journal and advance the pinned tick string first (no replayed change, no stuck
+  off-grid order on a journal fault).
+- Raw range is the full 0 < bid < ask < 1 (bid < 1 included).
+- Never wait_for-over-gather for cancellation joins: use asyncio.wait with
+  bounded timeouts + explicit recancels (two-phase), retrieve done-task
+  exceptions, and document the give-up policy for permanently noncooperative
+  tasks (they strand only themselves, never the cleanup).
+
+US-011 review round-6 handoff notes (carry into US-012+):
+
+- Resume baselines: capture prior-archive evidence (match.json or non-empty
+  state.jsonl) before opening/truncating any writer; a missing or empty
+  session.jsonl on a prior archive is TradingDisabled archive-only and never
+  writes a new provenance (no rebaseline of a changed sidecar).
+- Provenance record shapes: exact key sets on root and nested records;
+  nullable fields are required keys with explicit null (missing key =
+  corruption); root sidecar_binding must exist.
+
+US-012 handoff notes for US-013+:
+
+- `live_paper.orchestrator` is the daemon AND the child-session CLI. The daemon
+  composes ONE load_archive_root/http client/SteamClient/MarketDiscovery and
+  consumes `cadence.poll_discoveries` via async-for; the child is
+  `sys.executable -m live_paper.orchestrator session --archive-root <ARCHIVE_ROOT>
+  --discovered-json <strict public JSON>` with fresh clients and
+  asyncio.run(run_session(...)). One subprocess per match = the engine
+  module-global lease invariant. Popen(shell=False); the handoff element carries
+  public market/Steam identifiers only (keys/config/env never reach argv).
+- `SessionSupervisor.reconcile(discovered)` is nonblocking and cadence-driven
+  (no timers, no sleep of its own): poll children, reap exits against the
+  durable final, then accept/reject/launch. Records are keyed by match_id only;
+  duplicate ids in one tuple and changed static handoffs are rejected (log-only).
+- Completion = a matching match.json with a non-null final, checked at exit AND
+  before every launch; the process exit code NEVER decides completion (code 0
+  without a final is a crash). Never kill a live child when a final appears —
+  reap after exit. The parent creates only data/live_paper/<match_id> via
+  match_archive_dir (the single path guard) before spawning; the child always
+  receives the FROZEN original handoff (never a re-discovered tick/min refresh).
+- Crash policy: MAX_CRASH_RESTARTS=3, backoff (60,120,240) on an injected
+  monotonic clock, evaluated only on discovery cycles; failures are retained
+  through temporary absence; the fourth unresolved failure tombstones and sends
+  exactly one public/type-only notify_in_background alert. Direct child
+  termination only on daemon cancellation (terminate_all: SIGTERM, bounded wait,
+  SIGKILL stragglers). A new match_id (next map) is independent of an exhausted
+  record.
+- The cross-cycle static identity excludes dynamic tick_size/min_order_size
+  (the session re-reads them live): static = server/league/sides/map, condition/
+  market/event slugs, ordered tokens, polarity, neg_risk, grid_series_id,
+  explicit market_kind. A tick/min change neither suppresses a crash restart nor
+  conflicts a running record.
+- The handoff TypedDicts live in shared/types/live_paper.py
+  (DiscoveredMatchHandoff/Sides/Market); strict decode requires exact key sets
+  and exact scalar types (type(x) is checks; bool-as-int rejected; nulls
+  explicit). basedpyright narrows `value not in ("a", "b")` so no cast is needed
+  after the check; `subprocess.Popen` satisfies a small ChildProcess Protocol so
+  tests use plain fake children.
+- US-013 reads data/live_paper/<match_id>/match.json + state.jsonl produced by
+  the child sessions the daemon supervises; the supervisor's marker treats a
+  malformed match.json as not-finalized (fail-safe: crash/retry, never a
+  false completion).
+
+Pytest Telegram isolation (2026-08-15):
+- `env_value()` falls back to `dota_2_model/.env`, so an unpatched
+  `_FaultReporter` during pytest POSTs to the real operator chat. That is
+  not live-paper trading.
+- `tests/conftest.py` autouse-stubs `notify.send_telegram_message` (skip only
+  `test_live_paper_notify.py`, which mocks httpx). Do not teach production
+  `notify.py` about PYTEST_CURRENT_TEST and do not stop `env_value()` reading
+  `.env` (local `make live-paper` and Docker `env_file` need it).
+- Patch `notify_in_background` at the importer (`session`, `discovery`, …)
+  when the test asserts alert text — callers bind that name at import time.
+US-013 handoff notes for US-014+:
+
+- `make live-parquet` = `uv run python -m live_paper.state_to_parquet`; idempotent,
+  safe to rerun weekly; nonzero exit only when a match failed.
+- The converter is the ONLY live-archive caller of OpenDota: one GET per pending match
+  per run, no get_json (tenacity multiplies 404s), nothing written to
+  data/raw/opendota_matches/ (that cache belongs to the dataset pipeline).
+- state.parquet schema = SteamStateParquetRow in shared/types/steam.py; column order is
+  its __annotations__. radiant_win sits on every row and match.json is never rewritten
+  by the backfill.
+- The completeness marker is the parquet file itself (full schema, all-bool radiant_win,
+  len == final.snapshot_count). No manifest. Atomic tmp+replace; stale tmp ignored.
+- resolve_radiant_win(winner, match_id, fetch) takes 3 required args: the plan's 2-arg
+  sketch cannot call a Callable[[int], bool | None] fetch without the id.
+- steam_feed now exposes resolve_teams and build_header_snapshot (renamed from the
+  underscore versions) for the converter.
+- US-014 (live-report) can read these parquets for offline PnL/reporting.
+
+
+US-014 handoff notes for US-015+:
+
+- `make live-report` / `python -m live_paper.report --root <root>` prints the paper PnL
+  table; it reads ONLY session.jsonl + match.json under data/live_paper, no network.
+- Maker rebate formula (post-process only): 0.15 * 0.05 * size * p * (1 - p) via
+  `shared.utils.trading.maker_rebate_usdc(price=, size=)`; taker fee is always 0.
+- Net match PnL = realized + unrealized + rebate only when BOTH cash fields are non-null.
+- The report reader duplicates the journal key sets locally; if US-016+ extends a
+  journal record, update `live_paper/report.py` key sets and tests in the same change.
+
+US-015 (last story) operator notes:
+
+- VPS: `cd dota_2_model && docker compose up -d`. Build context is the parent so
+  poly-maker must sit at `../poly-maker`. Ignore file is `Dockerfile.dockerignore`.
+- One-shots: `docker compose run --rm live-paper make live-parquet` and
+  `make live-report`. Parquet needs OPENDOTA_API_KEY; report needs no network.
+- `src` / `config` / `data/new_model` are bind-mounted: next session picks up a
+  saved file. Orchestrator/discovery needs `docker compose restart`. Deps need
+  `--build`. poly-maker is copied into the image, not mounted.
+- Session `git_commit` is `"unknown"` in Docker (no `.git` mount).
+
