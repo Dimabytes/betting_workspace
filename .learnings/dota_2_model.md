@@ -107,8 +107,10 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   delivers that send on a daemon thread so Steam retries and discovery cycles are not stalled.
   Pytest must never call the real Bot API: `tests/conftest.py` autouse-stubs
   `notify.send_telegram_message` (skip only `test_live_paper_notify.py`, which mocks
-  httpx). Patch `notify_in_background` at the importer (`session`, `discovery`, …)
-  when the test asserts alert text — callers bind that name at import time.
+  httpx). `notify_now` looks up `send_telegram_message` at call time, so that same
+  stub covers the session-finished path. Patch `notify_in_background` at the importer
+  (`session`, `discovery`, …) when the test asserts alert text — callers bind that
+  name at import time. Session-finished text is `session.notify_now`.
 - Steam keys: `steam_client.load_steam_keys()` reads STEAM_KEYS (comma-separated) with
   legacy STEAM_KEY fallback; `SteamClient.get(url, params)` injects the current key with
   `follow_redirects=False` (the key is in the query string) and rotates one key forward on
@@ -239,11 +241,15 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   when the orchestrator actually spawns a polling child (`live-paper session started:`
   plus public match/sides/map/market/kind/condition ids, never secrets/tokens/paths).
   A crash restart of the same match_id does not send a second start page. Exhaustion
-  after MAX_CRASH_RESTARTS still pages once. On Steam post-game the child also sends
-  `live-paper session finished:` with realized (`net_cash`), IMV (`inventory_value` at
-  last FV mark, leftover is not resolved to 0/1), post-process maker rebate (same
-  formula as `make live-report`), net = realized+IMV+rebate, and leftover YES/NO sizes.
-  Missing engine cash renders as `n/a`. Alerts go through `notify.notify_in_background`.
+  after MAX_CRASH_RESTARTS still pages once. On Steam post-game the child sends
+  `live-paper session finished:` via `notify.notify_now` (same thread, then the
+  process exits). `notify_in_background` is a daemon thread: the parent can use it
+  because it keeps running, the child cannot — a daemon POST is killed on exit.
+  The finished line is realized (`net_cash`), IMV (`inventory_value` at last FV
+  mark, leftover is not resolved to 0/1), post-process maker rebate (same formula
+  as `make live-report`), net = realized+IMV+rebate, leftover YES/NO sizes.
+  Missing engine cash renders as `n/a`. Start/fault alerts stay on
+  `notify.notify_in_background`.
 - basedpyright strict gotchas when validating JSON: `isinstance(x, T)` is flagged unnecessary
   once a TypedDict `.get()` already returns `T` — use `type(x) is not T` for exact runtime
   checks (also rejects bool-as-int). An `object`-annotated local still leaks its initializer's
