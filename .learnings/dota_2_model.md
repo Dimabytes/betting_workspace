@@ -226,12 +226,19 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   a bind mount and intentionally lives outside `shared.constants.paths`.
 - Discovery linking: `pick_pair_orientation` in `team_names` (same rule as OpenDota linker);
   exact ties rejected; `yes_is_radiant` = accepted forward. `map_winner` trades when
-  mapNumber equals radiant+dire series wins + 1; `series_winner` only on exact
-  series_type == 0 (Bo1, implicit map 1), and an eligible Game-1 sidecar for the same event
-  suppresses the Match Winner (fail-closed). Ambiguities (sidecar -> 2 games, or match -> 2
-  conditions) emit nothing; conflicting server ids and conflicting live-list rows for one
-  match_id fail closed; missing server id is an info skip. Results sort by (numeric match
-  id, condition id).
+  mapNumber equals radiant+dire series wins + 1. `series_winner` trades when Steam
+  `series_type` is 0/1/2 (Bo1/Bo3/Bo5), the current map equals that best-of (map 1/3/5),
+  and no eligible Game-N sidecar exists for the same event (fail-closed; Game N wins).
+  BO2 and missing `series_type` never authorize Match Winner. Ambiguities (sidecar -> 2
+  games, or match -> 2 conditions) emit nothing; conflicting server ids and conflicting
+  live-list rows for one match_id fail closed; missing server id is an info skip.
+  Results sort by (numeric match id, condition id).
+  Historical OpenDota linker uses the same `series_winner_covers_map` predicate: a
+  played last map with no Game N Winner attaches the series condition. A BO5
+  event that only lists Game 1/2/3 Winner plus Match Winner links `[1, 2, 3, 5]`:
+  map 4 is skipped (no map market). `validate_links` allows unique increasing
+  game numbers, not a contiguous 1..N prefix. Do not rewrite Polymarket
+  `scheduled_ts` to last-map time; GRID `startedAt` of that game is the horn.
 - `poll_discoveries(discovery)` in `live_paper.cadence` is the US-012 cadence seam: async-for
   over it, first result immediate, `asyncio.to_thread` serializes `discover()` (never overlap
   on the rotating client), sleep = max(0, 60 - elapsed from cycle start) including consumer
@@ -410,9 +417,10 @@ file — read that section for the current layout.)
   an explicit immutable market_kind from discovery (kw_only, compare=False so the
   US-006 match.json resume binding check stays untouched): the session requires the
   fresh sidecar kind to equal the handoff before any Engine (map_winner: same map
-  number; series_winner: Bo1 map 1 + null sidecar map; missing/legacy kind fails
-  closed - the legitimate FR-7 Bo1 series session is accepted when the kind is
-  carried). The canonical nonsecret sidecar binding is pinned into the session.jsonl
+  number; series_winner: discovered map in {1, 3, 5} + null sidecar map;
+  missing/legacy kind fails closed - a Bo1/Bo3/Bo5 decider series session is
+  accepted when the kind is carried). The canonical nonsecret sidecar binding is
+  pinned into the session.jsonl
   provenance (session_start.sidecar_binding) at first acceptance and re-read on
   resume: a changed static sidecar across a restart is a typed TradingDisabled with
   no Engine; never extend match.json for this. Archive-first ordering: the first
