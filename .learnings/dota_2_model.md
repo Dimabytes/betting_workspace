@@ -612,10 +612,11 @@ moved.
   in one TemporaryDirectory), `session_binding` (sidecar selection, decimal
   parsing, `MarketMeta` build, binding record write/parse),
   `session_journal` (`SessionJournal`, `FaultReporter`),
-  `session_engine` (fork composition seams: `FairGateCell`,
+  `session_engine` (fork composition seams: `StrategyCell`,
   `make_yes_fair_adapter`, `GatedRegimeMachine`, `FreshnessWatchdog`,
   `build_engine`, `seed_catalog`, `close_engine_resources`, the two Gamma
-  overrides, `bounded_task_join`), `session_trading` (`PaperTrading`: decision
+  overrides, `bounded_task_join`), `session_quoting` (join-bid
+  `construct_quotes` overlay), `session_trading` (`PaperTrading`: decision
   path, MDS bridge, sidecar refresh loop) and `session` itself (`run_session`,
   the feed loop, provenance setup, the terminal path).
 - Names shared ACROSS these modules are public (no leading underscore):
@@ -625,14 +626,14 @@ moved.
   the fork's private engine attributes; `session.py` needs no suppression.
 - Test-seam rule after the split: `monkeypatch.setattr` must target the
   IMPORTER, not the definer. `build_engine` and `scan_sidecars` are patched on
-  `session_trading`; `ENGINE_TASK_JOIN_TIMEOUT_S` and `POLL_INTERVAL_SECONDS`
+  `session_trading`; `ENGINE_TASK_JOIN_TIMEOUT_S` and `FEED_STALE_SECONDS`
   on `session_engine`. `notify_in_background` now has two importers that
   matter: `session` (setup/provenance alerts) and `session_journal` (the fault
   reporter's deduped alerts) — an alert test patches both.
 - Tests follow the same seams: `tests/live_paper_session_fixtures.py` holds
   every builder and fake (`build_discovered`, `build_trading`,
   `build_real_trading`, `FakeEngine`, `AlertRecorder`, …), and the suite is
-  `test_live_paper_session{,_config,_binding,_journal,_engine,_trading}.py`.
+  `test_live_paper_session{,_config,_binding,_journal,_engine,_quoting,_trading}.py`.
 - `shared.utils.strict_json` is the one strict JSON decoder for every
   untrusted document (sidecars, Steam rows, the daemon<->child handoff, our own
   provenance): `require_object/exact_keys/str/nonempty_str/int/bool/list/
@@ -780,3 +781,47 @@ WARNING hides discovery cycle summaries, map mismatches, and missing server ids.
 `src`, `config`, and `data/new_model` are bind-mounted, so the next session
 picks up a saved file with no rebuild. `poly-maker` is copied into the image,
 not mounted.
+
+## Join-bid live-paper overlay (s2-join lifecycle)
+
+Live paper now quotes the same way as backtest s2-join. The fork is not edited.
+
+- Shared numbers live in `src/shared/constants/strategy.py`. `backtest/run.py`
+  imports `BUY_CUTOFF_SECOND`, `MIN_ABS_DELTA`, `MAX_ABS_NW_DELTA_30`,
+  `UNWIND_AFTER_SECONDS` from there. Model window is
+  `MODEL_SIGNAL_END_SECOND = 899`. Freshness watchdog uses
+  `FEED_STALE_SECONDS = 3.0` (patch that name on `session_engine`, not
+  `POLL_INTERVAL_SECONDS`).
+- `StrategyCell` replaced `FairGateCell`. `None` state means no model
+  (`forced`); `cell.unwinding` is independent so an exit can still fire after
+  the model ends. There is no `set_fair` helper — tests call `publish`.
+- Engine module lease is three names: `compute_fair_value`,
+  `ExecutionGateway`, and `construct_quotes`. Patch
+  `polymaker.engine.construct_quotes` — the engine imported the name.
+  Overlay is `live_paper.session_quoting.build_dota_quotes`. A fault in the
+  overlay journals `trading_error` and returns an empty quote set (never the
+  fork AMM).
+- Entry is one join-bid BUY: `floor(bid)` on the 0.01 grid, size
+  `base_size_usdc / price` rounded to 2 decimals. Live gate chain is
+  `evaluate_entry` + `EntryGateInputs`. Backtest chain is
+  `_choose_buy_target` + `nw_velocity_block_reason`. Shared numbers only
+  live in `shared/constants/strategy.py`; parity is those constants plus
+  tests, not one shared function. Grid snap is
+  `shared.utils.trading.floor_to_grid` / `ceil_to_grid`.
+- `off_grid` reads `engine.metas[cid].tick_size` (same as min size), never
+  the constructor snapshot. A live 0.01→0.001 change must block new entries.
+- Exit is one `ceil(ask)` SELL. Unwind after 300 wall-clock seconds from the
+  first fill that opened the position; otherwise require
+  `ceil(ask) >= fair_token`. Size is `floor(size*100 + 1e-6)/100`. HALTED
+  empties quotes; EVENT still sells and does not open. A first engine
+  recompute on microprice then a model fair can trip EVENT if the jump is
+  `>= event_jump_ticks` (default profile is 8, dota-map is 15).
+- Journal `schema_version` is 2: `signal.entry_block`, `quote.second`,
+  `fill.second` (last Steam game second, markout as-of) + `fill.ts_utc`
+  (wall clock when the paper fill was applied). `first_binding` and
+  `make live-report` accept schema 1 and 2; one journal is one schema.
+  Round `unwind` uses `ts_utc` hold, not game seconds. Old archives have
+  no `entry_block` histogram and no wall-clock hold.
+- Compare live to backtest via markout in cents and PnL per share, not PnL
+  per round: live sizes $5 notional, backtest holds 5 shares. Paper still has
+  no queue, no insert latency, and full fills at the limit.
