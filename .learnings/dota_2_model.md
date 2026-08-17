@@ -54,7 +54,7 @@ Read these rules before data, timing, or backtest work.
 - The model predicts `signal_market_p_radiant_300s - market_p_radiant`. Restore price with `clip(market_p_radiant + predicted_delta, 0, 1)`.
 - `market_p_radiant` is a feature. `market_radiant_prior` is audit and dataset-gate data, not a feature or `init_score`.
 - STRATZ `stats.networthPerMinute[k]` is the player's net worth at second `60 * k`. The team lead array is one longer and offset: `sum(radiant npm[k]) - sum(dire npm[k]) == radiantNetworthLeads[k + 1]`. Train reads npm; validation reads playback gold and checks `playback_nw == npm[second // 60]` at every minute. Rank for top-1 net-worth features is recomputed each row by `(-networth, player_index)`.
-- `FEATURE_COLUMNS` is 15 names: `second`, `radiant_nw_adv`, `radiant_xp_adv`, `nw_adv_share`, `xp_adv_share`, `deaths_adv`, `deaths_total`, `deaths_nw_adv`, `top1_nw_adv`, `radiant_top1_nw_ratio`, `dire_top1_nw_ratio`, `radiant_nw_spread`, `dire_nw_spread`, `towers_adv`, `market_p_radiant`. Live `model_server._build_feature_values` maps all 15 from `GameSnapshot`. Scale-free experiment `20260817T191515Z` lost on s2 buy_300s vs kept 13-feat `20260817T173239Z` (1.01¢ [0.06, 1.98] vs 1.43¢ [0.60, 2.26]); `towers_adv` gain was 0. Do not copy that `current/` to the VPS. Missing STRATZ `towerDeaths` is a hard error (dataset is v3).
+- `FEATURE_COLUMNS` is 13 names: `second`, `radiant_nw_adv`, `radiant_xp_adv`, `deaths_radiant`, `deaths_dire`, `top1_nw_adv`, `radiant_top1_nw_ratio`, `dire_top1_nw_ratio`, `radiant_top1_deaths`, `radiant_top2_deaths`, `dire_top1_deaths`, `dire_top2_deaths`, `market_p_radiant`. Live `model_server._build_feature_values` maps all 13 from `GameSnapshot`. Scale-free experiment `20260817T191515Z` lost on s2 buy_300s vs kept 13-feat `20260817T173239Z` (1.01¢ [0.06, 1.98] vs 1.43¢ [0.60, 2.26]); it sits in `data/new_model/20260817T191515Z/`. `towers.py` and STRATZ `towerDeaths` are unused (dataset is v2 on that field).
 - Train on seconds `0, 60, ..., 540` with game at `T` and market at `T+2`. Validation rows are 1 Hz for decision seconds `2..899` with game at `T-2` and market at `T`; evaluate the model on `2..599`. Feature `second` on valid/backtest is the GRID clock (`T-2`); the parquet row key stays decision `T`.
 - Backtest emits a model tick every `POLL_INTERVAL_SECONDS` (1); `MAX_SIGNAL_AGE_SECONDS = 1` so the last poll stays usable until the next. Fair between polls is live book + frozen `predicted_delta`. There is no `SIGNAL_LAG_SECONDS`.
 - STRATZ `stats.level` may repeat a second (two level-ups in one second). `assert_level_timeline` only rejects time going backwards. 54/1748 train matches and 11/328 valid matches are short by one late level-up after second 899; that is a prepare log, not a drop gate.
@@ -196,7 +196,7 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   constructor can raise OSError on a file race after `is_file`, and
   `feature_name`/`predict` raise LightGBMError on a broken booster state.
 - `ModelServer.predict_fair(snapshot, market_p_radiant)` returns the RADIANT
-  fair price `clip(market_p_radiant + delta, 0, 1)`: one float64 row `(1, 6)` in
+  fair price `clip(market_p_radiant + delta, 0, 1)`: one float64 row `(1, 13)` in
   `FEATURE_COLUMNS` order from validated finite numbers (market in `[0, 1]`),
   plain `booster.predict(row)` (default delta semantics), exactly one finite
   scalar delta required (non-ndarray, wrong shape, and bool/string/object
