@@ -764,8 +764,12 @@ backfill) and `make live-report` (session.jsonl PnL, no network).
 
 The live daemon runs in Docker Compose on the VPS beside polymarket-collector,
 reading the same host path `/var/lib/polymarket-dota-archive` as `/archive`.
-The local machine keeps datasets, train, and backtest. There is no dry-run
-flag; the first live check is a real match. Session `git_commit` is `"unknown"`
+The local machine keeps datasets, train, and backtest. Paper is the default.
+`LIVE_TRADING=1` plus `PK` and `BROWSER_ADDRESS` switches the same daemon to
+real CLOB orders; keys alone never imply live. `LIVE_TRADING` must be exactly
+`1` (not `true`). Live without both secrets is `TradingDisabled` (archive
+continues, no silent paper fallback). `signature_type` lives in
+`config/dota-map.toml` `[wallet]` (currently 2). Session `git_commit` is `"unknown"`
 in Docker (no `.git` mount). `orchestrator.main()` calls `setup_logging()`
 before daemon or session dispatch (root INFO). Without that, Docker's default
 WARNING hides discovery cycle summaries, map mismatches, and missing server ids.
@@ -783,6 +787,20 @@ WARNING hides discovery cycle summaries, map mismatches, and missing server ids.
 `src`, `config`, and `data/new_model` are bind-mounted, so the next session
 picks up a saved file with no rebuild. `poly-maker` is copied into the image,
 not mounted.
+
+### Live CLOB (same daemon)
+
+`live_paper.trading_mode.execution_mode()` reads `LIVE_TRADING`. Paper still
+patches `ExecutionGateway = PaperGateway` and simulates fills from MDS.
+Live calls `build_live_engine` (`Engine(paper=False)`), leaves the fork
+gateway unpatched, journals user-WS fills, and does not run the MDS fill
+bridge. `session.jsonl` schema 3 adds `execution_mode` (`paper`/`live`);
+schema 1/2 archives still resume. Telegram start lines end with `mode paper`
+or `mode live`. Panic: `docker compose stop` (engine `cancel_all`) or
+`uv run polymaker cancel-all` from poly-maker with the same wallet. One live
+engine per wallet. First live: keep `LIVE_TRADING=0` until `polymaker doctor`
+and `livetest` pass on this wallet, then set `1` and restart compose.
+Risk caps in `dota-map.toml`: `$5` base, `$20` daily kill / market notional.
 
 ## Join-bid live-paper overlay (s2-join lifecycle)
 
