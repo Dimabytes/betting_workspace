@@ -115,11 +115,14 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   (`session`, `discovery`, …) when the test asserts alert text — callers bind that
   name at import time. Session-finished text is `session.notify_now`.
 - Steam keys: `steam_client.load_steam_keys()` reads STEAM_KEYS (comma-separated) with
-  legacy STEAM_KEY fallback; `SteamClient.get(url, params)` injects the current key with
-  `follow_redirects=False` (the key is in the query string) and rotates one key forward on
-  HTTP 429/403, Telegram-alerting once per response with status + 1-based ordinal. No
-  persistence: restart = key 1 again. Callers that want failed ticks use `get_ok` +
-  `decode_json` (JSON `null` is a successful decode of None, not `JSON_FAILED`).
+  legacy STEAM_KEY fallback. `SteamClient.get` holds a `threading.Lock` around the
+  request and key rotation so one process can poll many matches; the key is injected
+  with `follow_redirects=False`. HTTP 429/403 rotates one key forward and Telegram-
+  alerts once per response (status + 1-based ordinal). No persistence: restart = key 1
+  again. Live match archives use `follow_realtime_stats_async` (`asyncio.to_thread`
+  for HTTP, `asyncio.sleep` for the 1 Hz remainder). A full archive is ~2400 Steam
+  requests (~40 full matches/day per key). Callers that want failed ticks use `get_ok`
+  + `decode_json` (JSON `null` is a successful decode of None, not `JSON_FAILED`).
 - No `from __future__ import annotations` anywhere: a classmethod returning its own class
   must annotate with `typing.Self` (a plain class-name annotation raises NameError).
 - httpx logs the full request URL at INFO; any module that puts secrets in URLs must
@@ -247,19 +250,18 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   on the rotating client), sleep = max(0, 60 - elapsed from cycle start) including consumer
   time. US-012 owns no loop/sleep of its own.
 - Discovery Telegram policy: name-link misses, ambiguities, map mismatch, missing server,
-  no live games, malformed sidecars and Steam failures are log-only. Telegram fires once
-  when the orchestrator actually spawns a polling child (`live-paper session started:`
+  no live games, malformed sidecars and Steam failures are log-only.   Telegram fires once
+  when a match task actually starts (`live-paper session started:`
   plus public match/sides/map/market/kind/condition ids, never secrets/tokens/paths).
   A crash restart of the same match_id does not send a second start page. Exhaustion
-  after MAX_CRASH_RESTARTS still pages once. On Steam post-game the child sends
-  `live-paper session finished:` via `notify.notify_now` (same thread, then the
-  process exits). `notify_in_background` is a daemon thread: the parent can use it
-  because it keeps running, the child cannot — a daemon POST is killed on exit.
-  The finished line is realized (`net_cash`), IMV (`inventory_value` at last FV
-  mark, leftover is not resolved to 0/1), post-process maker rebate (same formula
-  as `make live-report`), net = realized+IMV+rebate, leftover YES/NO sizes.
-  Missing engine cash renders as `n/a`. Start/fault alerts stay on
-  `notify.notify_in_background`.
+  after MAX_CRASH_RESTARTS still pages once. On Steam post-game the worker sends
+  `live-paper session finished:` via `notify.notify_now` (same thread) after
+  `execution_cleanup.json` when orders on that market are proven gone.
+  `notify_in_background` is a daemon thread: the host process keeps running,
+  so start/fault alerts stay on it. The finished line is realized (`net_cash`),
+  IMV (`inventory_value` at last book mark, leftover is not resolved to 0/1),
+  post-process maker rebate, net = realized+IMV+rebate, leftover YES/NO sizes.
+  Missing engine cash renders as `n/a`. There is no `make live-report`.
 - basedpyright strict gotchas when validating JSON: `isinstance(x, T)` is flagged unnecessary
   once a TypedDict `.get()` already returns `T` — use `type(x) is not T` for exact runtime
   checks (also rejects bool-as-int). An `object`-annotated local still leaks its initializer's
@@ -293,9 +295,11 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   `in` value comparison. RUF003 flags the standalone Russian preposition "с" in comments —
   keep mandated Russian ponytail text with a line-level `# noqa: RUF003`.
 
-(The three US-011/US-012 sections below describe behavior that is still exact.
-Module and symbol NAMES in them moved in the structural pass at the end of this
-file — read that section for the current layout.)
+(The US-011 / US-012 sections below are the one-Engine-per-session harness:
+`run_session` / `PaperTrading` / `SessionSupervisor`. Production `run_daemon`
+is `WalletHost` — one process, one Engine, one wallet. CLI `session` still
+runs `run_session` but must take the same wallet flock; a second live without
+the lock exits 1.)
 
 - `live_paper.session.run_session(discovered, steam_client, archive_root)` (US-011) is
   the one-match session: load the model once, `discovered.with_model(model.model_reference)`,
@@ -478,13 +482,13 @@ file — read that section for the current layout.)
 
 ## US-012 orchestrator (daemon + child-session CLI)
 
-- `live_paper.orchestrator` owns both CLI modes. `daemon`: one
-  load_archive_root/client/SteamClient/MarketDiscovery for the process lifetime,
-  then `async for` over `cadence.poll_discoveries` — the daemon owns no
-  loop/sleep and never reimplements discovery. `session`: the child command
-  `sys.executable -m live_paper.orchestrator session --archive-root ... 
-  --discovered-json <strict public JSON>`; fresh clients, `asyncio.run(run_session(...))`.
-  One subprocess per match keeps the engine module-global lease safe.
+Production `run_daemon` is `WalletHost` (see “One-process wallet” below).
+`SessionSupervisor` and `Popen` stay in `orchestrator.py` so the old child-process
+tests still pass. Do not spawn a second Engine beside a live WalletHost.
+
+- `live_paper.orchestrator` owns both CLI modes. `daemon`: `run_wallet_daemon`
+  (one flock, one Engine). `session`: decode the public JSON handoff, take the
+  same wallet flock, then `asyncio.run(run_session(...))`. Lock held → exit 1.
 - `SessionSupervisor.reconcile(discovered)` is nonblocking and cadence-driven:
   poll (never wait) children, reap exits, accept/reject/launch. Records keyed by
   match_id only; duplicate id tuples and changed static handoffs rejected
@@ -635,7 +639,8 @@ moved.
 - Tests follow the same seams: `tests/live_paper_session_fixtures.py` holds
   every builder and fake (`build_discovered`, `build_trading`,
   `build_real_trading`, `FakeEngine`, `AlertRecorder`, …), and the suite is
-  `test_live_paper_session{,_config,_binding,_journal,_engine,_quoting,_trading}.py`.
+  `test_live_paper_session{,_config,_binding,_journal,_engine,_quoting,_trading}.py`
+  plus `test_live_paper_wallet_{store,host}.py` and `test_live_paper_engine_seams.py`.
 - `shared.utils.strict_json` is the one strict JSON decoder for every
   untrusted document (sidecars, Steam rows, the daemon<->child handoff, our own
   provenance): `require_object/exact_keys/str/nonempty_str/int/bool/list/
@@ -746,10 +751,14 @@ mismatch.
 
 ```
 data/live_paper/<match_id>/
-  state.jsonl      # 1 Hz raw Steam, fsynced JSONL
-  match.json       # start binding + final summary
-  session.jsonl    # paper decisions
-  state.parquet    # make live-parquet (complete file = converted marker)
+  state.jsonl              # 1 Hz raw Steam, fsynced JSONL
+  match.json               # start binding + final summary (Steam post-game)
+  session.jsonl            # decisions; schema 4 on fresh journals
+  execution_cleanup.json   # orders on this market proven gone (not Steam final)
+  state.parquet            # make live-parquet (complete file = converted marker)
+data/live_paper/wallet/
+  paper.db | live.db       # one sqlite per mode; flock this file
+  engine_journal/          # one process journal_dir, not per-match
 ```
 
 `STEAM_KEYS` is a comma-separated list. All requests use key 1 until HTTP
@@ -758,7 +767,7 @@ rotation. Restart (including Docker restart) returns to key 1. Legacy
 `STEAM_KEY` is still one key.
 
 Offline only: `make live-parquet` (the only OpenDota caller; winner=null
-backfill) and `make live-report` (session.jsonl PnL, no network).
+backfill). There is no `make live-report`; PnL is `session.jsonl` and Telegram.
 
 ### Where it runs
 
@@ -791,16 +800,55 @@ not mounted.
 ### Live CLOB (same daemon)
 
 `live_paper.trading_mode.execution_mode()` reads `LIVE_TRADING`. Paper still
-patches `ExecutionGateway = PaperGateway` and simulates fills from MDS.
-Live calls `build_live_engine` (`Engine(paper=False)`), leaves the fork
-gateway unpatched, journals user-WS fills, and does not run the MDS fill
-bridge. `session.jsonl` schema 3 adds `execution_mode` (`paper`/`live`);
-schema 1/2 archives still resume. Telegram start lines end with `mode paper`
-or `mode live`. Panic: `docker compose stop` (engine `cancel_all`) or
-`uv run polymaker cancel-all` from poly-maker with the same wallet. One live
-engine per wallet. First live: keep `LIVE_TRADING=0` until `polymaker doctor`
-and `livetest` pass on this wallet, then set `1` and restart compose.
-Risk caps in `dota-map.toml`: `$5` base, `$20` daily kill / market notional.
+uses `PaperGateway` and simulates fills from MDS. Live leaves the fork gateway
+unpatched, journals user-WS fills, wraps `open_orders` so Unproven raises
+(never `[]`). `session.jsonl` schema 4 carries `execution_mode`; schema 3
+resumes as-is (does not rewrite 4); schema 1/2 pin paper. Telegram start lines
+end with `mode paper` or `mode live`. Panic: `docker compose stop` (shutdown
+latch, then Engine `cancel_all`) or `uv run polymaker cancel-all` from
+poly-maker with the same wallet. First live: keep `LIVE_TRADING=0` until
+`polymaker doctor` and `livetest` pass on this wallet, then set `1` and
+restart compose. Caps in `dota-map.toml`: `$5` entry, `$20` daily kill (book
+MTM, not 0/1 resolution), `$40` inventory including leftover, `$20` market,
+`$20` event.
+
+## One-process wallet (commit d2212e9)
+
+One process, one Engine, one RiskManager, one sqlite. `../poly-maker` is not
+modified. Patch fork classes/methods before or after `Engine()`.
+
+- Flock `data/live_paper/wallet/paper.db` or `live.db`. Lock held → nonzero
+  exit. Pin funder / signature_type / chain in the db; a different identity
+  refuses to start. Old per-match `paper_state.db` files are not merged
+  (fail-loud).
+- `WalletStateStore` + `WalletFillProcessor` replace the fork store/processor.
+  Fill key is `clob_trade_id` + our maker order id, never the `maker_orders`
+  array index (REST reorder would double-count). MATCHED is pending on disk;
+  FAILED restores the pre-image; CONFIRMED without MATCHED is one transition.
+  Ledger is the only `net_cash`. `drop_untracked_positions` is a no-op so
+  leftover counts toward `$40` until the operator redeems on Polymarket.
+- Live REST: Unproven ≠ empty. Wrap `gateway.open_orders` so a 500 cannot
+  wipe local orders to `[]`. Paper `open_orders` is already complete — do not
+  wrap it. Day kill wraps `note_fill` so Engine `_on_fill` amounts are ignored
+  (MATCHED+CONFIRMED must not double cash). Markout is on CONFIRMED.
+- Attach/detach copy-assign engine dicts (`metas = {**metas, cid: meta}`) so a
+  live `_reconcile_loop` iterator does not raise. Attach writes `_token_cid`
+  last; detach drops it first. User WS: `set_markets` then close the socket
+  (force reconnect); `md.connected`, not `md._ws is not None`. `stop_quoter`
+  keeps a no-op `_task_specs` factory so `_supervise` does not KeyError.
+  Dynamic profile: `MarketEntry(condition_id=…, profile="dota-map")`, not
+  `profile_for` on an empty `markets.toml`. One process `[paths].journal_dir`.
+- `WalletHost` does **not** patch `compute_fair_value`. Quotes come from the
+  per-cid `StrategyCell` via `make_cells_quotes_adapter`. Empty markets at
+  Engine start; MatchWorker attaches. `match.json.final` is the Steam
+  post-game tape and does not wait for orders. Then quiet-hold, `cancel_asset`
+  this market only, fence. Proven → `session_end` leftover →
+  `execution_cleanup.json` → Telegram. Unproven → no cleanup file; boot scan
+  retries (Steam final already written, no discovery). Cancel market A must
+  not touch B. Leftover is not auto-flattened or redeemed in code.
+- Tests: `test_live_paper_wallet_store.py`, `test_live_paper_engine_seams.py`,
+  `test_live_paper_wallet_host.py`. `PaperTrading` / `run_session` tests still
+  exercise one Engine per session.
 
 ## Join-bid live-paper overlay (s2-join lifecycle)
 
@@ -815,12 +863,13 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
 - `StrategyCell` replaced `FairGateCell`. `None` state means no model
   (`forced`); `cell.unwinding` is independent so an exit can still fire after
   the model ends. There is no `set_fair` helper — tests call `publish`.
-- Engine module lease is three names: `compute_fair_value`,
-  `ExecutionGateway`, and `construct_quotes`. Patch
-  `polymaker.engine.construct_quotes` — the engine imported the name.
-  Overlay is `live_paper.session_quoting.build_dota_quotes`. A fault in the
-  overlay journals `trading_error` and returns an empty quote set (never the
-  fork AMM).
+- Engine module lease on WalletHost: `StateStore` / `CatalogStore` /
+  `UserEventProcessor` / `UserStream` / `normalize_trade`, paper
+  `ExecutionGateway`, and `construct_quotes` via `make_cells_quotes_adapter`.
+  **Do not patch `compute_fair_value`.** Overlay is still
+  `live_paper.session_quoting.build_dota_quotes`. A fault returns an empty
+  quote set (never the fork AMM). `PaperTrading` (tests / CLI session) still
+  patches FV + gateway + quotes as in US-011.
 - Entry is one join-bid BUY: `floor(bid)` on the 0.01 grid, size
   `base_size_usdc / price` rounded to 2 decimals. Live gate chain is
   `evaluate_entry` + `EntryGateInputs`. Backtest chain is
@@ -836,12 +885,10 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   empties quotes; EVENT still sells and does not open. A first engine
   recompute on microprice then a model fair can trip EVENT if the jump is
   `>= event_jump_ticks` (default profile is 8, dota-map is 15).
-- Journal `schema_version` is 2: `signal.entry_block`, `quote.second`,
-  `fill.second` (last Steam game second, markout as-of) + `fill.ts_utc`
-  (wall clock when the paper fill was applied). `first_binding` and
-  `make live-report` accept schema 1 and 2; one journal is one schema.
-  Round `unwind` uses `ts_utc` hold, not game seconds. Old archives have
-  no `entry_block` histogram and no wall-clock hold.
+- Journal `schema_version` is 4 on fresh files (`execution_mode` present).
+  `first_start` accepts 1–4; schema 1/2 pin paper; a schema-3 resume does not
+  rewrite 4. There is no `make live-report`. Round `unwind` uses `ts_utc`
+  hold, not game seconds.
 - Compare live to backtest via markout in cents and PnL per share, not PnL
   per round: live sizes $5 notional, backtest holds 5 shares. Paper still has
   no queue, no insert latency, and full fills at the limit.
