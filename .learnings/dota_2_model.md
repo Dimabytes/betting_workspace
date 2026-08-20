@@ -72,17 +72,18 @@ Read these rules before data, timing, or backtest work.
 - 30s gold velocity is `|nw[t] - nw[t-30]|`. Missing t-30 is NaN and gates as `missing_nw`, not a fallback to the match's first nw.
 - Treat framework result dictionaries as untrusted input. Require both instrument results and exclude `terminated_early` rows from PnL aggregates.
 - Replay metadata cache misses call Gamma and CLOB per market. If local DNS blocks Polymarket, run with the VPN.
-- Set engine `taker_fee` to zero. Calculate maker rebate only in post-processing: `0.15 * 0.05 * qty * p * (1 - p)`.
+- Set engine `taker_fee` to zero. Calculate maker rebate only in post-processing: `0.15 * 0.05 * qty * p * (1 - p)`. That is the expected sports rebate on our maker fills, not an upper bound diluted by other makers. Polymarket pays the UTC-day total to the wallet only if it is at least $1; a smaller day pays nothing and does not roll over.
 - Audit archived validation terms with `scripts/check_gamma_trading_terms.py`. Do not reject old training markets inside shared loaders.
 
 ## Steam live feed
 
 Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_steam_live.py`.
 
+- HTTP 400 on `GetRealtimeStats` is Valve-side for that `server_steam_id`, not a bad key and not 429. It also hits a live match: measured 2026-08-20, 2 of 5 games on league 19719 (G1 and G3 of one series; G2 in the same series returned 200), both keys, the whole game, while neighboring live servers in the same second returned 200. The feed still ends after 30 consecutive non-2xx or transport errors. A no-snapshot exit goes through the standard `WalletHost` backoff (`RESTART_BACKOFF_SECONDS` 60/120/240, `MAX_CRASH_RESTARTS` = 3), one Telegram on the first death (`match_id` + `server_steam_id`), then the existing exhaustion alert; it is not parked until `server_steam_id` changes. Discovery `name_misses` and `map_mismatches` are cycle counts, not per-sidecar lines. `wrap_alert_transitions` forwards `alerter.alert` only when `(key, message)` changes and logs once when `evaluate` returns `halt=False` for a `risk_halt:` key.
 - Steam is the free live source. Key in `.env` as `STEAM_KEY`, 100k requests/day. `GetRealtimeStats` is fresh on every request; `GetLiveLeagueGames` refreshes every 15s; OpenDota `/live` every 60s.
 - The feed runs 1.4-2.3s behind the game server. Derive the lag as `match.start_timestamp + match.timestamp` minus the local clock. Valve does not apply the league `stream_delay_s` to the API.
 - The tournament stream runs about 7s behind the game: our feed beats it by 5s, measured on two kills.
-- `match.game_time` is the horn clock with no offset: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring.
+- `match.game_time` is the horn clock with no offset **once `game_state` is 5**: t=2291 read 38:11 and t=2837 read 47:17 on the broadcast. Steam needs no horn anchoring after that. Before state 5 it is a different clock. State 2 (hero select) often carries a **positive draft clock** (measured +61…+540 on 8955796155) that walked through `evaluate_entry` / `BUY_CUTOFF_SECOND` as if it were minute nine. State 3 strategy and state 8 showcase stay pre-horn. State 4 is spawn **−90…0**, still before horn. State 5 starts at horn=`game_time=0`. `window_reason` quotes only on state 5 with `second >= 0`; everything else is `pre_horn`. Keep the old `second < 0` check. There is no post-horn pre-creep window in this feed.
 - `match.match_id` is null on a live draft and on a dead server. Liveness comes only from `game_state` (7 = disconnect); never branch on `match_id`.
 - `match.timestamp` is seconds since `match.start_timestamp` (Unix lobby/server start), not Unix itself. Horn Unix = `start_timestamp + timestamp - game_time`. Treating `timestamp` as Unix writes `horn_at_utc` in 1970.
 - Steam team numbers are fixed: 2 = Radiant, 3 = Dire. Resolve sides by `team_number`, never by list order.
@@ -797,15 +798,20 @@ raises (never `[]`). `positions` stays the fork's (`{}` + log on HTTP error) so
 a data-API 500 cannot kill boot or skip order reconcile. `session.jsonl` schema
 5 carries `execution_mode` and `fill_key`; schema 3/4 resume as-is (do not
 rewrite 5); schema 1/2 pin paper. Telegram start lines end with `mode paper` or
-`mode live`. Panic: `docker compose stop` (close latch, join workers, drain
+`mode live`. User-WS fill matching uses `gateway.funder` (Safe / `BROWSER_ADDRESS`),
+not the signer EOA `gateway.address`. A miss drops every fill, sqlite and Telegram
+PnL stay 0, and REST `positions` can still open a phantom exit. Pin may run before
+`gateway.connect` and store an empty funder; a second pin after start upgrades that
+row. Fork `error_rate` never decays (`attempts >= 20`); `WalletHost.detach` zeros
+the counters so the next market can quote. Panic: `docker compose stop` (close latch, join workers, drain
 in-flight place/cancel, then Engine `cancel_all`) or `uv run polymaker cancel-all`
 from poly-maker with the same wallet. Drain timeout is unproven safety; the
 exchange dead-man is the fallback. First live: keep `LIVE_TRADING=0` until
 `polymaker doctor` and `livetest` pass on this wallet, then set `1` and
-restart compose. Caps in `dota-map.toml`: `$5` entry, `$20` daily kill (book
-MTM, not 0/1 resolution), `$40` inventory of live markets (proven Steam-final
-zeros sqlite leftover; on-chain shares may remain until UMA), `$20` market,
-`$20` event.
+restart compose. Caps in `dota-map.toml`: `$20` entry, `$80` daily kill (book
+MTM, not 0/1 resolution), `$160` inventory of live markets (proven Steam-final
+zeros sqlite leftover; on-chain shares may remain until UMA), `$80` market,
+`$80` event.
 
 ## One-process wallet
 
@@ -848,7 +854,9 @@ modified. Patch fork classes/methods before or after `Engine()`.
   remake waits for detach. Cancel market A must not touch B.
 - `WalletHost` does **not** patch `compute_fair_value`. Quotes come from the
   per-cid `StrategyCell` via `make_cells_quotes_adapter`. Empty markets at
-  Engine start; MatchWorker attaches. `match.json.final` is the Steam
+  Engine start; MatchWorker attaches. After `Engine.start()`,
+  `bind_user_fill_address` points user-WS matching at `gateway.funder`.
+  `detach` calls `reset_order_error_rate`. `match.json.final` is the Steam
   post-game tape and does not wait for orders. Telegram finished line is
   `notify_in_background`. Git HEAD is captured once at daemon boot.
 - Tests: `test_live_paper_wallet_store.py`, `test_live_paper_engine_seams.py`,
@@ -875,7 +883,13 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   quote set (never the fork AMM).
 - Entry is one join-bid BUY: `floor(bid)` on the 0.01 grid, size
   `base_size_usdc / price` rounded to 2 decimals. Live gate chain is
-  `evaluate_entry` + `EntryGateInputs`. Backtest chain is
+  `evaluate_entry` + `EntryGateInputs`. Any `yes_size > 0` or `no_size > 0`
+  is `position_open` (not only `>= min_order_size`): dust below the CLOB
+  minimum must not open a second clip. `build_dota_quotes` matches that for
+  entry; SELL still requires `size >= min_order_size`. After a BUY fill,
+  `StrategyCell.sell_after = monotonic + EXIT_SETTLE_SECONDS` (10); the
+  overlay emits no SELL until then so a user-WS fill cannot outrun CLOB
+  token credit. Backtest chain is
   `_choose_buy_target` + `nw_velocity_block_reason`. Shared numbers only
   live in `shared/constants/strategy.py`; parity is those constants plus
   tests, not one shared function. Grid snap is

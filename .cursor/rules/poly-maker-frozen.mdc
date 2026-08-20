@@ -1,0 +1,15 @@
+---
+description: Ban edits to poly-maker (fork and upstream). Patch from dota_2_model only.
+alwaysApply: true
+---
+
+# poly-maker is frozen
+
+`../poly-maker` is a read-only fork of `warproxxx/poly-maker`. Do not edit it.
+
+- No file changes, commits, or PRs in `../poly-maker`.
+- No patches or PRs to `warproxxx/poly-maker`.
+- No `poly-maker` edits inside implementation plans.
+- Patch Engine classes and methods from `dota_2_model` only (before or after `Engine()`).
+
+You may say that a `poly-maker` change would help. Then stop. Do not plan or implement it unless the user says in this conversation that `poly-maker` may change.
