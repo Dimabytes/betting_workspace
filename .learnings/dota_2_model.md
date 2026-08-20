@@ -878,7 +878,8 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
 - Engine module lease on WalletHost: `StateStore` / `CatalogStore` /
   `UserEventProcessor` / `UserStream` / `normalize_trade`, paper
   `ExecutionGateway`, and `construct_quotes` via `make_cells_quotes_adapter`.
-  **Do not patch `compute_fair_value`.** Overlay is still
+  Assign `construct_quotes` after `Engine()` so the adapter can close over
+  `engine.state.inflight`. **Do not patch `compute_fair_value`.** Overlay is still
   `live_paper.session_quoting.build_dota_quotes`. A fault returns an empty
   quote set (never the fork AMM).
 - Entry is one join-bid BUY: `floor(bid)` on the 0.01 grid, size
@@ -886,10 +887,17 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   `evaluate_entry` + `EntryGateInputs`. Any `yes_size > 0` or `no_size > 0`
   is `position_open` (not only `>= min_order_size`): dust below the CLOB
   minimum must not open a second clip. `build_dota_quotes` matches that for
-  entry; SELL still requires `size >= min_order_size`. After a BUY fill,
-  `StrategyCell.sell_after = monotonic + EXIT_SETTLE_SECONDS` (10); the
-  overlay emits no SELL until then so a user-WS fill cannot outrun CLOB
-  token credit. Backtest chain is
+  entry; SELL still requires `size >= min_order_size`. MATCHED writes the
+  position and `store.inflight`; CONFIRMED clears it. `make_cells_quotes_adapter`
+  passes `settling = inflight(yes) > 0 or inflight(no) > 0` into
+  `build_dota_quotes`, which emits no SELL while settling. Incident match
+  `8956096810` / cid `0x46fc25`: SELL 0.27s after MATCHED, CLOB `balance: 0`,
+  six rejects, `error_rate` halt, position stuck until detach at 17:03.
+  Fork `_reconcile_loop` expires inflight after `reconcile_interval_s * 2`,
+  so a dropped CONFIRMED does not lock the exit forever. After CONFIRMED,
+  `MatchWorker.note_fill` sets `StrategyCell.sell_after = monotonic +
+  EXIT_SETTLE_SECONDS` (10); the overlay still waits that extra 10s. HALTED
+  still empties every quote including SELL. Backtest chain is
   `_choose_buy_target` + `nw_velocity_block_reason`. Shared numbers only
   live in `shared/constants/strategy.py`; parity is those constants plus
   tests, not one shared function. Grid snap is
