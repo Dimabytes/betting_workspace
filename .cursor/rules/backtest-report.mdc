@@ -10,9 +10,10 @@ After a backtest finishes, or when the user asks to show backtest / S2 results, 
 Source: `dota_2_model` `backtest.postprocess`. One block per arm.
 
 1. Identity then RUN — arm, model, knobs; eligible (pool) vs selected/completed (this run); terminated; traded matches + no-trade = completed; fills; turnover; fill rate. If terminated > 0, do not trust total PnL.
-2. PNL — pre-rebate, per match, median, per share, then rebate / net. Lead with pre-rebate.
-3. FILLS — buy/sell 30s and 300s markout with 95% CI.
-4. HOLD — min/p50/p90 of closed round trips, unwind share.
-5. RISK — below zero (worst cumulative match PnL vs start-at-zero, by horn), max match drawdown (per-match path), loss rate, CVaR 5%, worst match, dust. No terminal inventory, no partial-fill rate.
+2. PNL — span first, then starting capital, pnl/ROI before rebate, rebate, pnl/final balance/ROI with rebate, per match, per share, median, maps at once.
+3. BALANCE — 16-row box-drawing equity line when `wallet_equity_spark` is non-empty; Y ticks are counted from starting capital (that row prints the true start); `─` is starting capital; path min is pinned so the trough is a vertex. Skip the section when there are no fills.
+4. FILLS — buy/sell 30s and 300s markout with 95% CI.
+5. HOLD — min/p50/p90 of closed round trips, unwind share.
+6. RISK — loss rate, CVaR 5%, worst match, lowest capital point. No below zero, max match drawdown, dust, terminal inventory, or partial-fill rate.
 
 JSON may hold extra fields. The terminal does not.
