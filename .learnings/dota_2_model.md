@@ -906,8 +906,9 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   After a SELL that leaves `0 < size < min`, `MatchWorker` calls
   `store.zero_token_sizes` so the next clip does not add phantom sqlite size.
   Attach/restore uses the same threshold and write-off. Do not go through
-  fork `force_set_position`. Backtest dust (unsellable 1–4 held to settlement)
-  is a different machine and is unchanged. `build_dota_quotes` matches that
+  fork `force_set_position`. Backtest SELL is held >= min (5), same as live;
+  leftover 1–4 stays unsellable until settlement (no sqlite write-off / re-entry).
+  `build_dota_quotes` matches that
   for entry; SELL still requires `size >= min_order_size`. MATCHED writes the
   position and `store.inflight`; CONFIRMED clears it. `make_cells_quotes_adapter`
   passes `settling = inflight(yes) > 0 or inflight(no) > 0` into
@@ -935,6 +936,6 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   `first_start` accepts 1–5; schema 1/2 pin paper; a schema-3 or schema-4 resume
   does not rewrite 5. There is no `make live-report`. Round `unwind` uses `ts_utc`
   hold, not game seconds.
-- Compare live to backtest via markout in cents and PnL per share, not PnL
-  per round: live sizes $5 notional, backtest holds 5 shares. Paper still has
+- Compare live to backtest via markout in cents and PnL per share, not dollar
+  PnL per round: both size $100 (`BASE_SIZE_USDC` / `base_size_usdc`). Paper still has
   no queue, no insert latency, and full fills at the limit.
