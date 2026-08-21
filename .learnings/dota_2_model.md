@@ -307,11 +307,13 @@ remain — archive, journal, quoting, GatedRegimeMachine, discovery. Production
   A model-load/contract failure re-raises (US-008 loader alerts once). Terminal
   path is Steam final → quiesce (stop quoter, cancel, fence) → proven leftover
   drop + detach. The `run_session` / `PaperTrading` process-per-match loop is gone.
-- Config materialization: the session reads `config/dota-map.toml` once (tomllib), validates
-  exactly [engine]/[risk]/[profiles.dota-map], and writes a session TemporaryDirectory with
-  generated config.toml (template tables + session [paths] into the match archive),
-  strategy.toml and markets.toml; `Config.load(tempdir, load_env=False)` only ever sees the
-  generated directory, never the template. Tuning values flow from the template through a
+- Config materialization: WalletHost reads `config/dota-map.toml` once at
+  `open_wallet_host` (tomllib), validates exactly [engine]/[risk]/[profiles.dota-map]/[wallet],
+  and writes a process TemporaryDirectory (`materialize_wallet_config_dir`) with
+  generated config.toml (template tables + wallet db/journal paths),
+  strategy.toml and an empty markets.toml; `Config.load(tempdir, load_env=False)` only ever sees the
+  generated directory, never the template. Match attach does not re-read it.
+  Tuning values flow from the template through a
   tiny typed TOML emitter — no tuning literals in Python.
 - The collector is the sole Gamma metadata source. Engine.start() unconditionally calls
   `refresh_market_metadata()` (GammaClient) even with a seeded CatalogStore, so the session
@@ -725,8 +727,9 @@ Operator layout. Implementation details stay in the sections above.
 Live loads `data/new_model/current/` (`model.txt` + `model.json` + `split.parquet`).
 `make train` calls `rotate_current_model_dir`: read the name from
 `current/model.json`, move `split.parquet` aside, rename `current/` to
-`data/new_model/<name>/`, create a new `current/`. A running session pins one
-booster; the next match sees the new `current/`.
+`data/new_model/<name>/`, create a new `current/`. WalletHost pins one booster
+in `open_wallet_host`. The next match reuses it. Put the new `current/` in
+place, then `docker compose restart`.
 
 ### Steam contract
 
@@ -779,15 +782,20 @@ mismatches, and missing server ids.
 
 | What changed                             | What to do                     | Running matches                |
 | ---------------------------------------- | ------------------------------ | ------------------------------ |
-| Numbers in `config/dota-map.toml`        | save the file                  | keep the old numbers           |
-| Session / strategy / model / feed Python | save the file                  | keep the old code              |
-| `current/` model                         | put the directory in place     | keep the old booster           |
+| Numbers in `config/dota-map.toml`        | `docker compose restart`       | die; archive resumes by append |
+| Session / strategy / model / feed Python | `docker compose restart`       | die; archive resumes by append |
+| `current/` model                         | put the directory in place, then `docker compose restart` | die; archive resumes by append |
 | Orchestrator or discovery                | `docker compose restart`       | die; archive resumes by append |
 | Deps, `pyproject.toml`, Dockerfile       | `docker compose up -d --build` | die; archive resumes by append |
 
-`src`, `config`, and `data/new_model` are bind-mounted, so the next session
-picks up a saved file with no rebuild. `poly-maker` is copied into the image,
-not mounted.
+`src`, `config`, and `data/new_model` are bind-mounted, so those edits skip
+`--build`. They still need `docker compose restart`. `open_wallet_host` copies
+`dota-map.toml` into a temp dir (`materialize_wallet_config_dir`), constructs
+one Engine, and calls `load_current_model()` once. MatchWorker reads
+`engine.cfg.profile_for(...)` and that booster. A later match does not re-read
+the template. Saving `base_size_usdc` left match `8957180942` filling $40 while
+the bind-mount already said $100. `poly-maker` is copied into the image, not
+mounted.
 
 ### Live CLOB (same daemon)
 
@@ -808,10 +816,10 @@ in-flight place/cancel, then Engine `cancel_all`) or `uv run polymaker cancel-al
 from poly-maker with the same wallet. Drain timeout is unproven safety; the
 exchange dead-man is the fallback. First live: keep `LIVE_TRADING=0` until
 `polymaker doctor` and `livetest` pass on this wallet, then set `1` and
-restart compose. Caps in `dota-map.toml`: `$20` entry, `$80` daily kill (book
-MTM, not 0/1 resolution), `$160` inventory of live markets (proven Steam-final
-zeros sqlite leftover; on-chain shares may remain until UMA), `$80` market,
-`$80` event.
+restart compose. Caps in `dota-map.toml`: `$100` entry, `$400` daily kill (book
+MTM, not 0/1 resolution), `$800` inventory of live markets (proven Steam-final
+zeros sqlite leftover; on-chain shares may remain until UMA), `$400` market,
+`$400` event.
 
 ## One-process wallet
 
@@ -820,6 +828,10 @@ modified. Patch fork classes/methods before or after `Engine()`.
 
 - CLI is daemon-only. No session child CLI, no Popen, no `SessionSupervisor`,
   no `run_session`, no `PaperTrading`.
+- Size, risk caps, and the booster are process-lifetime. `open_wallet_host`
+  materializes `dota-map.toml` once and loads `current/` once. Attach of a new
+  match does not reload them. A file save is not enough; `docker compose
+  restart` is.
 - Flock `data/live_paper/wallet/paper.db` or `live.db`. Lock held → nonzero
   exit. Pin funder / signature_type / chain immediately after `Engine()` and
   **before** `WalletHost.__init__`, ledger day writes (`ensure_utc_day`), and
@@ -839,7 +851,7 @@ modified. Patch fork classes/methods before or after `Engine()`.
   with `fill_key` on fill records. Ledger is the only `net_cash`.
   `drop_untracked_positions` is a no-op so boot cannot wipe the wallet.
   Proven Steam-final zeros sqlite YES/NO (size 0, no payout row) and detaches.
-  On-chain leftover may remain until UMA; it is not kept in sqlite for the $40
+  On-chain leftover may remain until UMA; it is not kept in sqlite for the $800
   cap. Unproven fence: `keep_quiet`, no zero, no cleanup file.
 - Live REST: wrap **only** `gateway.open_orders` so a 500 cannot wipe local
   orders to `[]`. `positions` is the fork's. Paper `open_orders` is already
@@ -884,10 +896,16 @@ Live paper now quotes the same way as backtest s2-join. The fork is not edited.
   quote set (never the fork AMM).
 - Entry is one join-bid BUY: `floor(bid)` on the 0.01 grid, size
   `base_size_usdc / price` rounded to 2 decimals. Live gate chain is
-  `evaluate_entry` + `EntryGateInputs`. Any `yes_size > 0` or `no_size > 0`
-  is `position_open` (not only `>= min_order_size`): dust below the CLOB
-  minimum must not open a second clip. `build_dota_quotes` matches that for
-  entry; SELL still requires `size >= min_order_size`. MATCHED writes the
+  `evaluate_entry` + `EntryGateInputs`. A side is `position_open` only when
+  `size >= min_order_size` (incident `8957013760`: SELL leftover 0.009 after
+  share_floor blocked 215 ticks until cutoff). Dust falls through
+  `build_dota_quotes` to entry; `settling` still returns empty on that path.
+  After a SELL that leaves `0 < size < min`, `MatchWorker` calls
+  `store.zero_token_sizes` so the next clip does not add phantom sqlite size.
+  Attach/restore uses the same threshold and write-off. Do not go through
+  fork `force_set_position`. Backtest dust (unsellable 1–4 held to settlement)
+  is a different machine and is unchanged. `build_dota_quotes` matches that
+  for entry; SELL still requires `size >= min_order_size`. MATCHED writes the
   position and `store.inflight`; CONFIRMED clears it. `make_cells_quotes_adapter`
   passes `settling = inflight(yes) > 0 or inflight(no) > 0` into
   `build_dota_quotes`, which emits no SELL while settling. Incident match
