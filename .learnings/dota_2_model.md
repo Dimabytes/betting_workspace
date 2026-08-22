@@ -588,8 +588,10 @@ keeps the split it was trained on, rename `current/` to
 `data/new_model/<name>/`, create a new `current/`. A taken archive name is never
 deleted or overwritten: `archive_target` counts up to `<name>_2`, `_3`, and the
 returned name (which `make train` logs) carries that suffix. `.gitignore` has
-`data/*` plus `!data/new_model/`, so every archived model and its split are in
-git. WalletHost pins one booster
+`data/*` plus `!data/new_model/` and `!data/backtests/`, so archived models and
+backtest run dirs are in git. Backtests skip `shard_*/`, `quote_events.parquet`,
+and HTML (Nautilus `--match-id` dumps / old market-edge Plotly). Viewer is
+`make viewer`. WalletHost pins one booster
 in `open_wallet_host`. The next match reuses it. Put the new `current/` in
 place, then `docker compose restart`.
 
