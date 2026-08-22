@@ -15,9 +15,9 @@ Expected layout:
 
 Five folders, four code projects. This workspace is agent instructions only.
 
-Before any work on a sibling project (code, commands, tests, architecture) read the matching learnings file (paths are relative to `betting_workspace/`):
+Before any work on a sibling project (code, commands, tests, architecture) read the matching briefing (paths are relative to `betting_workspace/`):
 
-`../dota_2_model` -> `.learnings/dota_2_model.md`
+`../dota_2_model` -> `../dota_2_model/AGENTS.md`
 
 `../poly-maker` -> `.learnings/poly-maker.md`
 
@@ -37,9 +37,3 @@ Before any work on a sibling project (code, commands, tests, architecture) read 
 Do not change `poly-maker`. This is a ban, not a preference.
 
 - Do not edit files in `../poly-maker`.
-- Do not commit, push, rebase, or open a pull request in `../poly-maker`.
-- Do not send patches or pull requests to `warproxxx/poly-maker`.
-- Do not put `poly-maker` file edits, refactors, or version bumps into a plan.
-- Do not "fix the Engine at the root" in `poly-maker`. Keep `dota_2_model` as the only place that patches Engine classes and methods. Patch before or after `Engine()`, as `engine_seams.py` already does.
-
-You may tell the user that a `poly-maker` change would help. Stop after that sentence. Do not plan it. Do not implement it. Wait until the user says in this conversation that `poly-maker` may change.

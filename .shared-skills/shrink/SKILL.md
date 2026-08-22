@@ -51,7 +51,7 @@ is not yet made.
 
 ## Phase 2 — Understand
 
-- Read the target file fully, and `betting_workspace/.learnings/dota_2_model.md`. Trace the real flow end to end:
+- Read the target file fully, and `dota_2_model/AGENTS.md`. Trace the real flow end to end:
   inputs → transformations → outputs. No deletion proposals yet.
 - **Consumer map, grep-backed.** For every output artifact, every column, every
   manifest/metadata field, every enum value: who reads it, `file:line`. Also the
@@ -131,7 +131,7 @@ Order inside the plan mirrors the dependency order of decisions:
    file-set invariants at validate, business filters at load. Fold second read passes
    into the loop that already reads the data.
 4. **Polish** (only for surviving code): verb names, frozen dataclasses instead of
-   tuples, hoist inline expressions, docstrings, per `.learnings/dota_2_model.md`.
+   tuples, hoist inline expressions, docstrings, per `dota_2_model/AGENTS.md`.
 
 Each plan step names: the change, the expected proof (counts before == after, or the
 intended difference spelled out), and the commit message with decision drivers and
@@ -227,7 +227,7 @@ The manifest went from ~90 lines of dict-building to 6 keys after listing actual
 consumers (publish: `artifacts.sha256`; next script: `artifacts` + `data_as_of`;
 human: ≤5 counts). Everything only a hypothetical future analyst reads gets cut.
 
-**12. Anonymous tuple → frozen dataclass** (`.learnings/dota_2_model.md` rule; agents still regress
+**12. Anonymous tuple → frozen dataclass** (`dota_2_model/AGENTS.md` rule; agents still regress
 mid-refactor — watch for it in your own edits).
 ```python
 - def classify_contract(...) -> tuple[str, str, int | None]

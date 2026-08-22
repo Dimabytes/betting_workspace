@@ -19,4 +19,4 @@ Each project is its own git repository; all real code work happens inside them. 
 ## What's here
 
 - `.shared-skills/` — single source of truth for AI skills. `.claude/skills` and `.agents/skills` are symlinks.
-- `.learnings/` — per-project knowledge (`dota_2_model.md`, `poly-maker.md`, `prediction-market-backtesting.md`). Agents read the matching file before working on a sibling. Keep them updated as patterns and gotchas emerge.
+- `.learnings/` — per-project briefing for siblings that still use it. `dota_2_model` uses `../dota_2_model/AGENTS.md` instead.
