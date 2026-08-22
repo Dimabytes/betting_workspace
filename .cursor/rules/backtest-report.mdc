@@ -1,19 +1,10 @@
 ---
 description: After every backtest, print the two-column terminal report. Never dump summary.json.
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Backtest terminal report
 
-After a backtest finishes, or when the user asks to show backtest / S2 results, print `format_terminal_report` from `summary.json`. Never paste JSON. Never use markdown, bold, or markdown tables — the report is plain terminal text: section titles, blank lines, two-column aligned rows.
+After a backtest finishes, or when the user asks to show backtest / S2 results, print `format_terminal_report` from `summary.json` verbatim.
 
-Source: `dota_2_model` `backtest.postprocess`. One block per arm.
-
-1. Identity then RUN — arm, model, knobs; eligible (pool) vs selected/completed (this run); terminated; traded matches + no-trade = completed; fills; turnover; fill rate. If terminated > 0, do not trust total PnL.
-2. PNL — span first, then starting capital, pnl/ROI before rebate, rebate, pnl/final balance/ROI with rebate, per match, per share, median, maps at once.
-3. BALANCE — 16-row box-drawing equity line when `wallet_equity_spark` is non-empty; Y ticks are counted from starting capital (that row prints the true start); `─` is starting capital; path min is pinned so the trough is a vertex. Skip the section when there are no fills.
-4. FILLS — buy/sell 30s and 300s markout with 95% CI.
-5. HOLD — min/p50/p90 of closed round trips, unwind share.
-6. RISK — loss rate, CVaR 5%, worst match, lowest capital point. No below zero, max match drawdown, dust, terminal inventory, or partial-fill rate.
-
-JSON may hold extra fields. The terminal does not.
+Never paste JSON. Never use markdown, bold, or markdown tables.
