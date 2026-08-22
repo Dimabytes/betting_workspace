@@ -165,12 +165,21 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   = positive adjacent growth of `timestamp - game_time`; missing seconds = positive
   `game_time` jumps minus 1 between consecutive records (duplicates and late joins are not gaps).
 
+- Two live model dirs under `data/new_model/`: `research/` (was `current/`) is what
+  `make train`, `backtest` (its `--model-dir` default) and `selection.py` read; `production/`
+  is what live reads. Every publish moves the replaced dir to
+  `data/new_model/archive/{research,production}/<name>/`. `model_registry` owns the
+  mechanics: `staging_model_dir(live_dir)` makes `.next-<name>` beside the live dir
+  (gitignored, a leftover one is dropped), the caller writes the full model there, then
+  `publish_model_dir(staging, live, archive)` does two renames — live to archive, staging to
+  live. So a reader never sees a mixed `model.txt` + `model.json` pair, and both train paths
+  use one function. Never write straight into a live dir.
 - `live_paper.model_server` (US-008) is the one live model boundary:
-  `load_current_model()` requires the canonical `data/new_model/current/` pair
+  `load_production_model()` requires the canonical `data/new_model/production/` pair
   (model.txt + model.json) to be regular files, reads metadata once, validates
   the live contract, constructs one `lgb.Booster` and returns one frozen
   `ModelServer`; the returned object is the cache/pin (no module cache, no
-  re-read, no hot-reload — a later load sees a new `current/`, a running object
+  re-read, no hot-reload — a later load sees a new `production/`, a running object
   keeps its model). The contract gate compares `features` to
   `train_model.train_model.FEATURE_COLUMNS` by ordered list equality (never a
   set), lag/poll to `SOURCE_LAG_SECONDS`/`POLL_INTERVAL_SECONDS` (exact ints,
@@ -180,6 +189,23 @@ Measured 2026-08-14 on league 19719. Watcher: `../dota_2_model/scripts/watch_ste
   (never a path/JSON/model content). Every failed load logs and alerts exactly
   once via `notify.notify_in_background("live-paper model startup blocked:
   <reason>")` and re-raises; there is no retry loop.
+- `ModelMeta["metrics"]` is `ModelMetrics | None`. A production fit trains on every match,
+  so it has no holdout and writes `null`. Never fill the metrics with zeros: `mae_gain_300_cents
+  = 0.0` is indistinguishable from a useless model. `train_model.build_model_meta(train_matches,
+  metrics)` is the one constructor; research passes `build_model_metrics(...)`.
+- One place assembles a STRATZ feature vector: `stratz_seconds.build_second_state`. Both
+  `build_minute_states` (train rows: minute boundaries, `networthPerMinute`, playback only for
+  the pre-horn minute) and `build_exact_second_states` (validation rows: every second, playback
+  cursors) call it. Do not rebuild the vector in `prepare_dataset`; train and validation features
+  drift apart the moment there are two implementations.
+- prepare's data policy: missing data excludes one match, contradictory data aborts the run.
+  `build_minute_states` raises `MatchDataError(reason)` with a stable reason
+  (`missing radiantNetworthLeads`, `short networthPerMinute`, `non-monotonic level timeline`);
+  `build_dataset_rows` returns `list[DatasetRow] | ExcludedTrainMatch`, and
+  `format_excluded_train_matches` groups the reasons in the final log. A lead array that ends
+  early is not a defect — the match ended, so the loop breaks and earlier minutes stay.
+  `MinuteLeadMismatchError` (npm sums disagree with STRATZ leads) is not a `MatchDataError` and
+  still kills the run.
 - LightGBM's C++ side prints `[LightGBM] [Fatal] ...` with the model path
   straight to the raw stderr file descriptor (fd 2) before raising; Python
   logging and caplog never see it. Wrap `lgb.Booster(model_file=...)` and
