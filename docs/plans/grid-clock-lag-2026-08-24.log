@@ -1,0 +1,848 @@
+[2026-08-24 13:55:49,009] Dota 2: Klim Sani4 vs Team Lynx (BO3) - EPL Masters 2 Play-In Group B (dota2-ks-lynx-2026-08-24)
+[2026-08-24 13:55:49,009] following series 2995964
+[2026-08-24 13:55:49,251] t= 22:32 live     map 2    kills=14-11   nw - nw_lag=-   clock_lag=2.1s
+[2026-08-24 13:55:49,251]      RADIANT Klim Sani4         -
+[2026-08-24 13:55:49,251]      DIRE    Team Lynx          -
+[2026-08-24 13:55:49,360] t= 22:32 live     map 2    kills=14-11   nw R= 45855 D= 39140 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 13:55:49,360]      RADIANT Klim Sani4         lone druid 14528  sand king 11069  enigma 10168  undying 5123  dark willow 4967
+[2026-08-24 13:55:49,360]      DIRE    Team Lynx          necrolyte 13626  dark seer 10337  batrider 8896  hoodwink 3302  winter wyvern 2979
+[2026-08-24 13:55:54,411] t= 22:37 live     map 2    kills=14-11   nw R= 45855 D= 39140 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:55:54,411]      RADIANT Klim Sani4         lone druid 14528  sand king 11069  enigma 10168  undying 5123  dark willow 4967
+[2026-08-24 13:55:54,411]      DIRE    Team Lynx          necrolyte 13626  dark seer 10337  batrider 8896  hoodwink 3302  winter wyvern 2979
+[2026-08-24 13:55:56,451] t= 22:39 live     map 2    kills=14-11   nw R= 46080 D= 39435 nw_lag=8s  clock_lag=3.3s
+[2026-08-24 13:55:56,451]      RADIANT Klim Sani4         lone druid 14563  sand king 11140  enigma 10291  undying 5146  dark willow 4940
+[2026-08-24 13:55:56,451]      DIRE    Team Lynx          necrolyte 13734  dark seer 10473  batrider 8910  hoodwink 3316  winter wyvern 3002
+[2026-08-24 13:56:02,833] t= 22:46 live     map 2    kills=14-11   nw R= 46234 D= 39669 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 13:56:02,833]      RADIANT Klim Sani4         lone druid 14605  sand king 11149  enigma 10364  undying 5161  dark willow 4955
+[2026-08-24 13:56:02,834]      DIRE    Team Lynx          necrolyte 13919  dark seer 10488  batrider 8919  hoodwink 3325  winter wyvern 3018
+[2026-08-24 13:56:08,750] t= 22:51 live     map 2    kills=14-11   nw R= 46234 D= 39669 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:56:08,750]      RADIANT Klim Sani4         lone druid 14605  sand king 11149  enigma 10364  undying 5161  dark willow 4955
+[2026-08-24 13:56:08,751]      DIRE    Team Lynx          necrolyte 13919  dark seer 10488  batrider 8919  hoodwink 3325  winter wyvern 3018
+[2026-08-24 13:56:09,883] t= 22:52 live     map 2    kills=14-11   nw R= 46234 D= 39669 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:56:09,883]      RADIANT Klim Sani4         lone druid 14605  sand king 11149  enigma 10364  undying 5161  dark willow 4955
+[2026-08-24 13:56:09,883]      DIRE    Team Lynx          necrolyte 13919  dark seer 10488  batrider 8919  hoodwink 3325  winter wyvern 3018
+[2026-08-24 13:56:16,891] t= 22:59 live     map 2    kills=14-11   nw R= 46757 D= 40260 nw_lag=8s  clock_lag=8.2s
+[2026-08-24 13:56:16,891]      RADIANT Klim Sani4         lone druid 14708  sand king 11242  enigma 10473  undying 5270  dark willow 5064
+[2026-08-24 13:56:16,892]      DIRE    Team Lynx          necrolyte 14140  dark seer 10602  batrider 8942  hoodwink 3520  winter wyvern 3056
+[2026-08-24 13:56:17,077] t= 23:00 live     map 2    kills=14-11   nw R= 46757 D= 40260 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:56:17,077]      RADIANT Klim Sani4         lone druid 14708  sand king 11242  enigma 10473  undying 5270  dark willow 5064
+[2026-08-24 13:56:17,078]      DIRE    Team Lynx          necrolyte 14140  dark seer 10602  batrider 8942  hoodwink 3520  winter wyvern 3056
+[2026-08-24 13:56:18,121] t= 23:01 live     map 2    kills=14-11   nw R= 47730 D= 40274 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 13:56:18,121]      RADIANT Klim Sani4         lone druid 15130  sand king 11379  enigma 10611  undying 5408  dark willow 5202
+[2026-08-24 13:56:18,121]      DIRE    Team Lynx          necrolyte 14143  dark seer 10605  batrider 8944  hoodwink 3522  winter wyvern 3060
+[2026-08-24 13:56:25,669] t= 23:09 live     map 2    kills=14-11   nw R= 47992 D= 40406 nw_lag=8s  clock_lag=9.8s
+[2026-08-24 13:56:25,669]      RADIANT Klim Sani4         lone druid 15324  sand king 11390  enigma 10630  undying 5427  dark willow 5221
+[2026-08-24 13:56:25,669]      DIRE    Team Lynx          necrolyte 14162  dark seer 10678  batrider 8955  hoodwink 3533  winter wyvern 3078
+[2026-08-24 13:56:27,894] t= 23:10 live     map 2    kills=14-11   nw R= 47992 D= 40406 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:56:27,894]      RADIANT Klim Sani4         lone druid 15324  sand king 11390  enigma 10630  undying 5427  dark willow 5221
+[2026-08-24 13:56:27,894]      DIRE    Team Lynx          necrolyte 14162  dark seer 10678  batrider 8955  hoodwink 3533  winter wyvern 3078
+[2026-08-24 13:56:34,960] t= 23:18 live     map 2    kills=14-11   nw R= 47992 D= 40406 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:56:34,961]      RADIANT Klim Sani4         lone druid 15324  sand king 11390  enigma 10630  undying 5427  dark willow 5221
+[2026-08-24 13:56:34,961]      DIRE    Team Lynx          necrolyte 14162  dark seer 10678  batrider 8955  hoodwink 3533  winter wyvern 3078
+[2026-08-24 13:56:36,102] t= 23:19 live     map 2    kills=14-11   nw R= 48533 D= 40904 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 13:56:36,103]      RADIANT Klim Sani4         lone druid 15550  sand king 11467  enigma 10699  undying 5549  dark willow 5268
+[2026-08-24 13:56:36,103]      DIRE    Team Lynx          necrolyte 14298  dark seer 10941  batrider 9008  hoodwink 3550  winter wyvern 3107
+[2026-08-24 13:56:39,754] t= 23:22 live     map 2    kills=14-11   nw R= 48533 D= 40904 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:56:39,754]      RADIANT Klim Sani4         lone druid 15550  sand king 11467  enigma 10699  undying 5549  dark willow 5268
+[2026-08-24 13:56:39,754]      DIRE    Team Lynx          necrolyte 14298  dark seer 10941  batrider 9008  hoodwink 3550  winter wyvern 3107
+[2026-08-24 13:56:43,307] t= 23:26 live     map 2    kills=14-11   nw R= 48760 D= 41012 nw_lag=8s  clock_lag=4.7s
+[2026-08-24 13:56:43,308]      RADIANT Klim Sani4         lone druid 15581  sand king 11478  enigma 10848  undying 5567  dark willow 5286
+[2026-08-24 13:56:43,308]      DIRE    Team Lynx          necrolyte 14417  dark seer 10759  batrider 9199  hoodwink 3561  winter wyvern 3076
+[2026-08-24 13:56:48,123] t= 23:31 live     map 2    kills=14-11   nw R= 48899 D= 41225 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 13:56:48,123]      RADIANT Klim Sani4         lone druid 15589  sand king 11530  enigma 10899  undying 5581  dark willow 5300
+[2026-08-24 13:56:48,123]      DIRE    Team Lynx          necrolyte 14588  dark seer 10772  batrider 9207  hoodwink 3569  winter wyvern 3089
+[2026-08-24 13:56:57,903] t= 23:40 live     map 2    kills=14-11   nw R= 48899 D= 41225 nw_lag=8s  clock_lag=1.5s
+[2026-08-24 13:56:57,905]      RADIANT Klim Sani4         lone druid 15589  sand king 11530  enigma 10899  undying 5581  dark willow 5300
+[2026-08-24 13:56:57,905]      DIRE    Team Lynx          necrolyte 14588  dark seer 10772  batrider 9207  hoodwink 3569  winter wyvern 3089
+[2026-08-24 13:57:06,163] t= 23:49 live     map 2    kills=14-11   nw R= 50537 D= 41608 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 13:57:06,164]      RADIANT Klim Sani4         lone druid 16087  sand king 11692  enigma 11381  undying 5920  dark willow 5457
+[2026-08-24 13:57:06,164]      DIRE    Team Lynx          necrolyte 14635  dark seer 11005  batrider 9235  hoodwink 3597  winter wyvern 3136
+[2026-08-24 13:57:07,287] t= 23:50 live     map 2    kills=14-11   nw R= 50537 D= 41608 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:07,287]      RADIANT Klim Sani4         lone druid 16087  sand king 11692  enigma 11381  undying 5920  dark willow 5457
+[2026-08-24 13:57:07,287]      DIRE    Team Lynx          necrolyte 14635  dark seer 11005  batrider 9235  hoodwink 3597  winter wyvern 3136
+[2026-08-24 13:57:09,684] t= 23:52 live     map 2    kills=14-11   nw R= 50537 D= 41608 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:09,684]      RADIANT Klim Sani4         lone druid 16087  sand king 11692  enigma 11381  undying 5920  dark willow 5457
+[2026-08-24 13:57:09,685]      DIRE    Team Lynx          necrolyte 14635  dark seer 11005  batrider 9235  hoodwink 3597  winter wyvern 3136
+[2026-08-24 13:57:15,351] t= 23:58 live     map 2    kills=14-11   nw R= 50788 D= 41860 nw_lag=8s  clock_lag=6.9s
+[2026-08-24 13:57:15,351]      RADIANT Klim Sani4         lone druid 16248  sand king 11707  enigma 11406  undying 5945  dark willow 5482
+[2026-08-24 13:57:15,351]      DIRE    Team Lynx          necrolyte 14660  dark seer 11203  batrider 9273  hoodwink 3562  winter wyvern 3162
+[2026-08-24 13:57:17,781] t= 24:00 live     map 2    kills=14-11   nw R= 50817 D= 41979 nw_lag=8s  clock_lag=9.3s
+[2026-08-24 13:57:17,781]      RADIANT Klim Sani4         lone druid 16252  sand king 11711  enigma 11413  undying 5952  dark willow 5489
+[2026-08-24 13:57:17,781]      DIRE    Team Lynx          necrolyte 14667  dark seer 11237  batrider 9341  hoodwink 3566  winter wyvern 3168
+[2026-08-24 13:57:22,855] t= 24:05 live     map 2    kills=14-11   nw R= 50817 D= 41979 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:22,855]      RADIANT Klim Sani4         lone druid 16252  sand king 11711  enigma 11413  undying 5952  dark willow 5489
+[2026-08-24 13:57:22,855]      DIRE    Team Lynx          necrolyte 14667  dark seer 11237  batrider 9341  hoodwink 3566  winter wyvern 3168
+[2026-08-24 13:57:31,040] t= 24:13 live     map 2    kills=14-11   nw R= 51193 D= 42654 nw_lag=8s  clock_lag=9.4s
+[2026-08-24 13:57:31,040]      RADIANT Klim Sani4         lone druid 16296  sand king 11950  enigma 11486  undying 5937  dark willow 5524
+[2026-08-24 13:57:31,040]      DIRE    Team Lynx          necrolyte 14924  dark seer 11489  batrider 9362  hoodwink 3527  winter wyvern 3352
+[2026-08-24 13:57:39,629] t= 24:22 live     map 2    kills=14-11   nw R= 51193 D= 42654 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:39,629]      RADIANT Klim Sani4         lone druid 16296  sand king 11950  enigma 11486  undying 5937  dark willow 5524
+[2026-08-24 13:57:39,629]      DIRE    Team Lynx          necrolyte 14924  dark seer 11489  batrider 9362  hoodwink 3527  winter wyvern 3352
+[2026-08-24 13:57:47,967] t= 24:30 live     map 2    kills=14-11   nw R= 51193 D= 42654 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:47,968]      RADIANT Klim Sani4         lone druid 16296  sand king 11950  enigma 11486  undying 5937  dark willow 5524
+[2026-08-24 13:57:47,968]      DIRE    Team Lynx          necrolyte 14924  dark seer 11489  batrider 9362  hoodwink 3527  winter wyvern 3352
+[2026-08-24 13:57:48,190] t= 24:30 live     map 2    kills=14-11   nw R= 51849 D= 43898 nw_lag=8s  clock_lag=1.5s
+[2026-08-24 13:57:48,190]      RADIANT Klim Sani4         lone druid 16585  sand king 12156  enigma 11656  undying 5933  dark willow 5519
+[2026-08-24 13:57:48,190]      DIRE    Team Lynx          necrolyte 15146  dark seer 11821  batrider 9787  hoodwink 3630  winter wyvern 3514
+[2026-08-24 13:57:49,138] t= 24:32 live     map 2    kills=15-11   nw R= 51849 D= 43898 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:57:49,139]      RADIANT Klim Sani4         lone druid 16585  sand king 12156  enigma 11656  undying 5933  dark willow 5519
+[2026-08-24 13:57:49,139]      DIRE    Team Lynx          necrolyte 15146  dark seer 11821  batrider 9787  hoodwink 3630  winter wyvern 3514
+[2026-08-24 13:57:56,284] t= 24:39 live     map 2    kills=15-11   nw R= 52337 D= 44123 nw_lag=8s  clock_lag=8.4s
+[2026-08-24 13:57:56,285]      RADIANT Klim Sani4         lone druid 16909  sand king 12168  enigma 11767  undying 5953  dark willow 5540
+[2026-08-24 13:57:56,285]      DIRE    Team Lynx          necrolyte 15167  dark seer 11842  batrider 9799  winter wyvern 3710  hoodwink 3605
+[2026-08-24 13:57:57,436] t= 24:41 live     map 2    kills=15-11   nw R= 52362 D= 44137 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 13:57:57,436]      RADIANT Klim Sani4         lone druid 16920  sand king 12170  enigma 11771  undying 5957  dark willow 5544
+[2026-08-24 13:57:57,436]      DIRE    Team Lynx          necrolyte 15171  dark seer 11845  batrider 9801  winter wyvern 3713  hoodwink 3607
+[2026-08-24 13:58:23,940] t= 25:06 live     map 2    kills=15-11   nw R= 52362 D= 44137 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:58:23,940]      RADIANT Klim Sani4         lone druid 16920  sand king 12170  enigma 11771  undying 5957  dark willow 5544
+[2026-08-24 13:58:23,940]      DIRE    Team Lynx          necrolyte 15171  dark seer 11845  batrider 9801  winter wyvern 3713  hoodwink 3607
+[2026-08-24 13:58:32,284] t= 25:15 live     map 2    kills=15-11   nw R= 53304 D= 45416 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 13:58:32,284]      RADIANT Klim Sani4         lone druid 17123  sand king 12477  enigma 12095  undying 5973  dark willow 5636
+[2026-08-24 13:58:32,284]      DIRE    Team Lynx          necrolyte 15538  dark seer 11978  batrider 10260  winter wyvern 3978  hoodwink 3662
+[2026-08-24 13:58:37,282] t= 25:20 live     map 2    kills=15-11   nw R= 53304 D= 45416 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:58:37,283]      RADIANT Klim Sani4         lone druid 17123  sand king 12477  enigma 12095  undying 5973  dark willow 5636
+[2026-08-24 13:58:37,283]      DIRE    Team Lynx          necrolyte 15538  dark seer 11978  batrider 10260  winter wyvern 3978  hoodwink 3662
+[2026-08-24 13:58:40,815] t= 25:23 live     map 2    kills=16-11   nw R= 53304 D= 45416 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:58:40,816]      RADIANT Klim Sani4         lone druid 17123  sand king 12477  enigma 12095  undying 5973  dark willow 5636
+[2026-08-24 13:58:40,816]      DIRE    Team Lynx          necrolyte 15538  dark seer 11978  batrider 10260  winter wyvern 3978  hoodwink 3662
+[2026-08-24 13:58:44,424] t= 25:27 live     map 2    kills=16-11   nw R= 53304 D= 45416 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:58:44,424]      RADIANT Klim Sani4         lone druid 17123  sand king 12477  enigma 12095  undying 5973  dark willow 5636
+[2026-08-24 13:58:44,424]      DIRE    Team Lynx          necrolyte 15538  dark seer 11978  batrider 10260  winter wyvern 3978  hoodwink 3662
+[2026-08-24 13:58:45,511] t= 25:28 live     map 2    kills=16-11   nw R= 53839 D= 45791 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 13:58:45,511]      RADIANT Klim Sani4         lone druid 17303  sand king 12603  enigma 12252  undying 6009  dark willow 5672
+[2026-08-24 13:58:45,511]      DIRE    Team Lynx          necrolyte 15677  dark seer 12137  batrider 10281  winter wyvern 4013  hoodwink 3683
+[2026-08-24 13:58:45,633] t= 25:28 live     map 2    kills=16-11   nw R= 53839 D= 45791 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:58:45,633]      RADIANT Klim Sani4         lone druid 17303  sand king 12603  enigma 12252  undying 6009  dark willow 5672
+[2026-08-24 13:58:45,633]      DIRE    Team Lynx          necrolyte 15677  dark seer 12137  batrider 10281  winter wyvern 4013  hoodwink 3683
+[2026-08-24 13:58:45,705] t= 25:28 live     map 2    kills=17-11   nw R= 53839 D= 45791 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:58:45,706]      RADIANT Klim Sani4         lone druid 17303  sand king 12603  enigma 12252  undying 6009  dark willow 5672
+[2026-08-24 13:58:45,706]      DIRE    Team Lynx          necrolyte 15677  dark seer 12137  batrider 10281  winter wyvern 4013  hoodwink 3683
+[2026-08-24 13:58:49,168] t= 25:32 live     map 2    kills=17-11   nw R= 54314 D= 45733 nw_lag=8s  clock_lag=4.8s
+[2026-08-24 13:58:49,169]      RADIANT Klim Sani4         lone druid 17648  sand king 12703  enigma 12262  undying 6019  dark willow 5682
+[2026-08-24 13:58:49,169]      DIRE    Team Lynx          necrolyte 15687  dark seer 12147  batrider 10287  winter wyvern 3923  hoodwink 3689
+[2026-08-24 13:58:49,467] t= 25:32 live     map 2    kills=17-11   nw R= 54314 D= 45733 nw_lag=8s  clock_lag=1.5s
+[2026-08-24 13:58:49,467]      RADIANT Klim Sani4         lone druid 17648  sand king 12703  enigma 12262  undying 6019  dark willow 5682
+[2026-08-24 13:58:49,468]      DIRE    Team Lynx          necrolyte 15687  dark seer 12147  batrider 10287  winter wyvern 3923  hoodwink 3689
+[2026-08-24 13:58:52,755] t= 25:36 live     map 2    kills=17-11   nw R= 55339 D= 45460 nw_lag=8s  clock_lag=4.8s
+[2026-08-24 13:58:52,755]      RADIANT Klim Sani4         lone druid 18275  sand king 12891  enigma 12271  undying 6029  dark willow 5873
+[2026-08-24 13:58:52,755]      DIRE    Team Lynx          necrolyte 15304  dark seer 12235  batrider 10293  winter wyvern 3933  hoodwink 3695
+[2026-08-24 13:58:54,010] t= 25:37 live     map 2    kills=17-11   nw R= 55395 D= 45528 nw_lag=8s  clock_lag=6.0s
+[2026-08-24 13:58:54,010]      RADIANT Klim Sani4         lone druid 18277  sand king 12893  enigma 12316  undying 6032  dark willow 5877
+[2026-08-24 13:58:54,010]      DIRE    Team Lynx          necrolyte 15308  dark seer 12292  batrider 10295  winter wyvern 3936  hoodwink 3697
+[2026-08-24 13:58:54,014] t= 25:37 live     map 2    kills=17-11   nw R= 55395 D= 45528 nw_lag=8s  clock_lag=6.0s
+[2026-08-24 13:58:54,014]      RADIANT Klim Sani4         lone druid 18277  sand king 12893  enigma 12316  undying 6032  dark willow 5877
+[2026-08-24 13:58:54,014]      DIRE    Team Lynx          necrolyte 15308  dark seer 12292  batrider 10295  winter wyvern 3936  hoodwink 3697
+[2026-08-24 13:58:57,538] t= 25:41 live     map 2    kills=17-11   nw R= 55469 D= 45564 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 13:58:57,538]      RADIANT Klim Sani4         lone druid 18282  sand king 12898  enigma 12362  undying 6041  dark willow 5886
+[2026-08-24 13:58:57,538]      DIRE    Team Lynx          necrolyte 15317  dark seer 12300  batrider 10300  winter wyvern 3945  hoodwink 3702
+[2026-08-24 13:59:16,014] t= 25:59 live     map 2    kills=17-11   nw R= 55469 D= 45564 nw_lag=8s  clock_lag=1.6s
+[2026-08-24 13:59:16,015]      RADIANT Klim Sani4         lone druid 18282  sand king 12898  enigma 12362  undying 6041  dark willow 5886
+[2026-08-24 13:59:16,015]      DIRE    Team Lynx          necrolyte 15317  dark seer 12300  batrider 10300  winter wyvern 3945  hoodwink 3702
+[2026-08-24 13:59:16,860] t= 25:59 live     map 2    kills=17-11   nw R= 55469 D= 45564 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:16,860]      RADIANT Klim Sani4         lone druid 18282  sand king 12898  enigma 12362  undying 6041  dark willow 5886
+[2026-08-24 13:59:16,861]      DIRE    Team Lynx          necrolyte 15317  dark seer 12300  batrider 10300  winter wyvern 3945  hoodwink 3702
+[2026-08-24 13:59:24,346] t= 26:07 live     map 2    kills=17-11   nw R= 56922 D= 46282 nw_lag=8s  clock_lag=8.8s
+[2026-08-24 13:59:24,347]      RADIANT Klim Sani4         lone druid 18631  enigma 13199  sand king 12935  undying 6206  dark willow 5951
+[2026-08-24 13:59:24,347]      DIRE    Team Lynx          necrolyte 15387  dark seer 12448  batrider 10687  winter wyvern 4016  hoodwink 3744
+[2026-08-24 13:59:25,184] t= 26:08 live     map 2    kills=17-11   nw R= 57488 D= 46246 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 13:59:25,184]      RADIANT Klim Sani4         lone druid 18743  enigma 13313  sand king 13047  undying 6320  dark willow 6065
+[2026-08-24 13:59:25,184]      DIRE    Team Lynx          necrolyte 15391  dark seer 12451  batrider 10689  winter wyvern 4019  hoodwink 3696
+[2026-08-24 13:59:25,265] t= 26:08 live     map 2    kills=17-11   nw R= 57488 D= 46246 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:25,265]      RADIANT Klim Sani4         lone druid 18743  enigma 13313  sand king 13047  undying 6320  dark willow 6065
+[2026-08-24 13:59:25,265]      DIRE    Team Lynx          necrolyte 15391  dark seer 12451  batrider 10689  winter wyvern 4019  hoodwink 3696
+[2026-08-24 13:59:26,450] t= 26:09 live     map 2    kills=17-11   nw R= 57488 D= 46246 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:26,451]      RADIANT Klim Sani4         lone druid 18743  enigma 13313  sand king 13047  undying 6320  dark willow 6065
+[2026-08-24 13:59:26,451]      DIRE    Team Lynx          necrolyte 15391  dark seer 12451  batrider 10689  winter wyvern 4019  hoodwink 3696
+[2026-08-24 13:59:30,128] t= 26:12 live     map 2    kills=17-11   nw R= 57488 D= 46246 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 13:59:30,129]      RADIANT Klim Sani4         lone druid 18743  enigma 13313  sand king 13047  undying 6320  dark willow 6065
+[2026-08-24 13:59:30,129]      DIRE    Team Lynx          necrolyte 15391  dark seer 12451  batrider 10689  winter wyvern 4019  hoodwink 3696
+[2026-08-24 13:59:33,572] t= 26:16 live     map 2    kills=17-11   nw R= 57600 D= 46604 nw_lag=8s  clock_lag=4.8s
+[2026-08-24 13:59:33,573]      RADIANT Klim Sani4         lone druid 18776  enigma 13335  sand king 13060  undying 6342  dark willow 6087
+[2026-08-24 13:59:33,573]      DIRE    Team Lynx          necrolyte 15413  dark seer 12539  batrider 11052  winter wyvern 3941  hoodwink 3659
+[2026-08-24 13:59:34,700] t= 26:17 live     map 2    kills=17-11   nw R= 57600 D= 46604 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 13:59:34,700]      RADIANT Klim Sani4         lone druid 18776  enigma 13335  sand king 13060  undying 6342  dark willow 6087
+[2026-08-24 13:59:34,701]      DIRE    Team Lynx          necrolyte 15413  dark seer 12539  batrider 11052  winter wyvern 3941  hoodwink 3659
+[2026-08-24 13:59:34,778] t= 26:17 live     map 2    kills=17-11   nw R= 57695 D= 46618 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:34,778]      RADIANT Klim Sani4         lone druid 18860  enigma 13338  sand king 13062  undying 6345  dark willow 6090
+[2026-08-24 13:59:34,778]      DIRE    Team Lynx          necrolyte 15416  dark seer 12543  batrider 11054  winter wyvern 3944  hoodwink 3661
+[2026-08-24 13:59:35,938] t= 26:18 live     map 2    kills=17-11   nw R= 57695 D= 46618 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:35,939]      RADIANT Klim Sani4         lone druid 18860  enigma 13338  sand king 13062  undying 6345  dark willow 6090
+[2026-08-24 13:59:35,939]      DIRE    Team Lynx          necrolyte 15416  dark seer 12543  batrider 11054  winter wyvern 3944  hoodwink 3661
+[2026-08-24 13:59:35,985] t= 26:18 live     map 2    kills=18-11   nw R= 57695 D= 46618 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:35,986]      RADIANT Klim Sani4         lone druid 18860  enigma 13338  sand king 13062  undying 6345  dark willow 6090
+[2026-08-24 13:59:35,986]      DIRE    Team Lynx          necrolyte 15416  dark seer 12543  batrider 11054  winter wyvern 3944  hoodwink 3661
+[2026-08-24 13:59:37,175] t= 26:20 live     map 2    kills=18-11   nw R= 57695 D= 46618 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:37,175]      RADIANT Klim Sani4         lone druid 18860  enigma 13338  sand king 13062  undying 6345  dark willow 6090
+[2026-08-24 13:59:37,175]      DIRE    Team Lynx          necrolyte 15416  dark seer 12543  batrider 11054  winter wyvern 3944  hoodwink 3661
+[2026-08-24 13:59:38,385] t= 26:21 live     map 2    kills=18-11   nw R= 57865 D= 46692 nw_lag=8s  clock_lag=2.5s
+[2026-08-24 13:59:38,386]      RADIANT Klim Sani4         lone druid 18956  enigma 13386  sand king 13068  undying 6355  dark willow 6100
+[2026-08-24 13:59:38,386]      DIRE    Team Lynx          necrolyte 15426  dark seer 12553  batrider 11092  winter wyvern 3954  hoodwink 3667
+[2026-08-24 13:59:38,390] t= 26:21 live     map 2    kills=18-11   nw R= 57865 D= 46692 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:38,393]      RADIANT Klim Sani4         lone druid 18956  enigma 13386  sand king 13068  undying 6355  dark willow 6100
+[2026-08-24 13:59:38,394]      DIRE    Team Lynx          necrolyte 15426  dark seer 12553  batrider 11092  winter wyvern 3954  hoodwink 3667
+[2026-08-24 13:59:43,178] t= 26:26 live     map 2    kills=18-11   nw R= 57999 D= 47008 nw_lag=8s  clock_lag=6.1s
+[2026-08-24 13:59:43,179]      RADIANT Klim Sani4         lone druid 18963  enigma 13482  sand king 13075  undying 6367  dark willow 6112
+[2026-08-24 13:59:43,179]      DIRE    Team Lynx          necrolyte 15438  dark seer 12667  batrider 11263  winter wyvern 3966  hoodwink 3674
+[2026-08-24 13:59:44,378] t= 26:27 live     map 2    kills=18-11   nw R= 58407 D= 47000 nw_lag=8s  clock_lag=7.3s
+[2026-08-24 13:59:44,378]      RADIANT Klim Sani4         lone druid 18965  enigma 13485  sand king 13381  undying 6370  dark willow 6206
+[2026-08-24 13:59:44,378]      DIRE    Team Lynx          necrolyte 15441  dark seer 12670  batrider 11265  winter wyvern 3948  hoodwink 3676
+[2026-08-24 13:59:44,420] t= 26:27 live     map 2    kills=18-11   nw R= 58407 D= 47000 nw_lag=8s  clock_lag=7.3s
+[2026-08-24 13:59:44,421]      RADIANT Klim Sani4         lone druid 18965  enigma 13485  sand king 13381  undying 6370  dark willow 6206
+[2026-08-24 13:59:44,421]      DIRE    Team Lynx          necrolyte 15441  dark seer 12670  batrider 11265  winter wyvern 3948  hoodwink 3676
+[2026-08-24 13:59:45,584] t= 26:28 live     map 2    kills=18-11   nw R= 58563 D= 47014 nw_lag=8s  clock_lag=8.5s
+[2026-08-24 13:59:45,585]      RADIANT Klim Sani4         lone druid 19007  enigma 13489  sand king 13383  undying 6374  dark willow 6310
+[2026-08-24 13:59:45,585]      DIRE    Team Lynx          necrolyte 15445  dark seer 12673  batrider 11267  winter wyvern 3951  hoodwink 3678
+[2026-08-24 13:59:46,810] t= 26:30 live     map 2    kills=18-11   nw R= 58617 D= 47028 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 13:59:46,811]      RADIANT Klim Sani4         lone druid 19050  enigma 13492  sand king 13385  undying 6377  dark willow 6313
+[2026-08-24 13:59:46,811]      DIRE    Team Lynx          necrolyte 15448  dark seer 12677  batrider 11269  winter wyvern 3954  hoodwink 3680
+[2026-08-24 13:59:46,822] t= 26:29 live     map 2    kills=18-11   nw R= 58617 D= 47028 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 13:59:46,822]      RADIANT Klim Sani4         lone druid 19050  enigma 13492  sand king 13385  undying 6377  dark willow 6313
+[2026-08-24 13:59:46,822]      DIRE    Team Lynx          necrolyte 15448  dark seer 12677  batrider 11269  winter wyvern 3954  hoodwink 3680
+[2026-08-24 13:59:55,221] t= 26:38 live     map 2    kills=18-11   nw R= 59012 D= 47484 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 13:59:55,221]      RADIANT Klim Sani4         lone druid 19161  enigma 13514  sand king 13398  undying 6604  dark willow 6335
+[2026-08-24 13:59:55,222]      DIRE    Team Lynx          necrolyte 15682  dark seer 12699  batrider 11434  winter wyvern 3976  hoodwink 3693
+[2026-08-24 14:00:08,025] t= 26:50 live     map 2    kills=18-11   nw R= 59563 D= 47959 nw_lag=8s  clock_lag=22.5s
+[2026-08-24 14:00:08,027]      RADIANT Klim Sani4         lone druid 19463  enigma 13672  sand king 13419  undying 6639  dark willow 6370
+[2026-08-24 14:00:08,027]      DIRE    Team Lynx          necrolyte 15872  dark seer 12734  batrider 11455  winter wyvern 4012  hoodwink 3886
+[2026-08-24 14:00:10,815] t= 26:53 live     map 2    kills=18-11   nw R= 59644 D= 47987 nw_lag=8s  clock_lag=25.3s
+[2026-08-24 14:00:10,815]      RADIANT Klim Sani4         lone druid 19467  enigma 13731  sand king 13423  undying 6646  dark willow 6377
+[2026-08-24 14:00:10,815]      DIRE    Team Lynx          necrolyte 15879  dark seer 12741  batrider 11459  winter wyvern 4018  hoodwink 3890
+[2026-08-24 14:00:18,021] t= 27:00 live     map 2    kills=18-11   nw R= 60550 D= 48012 nw_lag=8s  clock_lag=32.5s
+[2026-08-24 14:00:18,022]      RADIANT Klim Sani4         lone druid 19696  enigma 14057  sand king 13610  undying 6705  dark willow 6482
+[2026-08-24 14:00:18,022]      DIRE    Team Lynx          necrolyte 15898  dark seer 12852  batrider 11470  winter wyvern 4037  hoodwink 3755
+[2026-08-24 14:00:18,906] t= 27:01 live     map 2    kills=18-11   nw R= 60563 D= 48026 nw_lag=8s  clock_lag=33.4s
+[2026-08-24 14:00:18,906]      RADIANT Klim Sani4         lone druid 19698  enigma 14060  sand king 13612  undying 6708  dark willow 6485
+[2026-08-24 14:00:18,907]      DIRE    Team Lynx          necrolyte 15901  dark seer 12856  batrider 11472  winter wyvern 4040  hoodwink 3757
+[2026-08-24 14:00:18,911] t= 27:01 live     map 2    kills=18-11   nw R= 60563 D= 48026 nw_lag=8s  clock_lag=33.4s
+[2026-08-24 14:00:18,911]      RADIANT Klim Sani4         lone druid 19698  enigma 14060  sand king 13612  undying 6708  dark willow 6485
+[2026-08-24 14:00:18,911]      DIRE    Team Lynx          necrolyte 15901  dark seer 12856  batrider 11472  winter wyvern 4040  hoodwink 3757
+[2026-08-24 14:00:20,035] t= 27:03 live     map 2    kills=18-11   nw R= 60576 D= 48071 nw_lag=8s  clock_lag=34.5s
+[2026-08-24 14:00:20,035]      RADIANT Klim Sani4         lone druid 19700  enigma 14063  sand king 13614  undying 6711  dark willow 6488
+[2026-08-24 14:00:20,035]      DIRE    Team Lynx          necrolyte 15904  dark seer 12884  batrider 11481  winter wyvern 4043  hoodwink 3759
+[2026-08-24 14:00:22,447] t= 27:05 live     map 2    kills=18-11   nw R= 60536 D= 48875 nw_lag=8s  clock_lag=36.9s
+[2026-08-24 14:00:22,448]      RADIANT Klim Sani4         lone druid 19725  enigma 14069  sand king 13617  undying 6717  dark willow 6408
+[2026-08-24 14:00:22,448]      DIRE    Team Lynx          necrolyte 15910  dark seer 12889  batrider 12068  winter wyvern 4049  hoodwink 3959
+[2026-08-24 14:00:23,336] t= 27:06 live     map 2    kills=18-11   nw R= 60536 D= 48875 nw_lag=8s  clock_lag=24.7s
+[2026-08-24 14:00:23,336]      RADIANT Klim Sani4         lone druid 19725  enigma 14069  sand king 13617  undying 6717  dark willow 6408
+[2026-08-24 14:00:23,337]      DIRE    Team Lynx          necrolyte 15910  dark seer 12889  batrider 12068  winter wyvern 4049  hoodwink 3959
+[2026-08-24 14:00:23,643] t= 27:06 live     map 2    kills=18-11   nw R= 60549 D= 48922 nw_lag=8s  clock_lag=25.0s
+[2026-08-24 14:00:23,643]      RADIANT Klim Sani4         lone druid 19727  enigma 14072  sand king 13619  undying 6720  dark willow 6411
+[2026-08-24 14:00:23,643]      DIRE    Team Lynx          necrolyte 15913  dark seer 12918  batrider 12078  winter wyvern 4052  hoodwink 3961
+[2026-08-24 14:00:24,361] t= 27:07 live     map 2    kills=18-11   nw R= 60549 D= 48922 nw_lag=8s  clock_lag=23.3s
+[2026-08-24 14:00:24,361]      RADIANT Klim Sani4         lone druid 19727  enigma 14072  sand king 13619  undying 6720  dark willow 6411
+[2026-08-24 14:00:24,362]      DIRE    Team Lynx          necrolyte 15913  dark seer 12918  batrider 12078  winter wyvern 4052  hoodwink 3961
+[2026-08-24 14:00:27,271] t= 27:10 live     map 2    kills=18-11   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=26.2s
+[2026-08-24 14:00:27,271]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:27,271]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:42,034] t= 27:25 live     map 2    kills=18-11   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=33.9s
+[2026-08-24 14:00:42,036]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:42,036]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:43,942] t= 27:27 live     map 2    kills=18-11   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=34.6s
+[2026-08-24 14:00:43,942]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:43,942]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:43,952] t= 27:27 live     map 2    kills=19-11   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=34.6s
+[2026-08-24 14:00:43,952]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:43,952]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:49,288] t= 27:32 live     map 2    kills=19-11   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=38.8s
+[2026-08-24 14:00:49,288]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:49,288]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:53,133] t= 27:36 live     map 2    kills=19-12   nw R= 60591 D= 49079 nw_lag=8s  clock_lag=40.2s
+[2026-08-24 14:00:53,134]      RADIANT Klim Sani4         lone druid 19733  enigma 14082  sand king 13625  undying 6730  dark willow 6421
+[2026-08-24 14:00:53,134]      DIRE    Team Lynx          necrolyte 16038  dark seer 12928  batrider 12084  winter wyvern 4062  hoodwink 3967
+[2026-08-24 14:00:53,291] t= 27:36 live     map 2    kills=19-12   nw R= 61251 D= 50214 nw_lag=8s  clock_lag=40.4s
+[2026-08-24 14:00:53,291]      RADIANT Klim Sani4         lone druid 19843  enigma 14550  sand king 13567  undying 6800  dark willow 6491
+[2026-08-24 14:00:53,291]      DIRE    Team Lynx          necrolyte 16530  dark seer 13285  batrider 12258  winter wyvern 4132  hoodwink 4009
+[2026-08-24 14:00:53,291] t= 27:36 live     map 2    kills=19-12   nw R= 61251 D= 50214 nw_lag=8s  clock_lag=39.2s
+[2026-08-24 14:00:53,291]      RADIANT Klim Sani4         lone druid 19843  enigma 14550  sand king 13567  undying 6800  dark willow 6491
+[2026-08-24 14:00:53,291]      DIRE    Team Lynx          necrolyte 16530  dark seer 13285  batrider 12258  winter wyvern 4132  hoodwink 4009
+[2026-08-24 14:00:53,690] t= 27:36 live     map 2    kills=19-12   nw R= 61251 D= 50214 nw_lag=8s  clock_lag=36.0s
+[2026-08-24 14:00:53,691]      RADIANT Klim Sani4         lone druid 19843  enigma 14550  sand king 13567  undying 6800  dark willow 6491
+[2026-08-24 14:00:53,691]      DIRE    Team Lynx          necrolyte 16530  dark seer 13285  batrider 12258  winter wyvern 4132  hoodwink 4009
+[2026-08-24 14:00:54,503] t= 27:37 live     map 2    kills=19-12   nw R= 61266 D= 50284 nw_lag=8s  clock_lag=36.8s
+[2026-08-24 14:00:54,503]      RADIANT Klim Sani4         lone druid 19845  enigma 14554  sand king 13569  undying 6804  dark willow 6494
+[2026-08-24 14:00:54,503]      DIRE    Team Lynx          necrolyte 16533  dark seer 13344  batrider 12260  winter wyvern 4136  hoodwink 4011
+[2026-08-24 14:00:55,710] t= 27:38 live     map 2    kills=19-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=38.0s
+[2026-08-24 14:00:55,711]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:55,711]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:55,979] t= 27:39 live     map 2    kills=19-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=12.1s
+[2026-08-24 14:00:55,979]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:55,979]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:55,991] t= 27:39 live     map 2    kills=19-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=10.9s
+[2026-08-24 14:00:55,991]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:55,991]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:56,079] t= 27:39 live     map 2    kills=19-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=9.8s
+[2026-08-24 14:00:56,079]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:56,079]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:56,089] t= 27:39 live     map 2    kills=19-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=8.6s
+[2026-08-24 14:00:56,089]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:56,089]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:56,175] t= 27:39 live     map 2    kills=20-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=7.5s
+[2026-08-24 14:00:56,175]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:56,175]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:56,381] t= 27:39 live     map 2    kills=20-12   nw R= 61348 D= 50379 nw_lag=8s  clock_lag=3.0s
+[2026-08-24 14:00:56,382]      RADIANT Klim Sani4         lone druid 19847  enigma 14557  sand king 13639  undying 6807  dark willow 6498
+[2026-08-24 14:00:56,382]      DIRE    Team Lynx          necrolyte 16537  dark seer 13428  batrider 12262  winter wyvern 4139  hoodwink 4013
+[2026-08-24 14:00:56,912] t= 27:40 live     map 2    kills=20-12   nw R= 62183 D= 50064 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:00:56,912]      RADIANT Klim Sani4         lone druid 20036  enigma 14560  sand king 14089  undying 6997  dark willow 6501
+[2026-08-24 14:00:56,912]      DIRE    Team Lynx          necrolyte 16127  dark seer 13516  batrider 12264  winter wyvern 4142  hoodwink 4015
+[2026-08-24 14:00:58,094] t= 27:41 live     map 2    kills=20-12   nw R= 62197 D= 50079 nw_lag=8s  clock_lag=4.7s
+[2026-08-24 14:00:58,094]      RADIANT Klim Sani4         lone druid 20038  enigma 14563  sand king 14091  undying 7001  dark willow 6504
+[2026-08-24 14:00:58,094]      DIRE    Team Lynx          necrolyte 16130  dark seer 13520  batrider 12266  winter wyvern 4146  hoodwink 4017
+[2026-08-24 14:00:58,211] t= 27:41 live     map 2    kills=21-12   nw R= 62197 D= 50079 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:00:58,211]      RADIANT Klim Sani4         lone druid 20038  enigma 14563  sand king 14091  undying 7001  dark willow 6504
+[2026-08-24 14:00:58,211]      DIRE    Team Lynx          necrolyte 16130  dark seer 13520  batrider 12266  winter wyvern 4146  hoodwink 4017
+[2026-08-24 14:01:02,208] t= 27:45 live     map 2    kills=21-12   nw R= 62197 D= 50079 nw_lag=8s  clock_lag=1.7s
+[2026-08-24 14:01:02,208]      RADIANT Klim Sani4         lone druid 20038  enigma 14563  sand king 14091  undying 7001  dark willow 6504
+[2026-08-24 14:01:02,209]      DIRE    Team Lynx          necrolyte 16130  dark seer 13520  batrider 12266  winter wyvern 4146  hoodwink 4017
+[2026-08-24 14:01:02,904] t= 27:45 live     map 2    kills=21-12   nw R= 62149 D= 50132 nw_lag=8s  clock_lag=2.4s
+[2026-08-24 14:01:02,904]      RADIANT Klim Sani4         lone druid 20045  enigma 14476  sand king 14098  undying 7013  dark willow 6517
+[2026-08-24 14:01:02,904]      DIRE    Team Lynx          necrolyte 16143  dark seer 13534  batrider 12273  winter wyvern 4158  hoodwink 4024
+[2026-08-24 14:01:06,560] t= 27:49 live     map 2    kills=21-12   nw R= 62648 D= 50175 nw_lag=8s  clock_lag=6.0s
+[2026-08-24 14:01:06,560]      RADIANT Klim Sani4         lone druid 20338  enigma 14525  sand king 14170  undying 7089  dark willow 6526
+[2026-08-24 14:01:06,560]      DIRE    Team Lynx          necrolyte 16152  dark seer 13546  batrider 12279  winter wyvern 4168  hoodwink 4030
+[2026-08-24 14:01:10,503] t= 27:53 live     map 2    kills=21-12   nw R= 62625 D= 50260 nw_lag=8s  clock_lag=10.0s
+[2026-08-24 14:01:10,504]      RADIANT Klim Sani4         lone druid 20244  enigma 14571  sand king 14176  undying 7098  dark willow 6536
+[2026-08-24 14:01:10,504]      DIRE    Team Lynx          necrolyte 16162  dark seer 13557  batrider 12327  winter wyvern 4178  hoodwink 4036
+[2026-08-24 14:01:16,060] t= 27:59 live     map 2    kills=21-12   nw R= 62625 D= 50260 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:01:16,060]      RADIANT Klim Sani4         lone druid 20244  enigma 14571  sand king 14176  undying 7098  dark willow 6536
+[2026-08-24 14:01:16,060]      DIRE    Team Lynx          necrolyte 16162  dark seer 13557  batrider 12327  winter wyvern 4178  hoodwink 4036
+[2026-08-24 14:01:22,010] t= 28:04 live     map 2    kills=21-12   nw R= 62625 D= 50260 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:01:22,011]      RADIANT Klim Sani4         lone druid 20244  enigma 14571  sand king 14176  undying 7098  dark willow 6536
+[2026-08-24 14:01:22,011]      DIRE    Team Lynx          necrolyte 16162  dark seer 13557  batrider 12327  winter wyvern 4178  hoodwink 4036
+[2026-08-24 14:01:24,150] t= 28:06 live     map 2    kills=21-12   nw R= 63253 D= 50904 nw_lag=8s  clock_lag=3.3s
+[2026-08-24 14:01:24,150]      RADIANT Klim Sani4         lone druid 20328  enigma 14802  sand king 14413  undying 7136  dark willow 6574
+[2026-08-24 14:01:24,150]      DIRE    Team Lynx          necrolyte 16200  dark seer 13727  batrider 12704  winter wyvern 4215  hoodwink 4058
+[2026-08-24 14:01:30,169] t= 28:12 live     map 2    kills=21-12   nw R= 63387 D= 50986 nw_lag=8s  clock_lag=9.4s
+[2026-08-24 14:01:30,170]      RADIANT Klim Sani4         lone druid 20360  enigma 14912  sand king 14423  undying 7152  dark willow 6540
+[2026-08-24 14:01:30,170]      DIRE    Team Lynx          necrolyte 16216  dark seer 13746  batrider 12724  winter wyvern 4232  hoodwink 4068
+[2026-08-24 14:01:34,054] t= 28:16 live     map 2    kills=21-12   nw R= 63387 D= 50986 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:01:34,054]      RADIANT Klim Sani4         lone druid 20360  enigma 14912  sand king 14423  undying 7152  dark willow 6540
+[2026-08-24 14:01:34,054]      DIRE    Team Lynx          necrolyte 16216  dark seer 13746  batrider 12724  winter wyvern 4232  hoodwink 4068
+[2026-08-24 14:01:35,173] t= 28:18 live     map 2    kills=21-12   nw R= 63387 D= 50986 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:01:35,173]      RADIANT Klim Sani4         lone druid 20360  enigma 14912  sand king 14423  undying 7152  dark willow 6540
+[2026-08-24 14:01:35,173]      DIRE    Team Lynx          necrolyte 16216  dark seer 13746  batrider 12724  winter wyvern 4232  hoodwink 4068
+[2026-08-24 14:01:39,988] t= 28:22 live     map 2    kills=22-12   nw R= 63387 D= 50986 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:01:39,988]      RADIANT Klim Sani4         lone druid 20360  enigma 14912  sand king 14423  undying 7152  dark willow 6540
+[2026-08-24 14:01:39,988]      DIRE    Team Lynx          necrolyte 16216  dark seer 13746  batrider 12724  winter wyvern 4232  hoodwink 4068
+[2026-08-24 14:01:41,242] t= 28:24 live     map 2    kills=22-12   nw R= 63387 D= 50986 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:01:41,242]      RADIANT Klim Sani4         lone druid 20360  enigma 14912  sand king 14423  undying 7152  dark willow 6540
+[2026-08-24 14:01:41,242]      DIRE    Team Lynx          necrolyte 16216  dark seer 13746  batrider 12724  winter wyvern 4232  hoodwink 4068
+[2026-08-24 14:01:42,173] t= 28:25 live     map 2    kills=22-12   nw R= 65140 D= 51052 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:01:42,174]      RADIANT Klim Sani4         lone druid 20793  enigma 15345  sand king 14882  undying 7366  dark willow 6754
+[2026-08-24 14:01:42,174]      DIRE    Team Lynx          necrolyte 16248  dark seer 13782  batrider 12752  winter wyvern 4263  hoodwink 4007
+[2026-08-24 14:01:42,611] t= 28:25 live     map 2    kills=22-12   nw R= 65140 D= 51052 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:01:42,611]      RADIANT Klim Sani4         lone druid 20793  enigma 15345  sand king 14882  undying 7366  dark willow 6754
+[2026-08-24 14:01:42,612]      DIRE    Team Lynx          necrolyte 16248  dark seer 13782  batrider 12752  winter wyvern 4263  hoodwink 4007
+[2026-08-24 14:01:43,413] t= 28:26 live     map 2    kills=22-12   nw R= 65363 D= 51070 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:01:43,413]      RADIANT Klim Sani4         lone druid 20878  enigma 15386  sand king 14884  undying 7370  dark willow 6845
+[2026-08-24 14:01:43,413]      DIRE    Team Lynx          necrolyte 16252  dark seer 13786  batrider 12756  winter wyvern 4267  hoodwink 4009
+[2026-08-24 14:01:48,201] t= 28:31 live     map 2    kills=22-12   nw R= 66254 D= 51172 nw_lag=8s  clock_lag=7.0s
+[2026-08-24 14:01:48,201]      RADIANT Klim Sani4         lone druid 21133  enigma 15526  sand king 14892  undying 7383  dark willow 7320
+[2026-08-24 14:01:48,201]      DIRE    Team Lynx          necrolyte 16267  dark seer 13801  batrider 12452  hoodwink 4372  winter wyvern 4280
+[2026-08-24 14:01:48,400] t= 28:31 live     map 2    kills=23-12   nw R= 66254 D= 51172 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:01:48,401]      RADIANT Klim Sani4         lone druid 21133  enigma 15526  sand king 14892  undying 7383  dark willow 7320
+[2026-08-24 14:01:48,401]      DIRE    Team Lynx          necrolyte 16267  dark seer 13801  batrider 12452  hoodwink 4372  winter wyvern 4280
+[2026-08-24 14:01:49,383] t= 28:32 live     map 2    kills=23-12   nw R= 66267 D= 51189 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:01:49,384]      RADIANT Klim Sani4         lone druid 21135  enigma 15529  sand king 14894  undying 7386  dark willow 7323
+[2026-08-24 14:01:49,384]      DIRE    Team Lynx          necrolyte 16271  dark seer 13805  batrider 12456  hoodwink 4374  winter wyvern 4283
+[2026-08-24 14:01:50,985] t= 28:34 live     map 2    kills=23-12   nw R= 66280 D= 51207 nw_lag=8s  clock_lag=3.8s
+[2026-08-24 14:01:50,986]      RADIANT Klim Sani4         lone druid 21137  enigma 15532  sand king 14896  undying 7389  dark willow 7326
+[2026-08-24 14:01:50,986]      DIRE    Team Lynx          necrolyte 16275  dark seer 13809  batrider 12460  hoodwink 4376  winter wyvern 4287
+[2026-08-24 14:01:56,972] t= 28:40 live     map 2    kills=23-12   nw R= 66699 D= 51214 nw_lag=8s  clock_lag=9.8s
+[2026-08-24 14:01:56,972]      RADIANT Klim Sani4         lone druid 21347  enigma 15749  sand king 14966  undying 7345  dark willow 7292
+[2026-08-24 14:01:56,972]      DIRE    Team Lynx          necrolyte 16293  dark seer 13865  batrider 12478  winter wyvern 4302  hoodwink 4276
+[2026-08-24 14:02:00,460] t= 28:43 live     map 2    kills=23-12   nw R= 66699 D= 51214 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:02:00,460]      RADIANT Klim Sani4         lone druid 21347  enigma 15749  sand king 14966  undying 7345  dark willow 7292
+[2026-08-24 14:02:00,460]      DIRE    Team Lynx          necrolyte 16293  dark seer 13865  batrider 12478  winter wyvern 4302  hoodwink 4276
+[2026-08-24 14:02:08,681] t= 28:52 live     map 2    kills=23-12   nw R= 67032 D= 51557 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:02:08,681]      RADIANT Klim Sani4         lone druid 21565  enigma 15781  sand king 14985  undying 7377  dark willow 7324
+[2026-08-24 14:02:08,681]      DIRE    Team Lynx          necrolyte 16368  dark seer 14045  batrider 12515  winter wyvern 4334  hoodwink 4295
+[2026-08-24 14:02:15,990] t= 28:59 live     map 2    kills=23-12   nw R= 67032 D= 51557 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:02:15,991]      RADIANT Klim Sani4         lone druid 21565  enigma 15781  sand king 14985  undying 7377  dark willow 7324
+[2026-08-24 14:02:15,991]      DIRE    Team Lynx          necrolyte 16368  dark seer 14045  batrider 12515  winter wyvern 4334  hoodwink 4295
+[2026-08-24 14:02:18,398] t= 29:01 live     map 2    kills=23-12   nw R= 67032 D= 51557 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:02:18,399]      RADIANT Klim Sani4         lone druid 21565  enigma 15781  sand king 14985  undying 7377  dark willow 7324
+[2026-08-24 14:02:18,399]      DIRE    Team Lynx          necrolyte 16368  dark seer 14045  batrider 12515  winter wyvern 4334  hoodwink 4295
+[2026-08-24 14:02:24,232] t= 29:07 live     map 2    kills=23-12   nw R= 67754 D= 51791 nw_lag=8s  clock_lag=7.1s
+[2026-08-24 14:02:24,233]      RADIANT Klim Sani4         lone druid 21672  enigma 16003  sand king 15251  undying 7462  dark willow 7366
+[2026-08-24 14:02:24,233]      DIRE    Team Lynx          necrolyte 16479  dark seer 14102  batrider 12564  winter wyvern 4326  hoodwink 4320
+[2026-08-24 14:02:26,673] t= 29:10 live     map 2    kills=23-12   nw R= 68504 D= 51824 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:02:26,674]      RADIANT Klim Sani4         lone druid 21960  enigma 16119  sand king 15365  undying 7578  dark willow 7482
+[2026-08-24 14:02:26,674]      DIRE    Team Lynx          necrolyte 16487  dark seer 14109  batrider 12571  winter wyvern 4333  hoodwink 4324
+[2026-08-24 14:02:31,521] t= 29:14 live     map 2    kills=23-12   nw R= 68504 D= 51824 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:02:31,521]      RADIANT Klim Sani4         lone druid 21960  enigma 16119  sand king 15365  undying 7578  dark willow 7482
+[2026-08-24 14:02:31,521]      DIRE    Team Lynx          necrolyte 16487  dark seer 14109  batrider 12571  winter wyvern 4333  hoodwink 4324
+[2026-08-24 14:02:32,698] t= 29:15 live     map 2    kills=23-12   nw R= 68504 D= 51824 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:02:32,698]      RADIANT Klim Sani4         lone druid 21960  enigma 16119  sand king 15365  undying 7578  dark willow 7482
+[2026-08-24 14:02:32,698]      DIRE    Team Lynx          necrolyte 16487  dark seer 14109  batrider 12571  winter wyvern 4333  hoodwink 4324
+[2026-08-24 14:02:39,879] t= 29:22 live     map 2    kills=23-12   nw R= 69181 D= 52218 nw_lag=8s  clock_lag=8.4s
+[2026-08-24 14:02:39,879]      RADIANT Klim Sani4         lone druid 22297  enigma 15979  sand king 15615  undying 7667  dark willow 7623
+[2026-08-24 14:02:39,880]      DIRE    Team Lynx          necrolyte 16635  dark seer 14268  batrider 12612  winter wyvern 4358  hoodwink 4345
+[2026-08-24 14:02:41,060] t= 29:24 live     map 2    kills=23-12   nw R= 69212 D= 52277 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 14:02:41,061]      RADIANT Klim Sani4         lone druid 22299  enigma 15999  sand king 15617  undying 7670  dark willow 7627
+[2026-08-24 14:02:41,061]      DIRE    Team Lynx          necrolyte 16639  dark seer 14314  batrider 12616  winter wyvern 4361  hoodwink 4347
+[2026-08-24 14:02:51,808] t= 29:34 live     map 2    kills=23-12   nw R= 69212 D= 52277 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:02:51,808]      RADIANT Klim Sani4         lone druid 22299  enigma 15999  sand king 15617  undying 7670  dark willow 7627
+[2026-08-24 14:02:51,808]      DIRE    Team Lynx          necrolyte 16639  dark seer 14314  batrider 12616  winter wyvern 4361  hoodwink 4347
+[2026-08-24 14:02:52,972] t= 29:35 live     map 2    kills=23-12   nw R= 69212 D= 52277 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:02:52,972]      RADIANT Klim Sani4         lone druid 22299  enigma 15999  sand king 15617  undying 7670  dark willow 7627
+[2026-08-24 14:02:52,973]      DIRE    Team Lynx          necrolyte 16639  dark seer 14314  batrider 12616  winter wyvern 4361  hoodwink 4347
+[2026-08-24 14:03:00,200] t= 29:43 live     map 2    kills=23-12   nw R= 69212 D= 52277 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:03:00,200]      RADIANT Klim Sani4         lone druid 22299  enigma 15999  sand king 15617  undying 7670  dark willow 7627
+[2026-08-24 14:03:00,200]      DIRE    Team Lynx          necrolyte 16639  dark seer 14314  batrider 12616  winter wyvern 4361  hoodwink 4347
+[2026-08-24 14:03:00,290] t= 29:43 live     map 2    kills=23-12   nw R= 70081 D= 52854 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:03:00,290]      RADIANT Klim Sani4         lone druid 22679  enigma 16096  sand king 15689  undying 7939  dark willow 7678
+[2026-08-24 14:03:00,290]      DIRE    Team Lynx          necrolyte 16908  dark seer 14475  batrider 12675  winter wyvern 4413  hoodwink 4383
+[2026-08-24 14:03:01,090] t= 29:44 live     map 2    kills=23-12   nw R= 70095 D= 52871 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:03:01,090]      RADIANT Klim Sani4         lone druid 22681  enigma 16099  sand king 15691  undying 7942  dark willow 7682
+[2026-08-24 14:03:01,090]      DIRE    Team Lynx          necrolyte 16912  dark seer 14479  batrider 12679  winter wyvern 4416  hoodwink 4385
+[2026-08-24 14:03:08,680] t= 29:52 live     map 2    kills=23-12   nw R= 70504 D= 53246 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:03:08,680]      RADIANT Klim Sani4         lone druid 22738  enigma 16058  sand king 15863  undying 8144  dark willow 7701
+[2026-08-24 14:03:08,680]      DIRE    Team Lynx          necrolyte 16933  dark seer 14667  batrider 12805  winter wyvern 4435  hoodwink 4406
+[2026-08-24 14:03:12,191] t= 29:55 live     map 2    kills=23-12   nw R= 70504 D= 53246 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:03:12,192]      RADIANT Klim Sani4         lone druid 22738  enigma 16058  sand king 15863  undying 8144  dark willow 7701
+[2026-08-24 14:03:12,192]      DIRE    Team Lynx          necrolyte 16933  dark seer 14667  batrider 12805  winter wyvern 4435  hoodwink 4406
+[2026-08-24 14:03:20,319] t= 30:03 live     map 2    kills=23-12   nw R= 70905 D= 53670 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:03:20,320]      RADIANT Klim Sani4         lone druid 22838  enigma 16089  sand king 16025  undying 8176  dark willow 7777
+[2026-08-24 14:03:20,320]      DIRE    Team Lynx          necrolyte 17192  dark seer 14704  batrider 12842  winter wyvern 4470  hoodwink 4462
+[2026-08-24 14:03:30,197] t= 30:13 live     map 2    kills=23-12   nw R= 70905 D= 53670 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:03:30,197]      RADIANT Klim Sani4         lone druid 22838  enigma 16089  sand king 16025  undying 8176  dark willow 7777
+[2026-08-24 14:03:30,197]      DIRE    Team Lynx          necrolyte 17192  dark seer 14704  batrider 12842  winter wyvern 4470  hoodwink 4462
+[2026-08-24 14:03:35,087] t= 30:17 live     map 2    kills=23-12   nw R= 70905 D= 53670 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:03:35,088]      RADIANT Klim Sani4         lone druid 22838  enigma 16089  sand king 16025  undying 8176  dark willow 7777
+[2026-08-24 14:03:35,088]      DIRE    Team Lynx          necrolyte 17192  dark seer 14704  batrider 12842  winter wyvern 4470  hoodwink 4462
+[2026-08-24 14:03:38,342] t= 30:21 live     map 2    kills=23-12   nw R= 71331 D= 54539 nw_lag=8s  clock_lag=4.7s
+[2026-08-24 14:03:38,345]      RADIANT Klim Sani4         lone druid 23005  enigma 16214  sand king 15955  undying 8269  dark willow 7888
+[2026-08-24 14:03:38,345]      DIRE    Team Lynx          necrolyte 17400  dark seer 14761  batrider 13305  hoodwink 4546  winter wyvern 4527
+[2026-08-24 14:03:43,163] t= 30:25 live     map 2    kills=23-12   nw R= 71415 D= 54608 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:03:43,163]      RADIANT Klim Sani4         lone druid 23013  enigma 16254  sand king 15963  undying 8282  dark willow 7903
+[2026-08-24 14:03:43,163]      DIRE    Team Lynx          necrolyte 17416  dark seer 14776  batrider 13320  hoodwink 4554  winter wyvern 4542
+[2026-08-24 14:03:50,313] t= 30:33 live     map 2    kills=23-12   nw R= 71415 D= 54608 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:03:50,313]      RADIANT Klim Sani4         lone druid 23013  enigma 16254  sand king 15963  undying 8282  dark willow 7903
+[2026-08-24 14:03:50,313]      DIRE    Team Lynx          necrolyte 17416  dark seer 14776  batrider 13320  hoodwink 4554  winter wyvern 4542
+[2026-08-24 14:03:52,737] t= 30:35 live     map 2    kills=23-12   nw R= 71415 D= 54608 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:03:52,737]      RADIANT Klim Sani4         lone druid 23013  enigma 16254  sand king 15963  undying 8282  dark willow 7903
+[2026-08-24 14:03:52,738]      DIRE    Team Lynx          necrolyte 17416  dark seer 14776  batrider 13320  hoodwink 4554  winter wyvern 4542
+[2026-08-24 14:03:58,381] t= 30:41 live     map 2    kills=23-12   nw R= 72192 D= 55057 nw_lag=8s  clock_lag=6.9s
+[2026-08-24 14:03:58,381]      RADIANT Klim Sani4         lone druid 23240  sand king 16336  enigma 16331  undying 8327  dark willow 7958
+[2026-08-24 14:03:58,382]      DIRE    Team Lynx          necrolyte 17696  dark seer 14824  batrider 13368  winter wyvern 4590  hoodwink 4579
+[2026-08-24 14:04:01,165] t= 30:44 live     map 2    kills=23-12   nw R= 72242 D= 55092 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:04:01,166]      RADIANT Klim Sani4         lone druid 23263  sand king 16340  enigma 16338  undying 8335  dark willow 7966
+[2026-08-24 14:04:01,166]      DIRE    Team Lynx          necrolyte 17703  dark seer 14832  batrider 13376  winter wyvern 4598  hoodwink 4583
+[2026-08-24 14:04:09,622] t= 30:52 live     map 2    kills=23-12   nw R= 72242 D= 55092 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:04:09,622]      RADIANT Klim Sani4         lone druid 23263  sand king 16340  enigma 16338  undying 8335  dark willow 7966
+[2026-08-24 14:04:09,623]      DIRE    Team Lynx          necrolyte 17703  dark seer 14832  batrider 13376  winter wyvern 4598  hoodwink 4583
+[2026-08-24 14:04:18,001] t= 31:01 live     map 2    kills=23-12   nw R= 72969 D= 55784 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:04:18,001]      RADIANT Klim Sani4         lone druid 23742  enigma 16384  sand king 16368  undying 8388  dark willow 8087
+[2026-08-24 14:04:18,001]      DIRE    Team Lynx          necrolyte 18064  dark seer 14979  batrider 13506  winter wyvern 4684  hoodwink 4551
+[2026-08-24 14:04:33,331] t= 31:16 live     map 2    kills=25-12   nw R= 72969 D= 55784 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:04:33,332]      RADIANT Klim Sani4         lone druid 23742  enigma 16384  sand king 16368  undying 8388  dark willow 8087
+[2026-08-24 14:04:33,332]      DIRE    Team Lynx          necrolyte 18064  dark seer 14979  batrider 13506  winter wyvern 4684  hoodwink 4551
+[2026-08-24 14:04:41,712] t= 31:25 live     map 2    kills=25-12   nw R= 74503 D= 55903 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:04:41,713]      RADIANT Klim Sani4         lone druid 24088  sand king 17105  enigma 16357  undying 8540  dark willow 8413
+[2026-08-24 14:04:41,713]      DIRE    Team Lynx          necrolyte 18232  dark seer 14780  batrider 13581  winter wyvern 4760  hoodwink 4550
+[2026-08-24 14:04:47,743] t= 31:31 live     map 2    kills=25-12   nw R= 74503 D= 55903 nw_lag=8s  clock_lag=1.6s
+[2026-08-24 14:04:47,744]      RADIANT Klim Sani4         lone druid 24088  sand king 17105  enigma 16357  undying 8540  dark willow 8413
+[2026-08-24 14:04:47,744]      DIRE    Team Lynx          necrolyte 18232  dark seer 14780  batrider 13581  winter wyvern 4760  hoodwink 4550
+[2026-08-24 14:04:56,066] t= 31:39 live     map 2    kills=25-12   nw R= 74875 D= 57241 nw_lag=8s  clock_lag=9.9s
+[2026-08-24 14:04:56,068]      RADIANT Klim Sani4         lone druid 24255  sand king 17129  enigma 16447  undying 8586  dark willow 8458
+[2026-08-24 14:04:56,068]      DIRE    Team Lynx          necrolyte 18621  dark seer 14968  batrider 14073  winter wyvern 4905  hoodwink 4674
+[2026-08-24 14:05:10,066] t= 31:53 live     map 2    kills=25-12   nw R= 74875 D= 57241 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:05:10,068]      RADIANT Klim Sani4         lone druid 24255  sand king 17129  enigma 16447  undying 8586  dark willow 8458
+[2026-08-24 14:05:10,068]      DIRE    Team Lynx          necrolyte 18621  dark seer 14968  batrider 14073  winter wyvern 4905  hoodwink 4674
+[2026-08-24 14:05:18,482] t= 32:02 live     map 2    kills=25-12   nw R= 76499 D= 57611 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 14:05:18,482]      RADIANT Klim Sani4         lone druid 24961  sand king 17430  enigma 16775  dark willow 8676  undying 8657
+[2026-08-24 14:05:18,482]      DIRE    Team Lynx          necrolyte 18576  dark seer 15078  batrider 14270  winter wyvern 4976  hoodwink 4711
+[2026-08-24 14:05:19,636] t= 32:03 live     map 2    kills=25-12   nw R= 76499 D= 57611 nw_lag=8s  clock_lag=3.6s
+[2026-08-24 14:05:19,636]      RADIANT Klim Sani4         lone druid 24961  sand king 17430  enigma 16775  dark willow 8676  undying 8657
+[2026-08-24 14:05:19,636]      DIRE    Team Lynx          necrolyte 18576  dark seer 15078  batrider 14270  winter wyvern 4976  hoodwink 4711
+[2026-08-24 14:05:25,242] t= 32:08 live     map 2    kills=25-12   nw R= 76499 D= 57611 nw_lag=8s  clock_lag=5.7s
+[2026-08-24 14:05:25,242]      RADIANT Klim Sani4         lone druid 24961  sand king 17430  enigma 16775  dark willow 8676  undying 8657
+[2026-08-24 14:05:25,242]      DIRE    Team Lynx          necrolyte 18576  dark seer 15078  batrider 14270  winter wyvern 4976  hoodwink 4711
+[2026-08-24 14:05:25,706] t= 32:08 live     map 2    kills=25-12   nw R= 76661 D= 57895 nw_lag=8s  clock_lag=6.1s
+[2026-08-24 14:05:25,706]      RADIANT Klim Sani4         lone druid 24973  sand king 17442  enigma 16828  dark willow 8739  undying 8679
+[2026-08-24 14:05:25,706]      DIRE    Team Lynx          necrolyte 18733  dark seer 15100  batrider 14292  winter wyvern 5047  hoodwink 4723
+[2026-08-24 14:05:25,768] t= 32:08 live     map 2    kills=25-12   nw R= 76661 D= 57895 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:05:25,769]      RADIANT Klim Sani4         lone druid 24973  sand king 17442  enigma 16828  dark willow 8739  undying 8679
+[2026-08-24 14:05:25,769]      DIRE    Team Lynx          necrolyte 18733  dark seer 15100  batrider 14292  winter wyvern 5047  hoodwink 4723
+[2026-08-24 14:05:28,905] t= 32:12 live     map 2    kills=25-12   nw R= 76776 D= 57947 nw_lag=8s  clock_lag=4.5s
+[2026-08-24 14:05:28,906]      RADIANT Klim Sani4         lone druid 24979  sand king 17448  enigma 16908  dark willow 8750  undying 8691
+[2026-08-24 14:05:28,906]      DIRE    Team Lynx          necrolyte 18744  dark seer 15112  batrider 14304  winter wyvern 5058  hoodwink 4729
+[2026-08-24 14:05:33,737] t= 32:16 live     map 2    kills=25-12   nw R= 78937 D= 58240 nw_lag=8s  clock_lag=9.3s
+[2026-08-24 14:05:33,737]      RADIANT Klim Sani4         lone druid 25162  sand king 18856  enigma 17098  dark willow 8940  undying 8881
+[2026-08-24 14:05:33,737]      DIRE    Team Lynx          necrolyte 18923  dark seer 15127  batrider 14380  winter wyvern 5073  hoodwink 4737
+[2026-08-24 14:05:35,159] t= 32:18 live     map 2    kills=25-12   nw R= 78937 D= 58240 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:05:35,159]      RADIANT Klim Sani4         lone druid 25162  sand king 18856  enigma 17098  dark willow 8940  undying 8881
+[2026-08-24 14:05:35,159]      DIRE    Team Lynx          necrolyte 18923  dark seer 15127  batrider 14380  winter wyvern 5073  hoodwink 4737
+[2026-08-24 14:05:36,385] t= 32:19 live     map 2    kills=25-12   nw R= 78937 D= 58240 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:05:36,385]      RADIANT Klim Sani4         lone druid 25162  sand king 18856  enigma 17098  dark willow 8940  undying 8881
+[2026-08-24 14:05:36,385]      DIRE    Team Lynx          necrolyte 18923  dark seer 15127  batrider 14380  winter wyvern 5073  hoodwink 4737
+[2026-08-24 14:05:37,640] t= 32:20 live     map 2    kills=26-12   nw R= 78937 D= 58240 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:05:37,640]      RADIANT Klim Sani4         lone druid 25162  sand king 18856  enigma 17098  dark willow 8940  undying 8881
+[2026-08-24 14:05:37,640]      DIRE    Team Lynx          necrolyte 18923  dark seer 15127  batrider 14380  winter wyvern 5073  hoodwink 4737
+[2026-08-24 14:05:43,336] t= 32:26 live     map 2    kills=26-12   nw R= 79230 D= 58438 nw_lag=8s  clock_lag=7.0s
+[2026-08-24 14:05:43,336]      RADIANT Klim Sani4         lone druid 25178  sand king 18872  enigma 17298  dark willow 8971  undying 8911
+[2026-08-24 14:05:43,336]      DIRE    Team Lynx          necrolyte 18953  dark seer 15157  batrider 14458  winter wyvern 5104  hoodwink 4766
+[2026-08-24 14:05:44,592] t= 32:27 live     map 2    kills=26-12   nw R= 79785 D= 58407 nw_lag=8s  clock_lag=8.3s
+[2026-08-24 14:05:44,592]      RADIANT Klim Sani4         lone druid 25180  sand king 19321  enigma 17302  dark willow 9067  undying 8915
+[2026-08-24 14:05:44,592]      DIRE    Team Lynx          necrolyte 18957  dark seer 15161  batrider 14462  winter wyvern 5107  hoodwink 4720
+[2026-08-24 14:05:45,780] t= 32:28 live     map 2    kills=26-12   nw R= 79801 D= 58427 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:05:45,780]      RADIANT Klim Sani4         lone druid 25182  sand king 19323  enigma 17306  dark willow 9071  undying 8919
+[2026-08-24 14:05:45,780]      DIRE    Team Lynx          necrolyte 18961  dark seer 15165  batrider 14466  winter wyvern 5111  hoodwink 4724
+[2026-08-24 14:05:54,324] t= 32:37 live     map 2    kills=26-12   nw R= 79801 D= 58427 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:05:54,324]      RADIANT Klim Sani4         lone druid 25182  sand king 19323  enigma 17306  dark willow 9071  undying 8919
+[2026-08-24 14:05:54,324]      DIRE    Team Lynx          necrolyte 18961  dark seer 15165  batrider 14466  winter wyvern 5111  hoodwink 4724
+[2026-08-24 14:06:02,587] t= 32:45 live     map 2    kills=26-12   nw R= 80924 D= 59104 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:06:02,587]      RADIANT Klim Sani4         lone druid 25563  sand king 19866  enigma 17399  dark willow 9124  undying 8972
+[2026-08-24 14:06:02,587]      DIRE    Team Lynx          necrolyte 19241  dark seer 15334  batrider 14587  winter wyvern 5165  hoodwink 4777
+[2026-08-24 14:06:15,959] t= 32:58 live     map 2    kills=26-12   nw R= 80924 D= 59104 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:06:15,960]      RADIANT Klim Sani4         lone druid 25563  sand king 19866  enigma 17399  dark willow 9124  undying 8972
+[2026-08-24 14:06:15,960]      DIRE    Team Lynx          necrolyte 19241  dark seer 15334  batrider 14587  winter wyvern 5165  hoodwink 4777
+[2026-08-24 14:06:20,713] t= 33:03 live     map 2    kills=26-12   nw R= 80924 D= 59104 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:06:20,713]      RADIANT Klim Sani4         lone druid 25563  sand king 19866  enigma 17399  dark willow 9124  undying 8972
+[2026-08-24 14:06:20,713]      DIRE    Team Lynx          necrolyte 19241  dark seer 15334  batrider 14587  winter wyvern 5165  hoodwink 4777
+[2026-08-24 14:06:21,962] t= 33:04 live     map 2    kills=26-12   nw R= 80924 D= 59104 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:06:21,962]      RADIANT Klim Sani4         lone druid 25563  sand king 19866  enigma 17399  dark willow 9124  undying 8972
+[2026-08-24 14:06:21,962]      DIRE    Team Lynx          necrolyte 19241  dark seer 15334  batrider 14587  winter wyvern 5165  hoodwink 4777
+[2026-08-24 14:06:24,215] t= 33:07 live     map 2    kills=26-12   nw R= 81875 D= 60116 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:06:24,216]      RADIANT Klim Sani4         lone druid 26125  sand king 19902  enigma 17614  dark willow 9193  undying 9041
+[2026-08-24 14:06:24,216]      DIRE    Team Lynx          necrolyte 19501  dark seer 15552  batrider 14765  winter wyvern 5343  hoodwink 4955
+[2026-08-24 14:06:29,026] t= 33:11 live     map 2    kills=26-12   nw R= 82377 D= 60657 nw_lag=8s  clock_lag=8.4s
+[2026-08-24 14:06:29,026]      RADIANT Klim Sani4         lone druid 26221  sand king 19998  enigma 17718  dark willow 9296  undying 9144
+[2026-08-24 14:06:29,027]      DIRE    Team Lynx          necrolyte 19884  dark seer 15664  batrider 14781  winter wyvern 5358  hoodwink 4970
+[2026-08-24 14:06:30,215] t= 33:13 live     map 2    kills=26-12   nw R= 82392 D= 60675 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:06:30,215]      RADIANT Klim Sani4         lone druid 26223  sand king 20000  enigma 17721  dark willow 9300  undying 9148
+[2026-08-24 14:06:30,215]      DIRE    Team Lynx          necrolyte 19888  dark seer 15667  batrider 14784  winter wyvern 5362  hoodwink 4974
+[2026-08-24 14:06:37,493] t= 33:20 live     map 2    kills=26-12   nw R= 82392 D= 60675 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:06:37,493]      RADIANT Klim Sani4         lone druid 26223  sand king 20000  enigma 17721  dark willow 9300  undying 9148
+[2026-08-24 14:06:37,493]      DIRE    Team Lynx          necrolyte 19888  dark seer 15667  batrider 14784  winter wyvern 5362  hoodwink 4974
+[2026-08-24 14:06:45,871] t= 33:29 live     map 2    kills=26-12   nw R= 83521 D= 61099 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 14:06:45,871]      RADIANT Klim Sani4         lone druid 26638  sand king 20161  enigma 17906  dark willow 9484  undying 9332
+[2026-08-24 14:06:45,871]      DIRE    Team Lynx          necrolyte 20113  dark seer 15817  batrider 14834  winter wyvern 5361  hoodwink 4974
+[2026-08-24 14:06:51,923] t= 33:34 live     map 2    kills=27-12   nw R= 83521 D= 61099 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:06:51,925]      RADIANT Klim Sani4         lone druid 26638  sand king 20161  enigma 17906  dark willow 9484  undying 9332
+[2026-08-24 14:06:51,925]      DIRE    Team Lynx          necrolyte 20113  dark seer 15817  batrider 14834  winter wyvern 5361  hoodwink 4974
+[2026-08-24 14:06:55,459] t= 33:38 live     map 2    kills=28-12   nw R= 83521 D= 61099 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:06:55,459]      RADIANT Klim Sani4         lone druid 26638  sand king 20161  enigma 17906  dark willow 9484  undying 9332
+[2026-08-24 14:06:55,459]      DIRE    Team Lynx          necrolyte 20113  dark seer 15817  batrider 14834  winter wyvern 5361  hoodwink 4974
+[2026-08-24 14:07:00,410] t= 33:43 live     map 2    kills=28-12   nw R= 83874 D= 61189 nw_lag=8s  clock_lag=6.2s
+[2026-08-24 14:07:00,411]      RADIANT Klim Sani4         lone druid 26891  sand king 20185  enigma 17891  dark willow 9530  undying 9377
+[2026-08-24 14:07:00,412]      DIRE    Team Lynx          necrolyte 20158  dark seer 15959  batrider 14879  winter wyvern 5224  hoodwink 4969
+[2026-08-24 14:07:03,827] t= 33:46 live     map 2    kills=28-12   nw R= 83874 D= 61189 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:03,827]      RADIANT Klim Sani4         lone druid 26891  sand king 20185  enigma 17891  dark willow 9530  undying 9377
+[2026-08-24 14:07:03,827]      DIRE    Team Lynx          necrolyte 20158  dark seer 15959  batrider 14879  winter wyvern 5224  hoodwink 4969
+[2026-08-24 14:07:03,891] t= 33:46 live     map 2    kills=28-12   nw R= 84817 D= 60662 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:03,891]      RADIANT Klim Sani4         lone druid 27094  sand king 20388  enigma 17903  undying 9891  dark willow 9541
+[2026-08-24 14:07:03,892]      DIRE    Team Lynx          necrolyte 19665  dark seer 15971  batrider 14891  winter wyvern 5235  hoodwink 4900
+[2026-08-24 14:07:05,033] t= 33:47 live     map 2    kills=28-12   nw R= 84817 D= 60662 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:05,034]      RADIANT Klim Sani4         lone druid 27094  sand king 20388  enigma 17903  undying 9891  dark willow 9541
+[2026-08-24 14:07:05,034]      DIRE    Team Lynx          necrolyte 19665  dark seer 15971  batrider 14891  winter wyvern 5235  hoodwink 4900
+[2026-08-24 14:07:12,268] t= 33:55 live     map 2    kills=28-12   nw R= 85277 D= 60828 nw_lag=8s  clock_lag=8.5s
+[2026-08-24 14:07:12,269]      RADIANT Klim Sani4         lone druid 27294  sand king 20569  enigma 17929  undying 9917  dark willow 9568
+[2026-08-24 14:07:12,269]      DIRE    Team Lynx          necrolyte 19692  dark seer 16030  batrider 14917  winter wyvern 5262  hoodwink 4927
+[2026-08-24 14:07:13,468] t= 33:56 live     map 2    kills=28-12   nw R= 85332 D= 60847 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:07:13,469]      RADIANT Klim Sani4         lone druid 27336  sand king 20571  enigma 17933  undying 9921  dark willow 9571
+[2026-08-24 14:07:13,469]      DIRE    Team Lynx          necrolyte 19696  dark seer 16034  batrider 14921  winter wyvern 5265  hoodwink 4931
+[2026-08-24 14:07:20,639] t= 34:03 live     map 2    kills=29-12   nw R= 85332 D= 60847 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:20,640]      RADIANT Klim Sani4         lone druid 27336  sand king 20571  enigma 17933  undying 9921  dark willow 9571
+[2026-08-24 14:07:20,640]      DIRE    Team Lynx          necrolyte 19696  dark seer 16034  batrider 14921  winter wyvern 5265  hoodwink 4931
+[2026-08-24 14:07:24,252] t= 34:07 live     map 2    kills=29-12   nw R= 85332 D= 60847 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:24,252]      RADIANT Klim Sani4         lone druid 27336  sand king 20571  enigma 17933  undying 9921  dark willow 9571
+[2026-08-24 14:07:24,252]      DIRE    Team Lynx          necrolyte 19696  dark seer 16034  batrider 14921  winter wyvern 5265  hoodwink 4931
+[2026-08-24 14:07:26,586] t= 34:09 live     map 2    kills=29-12   nw R= 85332 D= 60847 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:07:26,587]      RADIANT Klim Sani4         lone druid 27336  sand king 20571  enigma 17933  undying 9921  dark willow 9571
+[2026-08-24 14:07:26,587]      DIRE    Team Lynx          necrolyte 19696  dark seer 16034  batrider 14921  winter wyvern 5265  hoodwink 4931
+[2026-08-24 14:07:29,103] t= 34:12 live     map 2    kills=29-12   nw R= 86324 D= 62627 nw_lag=8s  clock_lag=3.8s
+[2026-08-24 14:07:29,104]      RADIANT Klim Sani4         lone druid 27549  sand king 20916  enigma 18037  undying 9970  dark willow 9852
+[2026-08-24 14:07:29,104]      DIRE    Team Lynx          necrolyte 19991  dark seer 16580  batrider 15314  winter wyvern 5561  hoodwink 5181
+[2026-08-24 14:07:32,309] t= 34:15 live     map 2    kills=29-12   nw R= 86845 D= 63644 nw_lag=8s  clock_lag=7.0s
+[2026-08-24 14:07:32,309]      RADIANT Klim Sani4         lone druid 27680  sand king 21183  enigma 18093  undying 10026  dark willow 9863
+[2026-08-24 14:07:32,309]      DIRE    Team Lynx          necrolyte 20133  dark seer 17030  batrider 15456  winter wyvern 5702  hoodwink 5323
+[2026-08-24 14:07:33,928] t= 34:16 live     map 2    kills=29-12   nw R= 86845 D= 63644 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:07:33,928]      RADIANT Klim Sani4         lone druid 27680  sand king 21183  enigma 18093  undying 10026  dark willow 9863
+[2026-08-24 14:07:33,928]      DIRE    Team Lynx          necrolyte 20133  dark seer 17030  batrider 15456  winter wyvern 5702  hoodwink 5323
+[2026-08-24 14:07:34,729] t= 34:17 live     map 2    kills=29-12   nw R= 87057 D= 63680 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:07:34,729]      RADIANT Klim Sani4         lone druid 27865  sand king 21187  enigma 18100  undying 10034  dark willow 9871
+[2026-08-24 14:07:34,729]      DIRE    Team Lynx          necrolyte 20140  dark seer 17037  batrider 15463  winter wyvern 5710  hoodwink 5330
+[2026-08-24 14:07:35,010] t= 34:18 live     map 2    kills=29-12   nw R= 87057 D= 63680 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:07:35,010]      RADIANT Klim Sani4         lone druid 27865  sand king 21187  enigma 18100  undying 10034  dark willow 9871
+[2026-08-24 14:07:35,010]      DIRE    Team Lynx          necrolyte 20140  dark seer 17037  batrider 15463  winter wyvern 5710  hoodwink 5330
+[2026-08-24 14:07:37,439] t= 34:20 live     map 2    kills=29-12   nw R= 87057 D= 63680 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:37,439]      RADIANT Klim Sani4         lone druid 27865  sand king 21187  enigma 18100  undying 10034  dark willow 9871
+[2026-08-24 14:07:37,439]      DIRE    Team Lynx          necrolyte 20140  dark seer 17037  batrider 15463  winter wyvern 5710  hoodwink 5330
+[2026-08-24 14:07:38,535] t= 34:21 live     map 2    kills=29-12   nw R= 87057 D= 63680 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:07:38,535]      RADIANT Klim Sani4         lone druid 27865  sand king 21187  enigma 18100  undying 10034  dark willow 9871
+[2026-08-24 14:07:38,535]      DIRE    Team Lynx          necrolyte 20140  dark seer 17037  batrider 15463  winter wyvern 5710  hoodwink 5330
+[2026-08-24 14:07:42,240] t= 34:25 live     map 2    kills=29-12   nw R= 87057 D= 63680 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:42,240]      RADIANT Klim Sani4         lone druid 27865  sand king 21187  enigma 18100  undying 10034  dark willow 9871
+[2026-08-24 14:07:42,240]      DIRE    Team Lynx          necrolyte 20140  dark seer 17037  batrider 15463  winter wyvern 5710  hoodwink 5330
+[2026-08-24 14:07:42,326] t= 34:25 live     map 2    kills=29-12   nw R= 87298 D= 64816 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:07:42,327]      RADIANT Klim Sani4         lone druid 27987  sand king 21238  enigma 18123  undying 10056  dark willow 9894
+[2026-08-24 14:07:42,327]      DIRE    Team Lynx          necrolyte 20358  dark seer 17301  batrider 15681  winter wyvern 5928  hoodwink 5548
+[2026-08-24 14:07:43,147] t= 34:26 live     map 2    kills=29-12   nw R= 88089 D= 64836 nw_lag=8s  clock_lag=2.2s
+[2026-08-24 14:07:43,147]      RADIANT Klim Sani4         lone druid 28265  sand king 21365  enigma 18252  undying 10185  dark willow 10022
+[2026-08-24 14:07:43,147]      DIRE    Team Lynx          necrolyte 20362  dark seer 17305  batrider 15685  winter wyvern 5932  hoodwink 5552
+[2026-08-24 14:07:43,432] t= 34:26 live     map 2    kills=30-12   nw R= 88089 D= 64836 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:07:43,432]      RADIANT Klim Sani4         lone druid 28265  sand king 21365  enigma 18252  undying 10185  dark willow 10022
+[2026-08-24 14:07:43,433]      DIRE    Team Lynx          necrolyte 20362  dark seer 17305  batrider 15685  winter wyvern 5932  hoodwink 5552
+[2026-08-24 14:07:45,547] t= 34:28 live     map 2    kills=30-12   nw R= 88021 D= 64943 nw_lag=8s  clock_lag=3.4s
+[2026-08-24 14:07:45,547]      RADIANT Klim Sani4         lone druid 28269  sand king 21369  enigma 18160  undying 10193  dark willow 10030
+[2026-08-24 14:07:45,547]      DIRE    Team Lynx          necrolyte 20369  dark seer 17383  batrider 15693  winter wyvern 5939  hoodwink 5559
+[2026-08-24 14:07:45,909] t= 34:28 live     map 2    kills=30-12   nw R= 88021 D= 64943 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:07:45,910]      RADIANT Klim Sani4         lone druid 28269  sand king 21369  enigma 18160  undying 10193  dark willow 10030
+[2026-08-24 14:07:45,910]      DIRE    Team Lynx          necrolyte 20369  dark seer 17383  batrider 15693  winter wyvern 5939  hoodwink 5559
+[2026-08-24 14:07:46,789] t= 34:29 live     map 2    kills=30-12   nw R= 88036 D= 64961 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 14:07:46,790]      RADIANT Klim Sani4         lone druid 28271  sand king 21371  enigma 18163  undying 10197  dark willow 10034
+[2026-08-24 14:07:46,790]      DIRE    Team Lynx          necrolyte 20373  dark seer 17386  batrider 15696  winter wyvern 5943  hoodwink 5563
+[2026-08-24 14:07:50,401] t= 34:33 live     map 2    kills=30-12   nw R= 89060 D= 65245 nw_lag=8s  clock_lag=5.9s
+[2026-08-24 14:07:50,401]      RADIANT Klim Sani4         lone druid 28635  sand king 21532  enigma 18330  undying 10363  dark willow 10200
+[2026-08-24 14:07:50,402]      DIRE    Team Lynx          necrolyte 20385  dark seer 17398  batrider 15933  winter wyvern 5954  hoodwink 5575
+[2026-08-24 14:07:51,620] t= 34:34 live     map 2    kills=30-12   nw R= 89809 D= 64044 nw_lag=8s  clock_lag=7.1s
+[2026-08-24 14:07:51,620]      RADIANT Klim Sani4         lone druid 28637  sand king 21534  enigma 19067  undying 10367  dark willow 10204
+[2026-08-24 14:07:51,621]      DIRE    Team Lynx          necrolyte 20388  dark seer 17481  batrider 15539  hoodwink 5578  winter wyvern 5058
+[2026-08-24 14:07:54,002] t= 34:37 live     map 2    kills=30-12   nw R= 90526 D= 64226 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:07:54,002]      RADIANT Klim Sani4         lone druid 28968  sand king 21628  enigma 19164  undying 10464  dark willow 10302
+[2026-08-24 14:07:54,002]      DIRE    Team Lynx          necrolyte 20396  dark seer 17632  batrider 15546  hoodwink 5586  winter wyvern 5066
+[2026-08-24 14:07:57,808] t= 34:40 live     map 2    kills=30-12   nw R= 90526 D= 64226 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:07:57,808]      RADIANT Klim Sani4         lone druid 28968  sand king 21628  enigma 19164  undying 10464  dark willow 10302
+[2026-08-24 14:07:57,808]      DIRE    Team Lynx          necrolyte 20396  dark seer 17632  batrider 15546  hoodwink 5586  winter wyvern 5066
+[2026-08-24 14:08:00,324] t= 34:43 live     map 2    kills=30-12   nw R= 90526 D= 64226 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:00,325]      RADIANT Klim Sani4         lone druid 28968  sand king 21628  enigma 19164  undying 10464  dark willow 10302
+[2026-08-24 14:08:00,325]      DIRE    Team Lynx          necrolyte 20396  dark seer 17632  batrider 15546  hoodwink 5586  winter wyvern 5066
+[2026-08-24 14:08:03,842] t= 34:46 live     map 2    kills=30-12   nw R= 90526 D= 64226 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:03,842]      RADIANT Klim Sani4         lone druid 28968  sand king 21628  enigma 19164  undying 10464  dark willow 10302
+[2026-08-24 14:08:03,842]      DIRE    Team Lynx          necrolyte 20396  dark seer 17632  batrider 15546  hoodwink 5586  winter wyvern 5066
+[2026-08-24 14:08:05,103] t= 34:48 live     map 2    kills=30-12   nw R= 90526 D= 64226 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:05,103]      RADIANT Klim Sani4         lone druid 28968  sand king 21628  enigma 19164  undying 10464  dark willow 10302
+[2026-08-24 14:08:05,103]      DIRE    Team Lynx          necrolyte 20396  dark seer 17632  batrider 15546  hoodwink 5586  winter wyvern 5066
+[2026-08-24 14:08:06,028] t= 34:49 live     map 2    kills=30-12   nw R= 91868 D= 64504 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 14:08:06,028]      RADIANT Klim Sani4         lone druid 29398  sand king 22101  enigma 19327  undying 10577  dark willow 10465
+[2026-08-24 14:08:06,028]      DIRE    Team Lynx          necrolyte 20434  dark seer 17758  batrider 15584  hoodwink 5624  winter wyvern 5104
+[2026-08-24 14:08:08,663] t= 34:51 live     map 2    kills=30-12   nw R= 91868 D= 64504 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:08:08,663]      RADIANT Klim Sani4         lone druid 29398  sand king 22101  enigma 19327  undying 10577  dark willow 10465
+[2026-08-24 14:08:08,663]      DIRE    Team Lynx          necrolyte 20434  dark seer 17758  batrider 15584  hoodwink 5624  winter wyvern 5104
+[2026-08-24 14:08:08,808] t= 34:51 live     map 2    kills=30-12   nw R= 91899 D= 64543 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:08:08,808]      RADIANT Klim Sani4         lone druid 29402  sand king 22105  enigma 19335  undying 10585  dark willow 10472
+[2026-08-24 14:08:08,808]      DIRE    Team Lynx          necrolyte 20442  dark seer 17766  batrider 15592  hoodwink 5632  winter wyvern 5111
+[2026-08-24 14:08:09,914] t= 34:52 live     map 2    kills=30-12   nw R= 91899 D= 64543 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:09,914]      RADIANT Klim Sani4         lone druid 29402  sand king 22105  enigma 19335  undying 10585  dark willow 10472
+[2026-08-24 14:08:09,914]      DIRE    Team Lynx          necrolyte 20442  dark seer 17766  batrider 15592  hoodwink 5632  winter wyvern 5111
+[2026-08-24 14:08:12,113] t= 34:54 live     map 2    kills=30-12   nw R= 91907 D= 64650 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:08:12,114]      RADIANT Klim Sani4         lone druid 29420  sand king 22111  enigma 19346  undying 10546  dark willow 10484
+[2026-08-24 14:08:12,114]      DIRE    Team Lynx          necrolyte 20453  dark seer 17878  batrider 15603  hoodwink 5593  winter wyvern 5123
+[2026-08-24 14:08:13,245] t= 34:56 live     map 2    kills=30-12   nw R= 92797 D= 64709 nw_lag=8s  clock_lag=4.6s
+[2026-08-24 14:08:13,245]      RADIANT Klim Sani4         lone druid 29677  sand king 22268  enigma 19505  undying 10705  dark willow 10642
+[2026-08-24 14:08:13,245]      DIRE    Team Lynx          necrolyte 20457  dark seer 17921  batrider 15607  hoodwink 5597  winter wyvern 5127
+[2026-08-24 14:08:17,214] t= 35:00 live     map 2    kills=30-12   nw R= 93406 D= 64992 nw_lag=8s  clock_lag=8.6s
+[2026-08-24 14:08:17,214]      RADIANT Klim Sani4         lone druid 29884  sand king 22364  enigma 19607  undying 10807  dark willow 10744
+[2026-08-24 14:08:17,214]      DIRE    Team Lynx          necrolyte 20557  dark seer 18022  batrider 15619  hoodwink 5608  winter wyvern 5186
+[2026-08-24 14:08:18,034] t= 35:00 live     map 2    kills=30-12   nw R= 93421 D= 65126 nw_lag=8s  clock_lag=9.4s
+[2026-08-24 14:08:18,034]      RADIANT Klim Sani4         lone druid 29886  sand king 22366  enigma 19610  undying 10811  dark willow 10748
+[2026-08-24 14:08:18,034]      DIRE    Team Lynx          necrolyte 20677  dark seer 18025  batrider 15622  hoodwink 5612  winter wyvern 5190
+[2026-08-24 14:08:24,306] t= 35:07 live     map 2    kills=30-12   nw R= 93421 D= 65126 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:08:24,306]      RADIANT Klim Sani4         lone druid 29886  sand king 22366  enigma 19610  undying 10811  dark willow 10748
+[2026-08-24 14:08:24,306]      DIRE    Team Lynx          necrolyte 20677  dark seer 18025  batrider 15622  hoodwink 5612  winter wyvern 5190
+[2026-08-24 14:08:27,865] t= 35:10 live     map 2    kills=30-12   nw R= 93421 D= 65126 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:08:27,866]      RADIANT Klim Sani4         lone druid 29886  sand king 22366  enigma 19610  undying 10811  dark willow 10748
+[2026-08-24 14:08:27,866]      DIRE    Team Lynx          necrolyte 20677  dark seer 18025  batrider 15622  hoodwink 5612  winter wyvern 5190
+[2026-08-24 14:08:29,077] t= 35:12 live     map 2    kills=30-12   nw R= 93421 D= 65126 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:29,077]      RADIANT Klim Sani4         lone druid 29886  sand king 22366  enigma 19610  undying 10811  dark willow 10748
+[2026-08-24 14:08:29,077]      DIRE    Team Lynx          necrolyte 20677  dark seer 18025  batrider 15622  hoodwink 5612  winter wyvern 5190
+[2026-08-24 14:08:32,427] t= 35:16 live     map 2    kills=30-12   nw R= 94336 D= 65355 nw_lag=8s  clock_lag=4.6s
+[2026-08-24 14:08:32,427]      RADIANT Klim Sani4         lone druid 30191  sand king 22515  enigma 19781  undying 10931  dark willow 10918
+[2026-08-24 14:08:32,427]      DIRE    Team Lynx          necrolyte 20723  dark seer 18071  batrider 15668  hoodwink 5658  winter wyvern 5235
+[2026-08-24 14:08:32,676] t= 35:15 live     map 2    kills=31-12   nw R= 94336 D= 65355 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:32,676]      RADIANT Klim Sani4         lone druid 30191  sand king 22515  enigma 19781  undying 10931  dark willow 10918
+[2026-08-24 14:08:32,676]      DIRE    Team Lynx          necrolyte 20723  dark seer 18071  batrider 15668  hoodwink 5658  winter wyvern 5235
+[2026-08-24 14:08:36,013] t= 35:19 live     map 2    kills=31-12   nw R= 94934 D= 65411 nw_lag=8s  clock_lag=4.6s
+[2026-08-24 14:08:36,013]      RADIANT Klim Sani4         lone druid 30287  sand king 22756  enigma 19841  undying 11071  dark willow 10979
+[2026-08-24 14:08:36,013]      DIRE    Team Lynx          necrolyte 20734  dark seer 18082  batrider 15679  hoodwink 5669  winter wyvern 5247
+[2026-08-24 14:08:37,238] t= 35:20 live     map 2    kills=31-12   nw R= 95035 D= 65431 nw_lag=8s  clock_lag=5.8s
+[2026-08-24 14:08:37,238]      RADIANT Klim Sani4         lone druid 30289  sand king 22801  enigma 19845  undying 11118  dark willow 10982
+[2026-08-24 14:08:37,238]      DIRE    Team Lynx          necrolyte 20738  dark seer 18086  batrider 15683  hoodwink 5673  winter wyvern 5251
+[2026-08-24 14:08:40,859] t= 35:23 live     map 2    kills=31-12   nw R= 95647 D= 65438 nw_lag=8s  clock_lag=9.5s
+[2026-08-24 14:08:40,859]      RADIANT Klim Sani4         lone druid 30376  sand king 22934  enigma 20128  undying 11172  dark willow 11037
+[2026-08-24 14:08:40,859]      DIRE    Team Lynx          necrolyte 20749  dark seer 18097  batrider 15694  hoodwink 5684  winter wyvern 5214
+[2026-08-24 14:08:48,316] t= 35:31 live     map 2    kills=31-12   nw R= 95647 D= 65438 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:48,316]      RADIANT Klim Sani4         lone druid 30376  sand king 22934  enigma 20128  undying 11172  dark willow 11037
+[2026-08-24 14:08:48,316]      DIRE    Team Lynx          necrolyte 20749  dark seer 18097  batrider 15694  hoodwink 5684  winter wyvern 5214
+[2026-08-24 14:08:49,529] t= 35:32 live     map 2    kills=31-12   nw R= 95647 D= 65438 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:49,529]      RADIANT Klim Sani4         lone druid 30376  sand king 22934  enigma 20128  undying 11172  dark willow 11037
+[2026-08-24 14:08:49,529]      DIRE    Team Lynx          necrolyte 20749  dark seer 18097  batrider 15694  hoodwink 5684  winter wyvern 5214
+[2026-08-24 14:08:50,784] t= 35:33 live     map 2    kills=31-12   nw R= 95647 D= 65438 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:50,784]      RADIANT Klim Sani4         lone druid 30376  sand king 22934  enigma 20128  undying 11172  dark willow 11037
+[2026-08-24 14:08:50,784]      DIRE    Team Lynx          necrolyte 20749  dark seer 18097  batrider 15694  hoodwink 5684  winter wyvern 5214
+[2026-08-24 14:08:51,902] t= 35:34 live     map 2    kills=31-12   nw R= 95647 D= 65438 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:08:51,903]      RADIANT Klim Sani4         lone druid 30376  sand king 22934  enigma 20128  undying 11172  dark willow 11037
+[2026-08-24 14:08:51,903]      DIRE    Team Lynx          necrolyte 20749  dark seer 18097  batrider 15694  hoodwink 5684  winter wyvern 5214
+[2026-08-24 14:08:56,439] t= 35:39 live     map 2    kills=31-12   nw R= 96081 D= 65703 nw_lag=8s  clock_lag=5.8s
+[2026-08-24 14:08:56,439]      RADIANT Klim Sani4         lone druid 30447  sand king 23010  enigma 20223  undying 11315  dark willow 11086
+[2026-08-24 14:08:56,439]      DIRE    Team Lynx          necrolyte 20815  dark seer 18147  batrider 15744  hoodwink 5734  winter wyvern 5263
+[2026-08-24 14:08:56,715] t= 35:39 live     map 2    kills=31-12   nw R= 96081 D= 65703 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:08:56,715]      RADIANT Klim Sani4         lone druid 30447  sand king 23010  enigma 20223  undying 11315  dark willow 11086
+[2026-08-24 14:08:56,715]      DIRE    Team Lynx          necrolyte 20815  dark seer 18147  batrider 15744  hoodwink 5734  winter wyvern 5263
+[2026-08-24 14:08:57,662] t= 35:40 live     map 2    kills=31-12   nw R= 96995 D= 65722 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 14:08:57,662]      RADIANT Klim Sani4         lone druid 30727  sand king 23167  enigma 20382  undying 11474  dark willow 11245
+[2026-08-24 14:08:57,662]      DIRE    Team Lynx          necrolyte 20818  dark seer 18151  batrider 15748  hoodwink 5738  winter wyvern 5267
+[2026-08-24 14:08:57,977] t= 35:40 live     map 2    kills=31-13   nw R= 96995 D= 65722 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:08:57,977]      RADIANT Klim Sani4         lone druid 30727  sand king 23167  enigma 20382  undying 11474  dark willow 11245
+[2026-08-24 14:08:57,977]      DIRE    Team Lynx          necrolyte 20818  dark seer 18151  batrider 15748  hoodwink 5738  winter wyvern 5267
+[2026-08-24 14:08:59,228] t= 35:42 live     map 2    kills=31-13   nw R= 97589 D= 66125 nw_lag=8s  clock_lag=2.7s
+[2026-08-24 14:08:59,228]      RADIANT Klim Sani4         lone druid 30947  sand king 23259  enigma 20476  undying 11568  dark willow 11339
+[2026-08-24 14:08:59,228]      DIRE    Team Lynx          necrolyte 20822  dark seer 18540  batrider 15751  hoodwink 5741  winter wyvern 5271
+[2026-08-24 14:09:00,101] t= 35:43 live     map 2    kills=31-13   nw R= 97603 D= 66144 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:09:00,101]      RADIANT Klim Sani4         lone druid 30949  sand king 23261  enigma 20479  undying 11571  dark willow 11343
+[2026-08-24 14:09:00,101]      DIRE    Team Lynx          necrolyte 20826  dark seer 18543  batrider 15755  hoodwink 5745  winter wyvern 5275
+[2026-08-24 14:09:03,765] t= 35:46 live     map 2    kills=32-13   nw R= 97603 D= 66144 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:09:03,765]      RADIANT Klim Sani4         lone druid 30949  sand king 23261  enigma 20479  undying 11571  dark willow 11343
+[2026-08-24 14:09:03,765]      DIRE    Team Lynx          necrolyte 20826  dark seer 18543  batrider 15755  hoodwink 5745  winter wyvern 5275
+[2026-08-24 14:09:04,847] t= 35:47 live     map 2    kills=32-13   nw R= 97382 D= 67290 nw_lag=8s  clock_lag=2.4s
+[2026-08-24 14:09:04,847]      RADIANT Klim Sani4         lone druid 30957  sand king 23269  enigma 20494  undying 11587  dark willow 11075
+[2026-08-24 14:09:04,847]      DIRE    Team Lynx          necrolyte 21342  dark seer 18748  batrider 15960  hoodwink 5950  winter wyvern 5290
+[2026-08-24 14:09:04,893] t= 35:47 live     map 2    kills=32-13   nw R= 97382 D= 67290 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:09:04,893]      RADIANT Klim Sani4         lone druid 30957  sand king 23269  enigma 20494  undying 11587  dark willow 11075
+[2026-08-24 14:09:04,893]      DIRE    Team Lynx          necrolyte 21342  dark seer 18748  batrider 15960  hoodwink 5950  winter wyvern 5290
+[2026-08-24 14:09:06,058] t= 35:48 live     map 2    kills=32-13   nw R= 97396 D= 67310 nw_lag=8s  clock_lag=2.4s
+[2026-08-24 14:09:06,059]      RADIANT Klim Sani4         lone druid 30959  sand king 23271  enigma 20498  undying 11590  dark willow 11078
+[2026-08-24 14:09:06,059]      DIRE    Team Lynx          necrolyte 21346  dark seer 18752  batrider 15964  hoodwink 5954  winter wyvern 5294
+[2026-08-24 14:09:06,071] t= 35:49 live     map 2    kills=32-13   nw R= 97396 D= 67310 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:09:06,071]      RADIANT Klim Sani4         lone druid 30959  sand king 23271  enigma 20498  undying 11590  dark willow 11078
+[2026-08-24 14:09:06,071]      DIRE    Team Lynx          necrolyte 21346  dark seer 18752  batrider 15964  hoodwink 5954  winter wyvern 5294
+[2026-08-24 14:09:12,081] t= 35:55 live     map 2    kills=32-13   nw R= 98607 D= 66881 nw_lag=8s  clock_lag=7.3s
+[2026-08-24 14:09:12,081]      RADIANT Klim Sani4         lone druid 31406  sand king 23518  enigma 20733  undying 11731  dark willow 11219
+[2026-08-24 14:09:12,081]      DIRE    Team Lynx          necrolyte 20831  dark seer 18771  batrider 15993  hoodwink 5973  winter wyvern 5313
+[2026-08-24 14:09:13,269] t= 35:56 live     map 2    kills=32-13   nw R= 98623 D= 66292 nw_lag=8s  clock_lag=8.4s
+[2026-08-24 14:09:13,269]      RADIANT Klim Sani4         lone druid 31408  sand king 23520  enigma 20737  undying 11735  dark willow 11223
+[2026-08-24 14:09:13,269]      DIRE    Team Lynx          necrolyte 20835  dark seer 18775  batrider 15997  hoodwink 5977  winter wyvern 4708
+[2026-08-24 14:09:14,487] t= 35:58 live     map 2    kills=32-13   nw R= 97576 D= 66310 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:09:14,487]      RADIANT Klim Sani4         lone druid 31410  sand king 23522  enigma 20741  undying 11739  dark willow 10164
+[2026-08-24 14:09:14,487]      DIRE    Team Lynx          necrolyte 20838  dark seer 18779  batrider 16001  hoodwink 5980  winter wyvern 4712
+[2026-08-24 14:09:22,870] t= 36:05 live     map 2    kills=32-13   nw R= 97576 D= 66310 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:09:22,870]      RADIANT Klim Sani4         lone druid 31410  sand king 23522  enigma 20741  undying 11739  dark willow 10164
+[2026-08-24 14:09:22,870]      DIRE    Team Lynx          necrolyte 20838  dark seer 18779  batrider 16001  hoodwink 5980  winter wyvern 4712
+[2026-08-24 14:09:31,293] t= 36:14 live     map 2    kills=32-13   nw R= 97927 D= 66491 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 14:09:31,294]      RADIANT Klim Sani4         lone druid 31574  sand king 23550  enigma 20694  undying 11892  dark willow 10217
+[2026-08-24 14:09:31,294]      DIRE    Team Lynx          necrolyte 20892  dark seer 18832  batrider 16054  hoodwink 5948  winter wyvern 4765
+[2026-08-24 14:09:37,252] t= 36:20 live     map 2    kills=32-13   nw R= 97927 D= 66491 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:09:37,252]      RADIANT Klim Sani4         lone druid 31574  sand king 23550  enigma 20694  undying 11892  dark willow 10217
+[2026-08-24 14:09:37,252]      DIRE    Team Lynx          necrolyte 20892  dark seer 18832  batrider 16054  hoodwink 5948  winter wyvern 4765
+[2026-08-24 14:09:39,574] t= 36:22 live     map 2    kills=32-13   nw R= 97927 D= 66491 nw_lag=8s  clock_lag=1.2s
+[2026-08-24 14:09:39,574]      RADIANT Klim Sani4         lone druid 31574  sand king 23550  enigma 20694  undying 11892  dark willow 10217
+[2026-08-24 14:09:39,574]      DIRE    Team Lynx          necrolyte 20892  dark seer 18832  batrider 16054  hoodwink 5948  winter wyvern 4765
+[2026-08-24 14:09:45,691] t= 36:28 live     map 2    kills=32-13   nw R= 98346 D= 65101 nw_lag=8s  clock_lag=7.3s
+[2026-08-24 14:09:45,691]      RADIANT Klim Sani4         lone druid 31598  sand king 23747  enigma 20739  undying 11999  dark willow 10263
+[2026-08-24 14:09:45,691]      DIRE    Team Lynx          necrolyte 19127  dark seer 18942  batrider 16173  hoodwink 6039  winter wyvern 4820
+[2026-08-24 14:09:47,739] t= 36:30 live     map 2    kills=32-13   nw R= 98496 D= 65140 nw_lag=8s  clock_lag=9.4s
+[2026-08-24 14:09:47,739]      RADIANT Klim Sani4         lone druid 31602  sand king 23832  enigma 20747  undying 12045  dark willow 10270
+[2026-08-24 14:09:47,739]      DIRE    Team Lynx          necrolyte 19135  dark seer 18950  batrider 16181  hoodwink 6047  winter wyvern 4827
+[2026-08-24 14:10:01,110] t= 36:43 live     map 2    kills=32-13   nw R= 98496 D= 65140 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:10:01,110]      RADIANT Klim Sani4         lone druid 31602  sand king 23832  enigma 20747  undying 12045  dark willow 10270
+[2026-08-24 14:10:01,110]      DIRE    Team Lynx          necrolyte 19135  dark seer 18950  batrider 16181  hoodwink 6047  winter wyvern 4827
+[2026-08-24 14:10:09,365] t= 36:52 live     map 2    kills=32-13   nw R= 98969 D= 65932 nw_lag=8s  clock_lag=9.7s
+[2026-08-24 14:10:09,367]      RADIANT Klim Sani4         lone druid 31853  sand king 23954  enigma 20814  undying 12016  dark willow 10332
+[2026-08-24 14:10:09,367]      DIRE    Team Lynx          necrolyte 19395  dark seer 19212  batrider 16447  hoodwink 5984  winter wyvern 4894
+[2026-08-24 14:10:09,755] t= 36:53 live     map 2    kills=32-13   nw R= 98969 D= 65932 nw_lag=8s  clock_lag=1.6s
+[2026-08-24 14:10:09,755]      RADIANT Klim Sani4         lone druid 31853  sand king 23954  enigma 20814  undying 12016  dark willow 10332
+[2026-08-24 14:10:09,755]      DIRE    Team Lynx          necrolyte 19395  dark seer 19212  batrider 16447  hoodwink 5984  winter wyvern 4894
+[2026-08-24 14:10:10,588] t= 36:53 live     map 2    kills=32-13   nw R= 98969 D= 65932 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:10:10,588]      RADIANT Klim Sani4         lone druid 31853  sand king 23954  enigma 20814  undying 12016  dark willow 10332
+[2026-08-24 14:10:10,588]      DIRE    Team Lynx          necrolyte 19395  dark seer 19212  batrider 16447  hoodwink 5984  winter wyvern 4894
+[2026-08-24 14:10:18,172] t= 37:01 live     map 2    kills=32-13   nw R= 98904 D= 66685 nw_lag=8s  clock_lag=8.8s
+[2026-08-24 14:10:18,173]      RADIANT Klim Sani4         lone druid 31867  sand king 23968  enigma 20841  undying 11869  dark willow 10359
+[2026-08-24 14:10:18,173]      DIRE    Team Lynx          necrolyte 19628  dark seer 19239  batrider 16581  hoodwink 6316  winter wyvern 4921
+[2026-08-24 14:10:18,972] t= 37:02 live     map 2    kills=32-13   nw R= 98919 D= 66864 nw_lag=8s  clock_lag=9.6s
+[2026-08-24 14:10:18,972]      RADIANT Klim Sani4         lone druid 31869  sand king 23970  enigma 20844  undying 11873  dark willow 10363
+[2026-08-24 14:10:18,972]      DIRE    Team Lynx          necrolyte 19690  dark seer 19345  batrider 16584  hoodwink 6320  winter wyvern 4925
+[2026-08-24 14:10:58,664] t= 37:41 live     map 2    kills=32-13   nw R=101123 D= 67321 nw_lag=8s  clock_lag=49.3s
+[2026-08-24 14:10:58,665]      RADIANT Klim Sani4         lone druid 32527  sand king 24784  enigma 21238  undying 12086  dark willow 10488
+[2026-08-24 14:10:58,665]      DIRE    Team Lynx          necrolyte 19961  dark seer 19177  batrider 16782  hoodwink 6351  winter wyvern 5050
+[2026-08-24 14:10:59,880] t= 37:43 live     map 2    kills=32-13   nw R=101139 D= 65666 nw_lag=8s  clock_lag=50.6s
+[2026-08-24 14:10:59,880]      RADIANT Klim Sani4         lone druid 32529  sand king 24786  enigma 21242  undying 12090  dark willow 10492
+[2026-08-24 14:10:59,880]      DIRE    Team Lynx          necrolyte 19965  dark seer 17506  batrider 16786  hoodwink 6355  winter wyvern 5054
+[2026-08-24 14:11:01,056] t= 37:44 live     map 2    kills=32-13   nw R=101155 D= 65684 nw_lag=8s  clock_lag=51.7s
+[2026-08-24 14:11:01,056]      RADIANT Klim Sani4         lone druid 32531  sand king 24788  enigma 21246  undying 12094  dark willow 10496
+[2026-08-24 14:11:01,056]      DIRE    Team Lynx          necrolyte 19968  dark seer 17510  batrider 16790  hoodwink 6358  winter wyvern 5058
+[2026-08-24 14:11:02,272] t= 37:45 live     map 2    kills=32-13   nw R=102156 D= 65013 nw_lag=8s  clock_lag=52.9s
+[2026-08-24 14:11:02,273]      RADIANT Klim Sani4         lone druid 32856  sand king 24935  enigma 21477  undying 12243  dark willow 10645
+[2026-08-24 14:11:02,273]      DIRE    Team Lynx          necrolyte 19972  dark seer 17513  batrider 16793  hoodwink 5673  winter wyvern 5062
+[2026-08-24 14:11:03,463] t= 37:46 live     map 2    kills=32-13   nw R=102170 D= 65033 nw_lag=8s  clock_lag=54.1s
+[2026-08-24 14:11:03,463]      RADIANT Klim Sani4         lone druid 32858  sand king 24937  enigma 21481  undying 12246  dark willow 10648
+[2026-08-24 14:11:03,463]      DIRE    Team Lynx          necrolyte 19976  dark seer 17517  batrider 16797  hoodwink 5677  winter wyvern 5066
+[2026-08-24 14:11:05,865] t= 37:49 live     map 2    kills=32-13   nw R=102242 D= 65153 nw_lag=8s  clock_lag=56.5s
+[2026-08-24 14:11:05,866]      RADIANT Klim Sani4         lone druid 32862  sand king 24941  enigma 21489  undying 12294  dark willow 10656
+[2026-08-24 14:11:05,866]      DIRE    Team Lynx          necrolyte 20009  dark seer 17548  batrider 16839  hoodwink 5684  winter wyvern 5073
+[2026-08-24 14:11:07,074] t= 37:50 live     map 2    kills=32-13   nw R=102257 D= 65327 nw_lag=8s  clock_lag=57.7s
+[2026-08-24 14:11:07,074]      RADIANT Klim Sani4         lone druid 32864  sand king 24943  enigma 21492  undying 12298  dark willow 10660
+[2026-08-24 14:11:07,074]      DIRE    Team Lynx          necrolyte 20046  dark seer 17608  batrider 16875  hoodwink 5721  winter wyvern 5077
+[2026-08-24 14:11:08,284] t= 37:51 live     map 2    kills=32-13   nw R=102271 D= 65356 nw_lag=8s  clock_lag=59.0s
+[2026-08-24 14:11:08,285]      RADIANT Klim Sani4         lone druid 32866  sand king 24945  enigma 21496  undying 12301  dark willow 10663
+[2026-08-24 14:11:08,285]      DIRE    Team Lynx          necrolyte 20050  dark seer 17612  batrider 16888  hoodwink 5725  winter wyvern 5081
+[2026-08-24 14:11:09,492] t= 37:52 live     map 2    kills=32-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=60.2s
+[2026-08-24 14:11:09,492]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:09,492]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,178] t= 37:54 live     map 2    kills=32-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=22.1s
+[2026-08-24 14:11:11,178]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:11,178]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,232] t= 37:54 live     map 2    kills=34-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=20.9s
+[2026-08-24 14:11:11,232]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:11,232]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,618] t= 37:54 live     map 2    kills=34-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=20.1s
+[2026-08-24 14:11:11,618]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:11,618]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,694] t= 37:54 live     map 2    kills=34-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=19.0s
+[2026-08-24 14:11:11,694]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:11,694]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,779] t= 37:55 live     map 2    kills=34-13   nw R=103184 D= 65397 nw_lag=8s  clock_lag=17.9s
+[2026-08-24 14:11:11,779]      RADIANT Klim Sani4         lone druid 33185  sand king 25092  enigma 21645  undying 12450  dark willow 10812
+[2026-08-24 14:11:11,779]      DIRE    Team Lynx          necrolyte 20054  dark seer 17616  batrider 16914  hoodwink 5729  winter wyvern 5084
+[2026-08-24 14:11:11,867] t= 37:55 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=18.0s
+[2026-08-24 14:11:11,867]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:11,867]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:11,895] t= 37:55 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=15.7s
+[2026-08-24 14:11:11,896]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:11,896]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,000] t= 37:55 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=14.6s
+[2026-08-24 14:11:12,000]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,000]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,008] t= 37:54 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=13.3s
+[2026-08-24 14:11:12,008]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,008]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,085] t= 37:54 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=12.3s
+[2026-08-24 14:11:12,085]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,085]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,187] t= 37:55 live     map 2    kills=34-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=10.0s
+[2026-08-24 14:11:12,188]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,188]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,329] t= 37:55 live     map 2    kills=36-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=6.6s
+[2026-08-24 14:11:12,329]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,329]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,429] t=  0:00 upcoming/paused map 2    kills=0       nw - nw_lag=-   clock_lag=6.7s
+[2026-08-24 14:11:12,429]              Klim Sani4         -
+[2026-08-24 14:11:12,483] t= 37:55 live     map 2    kills=36-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=6.7s
+[2026-08-24 14:11:12,483]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,483]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,681] t= 37:55 live     map 2    kills=36-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:11:12,681]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,681]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:12,697] t= 37:55 live     map 2    kills=37-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=2.3s
+[2026-08-24 14:11:12,697]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:12,697]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:14,053] t= 37:56 live     map 2    kills=38-13   nw R=103259 D= 65540 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:11:14,054]      RADIANT Klim Sani4         lone druid 33189  sand king 25096  enigma 21696  undying 12458  dark willow 10820
+[2026-08-24 14:11:14,054]      DIRE    Team Lynx          necrolyte 20061  dark seer 17661  batrider 16990  hoodwink 5736  winter wyvern 5092
+[2026-08-24 14:11:15,537] t= 37:58 live     map 2    kills=38-13   nw R=104207 D= 65595 nw_lag=8s  clock_lag=2.8s
+[2026-08-24 14:11:15,537]      RADIANT Klim Sani4         lone druid 33284  sand king 25695  enigma 21750  undying 12558  dark willow 10920
+[2026-08-24 14:11:15,537]      DIRE    Team Lynx          necrolyte 20082  dark seer 17673  batrider 17022  hoodwink 5715  winter wyvern 5103
+[2026-08-24 14:11:16,419] t= 37:59 live     map 2    kills=38-13   nw R=104207 D= 65595 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:11:16,419]      RADIANT Klim Sani4         lone druid 33284  sand king 25695  enigma 21750  undying 12558  dark willow 10920
+[2026-08-24 14:11:16,419]      DIRE    Team Lynx          necrolyte 20082  dark seer 17673  batrider 17022  hoodwink 5715  winter wyvern 5103
+[2026-08-24 14:11:18,697] t= 38:02 live     map 2    kills=38-13   nw R=105039 D= 65209 nw_lag=8s  clock_lag=3.5s
+[2026-08-24 14:11:18,697]      RADIANT Klim Sani4         lone druid 33385  sand king 25796  enigma 21856  undying 12669  dark willow 11333
+[2026-08-24 14:11:18,697]      DIRE    Team Lynx          necrolyte 20093  dark seer 17242  batrider 17033  hoodwink 5726  winter wyvern 5115
+[2026-08-24 14:11:18,820] t= 38:00 live     map 2    kills=38-13   nw R=105039 D= 65209 nw_lag=8s  clock_lag=1.3s
+[2026-08-24 14:11:18,820]      RADIANT Klim Sani4         lone druid 33385  sand king 25796  enigma 21856  undying 12669  dark willow 11333
+[2026-08-24 14:11:18,820]      DIRE    Team Lynx          necrolyte 20093  dark seer 17242  batrider 17033  hoodwink 5726  winter wyvern 5115
+[2026-08-24 14:11:18,941] t= 37:59 finished/paused map 2    kills=38-13   nw R=105039 D= 65209 nw_lag=8s  clock_lag=1.4s
+[2026-08-24 14:11:18,942]      RADIANT Klim Sani4         lone druid 33385  sand king 25796  enigma 21856  undying 12669  dark willow 11333
+[2026-08-24 14:11:18,942]      DIRE    Team Lynx          necrolyte 20093  dark seer 17242  batrider 17033  hoodwink 5726  winter wyvern 5115
+[2026-08-24 14:11:18,942] series finished
