@@ -16,3 +16,11 @@
     - Context: GRID feed and match.json v2 are US-003/US-004. No daemon run; production is still lag-2 fail-closed.
 ---
 
+## 2026-08-24 23:58 CEST - US-003
+- Moved GRID widget parse into `shared.utils.grid_widgets`. Watcher imports it. Added `GridLiveFeed.read_frame`/`ticks`. Tests are the only caller; `wallet_host.py` untouched.
+- **Learnings for future iterations:**
+    - Patterns: `score_team_name` observed names are already `normalize_team_name`'d. `read_frame(raw, now)` is the test seam. Fixtures in `tests/grid_widget_fixtures.py`.
+    - Gotchas: `same_table_content` must ignore `feed_delay`. Terminal is map `status == finished`, not series. Horn uses raw `currentSeconds`, not the extrapolated clock.
+    - Context: no live Dota 2 series during verify; Gamma list path works (0 events). US-004 archives inside the feed. US-005 wires it in `_launch`.
+---
+

@@ -8,3 +8,8 @@
 - Horn is `FeedEvent.horn_unix_seconds` (non-nullable). Trust is the phase (`HORN_CLOCK_PHASES`), same as `is_horn_clock_state` used to be. Archive readers in `match_meta.summarize_archive` / `_first_trusted_horn_iso` still read raw Steam `state.jsonl`.
 - Steam adapter maps 4→`pre_horn`, 5→`in_progress`, 6→`finished`, 2/3/8→`pre_match`. State 7 still ends the HTTP follow with no event.
 - `steam_live_feed.py` is a separate module so `steam_feed` does not import `state_writer` (cycle: state_writer → steam_feed).
+- GRID parse lives in `shared.utils.grid_widgets`. `GridLiveFeed` is `src/live_paper/grid_feed.py`. Tests are the only constructor until US-005. `read_frame(raw, now)` covers every parse rule without a socket.
+- `score_team_name` observed names must already be `normalize_team_name`'d (discovery does this). Passing raw GRID "Team Lynx" fails the side gate.
+- `same_table_content` compares `game_number` + `players` only. Including `feed_delay` would re-arm the 12s timeout on a delay wobble during a pause.
+- GRID terminal is pinned-map `status == finished`, not series status. Horn is `occurredAt` epoch − raw `currentSeconds`, not the extrapolated clock.
+- Recorded widget payloads live in `tests/grid_widget_fixtures.py` (series 2995964). Import them; do not copy.
