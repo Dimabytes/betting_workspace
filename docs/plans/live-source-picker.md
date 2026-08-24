@@ -11,13 +11,13 @@ todos:
     content: "LiveFeed Protocol around GameSnapshot; horn on the event; source-neutral state flags; per-source archive; MatchWorker + feed timeout argument; Steam wrapper"
     status: pending
   - id: "step-4-grid-feed"
-    content: "Shared widget parse used by grid_feed.py and watch_grid_live.py; GameSnapshot clock from frame delay; socket silence vs table age"
+    content: "Shared widget parse used by grid_feed.py and watch_grid_live.py; GameSnapshot clock from frame delay; 12s timeout on series_table frames only"
     status: pending
   - id: "step-5-source-picker"
     content: "Pick Steam vs GRID vs skip by the smallest delay under MAX_FEED_DELAY_SECONDS; GRID-only candidates when no server id; record feed_source"
     status: pending
   - id: "step-6-lag-grid-backtest"
-    content: "Split train lag from eval lag in prepare; backtest the train-lag x feed-delay grid to set SOURCE_LAG and MAX_FEED_DELAY_SECONDS from data"
+    content: "Split SOURCE_LAG (train) from FEED_DELAY (eval) in prepare; backtest the 5-cell train-lag x feed-delay grid overnight to set SOURCE_LAG and MAX_FEED_DELAY_SECONDS from data"
     status: pending
 isProject: false
 ---
@@ -110,15 +110,19 @@ GRID не ищет матчи. Это сокет по уже известном�
 
 ## Таймаут фида
 
-Steam: 3 с без HTTP-тела. GRID: 12 с без любого кадра сокета (и повторы тоже считаются). Дальше как сейчас: модель выкл, entry BUY снять, SELL оставить; пришёл пакет — снова котировать. Порог в конструктор таймера, не одна константа на оба фида.
+Steam: 3 с без HTTP-тела. GRID: 12 с без кадра `series_table`. Дальше как сейчас: модель выкл, entry BUY снять, SELL оставить; пришёл пакет — снова котировать. Порог в конструктор таймера, не одна константа на оба фида.
 
-**У GRID две разные несвежести, и таймаут ловит только одну.** Сокет молчит —
-это здоровье соединения, порог 12 с, считаем любой кадр. Но фичи приходят
-только из `series_table`, а он пушит по изменению: p50 3.6 с, максимум 40 с
-(замер в комментарии к `GRID_FEED_STALE_SECONDS`). Значит нетворд может быть
-40-секундной давности, пока scoreboard шлёт кадры и лента выглядит живой.
-Модельный гейт вешаем на возраст таблицы (`gold_age` в watcher уже считается),
-12 с оставляем сокету.
+Один порог, один смысл: **возраст данных, которые кормят модель**. У GRID это
+`series_table` — оттуда идут нетворд, XP, смерти, top-1. Кадры scoreboard в
+таймаут не считаем: они шлют киллы и часы, а не фичи. Живой сокет с молчащей
+таблицей — это несвежая модель, а не здоровый фид. Отдельного сторожа на
+тишину сокета не надо: умер сокет — возраст таблицы всё равно перевалит 12 с и
+гейт сработает.
+
+`GRID_FEED_STALE_SECONDS = 12.0` под это и калиброван (замер по gold-кадрам:
+p50 3.6 с, максимум 40 с). На максимуме гейт сработает и мы уйдём в
+reduce-only, потом вернёмся. Это безопасная сторона, и это ровно то же
+поведение, что у Steam на 3 с. Крутить — одну константу.
 
 Полл не фича модели. Сейчас [`model_server.py`](../dota_2_model/src/live_paper/model_server.py) не грузит модель, если `poll_interval_seconds` в `model.json` не равен коду. Поле убрать. Три константы:
 
@@ -145,7 +149,7 @@ Steam: 3 с без HTTP-тела. GRID: 12 с без любого кадра с�
 
 Что тянет за собой смена лага:
 
-- `PREHORN_LEAD_SECONDS = -(MODEL_START_SECOND + SOURCE_LAG)` уедет с 58 на 50. Это `window_seconds` в `results.py:225`. Колонка сдвинется без изменения качества модели — не сравнивать её со старыми прогонами.
+- `PREHORN_LEAD_SECONDS = -(MODEL_START_SECOND + SOURCE_LAG)` уедет с 58 на 50: было `-(-60 + 2)`, станет `-(-60 + 10)`. Пересчитается само, править нечего. Но это `window_seconds` в `results.py:225`, то есть колонка в сводке бэктеста сдвинется на 8 секунд без изменения качества модели. Со старыми прогонами её не сравнивать.
 - `make market-data` **не** перегонять. Ключ кэша — только параметры quote-engine (`NETWORK_LATENCY_MS`, `TRADE_SIZE`, `MAX_BOOK_AGE_SECONDS`, `PAIR_SUM_TOLERANCE`, `MARKOUT_TAIL_SECONDS`). Лага там нет. Хватает `make prepare`.
 - Старые `model.json` не сломаются: `read_model_meta` — обычный `cast`, лишний ключ `poll_interval_seconds` в архивных файлах читается как раньше.
 - База для сравнения — сегодняшняя production-модель `20260824T152512Z` на лаге 2. Сравнивать через `scripts/compare_backtests.py`.
@@ -200,7 +204,7 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
 
 - Сокет как сейчас: `delay=zero`, `series_scoreboard_v2` + `series_table`.
 - `GameSnapshot`: часы как в секции выше, `delay` из кадра; `paused` = часы не тикают; `finished` = карта/серия finished.
-- Таймаут 12 с на сырой кадр — здоровье сокета. Модельный гейт — на возрасте таблицы.
+- Таймаут 12 с считает кадры `series_table`, не любые. `GridSocketWatch.note_raw()` в watcher зовётся на каждый кадр — при выносе в модуль дёргать его только на таблице.
 - Карта ≠ `map_number` → skip tick.
 - Тесты на payload из [`test_watch_grid_live.py`](../dota_2_model/tests/test_watch_grid_live.py): `second = clock - delay`, XP из `increaseLevel`.
 
@@ -217,11 +221,10 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
 по данным. Живой сэмпл на это не годится: 30 матчей, se 290 bps, у каждого дня
 своя модель. Валидация даёт 500+ матчей на один прогон.
 
-Сейчас `SOURCE_LAG_SECONDS` — одно число на два джойна:
-`prepare_dataset.py:353` (train: рынок на `state.second + lag`) и
-`prepare_dataset.py:442` (validation: состояние на `market_second - lag`).
-Развести их на два параметра — лаг обучения и лаг ленты. Правка маленькая и
-даёт ровно тот эксперимент, который нужен.
+Сейчас `SOURCE_LAG_SECONDS` — одно число на две стороны. Развести на два:
+
+- `SOURCE_LAG_SECONDS` — лаг обучения. Одно место: `prepare_dataset.py:353`, рынок на `state.second + lag`.
+- `FEED_DELAY_SECONDS` — задержка ленты. Два места: `prepare_dataset.py:442` (`lagged_second = market_second - lag`) и `train_model.py:82` (`lagged_source_features`, его же импортирует `signals.py`).
 
 Вживую никогда не было «обучили на 60, скормили 60». На 19–22.08 было «обучили
 на 2, скормили 60». Сетка это и проверяет:
@@ -232,10 +235,26 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
 | 10 | 60 | рассинхрон вверх: столько теряем на медленной лиге |
 | 2 | 60 | что реально крутилось 19–22.08 |
 | 2 | 10 | что реально крутилось 15.08 |
+| 0 | 10 | нулевая база: сколько даёт сам лаг обучения |
 
 Из этой сетки выходят оба числа: `SOURCE_LAG_SECONDS` и
 `MAX_FEED_DELAY_SECONDS`. Если качество падает плавно — порог 61 остаётся или
 растёт. Если обрывается — порог опускается до обрыва.
+
+### Рецепт на ночь
+
+Пять клеток, но не пять `prepare` и не пять `train`. Клетки с одним лагом
+обучения делят одну модель.
+
+1. Три `make prepare` + три `make train`: лаг обучения 0, 2, 10. Лаг 2 — это уже обученная production-модель `20260824T152512Z`, её можно не перетренировывать, если parquet под неё цел.
+2. Две validation-parquet: задержка ленты 10 и 60. Задержка входит в путь или в имя файла, иначе второй `prepare` затрёт первый.
+3. Пять бэктестов, каждый пятью шардами сразу, потом merge. Пять шардов в параллель, не по очереди — это правило проекта.
+4. `--name` каждому прогону свой, иначе каталоги схлопнутся. Класть в имя обе цифры: `lag10_feed60`.
+5. Сравнивать через `scripts/compare_backtests.py`. Смотреть на PnL и на количество сделок: если рассинхрон убивает не край, а число входов, это другой вывод.
+
+Двадцать пять шардов на пять прогонов. При 20–30 минутах на прогон это ночь.
+`window_seconds` между клетками не сравнивать: `PREHORN_LEAD_SECONDS` зависит от
+лага обучения и в каждой клетке свой (60, 58, 50).
 
 ## Вне скоупа
 
