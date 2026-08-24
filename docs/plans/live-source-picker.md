@@ -1,84 +1,24 @@
-<!-- b459dc8b-88a9-4889-b3be-77aeed1f75eb -->
----
+## <!-- b459dc8b-88a9-4889-b3be-77aeed1f75eb -->
+
 todos:
-  - id: "step-1-lag-poll-train"
-    content: "SOURCE_LAG=10, poll out of model.json into backtest manifest, split Steam/backtest poll constants, prepare+train+validation backtest"
-    status: pending
-  - id: "step-2-steam-delay-field"
-    content: "Keep stream_delay_s from GetLiveLeagueGames on DiscoveredMatch, record the observed lag too; fix live-paper.md lag claim"
-    status: pending
-  - id: "step-3-feed-protocol"
-    content: "LiveFeed Protocol around GameSnapshot; horn on the event; source-neutral state flags; per-source archive; MatchWorker + feed timeout argument; Steam wrapper"
-    status: pending
-  - id: "step-4-grid-feed"
-    content: "Shared widget parse used by grid_feed.py and watch_grid_live.py; second = clock + stamp age - frame delay; 12s timeout on changed series_table frames, which also catches pauses"
-    status: pending
-  - id: "step-5-source-picker"
-    content: "Pick Steam vs GRID vs skip by the smallest delay under MAX_FEED_DELAY_SECONDS; GRID-only candidates when no server id; record feed_source"
-    status: pending
-  - id: "step-6-lag-grid-backtest"
-    content: "Split SOURCE_LAG (train) from FEED_DELAY (eval) in prepare; backtest the 5-cell train-lag x feed-delay grid overnight to set SOURCE_LAG and MAX_FEED_DELAY_SECONDS from data"
-    status: pending
-isProject: false
+
+- id: "step-1-lag-poll-train"
+  content: "SOURCE_LAG=10, poll out of model.json into backtest manifest, split Steam/backtest poll constants, prepare+train+validation backtest"
+  status: pending
+- id: "step-2-steam-delay-field"
+  content: "Keep stream_delay_s from GetLiveLeagueGames on DiscoveredMatch, record the observed lag too; fix live-paper.md lag claim"
+  status: pending
+- id: "step-3-feed-protocol"
+  content: "LiveFeed Protocol around GameSnapshot; horn on the event; source-neutral state flags; per-source archive; MatchWorker + feed timeout argument; Steam wrapper"
+  status: pending
+- id: "step-4-grid-feed"
+  content: "Shared widget parse used by grid_feed.py and watch_grid_live.py; second = clock + stamp age - frame delay; 12s timeout on changed series_table frames, which also catches pauses"
+  status: pending
+- id: "step-5-source-picker"
+  content: "Pick Steam vs GRID vs skip by the smallest delay under MAX_FEED_DELAY_SECONDS; GRID-only candidates when no server id; record feed_source"
+  status: pending
+
 ---
-
-# Live Steam/GRID picker + lag 10
-
-## Замеры, на которых стоит план
-
-Считал по архивам `data/live_paper/*/state.jsonl`: `received_at_utc` минус
-`start_timestamp + timestamp`, только `game_state = 5`.
-
-| дни | лига | замеренная задержка, с |
-|---|---|---|
-| 15.08 | 19719 | 10.0–10.7 |
-| 19.08–22.08 | 19719 | 58.8–61.2 |
-| 22.08 | 19944 | 899–901 |
-
-Разброс внутри матча — меньше секунды. Valve **применяет** `stream_delay_s` к
-GetRealtimeStats. Одна и та же лига 19719 шла с задержкой 10 пятнадцатого и 60
-девятнадцатого: задержка меняется по дням внутри турнира. Читаем поле на каждый
-матч и никогда не предполагаем.
-
-PnL по бакетам задержки, нормированный на BUY-нотионал (иначе бакеты
-несравнимы: 15.08 позиции были 5–10 USDC, 20–22.08 — 400–1500 USDC):
-
-| задержка | матчей с филлами | нотионал | PnL | edge | t |
-|---|---|---|---|---|---|
-| 10 с | 7 | 50 | +0.3 | +62 bps | 0.27 |
-| 60 с | 30 | 14 018 | +368.8 | +263 bps | 0.67 |
-| 900 с | 2 | 200 | −91.4 | −4568 bps | −0.84 |
-
-Модель училась на лаге 2 и на задержке 60 заработала. Деградации нет. Но и
-доказательства нет: sd по матчам 1590 bps, se 290 bps, то есть 0.67 сигмы.
-Бакеты различаются не только лагом — у каждого дня своя модель, свой размер,
-своя версия демона. Единственный матч с полной потерей позиции (−100 USDC на
-100 нотионала) лежит в бакете 900 с.
-
-Отсюда два решения плана: задержку минимизируем, порог отсечения ставим по
-данным, а не по теории. Точный подбор лага — шаг 6, после того как picker
-заработает.
-
-### Сколько лиг мы теряем на пороге 61
-
-Снято 24.08 в 20:35 через `scripts/watch_steam_live.py`, 22 живые лиговые игры:
-
-| `stream_delay_s` | игр |
-|---|---|
-| 10 с | 3 |
-| 60 с | 5 |
-| 120 с | 4 |
-| 300 с | 10 |
-
-Значения дискретные и совпадают с бакетами архива. Это второе подтверждение, что
-Valve применяет `stream_delay_s`.
-
-При `MAX_FEED_DELAY_SECONDS = 61` Steam закрывает 8 игр из 22. Задержки 120 и
-300 — норма, а не край. Здесь и лежит настоящая выгода плана: GRID с задержкой
-8 с спасает матчи, где Steam даёт 120–300 с. Один источник этого не даёт.
-
-Порог 61 надо трогать только после шага 6. Если 120 или 300 окажутся рабочими,
-он поднимается и Steam возвращает потерянные лиги.
 
 ## Discovery: один цикл, не два
 
@@ -113,15 +53,9 @@ GRID не ищет матчи. Это сокет по уже известном�
 
 Примеры: Steam 10 и GRID 8 → GRID. Steam 60, GRID нет → Steam. Steam 900 и GRID 8 → GRID. Steam 900, GRID нет → skip.
 
-`MAX_FEED_DELAY_SECONDS = 61` в `src/shared/constants/strategy.py`. Причина в
-комментарии рядом с константой, не в чьей-то голове: на 10 и 60 секундах живые
-матчи не в убытке, на 900 лежит единственный полный слив позиции, а между 61 и
-900 у нас нет ни одного матча. Порог двигаем после шага 6.
+`MAX_FEED_DELAY_SECONDS = 61` в `src/shared/constants/strategy.py`.
 
-Берём меньшую задержку, а не ближайшую к обученному лагу. Свежесть данных
-важнее совпадения с лагом обучения: модель на лаге 2 отработала задержку 60 без
-потерь, а единственный слив пришёл на самой большой задержке. Тик под лаг
-модели не задерживаем.
+Тик под лаг модели не задерживаем.
 
 ## Часы GRID
 
@@ -142,12 +76,12 @@ GRID не ищет матчи. Это сокет по уже известном�
 Замер 24.08 на серии 2995964, 279 живых тиков с таблицей, 15.5 минут одной
 карты. Колонка `clock_lag` из `watch_grid_live.py`:
 
-| `clock_lag` | значение |
-|---|---|
-| min | 1.2 с |
-| p50 | 3.4 с |
-| p90 | 23.3 с |
-| max | 60.2 с |
+| `clock_lag` | значение              |
+| ----------- | --------------------- |
+| min         | 1.2 с                 |
+| p50         | 3.4 с                 |
+| p90         | 23.3 с                |
+| max         | 60.2 с                |
 | старше 10 с | 42 из 279 тиков (15%) |
 
 Самый долгий провал: с 14:10:10 (lag 1.3) до 14:11:09 (lag 60.2). Минуту сырые
@@ -155,10 +89,10 @@ GRID не ищет матчи. Это сокет по уже известном�
 
 Точность двух правил против реального времени, те же 280 тиков:
 
-| правило | отклонение |
-|---|---|
-| A: `second = currentSeconds` как пришло | min −58.2 с, p50 −1.3 с, sd 12.1 |
-| B: `currentSeconds` + возраст штампа | min −1.6 с, p50 −0.1 с, max +0.8 с, **sd 0.40** |
+| правило                                 | отклонение                                      |
+| --------------------------------------- | ----------------------------------------------- |
+| A: `second = currentSeconds` как пришло | min −58.2 с, p50 −1.3 с, sd 12.1                |
+| B: `currentSeconds` + возраст штампа    | min −1.6 с, p50 −0.1 с, max +0.8 с, **sd 0.40** |
 
 На 155 обновлениях сырых часов правило B ни разу не ошиблось хуже чем на 2.1 с —
 даже сразу после минуты молчания. Часы тикают секунда в секунду, их публикуют
@@ -194,15 +128,6 @@ GRID не ищет матчи. Это сокет по уже известном�
 кадр на паузе, и гейт промолчит. Watcher уже выбрасывает кадры без нового
 содержимого — вопрос только в том, куда воткнуть сброс таймера.
 
-Настоящей паузы в замере не было (`live` 280 тиков, `paused` только на границе
-карт). Проверить на первой же паузе: сработал ли гейт таблицы, и что показал
-`isTicking`.
-
-Замер **не сделан**: 24.08 в 20:35 живых Dota 2 рынков на Gamma было ноль, а
-widget-сокету нужен `gridSeriesId` из Gamma-события. Лиговые игры в Steam при
-этом шли (22 штуки), то есть дело в рынках, а не в играх. Ждём турнирного дня с
-рынком на Polymarket и снимаем колонку `clock_lag`.
-
 ## Таймаут фида
 
 Steam: 3 с без HTTP-тела. GRID: 12 с на возраст входов модели. Дальше как сейчас: модель выкл, entry BUY снять, SELL оставить; пришёл пакет — снова котировать. Порог в конструктор таймера, не одна константа на оба фида.
@@ -211,10 +136,10 @@ Steam: 3 с без HTTP-тела. GRID: 12 с на возраст входов �
 
 У GRID одно соединение, но два типа кадров. Это не два фида, это один сокет:
 
-| кадр | что несёт | задержка | как часто |
-|---|---|---|---|
-| `series_scoreboard_v2` | часы, киллы, стороны | 0 с | по изменению, `clock_lag` p50 3.4 с, макс 60 с |
-| `series_table` | нетворд, уровни игроков | 8 с | по изменению, p50 3.6 с, макс 40 с |
+| кадр                   | что несёт               | задержка | как часто                                      |
+| ---------------------- | ----------------------- | -------- | ---------------------------------------------- |
+| `series_scoreboard_v2` | часы, киллы, стороны    | 0 с      | по изменению, `clock_lag` p50 3.4 с, макс 60 с |
+| `series_table`         | нетворд, уровни игроков | 8 с      | по изменению, p50 3.6 с, макс 40 с             |
 
 Фичи модели идут только из таблицы. Из табло берём часы, и их возраст безопасен:
 досчёт точен до 2 с даже после минуты молчания (секция «Часы GRID»).
@@ -222,13 +147,13 @@ Steam: 3 с без HTTP-тела. GRID: 12 с на возраст входов �
 **Таймер один, и он считает возраст последнего кадра `series_table` с
 изменившимся содержимым.** Порог 12 с. Почему хватает одного:
 
-| что происходит | таймер по таблице | таймер по любому кадру | что правильно |
-|---|---|---|---|
-| всё живо | молчит | молчит | котируем |
-| сокет умер | сработал | сработал | не котировать |
-| табло шлёт, таблица молчит 40 с | сработал | молчит | не котировать |
-| пауза в игре | сработал | молчит | не котировать |
-| таблица шлёт, часы молчат 60 с | молчит | молчит | котируем, досчёт точен |
+| что происходит                  | таймер по таблице | таймер по любому кадру | что правильно          |
+| ------------------------------- | ----------------- | ---------------------- | ---------------------- |
+| всё живо                        | молчит            | молчит                 | котируем               |
+| сокет умер                      | сработал          | сработал               | не котировать          |
+| табло шлёт, таблица молчит 40 с | сработал          | молчит                 | не котировать          |
+| пауза в игре                    | сработал          | молчит                 | не котировать          |
+| таблица шлёт, часы молчат 60 с  | молчит            | молчит                 | котируем, досчёт точен |
 
 Третья строка — та, которую нельзя пропускать: киллы капают, лента выглядит
 живой, а нетворд 40-секундной давности.
@@ -252,11 +177,11 @@ Steam на 3 с. Крутить — одну константу.
 
 Полл не фича модели. Сейчас [`model_server.py`](../dota_2_model/src/live_paper/model_server.py) не грузит модель, если `poll_interval_seconds` в `model.json` не равен коду. Поле убрать. Три константы:
 
-| кто | константа | роль |
-|---|---|---|
-| Steam live | `STEAM_POLL_INTERVAL_SECONDS = 1` | сон GetRealtimeStats |
-| backtest | `BACKTEST_POLL_INTERVAL_SECONDS = 1` | `second % poll == 0`, `MAX_SIGNAL_AGE`, **manifest.json** |
-| GRID | нет полла | сокет; `GRID_FEED_STALE_SECONDS = 12` |
+| кто        | константа                            | роль                                                      |
+| ---------- | ------------------------------------ | --------------------------------------------------------- |
+| Steam live | `STEAM_POLL_INTERVAL_SECONDS = 1`    | сон GetRealtimeStats                                      |
+| backtest   | `BACKTEST_POLL_INTERVAL_SECONDS = 1` | `second % poll == 0`, `MAX_SIGNAL_AGE`, **manifest.json** |
+| GRID       | нет полла                            | сокет; `GRID_FEED_STALE_SECONDS = 12`                     |
 
 `POLL_INTERVAL_SECONDS` из [`dataset.py`](../dota_2_model/src/shared/constants/dataset.py) удалить.
 `GRID_FEED_STALE_SECONDS = 12.0` **уже есть** в `src/shared/constants/strategy.py`, заводить не надо.
@@ -317,8 +242,7 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
    `state_to_parquet.py:171-223` читает `payload["match"]`, `game_state`,
    `buildings`, `resolve_teams`. GRID-кадры туда не лезут, `make live-parquet`
    на GRID-матче сломается. Решение: Steam пишет сырой payload в `state.jsonl`
-   как сейчас, GRID пишет свои кадры в отдельный файл, `live-parquet` GRID-матчи
-   пропускает. Второй проектор — не в этом плане.
+   как сейчас, GRID пишет свои кадры в отдельный файл.
 
 ## Шаг 4 — GRID → GameSnapshot, один разбор на двоих
 
@@ -340,65 +264,6 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
 
 Здесь же переделать `discovery.py:341-344`: матч без `server_steam_id` больше не
 выбрасывается, а идёт в picker как кандидат только с GRID.
-
-## Шаг 6 — подбор лага бэктестом (после picker)
-
-Шаги 1–5 ставят лаг 10 и порог 61 без разбирательств. Этот шаг ставит оба числа
-по данным. Живой сэмпл на это не годится: 30 матчей, se 290 bps, у каждого дня
-своя модель. Валидация даёт 500+ матчей на один прогон.
-
-Сейчас `SOURCE_LAG_SECONDS` — одно число на две стороны. Развести на два:
-
-- `SOURCE_LAG_SECONDS` — лаг обучения. Одно место: `prepare_dataset.py:353`, рынок на `state.second + lag`.
-- `FEED_DELAY_SECONDS` — задержка ленты. Два места: `prepare_dataset.py:442` (`lagged_second = market_second - lag`) и `train_model.py:82` (`lagged_source_features`, его же импортирует `signals.py`).
-
-Вживую никогда не было «обучили на 60, скормили 60». На 19–22.08 было «обучили
-на 2, скормили 60». Сетка это и проверяет:
-
-| лаг обучения | задержка ленты | что отвечает |
-|---|---|---|
-| 10 | 10 | совпадение: потолок качества |
-| 10 | 60 | рассинхрон вверх: столько теряем на медленной лиге |
-| 2 | 60 | что реально крутилось 19–22.08 |
-| 2 | 10 | что реально крутилось 15.08 |
-| 0 | 10 | нулевая база: сколько даёт сам лаг обучения |
-
-Из этой сетки выходят оба числа: `SOURCE_LAG_SECONDS` и
-`MAX_FEED_DELAY_SECONDS`. Если качество падает плавно — порог 61 остаётся или
-растёт. Если обрывается — порог опускается до обрыва.
-
-### Рецепт на ночь
-
-Клетки идут **по очереди**, одна за другой. Никаких трёх `prepare` вперёд и
-никакого жонглирования именами parquet. Один круг — одна клетка:
-
-```
-make prepare   ->   make train   ->   backtest (5 шардов + merge)
-```
-
-Порядок клеток такой, чтобы лаг обучения менялся как можно реже:
-
-| круг | лаг обучения | задержка ленты | train |
-|---|---|---|---|
-| 1 | 0 | 10 | да |
-| 2 | 2 | 10 | да |
-| 3 | 2 | 60 | нет, модель круга 2 |
-| 4 | 10 | 10 | да |
-| 5 | 10 | 60 | нет, модель круга 4 |
-
-`make prepare` пишет и train-parquet, и validation-parquet за один проход.
-Поэтому каждый круг начинается с него. Когда меняется только задержка ленты
-(круги 3 и 5), train-parquet выходит байт в байт тот же, и `make train` можно
-пропустить: модель была бы идентичной, только с новым именем.
-
-Правила круга:
-
-- Пять шардов бэктеста запускать вместе, не по очереди. Это правило проекта.
-- `--name` своё на каждый круг, обе цифры в имени: `lag10_feed60`. Иначе каталоги схлопнутся.
-- Сравнивать через `scripts/compare_backtests.py`. Смотреть и на PnL, и на число сделок: если рассинхрон убивает не край, а количество входов, это другой вывод.
-- `window_seconds` между кругами не сравнивать: `PREHORN_LEAD_SECONDS` зависит от лага обучения и в каждой клетке свой (60, 58, 50).
-
-Три train и пять бэктестов по пять шардов. При 20–30 минутах на бэктест это ночь.
 
 ## Вне скоупа
 
