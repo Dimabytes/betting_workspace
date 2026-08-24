@@ -97,26 +97,13 @@
     },
     {
       "id": "US-002",
-      "title": "Сохранить объявленную задержку Steam в discovery",
-      "description": "Как оператор, я хочу видеть stream_delay_s на результате discovery, чтобы picker мог оценить Steam без самостоятельного измерения задержки.",
+      "title": "Протащить Steam delay и перевести MatchWorker на LiveFeed",
+      "description": "Как разработчик live-paper, я хочу получить объявленную Steam-задержку вместе с source-neutral фидом и настраиваемым timeout, чтобы следующий шаг мог подключить GRID к той же торговой цепочке.",
       "changes": [
         "Добавить stream_delay_s в _UsableLeagueGame и протащить его как nullable steam_delay_s до discovery handoff",
         "Парсить только неотрицательный integer stream_delay_s; отсутствующее или некорректное значение сохранять как недоступность Steam, не отбрасывая строку для GRID-привязки",
         "Обновить docs/live-paper.md: GetRealtimeStats получает объявленную stream_delay_s задержку, и она может меняться между днями одной лиги",
         "Добавить тесты на валидную, отсутствующую, отрицательную и неверно типизированную stream_delay_s",
-        "Add or update automated tests",
-        "Tests pass",
-        "Typecheck passes"
-      ],
-      "priority": 2,
-      "passes": false,
-      "designReference": []
-    },
-    {
-      "id": "US-003",
-      "title": "Перевести Steam и MatchWorker на source-neutral LiveFeed",
-      "description": "Как разработчик live-paper, я хочу один контракт событий и настраиваемый timeout, чтобы MatchWorker обслуживал Steam и будущий GRID без разбора source-specific payload.",
-      "changes": [
         "Добавить LiveFeed Protocol с ticks() -> AsyncIterator[FeedEvent] и source-neutral FeedEvent с snapshot, received_at_utc, source и horn_unix_seconds",
         "Заменить game_state в GameSnapshot на source-neutral фазовые флаги, достаточные для pre-horn, in-progress и finished без Steam state numbers у потребителей",
         "В Steam adapter один раз преобразовывать state 4 в допустимую pre-horn фазу, state 5 в in-progress, state 6 в finished, а draft/strategy/showcase оставлять вне модельного окна",
@@ -129,6 +116,33 @@
         "Steam worker получает timeout 3.0 секунды; timeout очищает model cell, снимает entry BUY и оставляет SELL/reduce-only путь активным",
         "Первое событие архивируется до открытия журнала и attach рынка и не используется как торговое решение",
         "Следующее свежее событие после timeout снова разрешает обычное котирование без перезапуска worker",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-003",
+      "title": "Вынести единый GRID parser и реализовать GRID LiveFeed",
+      "description": "Как оператор live-paper, я хочу один общий разбор GRID widgets и готовый LiveFeed, чтобы watcher и торговая цепочка использовали одинаковые часы и модельные признаки.",
+      "changes": [
+        "Вынести parse_frame, read_scoreboard, read_net_worth, clock_age_seconds, live_clock_seconds и связанные frozen dataclasses из scripts/watch_grid_live.py в общий модуль под src/shared",
+        "scripts/watch_grid_live.py импортирует общий модуль и не содержит второй реализации разбора GRID payload",
+        "Сохранить чтение XP как increaseLevel + 1 и чтение net worth, kills, deaths и assists только из series_table",
+        "Сохранить чтение currentSeconds, occurredAt, isTicking, activeGameIndex, статусов и Radiant/Dire только из series_scoreboard_v2",
+        "Перенести существующие fixture-тесты test_watch_grid_live.py на общий модуль без копирования payload fixtures в новый тестовый набор",
+        "Добавить GRID LiveFeed, который подключается к widgets-v2/live/<gridSeriesId> с delay=zero и подпиской на series_scoreboard_v2,series_table",
+        "Собирать snapshot только после scoreboard и нового по содержимому series_table ожидаемой карты; повтор таблицы не создаёт модельный tick и не сбрасывает feed timeout",
+        "Вычислять second как currentSeconds + max(0, round(now - occurredAt)) - series_table frame.delay только при isTicking; на паузе не досчитывать возраст часов",
+        "Строить radiant_nw, dire_nw, radiant_nw_adv, radiant_xp_adv, deaths и top-player features только из строк series_table, ориентируя команды по scoreboard RADIANT/DIRE",
+        "Пропускать tick, если activeGameIndex + 1 или series_table sequenceNumber не равны ожидаемому map_number",
+        "Пропускать tick при рассинхроне GRID-сторон с закреплёнными командами и yes_is_radiant; последующий согласованный tick может восстановить котирование",
+        "Сбрасывать 12-секундный feed timeout только на series_table ожидаемой карты с изменившимся содержимым",
+        "Выдавать terminal FeedEvent, когда status ожидаемой карты становится finished, даже если финальный scoreboard не сопровождается новой таблицей",
+        "Переподключаться только к тому же GRID series после разрыва socket и продолжать использовать закреплённый source",
         "Add or update automated tests",
         "Tests pass",
         "Typecheck passes"
@@ -163,33 +177,6 @@
     },
     {
       "id": "US-005",
-      "title": "Вынести единый GRID parser и реализовать GRID LiveFeed",
-      "description": "Как оператор live-paper, я хочу один общий разбор GRID widgets и готовый LiveFeed, чтобы watcher и торговая цепочка использовали одинаковые часы и модельные признаки.",
-      "changes": [
-        "Вынести parse_frame, read_scoreboard, read_net_worth, clock_age_seconds, live_clock_seconds и связанные frozen dataclasses из scripts/watch_grid_live.py в общий модуль под src/shared",
-        "scripts/watch_grid_live.py импортирует общий модуль и не содержит второй реализации разбора GRID payload",
-        "Сохранить чтение XP как increaseLevel + 1 и чтение net worth, kills, deaths и assists только из series_table",
-        "Сохранить чтение currentSeconds, occurredAt, isTicking, activeGameIndex, статусов и Radiant/Dire только из series_scoreboard_v2",
-        "Перенести существующие fixture-тесты test_watch_grid_live.py на общий модуль без копирования payload fixtures в новый тестовый набор",
-        "Добавить GRID LiveFeed, который подключается к widgets-v2/live/<gridSeriesId> с delay=zero и подпиской на series_scoreboard_v2,series_table",
-        "Собирать snapshot только после scoreboard и нового по содержимому series_table ожидаемой карты; повтор таблицы не создаёт модельный tick и не сбрасывает feed timeout",
-        "Вычислять second как currentSeconds + max(0, round(now - occurredAt)) - series_table frame.delay только при isTicking; на паузе не досчитывать возраст часов",
-        "Строить radiant_nw, dire_nw, radiant_nw_adv, radiant_xp_adv, deaths и top-player features только из строк series_table, ориентируя команды по scoreboard RADIANT/DIRE",
-        "Пропускать tick, если activeGameIndex + 1 или series_table sequenceNumber не равны ожидаемому map_number",
-        "Пропускать tick при рассинхроне GRID-сторон с закреплёнными командами и yes_is_radiant; последующий согласованный tick может восстановить котирование",
-        "Сбрасывать 12-секундный feed timeout только на series_table ожидаемой карты с изменившимся содержимым",
-        "Выдавать terminal FeedEvent, когда status ожидаемой карты становится finished, даже если финальный scoreboard не сопровождается новой таблицей",
-        "Переподключаться только к тому же GRID series после разрыва socket и продолжать использовать закреплённый source",
-        "Add or update automated tests",
-        "Tests pass",
-        "Typecheck passes"
-      ],
-      "priority": 5,
-      "passes": false,
-      "designReference": []
-    },
-    {
-      "id": "US-006",
       "title": "Выбирать и закреплять самый быстрый допустимый источник",
       "description": "Как оператор live-paper, я хочу один раз выбрать Steam или GRID по объявленной задержке, чтобы матч котировался по самому быстрому доступному фиду и не менял временной контракт посреди карты.",
       "changes": [
@@ -208,7 +195,7 @@
         "Tests pass",
         "Typecheck passes"
       ],
-      "priority": 6,
+      "priority": 5,
       "passes": false,
       "designReference": []
     }
