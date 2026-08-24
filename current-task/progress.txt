@@ -32,3 +32,11 @@
     - Context: `_launch` is still Steam-only. US-005 picks the feed and pins `feed_source` on the first event.
 ---
 
+## 2026-08-25 00:56 CEST - US-005
+- Added `MAX_FEED_DELAY_SECONDS`, `source_picker.pick_source` / `probe_grid_delay`, and `pinned_feed_source`. Discovery emits GRID-only when `grid_series_id` is set. WalletHost picks once, pins the source, and does not restart a GRID worker on a new Steam server id. A picker skip does not consume a crash restart.
+- **Learnings for future iterations:**
+    - Patterns: picker lives in `source_picker.py`; `_launch` only mkdirs and spawns `_pick_and_run`. Probe is inside the match task so discovery is not stalled.
+    - Gotchas: conflicting GetTopLiveGame ids now drop Steam only — a sidecar with `gridSeriesId` still emits. `no_source` must clear in `_reap` before the crash-restart path. Pin reads `match_meta.LIVE_PAPER_DIR`, not the wallet_host copy.
+    - Context: no daemon run; production stays lag-2 fail-closed. Probe opens a second short-lived socket; `GridLiveFeed.ticks()` opens its own.
+---
+
