@@ -7,3 +7,12 @@
     - Gotchas: `assert_manifest_matches` is exact-key; old checkpoints cannot `--resume` after lag/poll keys land. Production lag-2 now fail-closes on `source_lag_seconds`. `window_seconds` moves 8s/match with PREHORN_LEAD 58→50.
     - Context: candidate s2 PnL +$592 vs baseline +$1179 on 432 shared matches; not a quality gate.
 ---
+
+## 2026-08-24 23:24 CEST - US-002
+- Threaded nullable `steam_delay_s` through discovery. Added `LiveFeed`/`FeedEvent`/`MatchPhase`. `SteamLiveFeed` owns `state.jsonl`. MatchWorker iterates the feed. Watchdog timeout is a constructor arg (Steam 3s).
+- **Learnings for future iterations:**
+    - Patterns: feed adapter writes its own archive then yields; `WalletHost._launch` is the picker seam.
+    - Gotchas: `steam_delay_s` must be `compare=False` or match.json v1 resume refuses to rebind. Do not parse delay with `require_nullable_int` (raises drop the GRID row). `steam_feed` cannot import `state_writer`.
+    - Context: GRID feed and match.json v2 are US-003/US-004. No daemon run; production is still lag-2 fail-closed.
+---
+

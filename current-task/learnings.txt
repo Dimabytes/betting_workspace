@@ -1,0 +1,10 @@
+# Learnings for later live-source-picker stories
+
+- `LiveFeed` / `FeedEvent` / `GameSnapshot` / `MatchPhase` live in `dota_2_model/src/live_paper/live_feed.py`. Consumers must not read Steam `game_state` or `event.payload`.
+- Each feed owns its raw archive. `SteamLiveFeed` writes `state.jsonl` then yields. US-004 adds `grid_state.jsonl` inside the GRID feed the same way. MatchWorker has no `StateWriter`.
+- `MatchWorker(host, discovered, model, mode, feed, feed_timeout_seconds)` — all required. Timeout goes to `FreshnessWatchdog`. Steam uses `FEED_STALE_SECONDS` (3.0); GRID uses `GRID_FEED_STALE_SECONDS` (12.0), already in `strategy.py`.
+- `WalletHost._launch` is the single seam US-005 replaces with the picker: it currently always builds `SteamLiveFeed` + 3s.
+- `steam_delay_s` is on `DiscoveredMatch` with `compare=False` (match.json v1 has no key; `_match_start_from_document` rebuilds without it). US-004 writes it to match.json v2. Parse with a local non-raising reader — `require_nullable_int` would drop the whole GetLiveLeagueGames row.
+- Horn is `FeedEvent.horn_unix_seconds` (non-nullable). Trust is the phase (`HORN_CLOCK_PHASES`), same as `is_horn_clock_state` used to be. Archive readers in `match_meta.summarize_archive` / `_first_trusted_horn_iso` still read raw Steam `state.jsonl`.
+- Steam adapter maps 4→`pre_horn`, 5→`in_progress`, 6→`finished`, 2/3/8→`pre_match`. State 7 still ends the HTTP follow with no event.
+- `steam_live_feed.py` is a separate module so `steam_feed` does not import `state_writer` (cycle: state_writer → steam_feed).
