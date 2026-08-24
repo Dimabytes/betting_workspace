@@ -11,7 +11,7 @@ todos:
     content: "LiveFeed Protocol around GameSnapshot; horn on the event; source-neutral state flags; per-source archive; MatchWorker + feed timeout argument; Steam wrapper"
     status: pending
   - id: "step-4-grid-feed"
-    content: "Shared widget parse used by grid_feed.py and watch_grid_live.py; GameSnapshot clock from frame delay; 12s timeout on series_table frames only"
+    content: "Measure GRID clock_lag first, then pick clock rule A or B; shared widget parse used by grid_feed.py and watch_grid_live.py; 12s timeout on series_table frames only"
     status: pending
   - id: "step-5-source-picker"
     content: "Pick Steam vs GRID vs skip by the smallest delay under MAX_FEED_DELAY_SECONDS; GRID-only candidates when no server id; record feed_source"
@@ -104,9 +104,42 @@ GRID не ищет матчи. Это сокет по уже известном�
 
 ## Часы GRID
 
-Табло присылает часы не каждую секунду, а когда что-то меняется. В кадре: «сейчас 22:32», штамп `occurredAt`. Если это было 5 с назад, живые часы = 22:32 + 5. Это локальный тик по возрасту штампа, не новая магия.
+Часы в сокете есть **в одном месте**: `gameClock` в кадре `series_scoreboard_v2`
+(`currentSeconds`, `occurredAt`, `isTicking`, `publishDelay`). Второго источника
+времени нет.
 
-Золото в другом кадре, у него `delay=8`. Для модели: `second = (часы табло + возраст штампа) - delay`. `delay` берём **из кадра** (`feed_delay` уже парсится в `read_net_worth`), а не константой 8. Нетворд, XP (`increaseLevel+1`), смерти, top-1 — только из таблицы. Киллы с табло (delay 0) в фичи не мешать. Таблицы на этой карте нет — тика модели нет.
+Кадр `series_table` времени не несёт вообще — ни часов, ни штампа, только
+`sequenceNumber` и строки игроков. Поэтому нетворд сам себя не датирует.
+
+Фичи — нетворд, XP (`increaseLevel+1`), смерти, top-1 — только из таблицы. Киллы
+с табло (delay 0) в фичи не мешать. Таблицы на этой карте нет — тика модели нет.
+`delay` берём из кадра (`feed_delay` уже парсится в `read_net_worth`), а не
+константой 8.
+
+### Чем датируем нетворд: замерить перед шагом 4
+
+Два варианта, третьего нет:
+
+| вариант | правило | цена |
+|---|---|---|
+| A | `second = currentSeconds` как пришло | занижаем секунду на столько, сколько назад табло опубликовало часы |
+| B | `second = currentSeconds + (приход таблицы − приход табло) − delay` | наш секундомер между двумя приходами; дырка: пауза началась, а табло молчит |
+
+Источник часов в обоих один — GRID. В варианте B наши часы работают
+секундомером между двумя приходами, а не вторым источником времени.
+
+Замер решает выбор, а не рассуждение. `watch_grid_live.py` уже печатает колонку
+`clock_lag` — это и есть слагаемое секундомера. Запустить на живой серии,
+посмотреть распределение.
+
+- Табло шлёт часы примерно раз в секунду → берём A, `live_clock_seconds` удаляем.
+- Табло правда отстаёт на секунды → берём B, дырку с паузой закрываем `isTicking`.
+
+В единственном записанном кадре `publishDelay: 1`. Утверждение «`currentSeconds`
+может сидеть на десять секунд позади» живёт только в докстринге
+`live_clock_seconds`, систематически его никто не мерил. Замер стоит двадцать
+минут и снимает вопрос — так же, как замер задержки Steam снял вопрос про
+`stream_delay_s`.
 
 ## Таймаут фида
 
@@ -139,12 +172,10 @@ Steam: 3 с без HTTP-тела. GRID: 12 с без кадра `series_table`. 
 таймером. Таймер по таблице ловит всё, что ловит таймер по любому кадру, плюс
 третью строку. Второго не пишем.
 
-Часы отдельным гейтом не закрываем (четвёртая строка). Они тикают секунду в
-секунду, их досчитывает `live_clock_seconds` по возрасту штампа. Известный
-потолок: если началась пауза, а табло в этот момент молчит, мы досчитаем часы,
-которых нет. На практике пауза — это изменение, и табло шлёт на неё кадр
-(`isTicking: false`). Если увидим расхождение в логах, ставим гейт и на возраст
-штампа табло.
+Четвёртая строка зависит от замера часов (секция «Часы GRID»). Если табло шлёт
+часы раз в секунду, молчание табло само по себе значит остановку, и гейт на него
+не нужен. Если табло отстаёт на секунды, гейт вешаем и на возраст штампа часов —
+тем же порогом, той же константой. Решаем после замера, не сейчас.
 
 `GRID_FEED_STALE_SECONDS = 12.0` под таблицу и калиброван (замер по gold-кадрам:
 p50 3.6 с, максимум 40 с). На длинной паузе таблицы гейт сработает и мы уйдём в
@@ -229,11 +260,12 @@ Steam — обёртка над `follow_realtime_stats_async`. `MatchWorker.run`
 `clock_age_seconds`, `live_clock_seconds`, `GridSocketWatch`. Шаг — это вынос
 модуля, не новый код.
 
+- **Сначала замер часов.** Запустить `watch_grid_live.py` на живой серии, снять распределение `clock_lag`. Вариант A или B из секции «Часы GRID» — по замеру. В варианте A `live_clock_seconds` и `clock_age_seconds` уходят из модуля вообще.
 - Сокет как сейчас: `delay=zero`, `series_scoreboard_v2` + `series_table`.
-- `GameSnapshot`: часы как в секции выше, `delay` из кадра; `paused` = часы не тикают; `finished` = карта/серия finished.
+- `GameSnapshot`: часы по выбранному варианту, `delay` из кадра; `paused` = часы не тикают; `finished` = карта/серия finished.
 - Таймаут 12 с считает кадры `series_table`, не любые. `GridSocketWatch.note_raw()` в watcher зовётся на каждый кадр — при выносе в модуль дёргать его только на таблице.
 - Карта ≠ `map_number` → skip tick.
-- Тесты на payload из [`test_watch_grid_live.py`](../dota_2_model/tests/test_watch_grid_live.py): `second = clock - delay`, XP из `increaseLevel`.
+- Тесты на payload из [`test_watch_grid_live.py`](../dota_2_model/tests/test_watch_grid_live.py): `second` по выбранному варианту, XP из `increaseLevel`.
 
 ## Шаг 5 — picker
 
