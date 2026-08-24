@@ -24,3 +24,11 @@
     - Context: no live Dota 2 series during verify; Gamma list path works (0 events). US-004 archives inside the feed. US-005 wires it in `_launch`.
 ---
 
+## 2026-08-25 00:30 CEST - US-004
+- GRID `ticks()` writes every raw socket frame to `grid_state.jsonl` before parse. match.json is schema 2: required `feed_source`, nullable `server_steam_id`, delay keys always present. Steam observed-lag median is state 5 only. GRID finalize replays `read_frame`; pause/missing are JSON null. Boot scan ignores schema != 2. `_launch` skips a null server id (GRID-only attach is US-005).
+- **Learnings for future iterations:**
+    - Patterns: feed owns its jsonl; finalize branches on `feed_source`. `GridLiveFeed(..., match_id)` is required. `TeamSide.won` is the GRID winner field, only when map status is finished.
+    - Gotchas: v1 leftover with `final` set is not a boot target. `steam_delay_s` stays `compare=False` so a later discovery delay cannot rebind. First v2 rollout moves old match dirs out of `data/live_paper` before restart.
+    - Context: `_launch` is still Steam-only. US-005 picks the feed and pins `feed_source` on the first event.
+---
+
