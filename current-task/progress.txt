@@ -1,0 +1,9 @@
+## 2026-08-24 22:38 CEST - US-001
+- Split SOURCE_LAG_SECONDS=10 from Steam/backtest 1s polls; dropped poll_interval_seconds from ModelMeta and the live contract; recorded lag and backtest poll on the run manifest.
+- Rebuilt datasets, trained research `20260824T200814Z`, five-shard s2-join validation backtest, compared vs lag-2 research `20260824T143419Z` (production `20260824T152512Z` has no validation backtest).
+- User dropped the b0 arm; compare used `--arm s2` only.
+- **Learnings for future iterations:**
+    - Patterns: `make backtest ARGS="--validation --profile s2-join --shard i/5 --name …"` then `--merge-shards 5`; `compare_backtests.py --arm s2` filters two-arm baselines.
+    - Gotchas: `assert_manifest_matches` is exact-key; old checkpoints cannot `--resume` after lag/poll keys land. Production lag-2 now fail-closes on `source_lag_seconds`. `window_seconds` moves 8s/match with PREHORN_LEAD 58→50.
+    - Context: candidate s2 PnL +$592 vs baseline +$1179 on 432 shared matches; not a quality gate.
+---
