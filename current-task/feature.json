@@ -152,7 +152,7 @@
         "make lint-all чистый"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {

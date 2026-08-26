@@ -32,3 +32,15 @@
     - Cache is a class on the host, not a module global and not on `KalshiRestClient`. US-005/US-013 construct one `KalshiOpenMarketCache` on WalletHost.
     - `pending` / `cutoff` / `off` are not returned here. US-004 persists `KalshiBinding` fields plus a derived `tick_size`.
 ---
+## 2026-08-26 17:34 UTC+2 - US-004
+- match.json schema 4: always-present `kalshi` (nine keys + reason). Reads accept 3 and 4. Schema 3 omits `kalshi`.
+- `write_match_start(start, event, kalshi_reason)` writes pending/off without waiting for resolve. Resume does not rewrite.
+- `update_kalshi_binding(match_id, kalshi)` replaces only `kalshi` on unfinished schema 4. Finalized / schema 3 / foreign feed_source raise, file untouched.
+- `start_document_kalshi_reason()` in kalshi_config; MatchWorker first tick calls it. `kalshi_reason_from_document` returns off for schema 3.
+- Tests in test_match_meta.py plus config/wallet-host/steam call-site updates. `make test` 1188 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+    - Schema-3 in-memory omit, not `kalshi: null`. pin_horn/finalize must not grow the key.
+    - Persisted schema-4 `reason` is source of truth on resume; do not flip pending↔off.
+    - `tick_size` is the string `"0.01"` only on `matched`. off_grid keeps structure, tick null.
+    - US-005: skip resolve when helper is off or `KALSHI_TRADING=off`; map KalshiBinding → update_kalshi_binding.
+---
