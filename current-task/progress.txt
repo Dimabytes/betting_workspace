@@ -10,3 +10,14 @@
     - Do not copy `[kalshi]` into generated fork config.toml/strategy.toml. Fork StrategyProfile is extra=forbid.
     - `load_kalshi_settings()` is not called from WalletHost yet. US-005/US-013 own boot wiring.
 ---
+## 2026-08-26 16:40 UTC+2 - US-002
+- Added `src/live_paper/kalshi_client.py`: unauthenticated async REST wrapper. Frozen dataclasses only; SDK models stay inside. `open_kalshi_rest_client(demo)` uses `KalshiConfig.production()` / `.demo()` with `max_retries=0`.
+- Public methods: `list_open_markets`, `get_candlesticks(series_ticker, ticker, start_ts, end_ts)` at 1-minute, `get_series_fee_params`. Decimal mapping; empty `price_ranges` is `()`.
+- Read retries in `_await_read` (4 attempts, bounded backoff). `_await_once` is the no-retry path for US-006 writes. Tests mock the SDK; no live HTTP.
+- **Learnings for future iterations:**
+    - `markets.list_all` is a plain method returning `AsyncIterator` — fakes must not be `async def list_all`.
+    - Live candlesticks require `series_ticker`; do not call `series.event_candlesticks` or `historical.candlesticks`.
+    - Do not enable SDK `max_retries` together with `_await_read` (double backoff). Writes must use `_await_once`.
+    - `KalshiOpenMarket.series_ticker` is stamped from the query arg; Market has no such field.
+    - Hosts come from SDK factories; do not assemble `api.elections` / `external-api.kalshi` in source.
+---

@@ -9,3 +9,14 @@
 - `_TEMPLATE_TABLES` is now engine/risk/profiles/wallet/kalshi. `_write_template` in session-config tests must round-trip `[kalshi]` or `read_template` raises.
 - `kalshi-sdk==12.0.0` (PyPI latest as of 2026-08-26). Import name is `kalshi`. Pulls `cryptography` (lock has 50.0.1). Image rebuild is US-015; this story only locked the dep.
 - conftest autouse sets `KALSHI_TRADING=off` the same way as `LIVE_TRADING=0`.
+
+## US-002 (2026-08-26)
+
+- Construction: `open_kalshi_rest_client(demo: bool) -> KalshiRestClient`. Inject `KalshiRestClient(sdk)` in tests. No `from_env()`, no keys, no `load_kalshi_settings()`. Observe/paper/live public REST uses `demo=False` (production); demo is US-014 smoke.
+- Only `src/live_paper/kalshi_client.py` may `import kalshi`. Outward types: `KalshiOpenMarket`, `KalshiCandle`, `KalshiSeriesFeeParams`, `KalshiScheduledFeeChange`, `KalshiPriceRange`, `KalshiRestError`. Downstream never imports `kalshi.errors`.
+- `list_all` is **not** `async def` — call it, then `async for`. Do not pass `max_pages`. Pagination is whole-list retry via `_await_read` (ponytail: not per-page).
+- `get_candlesticks(series_ticker, ticker, start_ts, end_ts)` — SDK 12.0.0 requires series_ticker. `period_interval=1`. Map `end_period_ts` + `yes_bid.close` / `yes_ask.close`. Leave `include_latest_before_start` unset.
+- Fees: `series.get` then `series.fee_changes(series_ticker=)` (omit `show_historical`). Do not read fee fields off a Market. Current `fee_type`/`fee_multiplier` vs `scheduled_changes` tuple; US-012 picks the fired row.
+- Retry: SDK `KalshiConfig.max_retries=0`. `_await_read`: original + 3 retries, `min(0.5 * 2**attempt, 8.0)s`. Retry `KalshiTimeoutError`/`Server`/`RateLimit`/`Network`/`PoolExhausted`. Do not retry 404/validation/auth/conflict. `_await_once` for US-006 place/cancel (no sleep).
+- `price_level_structure` + `price_ranges` only; never scalar `tick_size`. Empty ranges → `()`. Decimal via `_decimal` (`Decimal(str(x))` at the float boundary).
+- Timeout knob: `HTTP_TIMEOUT_SECONDS` (30). Factory does not start the daemon; US-005/US-013 own boot.
