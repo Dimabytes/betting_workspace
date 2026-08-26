@@ -1,0 +1,12 @@
+## 2026-08-26 16:20 UTC+2 - US-001
+- Pinned kalshi-sdk==12.0.0 in [project] deps; uv.lock gained kalshi-sdk 12.0.0 and cryptography. `import kalshi` works.
+- Added `src/live_paper/kalshi_config.py`: `load_kalshi_settings()` reads KALSHI_TRADING/KEY_ID/PRIVATE_KEY_PATH/SUBACCOUNT. Default off. paper/live require both key id and path. Never reads KALSHI_PRIVATE_KEY or PEM bytes.
+- Added `[kalshi]` to `config/dota-map.toml` and `KalshiProfile` on `ConfigTemplate`. Materializers still write only engine/risk/wallet/profile into fork TOML.
+- Tests: new kalshi_config suite; template tests now expect five tables; autouse `KALSHI_TRADING=off` in conftest.
+- **Learnings for future iterations:**
+    - `make install` is `uv sync --group backtest --inexact`. Bare `uv sync` drops nautilus and breaks `make test` until restored.
+    - Patch `live_paper.kalshi_config.env_value`, not just `os.environ` — `env_value` also reads repo `.env`.
+    - `read_template()` now requires exactly five tables. Test helpers that rewrite dota-map.toml must emit `[kalshi]`.
+    - Do not copy `[kalshi]` into generated fork config.toml/strategy.toml. Fork StrategyProfile is extra=forbid.
+    - `load_kalshi_settings()` is not called from WalletHost yet. US-005/US-013 own boot wiring.
+---

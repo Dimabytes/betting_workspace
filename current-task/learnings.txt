@@ -1,0 +1,11 @@
+# Learnings
+
+## US-001 (2026-08-26)
+
+- Env loader API: `live_paper.kalshi_config.load_kalshi_settings() -> KalshiSettings` (frozen: trading, key_id, private_key_path, subaccount). Raises `TradingDisabled` with fixed labels (does not interpolate key id, path, or PEM).
+- TOML profile API: `session_config.read_template().kalshi` is `KalshiProfile` (base_size_usd, book_stale_s, private_ws_blind_s, reconcile_interval_s, fence_timeout_s). Independent of `base_size_usdc` / `DOLLAR_MULTIPLES`.
+- US-002 must be the only module that `import kalshi`. Do not call `KalshiClient.from_env()`: the SDK also accepts inline `KALSHI_PRIVATE_KEY` PEM. Keep path-only; never log PEM.
+- Daemon does not yet fail at process start if `KALSHI_TRADING=paper` with no keys — loader exists, WalletHost does not call it (US-005 / US-013).
+- `_TEMPLATE_TABLES` is now engine/risk/profiles/wallet/kalshi. `_write_template` in session-config tests must round-trip `[kalshi]` or `read_template` raises.
+- `kalshi-sdk==12.0.0` (PyPI latest as of 2026-08-26). Import name is `kalshi`. Pulls `cryptography` (lock has 50.0.1). Image rebuild is US-015; this story only locked the dep.
+- conftest autouse sets `KALSHI_TRADING=off` the same way as `LIVE_TRADING=0`.
