@@ -1,0 +1,373 @@
+{
+  "project": "dota_2_model",
+  "relatedSources": [
+    "betting_workspace/docs/plans/kalshi-overlay.md",
+    "dota_2_model/AGENTS.md",
+    "dota_2_model/src/live_paper/wallet_host.py",
+    "dota_2_model/src/live_paper/match_worker.py",
+    "dota_2_model/src/live_paper/match_meta.py",
+    "dota_2_model/src/live_paper/session_journal.py",
+    "dota_2_model/src/live_paper/session_quoting.py",
+    "dota_2_model/src/live_paper/session_config.py",
+    "dota_2_model/src/live_paper/market_prior.py",
+    "dota_2_model/src/live_paper/paper_gateway.py",
+    "dota_2_model/src/live_paper/wallet_store.py",
+    "dota_2_model/src/live_paper/engine_seams.py",
+    "dota_2_model/src/live_paper/notify.py",
+    "dota_2_model/src/shared/utils/team_names.py",
+    "dota_2_model/config/dota-map.toml"
+  ],
+  "Functional Requirements Summary": [
+    "FR-1: Асинхронный резолв Kalshi-тикера на каждую живую карту (имена команд + карта/kind, fail closed), старт из WalletHost._pick_and_run, фид не блокируется",
+    "FR-2: match.json схема 4 с всегда присутствующим объектом kalshi; чтение схем 3 и 4; атомарное обновление только объекта kalshi на незавершённом документе",
+    "FR-3: KALSHI_TRADING off/observe/paper/live (default off), ключи и субаккаунт из env, таблица [kalshi] в dota-map.toml (base_size_usd — единственная денежная ручка)",
+    "FR-4: kalshi_client — единственная граница SDK kalshi-sdk: внутренние frozen dataclasses, Decimal fixed-point, V2 event-order endpoint, demo/production хосты из SDK-конфига",
+    "FR-5: Kalshi prior из минутных свечей: последняя закрытая свеча end_period_ts <= horn−90 с валидными yes bid/ask close, ориентация в P(Radiant)",
+    "FR-6: Книга Kalshi: snapshot + contiguous deltas по seq, полная YES/NO пара из двух bid-сторон, readiness по generation, book-age refresh",
+    "FR-7: Второй predict_fair + evaluate_entry только на числах Kalshi; бустер общий; числа венью не смешиваются ни в одном поле",
+    "FR-8: Исполнение: post-only join, fee gate qty*(side_fair-entry) - maker_fee(entry) - maker_fee(exit) >= 0, точные комиссии ceil_cent, fixed-point count",
+    "FR-9: Live-записи: intent до сетевого вызова, client_order_id — ключ идемпотентности, timeout → REST-резолв без слепого повтора",
+    "FR-10: kalshi.db: intents/orders/fills/ledger/checkpoints под flock; paper-филлы той же схемой, что live",
+    "FR-11: Локальный safe mode Kalshi: clear desired → блок write → cancel → fence → alert → reconnect/reconcile; Engine и PM не трогаются",
+    "FR-12: Boot-реконсиляция до готовности; teardown: Kalshi cancel/fence до PM cancel_all, провал fence не пропускает PM teardown",
+    "FR-13: session.jsonl схема 6: venue polymarket|kalshi на signal/quote/fill/trading_error/session_end; схемы 1–5 читаются как PM",
+    "FR-14: Telegram: строка bind после резолва; в session finished Kalshi leftover и net отдельной строкой, USD и USDC не суммируются",
+    "FR-15: scripts/kalshi_execution_smoke.py: реальный демо-раундтрип create → fill → reduce-only close → cancel/fence → reconcile до PASS",
+    "FR-16: Финальный деплой: docker compose build (kalshi-sdk в образе) + restart на VPS"
+  ],
+  "Resolved Questions": [
+    "feature.json живёт в betting_workspace/current-task/. Весь код и все git-коммиты идут в ../dota_2_model на main. Пути в стори даны относительно dota_2_model.",
+    "Скоуп (решение пользователя 2026-08-26): весь код плана до live-исполнения включительно. Матчи начинаются 2026-08-28: код пишется 26–27-го, первые 1–2 карты идут в KALSHI_TRADING=paper, затем пользователь включает боевой. Секция Phases плана kalshi-overlay.md обновлена под этот график.",
+    "Отдельного окна замеров фазы 1 и скрипта-отчёта по kalshi.reason нет: 1–2 paper-карты проверяются руками по match.json и Telegram.",
+    "Демо-ключи Kalshi будут заведены пользователем; стори смоука закрывается только реальным PASS против демо-биржи.",
+    "Paper-филлы Kalshi пишутся в kalshi.db той же схемой, что live (как PM пишет свой wallet sqlite), с venue-generated fill id.",
+    "Деплой один, в финальной стори: docker compose build + restart. Остальные стори — код + тесты + lint, контейнер не трогают.",
+    "Текущие номера схем: match.json = 3 (MATCH_META_SCHEMA_VERSION в match_meta.py), session.jsonl = 5 (SESSION_SCHEMA_VERSION в session_journal.py). Бампаем до 4 и 6.",
+    "session_config.read_template требует точный набор таблиц (_TEMPLATE_TABLES = engine/risk/profiles/wallet): [kalshi] добавляется в наш парсер и НЕ копируется в сгенерированные config.toml/strategy.toml форка poly-maker.",
+    "Сигнатура модели: predict_fair(snapshot, market_p_radiant, market_radiant_prior). Для Kalshi в те же аргументы подставляются Kalshi mid и Kalshi prior; PM-вызов не меняется.",
+    "Резолв стартует в _pick_and_run после announced=True и до создания MatchWorker; задача передаётся в worker аргументом и не await-ится. Хук ретрая — в ветке первого события match_worker.run до её continue.",
+    "Обновление объекта kalshi в match.json — по образцу pin_horn_from_event + _atomic_write_json: прочитать документ, проверить final is null и неизменность match/PM/feed/model полей, атомарно записать новый полный документ. write_match_start незавершённый файл не перезаписывает.",
+    "KALSHI_TRADING — новый env; ExecutionMode (LIVE_TRADING, trading_mode.py) не расширяется.",
+    "kalshi-sdk пинится точной версией == (строже стиля [project] с нижними границами — прямое требование плана; прецедент точного пина есть у nautilus_trader).",
+    "Журнал уже имеет kind tick_size_change помимо перечисленных в плане; venue добавляется на signal/quote/fill/trading_error/session_end, session_start несёт схему 6.",
+    "Kalshi WS (включая orderbook_delta) требует auth handshake: observe работает без ключа (только публичный REST матчера), paper требует read-scoped ключ, live — read+write.",
+    "Production-режим смоука не реализуется: --env production отклоняется. Прод-канарейка — первый живой Dota-ордер минимального размера, включает пользователь."
+  ],
+  "Non-Goals (Out of Scope for V1)": [
+    "Правки ../poly-maker (репозиторий заморожен)",
+    "Замена Engine, engine_seams или WalletStateStore",
+    "Независимый Kalshi discovery (без Polymarket-сайдкара) и торговля Kalshi-only матчей",
+    "pmxt, kalshi_python_async, pykalshi, rodlaf MM, newyorkcompute MM, Avellaneda–Stoikov",
+    "Один общий sqlite для двух венью",
+    "Один fair из Polymarket, исполняемый на Kalshi; смешение чисел венью в любых полях",
+    "Второй LightGBM, обученный на Kalshi",
+    "Отдельная папка матча или match-kalshi.json",
+    "Экономический RiskManager Kalshi: daily-loss kill, кап экспозиции, авто-флэттен маркет-ордерами",
+    "Скрипт-отчёт по kalshi.reason (решение 2026-08-26: 1–2 карты смотрим руками)",
+    "Production-режим execution smoke",
+    "collect/train/backtest для Kalshi"
+  ],
+  "description": "Kalshi рядом с Polymarket в live-paper демоне dota_2_model: резолв тикера на карту, свой prior/mid/fair на числах Kalshi через общий бустер, paper и live исполнение с локальным safe mode, kalshi.db и реконсиляцией. Первые 1–2 карты 2026-08-28 в paper, затем боевой.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Зависимость kalshi-sdk, env-режимы и таблица [kalshi]",
+      "description": "Как разработчик, я хочу пиннутый SDK, разбор режимов и конфиг Kalshi, чтобы остальные стори строились на готовом фундаменте.",
+      "changes": [
+        "В pyproject.toml [project] dependencies добавить kalshi-sdk с точным пином == последней версии; uv lock обновлён, окружение синхронизировано",
+        "uv run python -c \"import kalshi\" отрабатывает без ошибки",
+        "Создать src/live_paper/kalshi_config.py: frozen dataclass настроек из env — KALSHI_TRADING (off/observe/paper/live, default off), KALSHI_KEY_ID, KALSHI_PRIVATE_KEY_PATH, KALSHI_SUBACCOUNT (default 0)",
+        "Для paper и live отсутствие KALSHI_KEY_ID или KALSHI_PRIVATE_KEY_PATH — ошибка старта с понятным сообщением; off и observe ключей не требуют",
+        "Содержимое PEM никогда не попадает в логи, исключения и repr настроек",
+        "В config/dota-map.toml добавить [kalshi]: base_size_usd = 10.0, book_stale_s = 30.0, private_ws_blind_s = 15.0, reconcile_interval_s = 20.0, fence_timeout_s = 20.0",
+        "В src/live_paper/session_config.py добавить kalshi в _TEMPLATE_TABLES и схему таблицы (extra запрещены), frozen dataclass профиля; [kalshi] не копируется в сгенерированные config.toml/strategy.toml форка",
+        "base_size_usd не выводится из base_size_usdc",
+        "Автотесты: чтение [kalshi], незнакомый ключ таблицы падает, [kalshi] отсутствует в materialize-конфиге форка, разбор всех четырёх режимов env, paper без ключа падает",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 1,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-002",
+      "title": "kalshi_client: публичный REST",
+      "description": "Как разработчик, я хочу тонкую обёртку над публичным REST SDK, чтобы матчер и prior не видели моделей SDK.",
+      "changes": [
+        "Создать src/live_paper/kalshi_client.py — единственный модуль проекта, который импортирует kalshi-sdk; наружу только маленькие frozen dataclasses",
+        "list_open_markets(series_ticker): все страницы пагинации; отдаёт event_ticker, ticker, статус, yes_sub_title/no_sub_title, price_level_structure, price_ranges",
+        "Использовать price_level_structure и price_ranges; scalar tick_size из API не читать",
+        "get_candlesticks(ticker, диапазон, период 1 минута): end_period_ts, yes bid/ask close как Decimal",
+        "get_series_fee_params(series_ticker): fee_type/fee_multiplier из series response и endpoint запланированных изменений фии, не из market payload",
+        "Все цены Decimal fixed-point; float в обёртке не появляется",
+        "async REST (HTTP не блокирует event loop); ретраи только идемпотентных read с ограниченным backoff",
+        "Хосты demo/production берутся из конфига SDK; api.elections-URL руками не собираются",
+        "Публичные вызовы работают без ключа",
+        "Автотесты на замоканном SDK: пагинация не теряет кандидата, Decimal-разбор свечей и фии, отсутствие ретраев не-idempotent вызовов",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 2,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-003",
+      "title": "kalshi_match: резолв тикера, fail closed",
+      "description": "Как разработчик, я хочу по DiscoveredMatch находить ровно один Kalshi-тикер или честный отказ, чтобы никогда не торговать чужой рынок.",
+      "changes": [
+        "Создать src/live_paper/kalshi_match.py; вход — DiscoveredMatch (bindings.py), ключ — имена команд + map_number + market_kind",
+        "market_kind map_winner → серия KXDOTA2MAP, series_winner → KXDOTA2GAME",
+        "Все страницы открытых рынков серии через kalshi_client с host-level кэшем TTL 60 секунд",
+        "map_winner: остаются события, у которых компонент карты event-тикера равен map_number; series_winner: full-match событие",
+        "Ориентация точных yes_sub_title/no_sub_title против Radiant/Dire через orient_outcomes из src/shared/utils/team_names.py; prose rules не парсятся, YES-команда из суффикса тикера не выводится",
+        "Требуется ровно один ориентированный тикер; результат — frozen dataclass: event_ticker, ticker, series_ticker, имена YES/NO, yes_is_radiant, price_level_structure, price_ranges",
+        "Состояния резолва: pending → matched / none / ambiguous / off_grid / cutoff / error; 0 кандидатов, 2+ кандидата или ничья ориентации → fail closed с логом kalshi none",
+        "Не-linear_cent структура или price_ranges без доказанного шага $0.01 → off_grid с сохранением тикера/имён/структуры для диагностики",
+        "grid_series_id ключом не является; время/турнир/rules логируются с кандидатами, но не фильтруют",
+        "Автотесты tests/test_live_paper_kalshi_match.py: две команды + карта 2 → ровно один тикер, своп имён, ambiguous на двух кандидатах, кандидат на последней странице пагинации, off_grid",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 3,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-004",
+      "title": "match.json схема 4: объект kalshi",
+      "description": "Как оператор, я хочу открыть match.json и увидеть, привязали ли Kalshi и почему нет, чтобы разбирать карты без логов.",
+      "changes": [
+        "В src/live_paper/match_meta.py поднять MATCH_META_SCHEMA_VERSION до 4 и добавить kalshi в _MATCH_META_KEYS; TypedDict в src/shared/types/live_paper.py дополнен",
+        "Объект kalshi всегда присутствует: event_ticker, ticker, series_ticker, yes_outcome, no_outcome, yes_is_radiant, price_level_structure, tick_size, reason",
+        "reason ∈ pending/none/ambiguous/off_grid/cutoff/error/off; при pending/miss поля null; series_ticker появляется, как только kind выбрал серию; off_grid сохраняет тикер/имена/структуру",
+        "_parse_meta_document и read_finalized_match принимают схемы 3 и 4; у схемы 3 ключа kalshi нет и это валидно",
+        "write_match_start пишет схему 4 с kalshi.reason=pending (или off при KALSHI_TRADING=off), не дожидаясь матчинга",
+        "Новая функция update_kalshi_binding по образцу pin_horn_from_event: читает схему 4, требует final is null и неизменность match/PM/feed/model полей, атомарно (_atomic_write_json) заменяет только объект kalshi; market, feed_source и финализированный файл не меняются никогда",
+        "Незавершённая схема-3 карта резюмит существующую PM-сессию с Kalshi off; венью не вводится посреди легаси-документа",
+        "final.pnl остаётся Polymarket USDC",
+        "Автотесты: схема 3 читается и бутится, новая карта пишет 4 с kalshi, update_kalshi_binding меняет только kalshi, финализированный и чужой feed_source отвергаются",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 4,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-005",
+      "title": "Резолв из _pick_and_run, ретрай и Telegram bind (observe целиком)",
+      "description": "Как оператор, я хочу, чтобы каждая живая карта сама искала свой Kalshi-рынок и отчитывалась в Telegram, не задерживая фид и PM.",
+      "changes": [
+        "В wallet_host._pick_and_run после announced=True и до создания MatchWorker стартовать asyncio-задачу резолва (только при KALSHI_TRADING != off); задачу не await-ить, передать в MatchWorker аргументом",
+        "KALSHI_TRADING=off: никаких Kalshi HTTP и задач; kalshi.reason=off",
+        "В ветке первого события match_worker.run: write_match_start уходит сразу с reason=pending; по завершении резолва update_kalshi_binding атомарно ставит итог",
+        "Ретрай ровно один после наблюдённого MatchPhase.IN_PROGRESS: если первое событие уже IN_PROGRESS — хук в ветке первого события до её continue; если резолв завершился позже при уже наблюдённой IN_PROGRESS — ретрай сразу; дальше не поллить",
+        "second >= BUY_CUTOFF_SECOND (540): in-flight результат отбрасывается (reason=cutoff), книга/prior/исполнение не стартуют, ретрай подавлен",
+        "Резолв не задерживает feed.ticks(), сырой архив, первый match.json и PM attach",
+        "Вторая Telegram-строка после bind через notify_in_background: live-paper kalshi: match <id> ticker … или ticker none reason …; журнальной записи kalshi_bind нет",
+        "Автотесты: первый тик не ждёт медленный резолв (pending в стартовом документе), pending→matched update, оба случая ретрая, cutoff, off",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 5,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-006",
+      "title": "kalshi_client: auth REST и WebSocket",
+      "description": "Как разработчик, я хочу аутентифицированные ордера, портфель и оба WS через ту же границу SDK, чтобы сессия и исполнитель не знали про SDK.",
+      "changes": [
+        "Расширить src/live_paper/kalshi_client.py: подпись API key id + RSA-PSS PEM; ключ читается из файла один раз, содержимое не логируется",
+        "Ордера через V2 event-order surface (/portfolio/events/orders): place с post_only, client_order_id, Decimal-ценой и fixed-point count; cancel; легаси YES/NO endpoint не используется",
+        "client_order_id — ключ идемпотентности; write с неизвестным результатом (timeout/disconnect после submit) не ретраится, наружу отдаётся типизированный unknown-результат для реконсиляции",
+        "Портфель: open orders, fills, positions, balance по субаккаунту, с пагинацией",
+        "Orderbook WS: auth handshake, snapshot + delta с sequence, внутренние frozen-события; user WS: fills и order updates",
+        "Sequence gap, disconnect, auth-ошибка, rate limit, malformed payload — типизированные события/ошибки наружу для venue-local safety state",
+        "Автотесты на замоканном SDK: V2 маппинг place/cancel, разбор snapshot/delta и seq, unknown-результат без повтора, auth-ошибка наружу",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 6,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-007",
+      "title": "kalshi_prior: map-load P(Radiant) из свечей",
+      "description": "Как разработчик, я хочу Kalshi-prior с тем же якорем horn−90, чтобы Kalshi-fair считался только на числах Kalshi.",
+      "changes": [
+        "Создать src/live_paper/kalshi_prior.py: якорь anchor_ts = horn_unix − HORN_OFFSET_SECONDS (90), как у market_prior.py",
+        "Fetch стартует, как только тикер связан и первое horn-clock событие дало horn Unix; выполняется асинхронно, фид не блокирует",
+        "Минутные market-свечи ограниченного диапазона до якоря через kalshi_client",
+        "Берётся последняя полностью закрытая свеча end_period_ts <= anchor с валидными yes bid close и yes ask close; их midpoint — YES-prior, ориентируется в P(Radiant) один раз",
+        "Свеча после якоря, last trade без двусторонней котировки и event-aggregated свечи отвергаются",
+        "Пустая/недоступная история → missing_prior только для Kalshi; ретрай с ограниченным backoff пока окно модели открыто; матчинг не рестартится, PM не затрагивается",
+        "Автотесты tests/test_live_paper_kalshi_prior.py: ориентация при yes_is_radiant=false, отсутствие истории, свеча после якоря отвергнута, PM-токены нигде не участвуют",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 7,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-008",
+      "title": "kalshi_store: sqlite intents/orders/fills/ledger",
+      "description": "Как разработчик, я хочу durable-состояние Kalshi в отдельном sqlite, чтобы рестарт и дубли сообщений не портили позицию и комиссии.",
+      "changes": [
+        "Создать src/live_paper/kalshi_store.py: data/live_paper/wallet/kalshi.db с таблицами intents, orders, fills, position/cash ledger, reconciliation checkpoints",
+        "Эксклюзивный flock на отдельный lock-файл по образцу WalletLock/acquire_wallet_lock из wallet_host.py",
+        "Intent пишется до сетевого вызова place/cancel; ясный ответ биржи продвигает состояние ордера",
+        "Идемпотентный ingest филлов по exchange fill id с точной комиссией биржи; дубликаты WS/REST и out-of-order обновления не создают вторую запись и не двигают леджер дважды",
+        "Частичные филлы обновляют остаток ордера и позицию точно; цены и counts — Decimal/scaled int",
+        "Отказ cancel никогда не удаляет ордер из kalshi.db",
+        "Paper-филлы пишутся той же схемой с venue-generated fill id; отдельной paper-схемы нет",
+        "Автотесты tests/test_live_paper_kalshi_store.py: дубль и out-of-order филл, восстановление intent после рестарта, леджер позиций и комиссий, flock двух процессов",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 8,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-009",
+      "title": "kalshi_session: книга, readiness и локальный safe mode",
+      "description": "Как оператор, я хочу, чтобы любой сбой Kalshi гасил только Kalshi по строгому порядку, а PM продолжал торговать.",
+      "changes": [
+        "Создать src/live_paper/kalshi_session.py: host-owned сессия с generation на каждую подписку книги",
+        "Пара из книги: yes_bid = best YES bid, yes_ask = 1 − best NO bid, no_bid = best NO bid, no_ask = 1 − best YES bid; миды своих сторон; ориентация в P(Radiant) один раз",
+        "Валидная пара требует обе bid-стороны, конечные fixed-point цены, положительные размеры и yes_bid < yes_ask; иначе блок только Kalshi",
+        "Generation unready до применения полного снапшота; дельты contiguous по sequence; gap/disconnect/parse fault/auth fault → clear readiness + safe mode; продолжение со старой книги запрещено",
+        "Book-age (book_stale_s): тихий рынок не stale сам по себе — по порогу публикация таргетов останавливается и запрашивается свежий снапшот; успешный (даже неизменный) снапшот освежает readiness, неудачный → safe mode",
+        "Private-WS blindness (private_ws_blind_s) = мёртвый/auth-failed user-коннект или просроченная REST-реконсиляция, не отсутствие филлов",
+        "Вход в safe mode идемпотентен и строго по порядку: clear desired → блок новых write кроме cancel/reconcile → cancel strategy-owned resting на тикере (при слепом private stream или account-level fault — на всех живых тикерах) → REST-poll до доказанного отсутствия или fence timeout (fence_timeout_s) → позиции и леджер сохраняются, маркет-флэттена нет → один alert на смену fault-состояния → reconnect, новый снапшот, reconcile до reopening",
+        "Недоказанный fence держит Kalshi заблокированным до конца сессии",
+        "Ни один шаг не зовёт Engine halt, engine.gateway или PM StrategyCell",
+        "Автотесты tests/test_live_paper_kalshi_session.py: unready до снапшота, gap/stale/blind → safe mode, порядок и идемпотентность шагов, недоказанный fence — блок до конца",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 9,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-010",
+      "title": "kalshi_session: boot-реконсиляция, ownership и периодический REST",
+      "description": "Как оператор, я хочу, чтобы после любого краша процесс сверял биржу с леджером и убирал своих сирот до первой котировки.",
+      "changes": [
+        "Boot до discovery и любого квота: flock kalshi.db → локальные open orders/fills/positions/чекпоинт → REST resting orders/недавние fills/unsettled positions по субаккаунту со всеми страницами → идемпотентный ingest филлов с точными fees → cancel strategy-owned остатков прежнего процесса → доказать отсутствие и сверить позиции биржи с леджером → записать чекпоинт → только тогда Kalshi ready",
+        "Ownership: субаккаунт + детерминированный client_order_id namespace (стратегия, тикер, сторона, generation желаемого ордера) + order-group id, когда доступен; ручные/чужие ордера не отменяются",
+        "Чужая позиция или необъяснимая дельта позиции блокирует Kalshi и алертит, молча не адоптится",
+        "Периодическая REST-реконсиляция (reconcile_interval_s) — авторитет; user WS — только низколатентный путь; пропущенные сообщения чинит REST",
+        "Timeout/disconnect после submit: запрос REST по order/client identity и реконсиляция; слепой resend запрещён",
+        "Автотесты: startup с orphan resting order отменяет и доказывает отсутствие до ready; необъяснимая позиция → локальный halt; timeout place → ровно один ордер; рестарт между intent/REST-ответом/персистом филла/cancel/fence покрыт",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 10,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-011",
+      "title": "session.jsonl схема 6: venue-дискриминатор",
+      "description": "Как разработчик, я хочу одну торговую ленту с полем venue, чтобы PM- и Kalshi-числа никогда не смешивались в одной записи.",
+      "changes": [
+        "В src/live_paper/session_journal.py поднять SESSION_SCHEMA_VERSION до 6; ACCEPTED_SESSION_SCHEMA_VERSIONS = 1–6",
+        "Записи signal, quote, fill, trading_error, session_end несут venue: polymarket | kalshi; записи схем 1–5 без venue читаются как polymarket",
+        "Kalshi-записи несут venue-именованные поля prior/mid/fair/order/fee; числа Kalshi не попадают в market_p_radiant и market_radiant_prior; TypedDict в src/shared/types/live_paper.py дополнены",
+        "Kalshi fill пишется в ленту только после того, как exchange fill id и точная комиссия durable в kalshi.db; дубль WS/REST не даёт второй записи ленты",
+        "Kalshi session_end durable фиксирует leftover YES/NO, net cash, book inventory mark, комиссии и состояние реконсиляции; Telegram — только представление этого состояния",
+        "Записи kalshi_bind нет",
+        "Автотесты: резюм схем 1–5 как PM, схема 6 держит поля венью раздельно, fill только после durable kalshi.db, durable session_end",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 11,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-012",
+      "title": "kalshi_executor: desired-order sync, комиссии и fee gate",
+      "description": "Как разработчик, я хочу превращать Kalshi fair/entry в post-only ордера с честной математикой комиссий, чтобы paper и live жили одним кодом.",
+      "changes": [
+        "Создать src/live_paper/kalshi_executor.py: синхронизация желаемого ордера из Kalshi fair и решения evaluate_entry",
+        "V2 маппинг покрывает buy YES, buy NO, sell held YES, sell held NO; каждый resting ордер post_only=true; отказ post-only — нормальный no-quote, пересылка без post_only запрещена",
+        "Комиссии: taker ceil_cent(0.07·qty·p·(1−p)); maker 0 на series без maker-фии, иначе ceil_cent(0.0175·qty·p·(1−p)); fee_type/fee_multiplier из series-параметров kalshi_client",
+        "Fee gate после evaluate_entry: qty·(side_fair − entry_price) − maker_fee(entry) − maker_fee(projected_exit) >= 0; projected exit — side fair, округлённый на валидную сетку; гейт блокирует только Kalshi-кандидата, evaluate_entry и PM не мутируются",
+        "Fixed-point count: base_size_usd / entry_price, quantize вниз до валидного count (гранулярность 0.01 контракта), ноль — скип",
+        "MIN_ENTRY_PRICE = 0.35 действует на Kalshi-кандидата",
+        "Paper-филлы: касание не филлит, односторонняя книга не филлит (правила PaperGateway); филл по цене нашего лимита пишется в kalshi.db с симулированной maker-комиссией текущих series-параметров",
+        "Live-учёт: на бирже взятая комиссия из fill сохраняется как есть, локальный пересчёт её не заменяет; комиссия применяется к каждой ноге, включая выход",
+        "Частичный филл обновляет desired-остаток и позицию; Decimal до сериализации, float только на вызове модели",
+        "Автотесты tests/test_live_paper_kalshi_executor.py: p=0.5 qty=1 → taker 2 цента, maker default 0, maker листовой series 1 цент; fee gate блокирует и пропускает; V2 маппинг четырёх ног; post-only отказ без даунгрейда; paper-правила; partial",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 12,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-013",
+      "title": "Двойная торговля в MatchWorker и teardown с Kalshi-fence",
+      "description": "Как оператор, я хочу, чтобы одна карта котировала обе венью независимо и корректно сворачивалась, чтобы сбой одной не трогал другую.",
+      "changes": [
+        "match_worker._compute_decision: при живых обеих венью два вызова predict_fair и evaluate_entry за тик; Kalshi-вызов — predict_fair(snapshot, Kalshi mid, Kalshi prior), predicted_delta = kalshi_fair − kalshi_mid; PM-вызов не изменён",
+        "Общий дота-фид даёт одно окно модели, BUY_CUTOFF и pause-гейты обеим венью; missing_prior/невалидная книга Kalshi блокирует только Kalshi-покупки, PM продолжает; обратное тоже верно",
+        "Worker с kalshi.reason=none/ambiguous/off_grid/cutoff/error/off аттачит Engine и котирует PM как сегодня",
+        "Worker с тикером ведёт Kalshi paper/live через kalshi_session/kalshi_executor, не вызывая engine.gateway; generic Venue-протокола нет",
+        "wallet_host: при KALSHI_TRADING in {paper, live} boot одной host-owned Kalshi-сессии (REST-клиент, auth WS, kalshi_store, flock) на процесс; observe не создаёт auth WS, prior и execution задач",
+        "wallet_host.teardown: закрыть Kalshi quoting → cancel strategy-owned resting → доказать fence через REST → затем существующий engine.gateway.cancel_all; провал Kalshi-fence логируется и алертится отдельно и не пропускает PM teardown",
+        "Telegram session finished: Kalshi leftover и Kalshi net отдельной строкой; USD и USDC не суммируются",
+        "Автотесты в существующих wallet/worker-тестах: kalshi none → PM живёт, два predict_fair не смешивают аргументы (Kalshi-вызов не видит PM-чисел и наоборот), порядок teardown и провал fence не пропускает PM cancel_all",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 13,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-014",
+      "title": "Демо execution smoke с реальным PASS",
+      "description": "Как оператор, я хочу одним запуском доказать, что SDK, ключи, ордера, филлы, комиссии и реконсиляция сходятся конец в конец на демо-бирже.",
+      "changes": [
+        "Создать scripts/kalshi_execution_smoke.py: ручная команда, WalletHost её не стартует, Dota/Polymarket не читаются",
+        "--env demo по умолчанию: KALSHI_DEMO_KEY_ID + KALSHI_DEMO_PRIVATE_KEY_PATH, прод-ключи fallback-ом не берутся; --env production отклоняется",
+        "Переиспользует kalshi_client, kalshi_store и обычные примитивы реконсиляции/fence; smoke-specific только выбор рынка и форс-раундтрип",
+        "Шаги: выбор открытого linear_cent двустороннего демо-рынка (или --ticker) → фиксация баланса и позиции → минимальный валидный YES buy через V2 с явным client id и bounded IOC/FOK только для смоука → филл через WS и подтверждение REST → reduce-only sell ровно на filled count → cancel остатка, fence всех smoke-owned ордеров, reconcile → требование нулевой дельты позиции и печать order ids, филлов, точных комиссий, дельты баланса и PASS/FAIL без секретов",
+        "Ни один шаг не ретраит неоднозначный write; нет подходящего рынка или закрывающая нога не филлится → cancel/fence и FAIL с видимым остатком, без охоты за рынками",
+        "Автотесты на замоканном клиенте: happy path до PASS, FAIL без рынка, FAIL с незакрытой ногой",
+        "Прогнать смоук против демо-биржи с реальными демо-ключами до PASS; вывод (без секретов) сохранить в current-task/",
+        "Тесты проходят: make test",
+        "make lint-all чистый"
+      ],
+      "priority": 14,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-015",
+      "title": "Документация, rebuild образа и restart на VPS",
+      "description": "Как оператор, я хочу обновлённые доки и перезапущенный контейнер с kalshi-sdk, чтобы 28-го карты пошли в paper без ручной возни.",
+      "changes": [
+        "В dota_2_model/docs/live-paper.md добавить раздел Kalshi: режимы KALSHI_TRADING, ключи и PEM как read-only файл, [kalshi] в dota-map.toml, схемы match.json 4 и session.jsonl 6, kalshi.db, safe mode/fence, демо-смоук",
+        "В betting_workspace/.learnings/dota_2_model.md записать раскладку Kalshi и что перезапускать после каких правок (deps → rebuild, src/config → restart)",
+        "Проверить, что .env на VPS несёт KALSHI_TRADING и (для paper) KALSHI_KEY_ID + KALSHI_PRIVATE_KEY_PATH, PEM смонтирован read-only; значения секретов не печатать",
+        "docker compose build проходит (kalshi-sdk попадает в образ), docker compose up -d перезапускает live-paper",
+        "Контейнер после рестарта здоров: docker compose ps без restart-loop, в логах boot нет traceback, строка загрузки конфига с [kalshi] присутствует",
+        "make lint-all чистый"
+      ],
+      "priority": 15,
+      "passes": false,
+      "designReference": []
+    }
+  ]
+}

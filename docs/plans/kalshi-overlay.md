@@ -224,10 +224,10 @@ Polymarket can still buy. The reverse is true.
 The booster stays the Polymarket-trained production model. v1 feeds it Kalshi
 probabilities as the same two market features. That is not a second model, but
 it is an explicit transport assumption: a model trained on future Polymarket
-midpoint changes is assumed useful on Kalshi features. Phase 2 must measure the
-paired PM/Kalshi basis, prior difference, signal distribution, fill rate, and
-fee-adjusted paper PnL before live. A Kalshi-trained booster is later, if this
-drifts.
+midpoint changes is assumed useful on Kalshi features. The paper maps
+(phase 3 below) must show a sane paired PM/Kalshi basis, prior difference,
+signals, fills, and fee-adjusted paper PnL before live. A Kalshi-trained
+booster is later, if this drifts.
 
 ### Kalshi book and mid
 
@@ -597,34 +597,41 @@ Kalshi lifecycle/state to the dedicated host-owned Kalshi session.
 
 ## Phases
 
-Do these in order. Each phase is shippable on the VPS.
+Timeline (decided 2026-08-26): matches resume 2026-08-28. All code lands on
+2026-08-26/27; the first 1–2 live maps run in paper; then the operator flips
+live. The safety gates stay, the calendar is compressed.
 
-1. **Matcher dry-run.** Start resolve at `select_feed` success and write the
-   schema-4 `kalshi` object. Telegram the ticker or `none`; do not add a journal
-   record named `kalshi_bind`. Run through live maps, manually verify every
-   matched ticker, measure unique-match/ambiguous/miss/error rates, and record
-   resolution latency. Stop on the first false-positive match or if the hit
-   rate is near zero.
-2. **Prior + local paper executor.** Read-scoped key, authenticated Kalshi book
-   WS, Kalshi history prior, second `predict_fair`, and simulated fills. No
-   Kalshi writes. Confirm PM path still uses only PM numbers. Measure readiness
-   at the first observed model tick, PM/Kalshi mid and prior basis, WS
-   disconnect/gap/stale rate, signals, fills, exact simulated fees, and net PnL.
-3. **Demo execution smoke.** Run the explicit round trip against the fake-money
-   exchange. Prove V2 create/fill/close/cancel, private WS, exact fees,
-   `client_order_id`, sqlite idempotency, restart reconciliation, and a final
-   zero position delta. Demo validates plumbing, not the strategy or liquidity.
-4. **Production canary.** Write-scoped production key, minimum valid Dota size,
-   one explicitly observed matched map. Require proven boot reconciliation and
-   local safe mode. Inspect orders/fills/fees/position/fence before increasing
-   to `base_size_usd = 10`.
-5. **Prod live.** Normal configured size. Every teardown and map finish cancels
-   and fences strategy-owned Kalshi orders; periodic REST reconciliation stays
-   active.
+1. **Build (2026-08-26/27).** Everything in `current-task/feature.json`:
+   matcher, schema-4 `kalshi` object, prior, book WS, store, session/safe
+   mode, paper and live executor, journal schema 6, smoke script, tests.
+2. **Demo execution smoke (before the 28th).** Run the explicit round trip
+   against the fake-money exchange with the demo key pair. Prove V2
+   create/fill/close/cancel, private WS, exact fees, `client_order_id`,
+   sqlite idempotency, restart reconciliation, and a final zero position
+   delta. Demo validates plumbing, not the strategy or liquidity. Required
+   PASS before any production key is configured.
+3. **Paper maps (2026-08-28).** First 1–2 live maps with
+   `KALSHI_TRADING=paper` and a read-scoped key. This combines the old
+   matcher dry-run and paper validation: manually verify every matched
+   ticker in `match.json` and Telegram, check miss/ambiguous reasons, watch
+   readiness at the first observed model tick, PM/Kalshi mid and prior
+   basis, signals, simulated fills, and exact simulated fees. Stop on the
+   first false-positive match. No separate weeks-long measurement window
+   and no reason-aggregation script; 1–2 maps are inspected by hand.
+4. **Production canary.** After clean paper maps the operator sets
+   `KALSHI_TRADING=live` with the write-scoped production key: minimum
+   valid size, one explicitly observed matched map, proven boot
+   reconciliation and local safe mode. Inspect
+   orders/fills/fees/position/fence before increasing to
+   `base_size_usd = 10`.
+5. **Prod live.** Normal configured size. Every teardown and map finish
+   cancels and fences strategy-owned Kalshi orders; periodic REST
+   reconciliation stays active.
 
-Do not start production canary before phases 1–3 pass. Do not increase to the
-normal size until at least one canary round finishes with no unexplained order,
-fill, fee, position, or cancel state.
+Do not configure a production key before the demo smoke passes and the paper
+maps are clean. Do not increase to the normal size until at least one canary
+round finishes with no unexplained order, fill, fee, position, or cancel
+state.
 
 ## Checks
 
