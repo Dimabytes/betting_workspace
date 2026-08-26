@@ -21,3 +21,14 @@
     - `KalshiOpenMarket.series_ticker` is stamped from the query arg; Market has no such field.
     - Hosts come from SDK factories; do not assemble `api.elections` / `external-api.kalshi` in source.
 ---
+## 2026-08-26 17:05 UTC+2 - US-003
+- Added `src/live_paper/kalshi_match.py`: `resolve_kalshi_match(discovered, cache)` binds exactly one ticker from Steam/GRID names + map_number + market_kind, or fail closed.
+- Live two-YES events: group by `event_ticker`, `orient_outcomes` on the two `yes_sub_title`s, bind the lex-first ticker. `KalshiOpenMarketCache` is instance-owned, 60s TTL, inflight coalesced.
+- Tests: `tests/test_live_paper_kalshi_match.py` (map 2 unique ticker, name swap, ambiguous, last-page pair, off_grid, plus kind/suffix/cache/series_winner locks). No live HTTP. No `import kalshi`.
+- **Learnings for future iterations:**
+    - Production lists two YES-team markets per event (`yes_sub_title == no_sub_title`). Treating each row as a candidate makes every live map `ambiguous`.
+    - Bound `no_outcome` is the sibling `yes_sub_title`, not `no_sub_title` on the same row.
+    - Map number is the last hyphen token of `event_ticker` when ASCII digits. GAME events have no such token; `series_winner` must ignore `discovered.map_number`.
+    - Cache is a class on the host, not a module global and not on `KalshiRestClient`. US-005/US-013 construct one `KalshiOpenMarketCache` on WalletHost.
+    - `pending` / `cutoff` / `off` are not returned here. US-004 persists `KalshiBinding` fields plus a derived `tick_size`.
+---
