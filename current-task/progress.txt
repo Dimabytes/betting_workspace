@@ -11,3 +11,15 @@
   - make lint-all skips untracked files; git add first.
   - Parallel WIP on constants/lol.py (LOL_VALIDATION_START_TIME) was left uncommitted; do not fold it into Stage 02.
 
+## 2026-08-28 01:05 - US-001
+
+- Review fix: incomplete fails unless channel is in TELONEX_OPTIONAL_CHANNELS. Market miss channel="" fails with no special case. Dropped REQUIRED_CHANNELS alias.
+- window_for has three named ifs then raise. download_one looks up TELONEX_CHANNEL_REQUIRED_COLUMNS; missing key is KeyError. write_channel raises on unknown channel.
+- Skipped nits: no second test module, BookJob kept.
+- tests/test_lol_fetch_telonex_books.py: 19 passed. make lint-all passed.
+- Commit: f8e7a99a49de877988a072d9f83f604b29813386
+- **Learnings for future iterations:**
+  - Optional vs required is one membership test against TELONEX_OPTIONAL_CHANNELS, not a required list plus "".
+  - Channel dispatch must not fall through to onchain_fills.
+
+
