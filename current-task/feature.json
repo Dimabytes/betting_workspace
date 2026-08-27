@@ -172,7 +172,7 @@
         "make lint-all чистый"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -191,7 +191,7 @@
         "make lint-all чистый"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -210,7 +210,7 @@
         "make lint-all чистый"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -230,7 +230,7 @@
         "make lint-all чистый"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -252,7 +252,7 @@
         "make lint-all чистый"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -270,7 +270,7 @@
         "make lint-all чистый"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -289,7 +289,7 @@
         "make lint-all чистый"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -311,7 +311,7 @@
         "make lint-all чистый"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -331,7 +331,7 @@
         "make lint-all чистый"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -350,7 +350,7 @@
         "make lint-all чистый"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -366,7 +366,7 @@
         "make lint-all чистый"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "designReference": []
     }
   ]

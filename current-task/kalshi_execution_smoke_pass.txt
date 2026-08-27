@@ -1,0 +1,19 @@
+kalshi execution smoke
+env: demo
+ticker: KXGOLDH-26AUG2620-T4637.99
+buy_order_id: 01a0404e-8d88-7e5c-a547-8ee6a7df6dfe
+buy_client_order_id: d2m-0-yb1531f920f6e427256
+sell_order_id: 01a0404e-8d88-784e-8197-43de9490c691
+sell_client_order_id: d2m-0-ya2531f920f6e427256
+fill: id=07214174-6ce1-8c8c-17ee-3b37c4b27acc order=01a0404e-8d88-7e5c-a547-8ee6a7df6dfe count=1.00 yes_price=0.9800 fee=0.001400 side=yes/bid
+fill: id=07214123-6681-9211-87af-6075e1ee765c order=01a0404e-8d88-784e-8197-43de9490c691 count=1.00 yes_price=0.0100 fee=0.000700 side=no/ask
+fees_total: 0.002100
+balance_before: 194.3834
+balance_after: 193.4113
+balance_delta: -0.9721
+position_before: 0.00
+position_after: 0.00
+position_delta: 0.00
+leftover: 0
+reason: roundtrip closed
+PASS
