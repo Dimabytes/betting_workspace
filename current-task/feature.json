@@ -1,0 +1,222 @@
+{
+  "project": "dota_2_model",
+  "relatedSources": [
+    "current-task/2026-08-27-data-training-design.md",
+    "../dota_2_model/AGENTS.md",
+    "../dota_2_model/docs/domain.md",
+    "../dota_2_model/src/collect/01_build_universe.py",
+    "../dota_2_model/src/prepare_dataset/prepare_dataset.py",
+    "../dota_2_model/src/train_model/train_model.py",
+    "../dota_2_model/src/shared/types/dataset.py",
+    "../dota_2_model/src/shared/utils/team_names.py",
+    "../dota_2_model/src/shared/utils/dota_levels.py",
+    "../dota_2_model/src/shared/utils/prior.py",
+    "../dota_2_model/src/shared/utils/telonex_book.py",
+    "../dota_2_model/scripts/compare_collector_to_telonex.py"
+  ],
+  "Functional Requirements Summary": [
+    "FR-1: Добавить изолированный LoL pipeline 01–06 под src/lol и хранить все LoL data/model artifacts только под data/lol",
+    "FR-2: Stage 01 собирает полный Gamma universe LoL tag 65, классифицирует Game N и допустимые Match Winner deciders и сохраняет резолюцию с причинами исключений",
+    "FR-3: Stage 03 перечисляет lolesports series/maps, однозначно связывает их с Polymarket events и ориентирует Blue/Red к Radiant/Dire",
+    "FR-4: Stage 04 возобновляемо архивирует raw livestats windows до игровой секунды 1200 и публикует достаточный для ручного решения download audit",
+    "FR-5: До покупки Telonex реализуются и полностью запускаются только Stages 01, 03 и 04; после их audit pipeline останавливается до явного пользовательского GO",
+    "FR-6: Только после GO Stage 02 безопасно и возобновляемо скачивает полный доступный Telonex book_snapshot_full archive для обоих tokens каждого поддержанного рынка",
+    "FR-7: Stage 05 имеет один full path без preflight/partial веток и строит training, validation и production_training datasets только при наличии локальных Telonex books",
+    "FR-8: Все datasets используют настоящие livestats frames на сетке second 0..540, общий clock/pause contract, семь invariants и те же 12 feature names, что Dota",
+    "FR-9: Market prior/current/target используют строгую as-of семантику Telonex; label равен 300-second future midpoint delta, а split не разделяет карты одного PM event",
+    "FR-10: Stage 06 обучает отдельную LoL research model, публикует event-bootstrap validation metrics и измеряет source lag относительно baseline 25 seconds",
+    "FR-11: Production fit использует selected tree count research model и все строки production_training.parquet, не смешивая LoL и Dota",
+    "FR-12: Финальный прогон воспроизводит pipeline из raw caches, публикует research/production artifacts и оставляет существующие Dota paths, tests и behavior неизменными"
+  ],
+  "Resolved Questions": [
+    "До решения GO не реализуются Stage 05, Stage 06, market join, dataset builder или trainer; собираются только все доступные бесплатные Gamma и lolesports данные через Stages 01, 03 и 04.",
+    "Ручной pre-Telonex checkpoint оценивает universe coverage, matching coverage, raw-window completeness и стабильные причины потерь. Точное число пригодных ML rows станет известно только после Telonex и полного Stage 05.",
+    "Отдельный `05 --preflight`, partial dataset и постоянный game_states.parquet не создаются. Stage 05 имеет один обязательный full path.",
+    "US-004 не считается пройденным и US-005 не начинается, пока пользователь явно не даст GO после чтения pre_telonex_audit.md.",
+    "Telonex subscription покупается только после GO и после того, как Stage 02 прошёл fixture tests и готов немедленно начать реальную загрузку.",
+    "Финальные training.parquet, validation.parquet и production_training.parquet невозможно построить без Telonex, потому что market_radiant_prior, market_p_radiant, 300-second target и training label зависят от historical books.",
+    "Настоящее research и production обучение выполняется только после полной загрузки Telonex и успешного Stage 05; до этого никаких fixture-only training branches нет.",
+    "Числового автоматического GO threshold нет: решение о покупке Telonex принимает пользователь по отчёту checkpoint.",
+    "Работа ведётся на main в соседнем ../dota_2_model; current-task и итоговые отчёты остаются в betting_workspace."
+  ],
+  "Non-Goals (Out of Scope for V1)": [
+    "Backtest, live, live-paper, торговая логика и исполнение",
+    "Изменения poly-maker, polymarket-collector или VPS collector",
+    "Смешивание LoL и Dota в одном dataset или model",
+    "Champion, draft, Leaguepedia, Cargo, Riot V4 или Riot V5 dependencies",
+    "Interpolation, forward-fill игровых features, subsecond rows или dataset rows после second 540",
+    "Provider framework, factories или общий downloader abstraction",
+    "Telonex trades, onchain fills, SQLite planner, quarantine или rescue machinery",
+    "Ручные per-match overrides и сложный rescue небольшого unmatched остатка",
+    "Pre-Telonex prepare, partial/game-state dataset или trainer",
+    "Hyperparameter search, row weights или автоматический model quality gate",
+    "Изменение существующих Dota paths, lag semantics, datasets или model artifacts"
+  ],
+  "description": "LoL historical data and model training — линейно собрать Gamma и lolesports, остановиться для ручного GO перед Telonex, затем скачать books, построить 1 Hz datasets и обучить отдельные research/production модели",
+  "steps": [
+    {
+      "id": "US-001",
+      "title": "Собрать Polymarket LoL universe",
+      "description": "Как исследователь, я хочу получить полный воспроизводимый universe исторических LoL markets и их резолюций, чтобы все последующие stages работали от одного проверяемого набора контрактов.",
+      "changes": [
+        "Добавить src/lol/01_build_universe.py и только необходимые этому stage LoL paths/constants с изолированными outputs под data/lol",
+        "Загрузить все open и closed Gamma pages для LoL tag 65 и кэшировать исходные responses под data/lol/raw/polymarket/gamma",
+        "Записать data/lol/processed/universe/markets.parquet с PM event/market ids, tokens/outcomes в исходном порядке, командами, game number, BO, league, timestamps, resolution, contract classification и inclusion/exclusion reason",
+        "Поддержать явные Game N Winner и только допустимые BO1/BO3/BO5 Match Winner decider fallbacks; исключить BO2, series-only BO3/BO5 и malformed token/outcome contracts",
+        "Считать resolved outcome только когда ровно одна Gamma outcome price равна 1, а вторая 0; сохранять остальные случаи как unresolved_market",
+        "Печатать totals по стабильным причинам включения и исключения без silent drops",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-002",
+      "title": "Связать Polymarket events с lolesports maps",
+      "description": "Как исследователь, я хочу однозначно связать поддержанные рынки с завершёнными lolesports maps и сторонами Blue/Red, чтобы следующий stage скачивал только нужные игровые архивы.",
+      "changes": [
+        "Добавить src/lol/03_link_lolesports.py и публичный frontend API key в src/shared/constants/lol.py",
+        "Листать getSchedule до начала Gamma range, кэшировать schedule/events/anchor responses и записывать data/lol/processed/lolesports/games.parquet",
+        "Переиспользовать существующие team-name normalization/matching helpers и применить average score 0.82, per-team score 0.72, ±4 hours, conditional BO/league guards и небольшой постоянный LoL alias map",
+        "Исключать multiple eligible lolesports candidates как ambiguous; разрешать duplicate PM events по числу явных Game N markets и оставлять tie ambiguous",
+        "Назначать карте явный Game N market либо допустимый Match Winner decider fallback и выводить orientation через outcome name -> esportsTeamId -> Blue/Red side",
+        "Публиковать links.parquet с одной строкой на принятую карту и audit.parquet со стабильными unmatched, ambiguous, league, fallback, resolution и orientation reasons",
+        "Немедленно завершать run при HTTP 403 или несовместимом top-level esports-api/livestats schema",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-003",
+      "title": "Архивировать lolesports livestats windows",
+      "description": "Как исследователь, я хочу возобновляемо скачать raw livestats всех связанных карт, чтобы бесплатная часть архива была полностью собрана до решения о Telonex.",
+      "changes": [
+        "Добавить src/lol/04_fetch_lolesports.py, читающий принятые links и начинающий запросы от округлённого loading anchor",
+        "Продолжать запросы с шагом 10 wall-clock seconds до достижения игровой секунды 1200 либо wall-time safety limit 3600 seconds; использовать concurrency 8",
+        "Хранить один gzip JSONL raw archive на esportsGameId под data/lol/raw/lolesports/windows без преобразования provider payload",
+        "Возобновлять incomplete downloads с последнего сохранённого кадра, писать через .partial и atomic replace и валидировать готовый archive перед skip",
+        "Повторять network errors, HTTP 429 и 5xx с bounded backoff; останавливать run на 401/403; записывать 404, empty body и exhausted retries в audit и завершать incomplete run ненулевым code",
+        "Публиковать download_audit.parquet с response/frame counts, максимальной игровой секундой, complete flag и стабильной error reason для каждой карты",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-004",
+      "title": "Выполнить бесплатный сбор и дождаться решения GO",
+      "description": "Как пользователь, я хочу увидеть coverage всего бесплатного real-data collection до покупки Telonex, чтобы вручную решить, оправдано ли продолжение платной части.",
+      "changes": [
+        "Запустить Stages 01 -> 03 -> 04 на полном доступном Gamma/lolesports range и безопасно возобновлять runs до завершения всех возможных jobs",
+        "Проверить parquet/jsonl.gz outputs, duplicate keys, complete flags, raw schema integrity и воспроизводимость totals каждого stage",
+        "Создать current-task/pre_telonex_audit.md с counts поддержанных/resolved markets, accepted/ambiguous/unmatched series/maps, downloaded/failed windows, coverage по split/league и стабильными причинами потерь",
+        "Отдельно показать присутствие LPL и LDL среди linked/downloaded maps либо явно объяснить их отсутствие",
+        "Зафиксировать в отчёте, что платная фаза ещё не начата, и остановить workflow; не ставить US-004 passes=true и не начинать US-005 без явного GO пользователя",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-005",
+      "title": "Скачать архив Telonex после GO",
+      "description": "Как исследователь, я хочу после явного GO безопасно скачать все доступные historical books поддержанных LoL markets, чтобы один локальный архив обеспечил dataset preparation независимо от срока подписки.",
+      "changes": [
+        "Добавить src/lol/02_fetch_telonex_books.py только после явного GO и читать TELONEX_API_KEY из environment через Bearer authorization без записи ключа в logs или artifacts",
+        "Потоково прочитать полный Telonex catalog, сохранить только slice нужных condition IDs и проверить точное совпадение двух Gamma/Telonex token IDs",
+        "Скачать каждый доступный UTC day book_snapshot_full для обоих tokens всех поддержанных winner markets по catalog inclusive/exclusive intervals",
+        "Сохранить неизменённые provider parquets под asset_id/date layout и опубликовать processed catalog.parquet и download_audit.parquet",
+        "Проверять существующий parquet footer, required columns и asset_id; новые файлы писать через .partial, validation и atomic replace",
+        "Повторять network errors, HTTP 429 и 5xx с bounded backoff; останавливать run на 401/403; продолжать остальные jobs после 404/exhausted retries и завершать incomplete run ненулевым code",
+        "Переиспользовать endpoint semantics из scripts/compare_collector_to_telonex.py без SQLite planner, channels, quarantine, rescue или provider abstraction",
+        "После fixture tests сообщить пользователю, что downloader готов к покупке ключа; с предоставленным ключом завершить полный download и проверить audit",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-006",
+      "title": "Построить полные LoL datasets",
+      "description": "Как исследователь, я хочу одним full prepare path соединить livestats с Telonex books, чтобы получить train, validation и production datasets без частичных режимов и дублирующих промежуточных artifacts.",
+      "changes": [
+        "Добавить единственный full src/lol/05_prepare_dataset.py; отсутствие catalog или обязательных local books завершает run до публикации outputs, а --preflight и game_states.parquet не существуют",
+        "Читать, дедуплицировать и сортировать raw frames; находить spawn clock zero, вычитать паузы после spawn и исключать no_spawn_frame либо livestats invariant violations по design policy",
+        "Вынести общий level-XP arithmetic, сохранить Dota signatures/results и вычислять radiant_xp_adv по LOL_LEVEL_XP; построить остальные gold/death/top1 features из одного выбранного frame",
+        "Для каждой карты строить сетку second 0..540 правилом latest frame <= second и frame age <= 2 seconds без interpolation или forward-fill",
+        "Строить strict pre-spawn market_radiant_prior из 61-second window и current/target midpoints на state_wall_time + 25 и +300 seconds с Telonex two-sided, age и pair-sum gates",
+        "Удалять whole map только по map-level gates и отдельную row по unusable current/target; training label вычислять как signal_market_p_radiant_300s - market_p_radiant",
+        "Разделять целые PM events по VALIDATION_START_TIME и публиковать training.parquet, validation.parquet, production_training.parquet, split.parquet и audit.parquet через atomic replace",
+        "Проверить точное соответствие всех трёх dataset files shared DatasetRow schema, int(esportsGameId) uniqueness и плотность до 541 rows на map",
+        "Add or update automated tests",
+        "Tests pass",
+        "Dota prepare regression tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-007",
+      "title": "Реализовать отдельный LoL model trainer",
+      "description": "Как исследователь, я хочу переиспользовать проверенный LightGBM training contract для отдельных LoL artifacts, чтобы следующий финальный прогон мог оценить holdout и обучить production model на всех принятых картах.",
+      "changes": [
+        "Вынести из src/train_model/train_model.py только необходимые общие callable helpers, сохранив текущий Dota entrypoint, paths, wide validation behavior и lag semantics",
+        "Добавить src/lol/06_train_model.py research mode, читающий LoL training/validation parquets, те же ordered 12 features и direct 1 Hz validation seconds без Dota lagged_source_features",
+        "Публиковать research model.txt/model.json/split.parquet/validation_metrics.csv с source_lag_seconds 25, train_grid_seconds 1, dataset hashes, map counts, selected tree count и holdout metrics",
+        "Считать no-move/model MAE, MAE gain, bias, directional 300-second markout и 95% confidence intervals bootstrap-resampling целых PM events, включая full-window и per-minute aggregates",
+        "Добавить scripts/measure_lol_source_lag.py для read-only cross-correlation deaths jumps и Telonex midpoint moves без включения скрипта в pipeline",
+        "Добавить --production mode, который требует research model, переиспользует selected tree count, обучается на production_training.parquet и атомарно публикует/архивирует отдельные LoL artifacts",
+        "Add or update automated tests",
+        "Tests pass",
+        "Dota train regression tests and default CLI pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-008",
+      "title": "Выполнить финальный полный прогон и обучение",
+      "description": "Как пользователь, я хочу увидеть воспроизводимый end-to-end run на всех собранных данных и итоговые research/production artifacts, чтобы оценить качество LoL модели и завершённость pipeline.",
+      "changes": [
+        "Повторно запустить canonical Stages 01 -> 02 -> 03 -> 04 -> 05 на raw caches и проверить, что downloaders возобновляются, готовые files валидируются и processed outputs воспроизводятся",
+        "Запустить source-lag measurement; если argmax отличается от 25 seconds больше чем на 5 seconds, обновить константу и заново выполнить Stage 05 до обучения",
+        "Запустить Stage 06 research fit, проверить holdout metrics и confidence intervals, затем запустить --production с выбранным research tree count",
+        "Проверить DatasetRow schema и 1 Hz contract всех datasets, event-level split, LPL/LDL presence, audit drop reasons, model metadata, dataset hashes и отдельные research/production paths",
+        "Запустить targeted tests, полный релевантный LoL/Dota suite и make lint-all без изменений существующих Dota outputs/behavior",
+        "Создать current-task/final_run_report.md с командами, source ranges, coverage, dataset/map/row counts, source-lag result, research metrics и путями model artifacts",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "designReference": []
+    }
+  ]
+}

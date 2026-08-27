@@ -4,7 +4,7 @@
 
 Статус: утверждённый дизайн, реализация ещё не начата.
 
-Ревизия 4.
+Ревизия 5.
 
 ## 1. Цель
 
@@ -75,7 +75,7 @@ train_model module. Одноразовые helpers остаются рядом �
     ├── processed/
     └── models/
 
-Целевой порядок stages после первого успешного preflight:
+Полный canonical порядок stages после решения GO:
 
     01_build_universe
         -> 02_fetch_telonex_books
@@ -86,13 +86,17 @@ train_model module. Одноразовые helpers остаются рядом �
 
 Первый implementation и real-data run имеют жёсткую границу:
 
-1. До решения GO реализуются 01, 03, 04 и game-data/preflight path 05. Market
-   join и trainer проверяются на маленьких локальных fixtures. Файла
-   `02_fetch_telonex_books.py` ещё нет.
-2. Реальный preflight запускается в порядке 01 -> 03 -> 04 -> 05 --preflight.
-   После его audit работа останавливается для ручного решения.
-3. Только после GO пишется и тестируется 02. Месяц Telonex покупается, когда
-   downloader готов к запуску; затем выполняются 02 -> 05 -> 06.
+1. До решения GO реализуются только 01, 03 и 04. Файлов 02, 05 и 06 ещё нет.
+2. Бесплатные источники полностью запускаются в порядке 01 -> 03 -> 04. Человек
+   проверяет coverage и audits universe, linking и livestats download, после
+   чего работа останавливается для ручного решения GO/NO-GO.
+3. Только после явного GO пишутся 02, 05 и 06. Downloader 02 сначала полностью
+   тестируется на fixtures; месяц Telonex покупается, когда он готов сразу
+   начать реальную загрузку. Затем выполняются 02 -> 05 -> 06.
+
+Отдельного pre-Telonex prepare, частичного датасета или fixture-only trainer
+нет. До GO проверяются полнота и целостность бесплатных источников, но точное
+число пригодных ML rows становится известно только после полного Stage 05.
 
 После этого Telonex остаётся вторым canonical stage. Ограниченная по времени
 подписка не должна зависеть от качества будущих повторных matching runs.
@@ -164,10 +168,10 @@ Cargo в зависимости. Такую сверку можно провес
 
 ## 5. Stage 02: Telonex archive
 
-Stage 02 относится ко второй фазе реализации. До ручного GO после preflight
-файл `02_fetch_telonex_books.py` не создаётся. После GO downloader сначала
-реализуется и полностью тестируется на fixtures; платная подписка оформляется
-только когда код готов сразу начать реальную загрузку.
+Stage 02 относится ко второй фазе реализации. До ручного GO по audits Stages
+01, 03 и 04 файл `02_fetch_telonex_books.py` не создаётся. После GO downloader
+сначала реализуется и полностью тестируется на fixtures; платная подписка
+оформляется только когда код готов сразу начать реальную загрузку.
 
 02_fetch_telonex_books.py использует TELONEX_API_KEY через Bearer authorization.
 Ключ читается из environment и никогда не записывается в repo или artifacts.
@@ -404,6 +408,11 @@ Control artifact:
 
     data/lol/processed/lolesports/download_audit.parquet
 
+Audit содержит по одной строке на карту: число сохранённых window responses и
+уникальных кадров, максимальную достигнутую игровую секунду, complete flag и
+стабильную причину ошибки. Вместе с universe и linking audits он служит
+основанием ручного GO/NO-GO до покупки Telonex.
+
 ## 8. LoL clock и паузы
 
 Оба факта этого раздела измерены против V5 и держатся на нём, но сам V5 в
@@ -471,19 +480,14 @@ Loading anchor — первый кадр игры вообще — опереж�
 
 05_prepare_dataset.py соединяет links, сырые окна livestats и книги Telonex.
 
-Первый запуск использует отдельный режим:
+Stage имеет один full режим и реализуется только после решения GO. Он требует
+локальные catalog и books Stage 02; отсутствие обязательных inputs завершает
+run до публикации outputs.
 
-    uv run python src/lol/05_prepare_dataset.py --preflight
-
-Он читает links и livestats windows, выполняет clock, pause и invariant checks,
-строит потенциальные игровые rows и split, затем атомарно пишет `audit.parquet`.
-Режим не читает `TELONEX_API_KEY`, catalog или локальные books и не создаёт
-training, validation, production datasets или модели. Решение GO/NO-GO
-принимается человеком по audit; автоматического порога числа карт нет.
-
-Preflight и полный prepare вызывают один и тот же builder игровых rows. После
-появления books полный run повторяет эту дешёвую обработку и делает market join.
-Отдельный постоянный `game_states.parquet` не создаётся.
+Full prepare читает links и livestats windows, выполняет clock, pause и
+invariant checks, строит игровые rows, делает market join и атомарно публикует
+datasets, split и audit. Отдельного partial/preflight режима и постоянного
+`game_states.parquet` нет.
 
 ### 9.1 Чтение кадров
 
@@ -864,12 +868,13 @@ Coverage измеряется на каждом пересечении:
 Каждый stage печатает totals и сохраняет стабильные причины потерь. Не должно
 быть silent drops.
 
-До покупки Telonex preflight измеряет только пересечение через usable livestats
-windows. Его `audit.parquet` содержит для каждой карты split, число сырых
-frames, число потенциальных 1 Hz rows, паузы и exclusion reason. Полный prepare
-после загрузки books атомарно заменяет этот файл итоговым audit с market
-coverage. Preflight никогда не создаёт пустые dataset parquets, поэтому Stage
-06 нельзя случайно запустить как успешное обучение без Telonex.
+До покупки Telonex ручной checkpoint читает outputs Stages 01, 03 и 04:
+universe inclusion reasons, linking coverage, download completeness и
+целостность raw windows. Он не запускает Stage 05 и не заявляет точное число
+пригодных ML rows. После загрузки books Stage 05 пишет итоговый audit с clock,
+pause, invariant и market coverage. Отсутствующие обязательные books завершают
+Stage 05 до публикации datasets, поэтому Stage 06 нельзя случайно запустить как
+успешное обучение без Telonex.
 
 Fatal errors:
 
@@ -938,10 +943,10 @@ Raw caches никогда не перезаписываются частичны
 9. Fetch: цикл идёт по игровому времени и доходит до second 1200 через паузу;
    предохранитель по настенному времени срабатывает; докачка с последнего кадра;
    пустое тело при HTTP 200 не ломает парсер; 401/403 останавливают run.
-10. Preflight и сетка: без ключа и books строится audit, финальные datasets не
-    создаются; preflight и full path вызывают один builder; train, validation и
-    production используют `0..540` с шагом 1, правило «последний кадр не позже
-    S» и гейт возраста 2 секунды.
+10. Prepare и сетка: единственный full path требует локальные catalog и books;
+    отсутствие inputs не создаёт пустых outputs; train, validation и production
+    используют `0..540` с шагом 1, правило «последний кадр не позже S» и гейт
+    возраста 2 секунды.
 11. Features: gold, level-derived XP, deaths, top1 ratios из одного кадра.
 12. Инварианты: каждый из семи пунктов раздела 9.6 отдельно; порог падения
     run.
@@ -965,10 +970,12 @@ make lint-all.
 Работа считается завершённой, когда:
 
 - pipeline полностью перезапускается из raw caches;
-- preflight без Telonex пишет полный game-data audit, не создаёт datasets и
-  останавливает реализацию перед ручным GO/NO-GO;
-- Stage 02 отсутствует до GO, а платная подписка оформляется только после
-  готовности downloader;
+- реальный запуск 01 -> 03 -> 04 собирает все доступные бесплатные данные,
+  публикует universe/link/download audits и останавливает работу перед ручным
+  GO/NO-GO;
+- Stages 02, 05 и 06 не реализуются до GO; partial prepare и отдельного
+  pre-Telonex trainer нет;
+- платная подписка оформляется только после готовности downloader 02;
 - Telonex и lolesports downloaders возобновляются после interruption;
 - coverage и причины каждого drop воспроизводимы;
 - LoL train, validation и production datasets имеют сетку 1 Hz, а train и
