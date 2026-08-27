@@ -22,4 +22,26 @@
   - Optional vs required is one membership test against TELONEX_OPTIONAL_CHANNELS, not a required list plus "".
   - Channel dispatch must not fall through to onchain_fills.
 
+## 2026-08-28 01:10 - US-001 review
+
+- Review findings fixed in f8e7a99a; nits skipped. US-001 passes.
+
+## 2026-08-28 01:45 - US-002
+
+- Added Stage 07 `src/lol/07_prepare_backtest.py`: offline signals 0..899, market seconds 0..1200, audit. Always rebuild. No network, no model predict.
+- Parameterized `select_grid_rows(end_second)`. Stage 05 still requests 540 via `prepare_map_livestats` wrapper. Added `wall_us_for_second` and last_game_time/pauses on LivestatsOk.
+- Rows 0..540 rebuilt with `join_market_rows` must equal validation.parquet or abort before publish. Inference 541..899 uses the same features + current mid, no 300s label.
+- Two clocks: signal `state_ts_us` is selected frame wall; market-second `state_ts_us` is pause-adjusted second boundary. Cutoff at 1200 fails closed (`missing_cutoff_midpoint`) without last-stale-price reuse.
+- Fixture tests in tests/test_lol_prepare_backtest.py: 11 passed. Stage 05 tests: 23 passed. make lint-all passed. make test passed (1543).
+- Commit in dota_2_model: 67f9344908c18ebf507da976e6925d2f32d2435a
+- Did not set feature.json passes. Did not run real data/lol Stage 07 (US-005).
+- **Learnings for future iterations:**
+  - Cannot `from lol.05_prepare_dataset import`; the `05` prefix is not a valid identifier. Use `import_module` + Protocol like the other stages.
+  - Stage 07 eligibility uses UTC day stems on book parquets; Stage 05 `write_token_book` always writes `2026-01-01.parquet`. Tests need a dated writer. Spawn 1700000000 is 2023-11-14.
+  - SPAWN_TS is before LOL_VALIDATION_START_TIME, so Stage 05 puts those maps in training. Tests copy production_training → validation and force split=validation.
+  - Do not import backtest.context or backtest.telonex_local from src/lol. Duplicate the day-file check with telonex_root as an argument (US-003 will pass capture_root later).
+  - Labeled 0..540 must use the Stage 05 0..540 grid (including age-gated seconds past last frame) so exact-match against validation.parquet does not abort early-end maps. Cap last_game_time only for inference 541..899 and market seconds 0..1200.
+  - python modules named `07_*.py` import as `lol.07_prepare_backtest`.
+
+
 
