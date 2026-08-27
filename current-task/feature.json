@@ -1,7 +1,7 @@
 {
   "project": "dota_2_model",
   "relatedSources": [
-    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/docs/next-task/2026-08-27-lol-backtest-design.md",
+    "./2026-08-27-lol-backtest-design.md",
     "../dota_2_model/AGENTS.md",
     "../dota_2_model/docs/domain.md",
     "../dota_2_model/Makefile",
