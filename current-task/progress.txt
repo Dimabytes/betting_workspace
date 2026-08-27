@@ -44,3 +44,273 @@
     - `tick_size` is the string `"0.01"` only on `matched`. off_grid keeps structure, tick null.
     - US-005: skip resolve when helper is off or `KALSHI_TRADING=off`; map KalshiBinding → update_kalshi_binding.
 ---
+## 2026-08-26 18:25 UTC+2 - US-005
+- Observe slice: `open_wallet_host` loads Kalshi settings once; observe/paper/live open production public REST + one host `KalshiOpenMarketCache`. `_pick_and_run` starts `resolve_kalshi_match` after announce and does not await it.
+- MatchWorker 7th arg is the Task. First tick writes `pending` (or `off` if no task). Watcher/`update_kalshi_binding` apply later. One `none` retry after observed `IN_PROGRESS` (first-event hook or immediate on later completion). `IN_PROGRESS` `second >= 540` is `cutoff`. Telegram bind line once after a final reason; no `kalshi_bind` journal row.
+- Tests: `tests/test_live_paper_kalshi_observe.py` plus host `_pick_and_run` / off / schema-3 skip. `make test` 1204 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+    - Do not await the resolve Task in `_pick_and_run` or before PM attach.
+    - Retry is `none` only (two timings, not two reasons). Keep `pending` until retry completes so the file does not flicker `none`→`matched`.
+    - Cutoff is phase-gated (`IN_PROGRESS`), not raw `second`. Draft `PRE_MATCH` clocks can read 540.
+    - Schema-3 skip: `kalshi_reason_for_match` is `"off"`; no HTTP; file bytes unchanged.
+    - `paper`/`live` without keys now fail at `open_wallet_host`. Tests stay off via `_bare_host` / conftest.
+    - Cancelling the resolve Task must not cancel `KalshiOpenMarketCache` inflight (waiter only).
+    - `__new__` WalletHost tests that call `teardown` need `_kalshi_client=None`. Both `_IdleWorker` copies take the 7th arg.
+    - Review REQUEST-CHANGES (structural, behavior unchanged): Kalshi bind/retry/cutoff/Telegram moved to `KalshiObserve` in `kalshi_observe.py` (`on_first_event` / `on_tick` / `settle_before_finalize` / `close`). `start_kalshi_resolve` lives there; `abandon_kalshi_client` next to the REST client. `match_worker.py` 1082→814, `wallet_host.py` 1042→999. Cache `_inflight` is owned by the fetch task's done-callback; waiters join via Event so cancel does not kill the GET (no `shield`). `make test` 1205 passed. `make lint-all` clean.
+---
+## 2026-08-26 19:20 UTC+2 - US-006
+- Extended `kalshi_client.py`: `open_kalshi_auth_client(demo, key_id, private_key_path)` via `AsyncKalshiClient(key_id=, private_key_path=, config=)`. PEM read once by SDK `from_key_path`. Both factories pin `max_retries=0` and `ws_max_retries=0`.
+- V2 writes: `place_event_order` → `orders.create_v2(CreateOrderV2Request)` POST `/portfolio/events/orders`; `cancel_event_order` → `orders.cancel_v2`. `_await_write` never retries. Timeout/network → `KalshiUnknownWrite`. Pool exhausted / 409 → `KalshiRestError`. Auth → `KalshiAuthFault`. 429 → `KalshiRateLimitFault`.
+- Portfolio: `list_open_orders` / `get_order` / `list_fills` (`portfolio.fills_all`) / `list_positions` / `get_balance(balance_dollars)`. Same whole-list `_await_read` as public GET.
+- `KalshiWsClient`: capture `sdk.ws` once. Frozen snapshot/delta with sid/seq contiguity (silent resync → gap then snapshot). User fills + user_orders. 4001 → `KalshiWsAuthFault`.
+- Tests in `test_live_paper_kalshi_client.py` on mocked SDK. WalletHost still uses unauthenticated public REST (US-013). `make test` 1229 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - `sdk.ws` is a new `KalshiWebSocket` every access — US-013 must store one `KalshiWsClient`.
+  - SDK seq gap is often silent; wrapper-level sid/seq check is the halt signal, not only `KalshiSequenceGapError`.
+  - Snapshot `msg.yes`/`no` dicts mutate on later deltas — copy immediately.
+  - No `client_order_id` query on `orders.list_all`. Unknown place is US-010's `list_open_orders` scan.
+  - `CreateOrderV2Request.side` is bid/ask, not yes/no. Do not add `outcome_side` to place (US-012 maps four legs).
+  - REST fill has `fill_id`; WS fill does not — mapper uses `trade_id` as `fill_id`. Not proven equal on the wire.
+  - Encrypted PEM / OpenSSH format fail at factory as `KalshiAuthFault`. No `password=` / `KALSHI_PRIVATE_KEY`.
+  - Review fix: handshake `KalshiConnectionError` → `KalshiAuthFault`; silent WS close yields `KalshiWsDisconnect`; 4xxx from `KalshiWebSocket._recv_task.exception().__cause__.rcvd.code`.
+---
+## 2026-08-26 20:09 UTC+2 - US-007
+- Added `src/live_paper/kalshi_prior.py`: `kalshi_prior_anchor` = horn-90, `select_kalshi_prior` (latest two-sided YES bar with `end_period_ts <= anchor`, midpoint oriented once via Kalshi `yes_is_radiant`), `fetch_kalshi_prior` over `QUOTE_TRAILING_SECONDS`. Decimal only.
+- `get_candlesticks` skips unmappable rows (`_try_map_candle`); last-trade/null bid-ask close no longer fails the GET. `KalshiOpenMarketCache.client` exposes the REST client.
+- `KalshiObserve` starts an async prior task once matched + PRE_HORN/IN_PROGRESS horn Unix, paper/live only. Observe/off: no GET. Retry with 0.5→8s backoff until the model window closes; does not latch None, does not restart matching, does not touch PM `_prior`.
+- Tests: `tests/test_live_paper_kalshi_prior.py` plus client skip + observe fake `get_candlesticks`. `make test` 1251 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - Inclusive `<=` on Kalshi candles is deliberate; do not copy PM CLOB strictly-before.
+  - Prior starts on observe (`on_first_event` / `_accept`), not `MatchWorker._on_event` (first-tick `continue` would skip it).
+  - US-013: observe creates no prior task. Gate is `settings.trading in {paper, live}`, not "cache exists".
+  - Do not latch Kalshi `_prior = None`. Empty/error retries until `MODEL_SIGNAL_END_SECOND`, not BUY_CUTOFF 540.
+  - Orient with `KalshiBinding.yes_is_radiant`, never PM's. `float(prior)` is US-013 at `predict_fair`.
+  - Patching `kalshi_observe.asyncio.sleep` patches global `asyncio.sleep`. Capture the original before setattr.
+---
+## 2026-08-26 20:39 UTC+2 - US-008
+- Added `src/live_paper/kalshi_store.py`: separate `data/live_paper/wallet/kalshi.db` (intents/orders/fills/position_ledger/cash_ledger/checkpoints). TEXT Decimal only. Paper and live share the file; `source` is `paper` or `live`.
+- Flock is `kalshi.db.lock` (copy of WalletLock, not imported from wallet_host). Store open does not take it.
+- Intent before wire. Fill ingest PK `fill_id` plus unique `(trade_id, order_id)`. Ledger moves only on a new fill. Remaining is derived. Failed cancel never DELETE. Not wired into WalletHost.
+- Tests: `tests/test_live_paper_kalshi_store.py`. `make test` 1269 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - Flock the sibling lock file, not `kalshi.db` (sqlite owns that).
+  - WS `fill_id` often equals `trade_id`; REST may differ — keep both unique keys.
+  - Place ack `fill_count` does not invent a fill; ledger waits for `ingest_fill`.
+  - US-010 REST compare must ignore `source=paper` or leftover paper looks like unexplained live inventory.
+  - Do not import `wallet_host` for the lock; US-013 will import the store from the host.
+  - Review BLOCKER: cancel ack/fail now treat unknown intents like pending so REST resolve after timeout can advance without a second cancel write.
+---
+## 2026-08-26 21:19 UTC+2 - US-009
+- Added `src/live_paper/kalshi_session.py`: host-owned book generations, implied YES/NO pair (Decimal), readiness, local safe mode / cancel / REST fence. No `kalshi_client.py` edits. Not wired to WalletHost (US-013).
+- Generation unready until snapshot. Gap/disconnect/parse/auth clear readiness and enter safe mode; sid-change snapshot on a dead generation is ignored. Quiet deltas reset book-age; silence requests resubscribe, a second `book_stale_s` without snapshot is `book_stale`. Blindness is dead/auth user WS or overdue `mark_reconcile_ok`, not missing fills.
+- Safe mode order: clear desired → block writes → cancel store-owned `order_id`s (one ticker, or all on account fault) → REST fence or `fence_unproven` latch. Positions/ledger preserved. One Telegram alert per fault-label change. No Engine/PM.
+- Tests: `tests/test_live_paper_kalshi_session.py`. `make test` 1300 passed. `make lint-all` clean.
+- Review fix: concurrent faults queue+drain after the in-flight fence (unproven still cancels remaining store ids); `try_reopen` is a no-op until the fence proves; auth on cancel/list is an account-scoped re-enter; ticker-scoped trip creates the book with `writes_blocked`.
+- **Learnings for future iterations:**
+  - `apply_book_event(ticker, event)` takes ticker because `KalshiSequenceGap` / disconnect / malformed carry none. US-013 must pass the subscribe-task ticker.
+  - Sid-change: client yields gap then snapshot. Do not `start_book` until after fence; the trailing snapshot is ignored while the generation is dead.
+  - Book-age tests that jump monotonic past `private_ws_blind_s` must `mark_reconcile_ok` or poll fires REST-blind instead of refresh/`book_stale`.
+  - Unproven fence tests must advance monotonic past `fence_timeout_s` (sleep fake that adds `FENCE_POLL_SLEEP_S` is enough). Store rows without `order_id` are not cancelled (US-010).
+  - `can_publish_targets` does not use `_reopen_needs_reconcile` globally — recovering tickers stay behind `writes_blocked` so a gap on A does not mute B.
+  - Review fix: concurrent faults queue and drain after the in-flight fence (unproven still cancels remaining store ids); `try_reopen` is a no-op until the fence proves; auth on cancel/list is an account-scoped re-enter; ticker-scoped trip creates the book with `writes_blocked`.
+  - Not in WalletHost yet. Two daemons could still both quote Kalshi until US-013 takes the flock.
+---
+## 2026-08-26 22:10 UTC+2 - US-010
+- Boot/reconcile/ownership on `KalshiSession`: `_boot_ready` until a `kind=boot` checkpoint; `d2m.{sub}` client_order_id namespace; periodic REST at `min(reconcile_interval_s, private_ws_blind_s)`; `resolve_unknown_write` scans `list_open_orders` (no cid query). Not wired to WalletHost. No flock inside `boot()`.
+- Store: `position_from_source` / `live_positions` / `order_by_order_id`. Client: `get_order` 404 → `None`. WS ingest of owned fills/rests as `source=live`. Unexplained REST inventory → `unexplained_position` (not adopted).
+- Tests in session/store/client. `make test` 1331 passed. `make lint-all` clean. Commit `a5206d9` in dota_2_model. feature.json `passes` left false for the orchestrator.
+- **Learnings for future iterations:**
+  - Ownership prefix is `d2m.{subaccount}.`. Do not pass `client_order_id=` to `orders.list_all`. REST fills often have cid=None — bind owned rests (and pending intents by cid) before fill ingest.
+  - REST compare uses `position_from_source(..., "live")`. Ignore `source=paper` leftover. REST 0 + live leftover does not halt (settlement drop). Place-ack `fill_count` does not invent a fill. Store rows with `order_id is None` are not cancelled.
+  - `poll` must reconcile *before* the blindness trip: TOML is 20s reconcile vs 15s blind. `min()` is load-bearing; do not "fix" dota-map.toml here.
+  - `_ready()` must `await boot()` then `rest.calls.clear()`. Arm `list_hold` / `list_error_once` *after* boot or boot hangs / consumes the one-shot error.
+  - `boot()` does not take the flock (second `LOCK_NB` on a new fd looks free). US-013 must `acquire_kalshi_lock` before `boot()`. US-012: `next_client_order_id` → intent → place → on `KalshiUnknownWrite` call `resolve_unknown_write` (never a second place).
+  - v1 `order_group_id` is always `None`. `fence_strategy_orders` is the US-013 teardown hook; do not flatten, do not skip PM `cancel_all` on fence fail.
+- Review: NO_COMMENTS (session 612→974, under 1k; boot/reconcile stayed in session; poll REST before blind trip).
+---
+## 2026-08-26 22:54 UTC+2 - US-011
+- Bumped `SESSION_SCHEMA_VERSION` to 6; `first_start` accepts 1-6. Fresh `write_start` has no `venue`. Resume of 1-5 does not rewrite line 1.
+- PM `write_signal` / `write_quote` / `write_fill` / `write_error` / `write_end` stamp `venue=polymarket` inside existing signatures. `tick_size_change` unchanged.
+- Kalshi writers (`write_kalshi_signal` / `quote` / `fill` / `error` / `end`) take Decimal tape types, stringify before `json.dumps`. No `market_p_radiant` / `market_radiant_prior` on Kalshi rows. No `kalshi_bind`.
+- `write_kalshi_fill` reads `KalshiStore.fill_row`; no ingest; one tape row per `fill_id`. `scan_open_round` skips `venue=kalshi`; unknown venue is `TradingDisabled`.
+- Store getters: `fill_row`, `cash_for_ticker`, `fees_paid_for_ticker`. `kalshi_end_snapshot` splits signed YES into leftover YES/NO, ticker cash/fees, book mark or null.
+- Tests in `test_live_paper_session_journal.py` + three store cases. `make test` 1358 passed. `make lint-all` clean. Not wired to MatchWorker (US-013). feature.json `passes` left false for the orchestrator.
+- **Learnings for future iterations:**
+  - Venue is per row, not per file. Schema 5 provenance + new `venue` keys is the same pattern as schema 3 + `fill_key`. Do not bump the first line.
+  - Schema 1-5 rows that omit `venue` read as polymarket via `record_venue`. Writers never omit it on signal/quote/fill/trading_error/session_end.
+  - Kalshi writers must not take `SignalDecision` / `OpenOrder` / `Fill` — those types carry PM `market_p_radiant` / `token_id`. Tape inputs are `KalshiSignalTape` / `KalshiPlacedTape` / sqlite `fill_id`.
+  - `write_kalshi_fill` is a view of `kalshi.db`. US-013 must call it after each successful `ingest_fill` and once on reconcile for the crash gap (ingest persisted, tape missing).
+  - Two `kind=session_end` rows are valid. US-013 Telegram leftover line filters `venue=kalshi`; do not take "the last session_end". Do not sum USD and USDC.
+  - `cash_for_ticker` is load-bearing: process-wide `cash()` would mix ticker A and B on a per-match tape.
+  - If `scan_open_round` does not skip Kalshi fills, a ticker row without `token_id` disables PM trading (`TradingDisabled`).
+  - `json.dumps` cannot encode Decimal — stringify with `format(value, "f")` before `write`.
+  - Journal is 706 lines; writers stayed in `session_journal.py`. Do not import `kalshi_session`. Do not pass a journal into KalshiSession here.
+- Review: STRUCTURAL fill `position_after` from ledger row (fixed in `82c003d`); rest of bar held (`kalshi_store.py` 1k waived).
+---
+## 2026-08-26 23:25 UTC+2 - US-012
+- Added `src/live_paper/kalshi_executor.py`: fees, fee gate, V2 four-leg map, paper/live desired sync. Only production caller of `place_event_order`. `sync(ticker, intent, pair, fairs, fees, now)`.
+- Filled `KalshiDesired` (cid, outcome/book, yes_price, count, reduce_only). Session gained `cancel_order` wrapping `_cancel_owned`. Session still has no `place_event_order`.
+- Paper mints `paper-{cid}` and ingests fills in the executor. Live never mints a fill from place ack; remaining is reread from sqlite. Unknown place: `apply_unknown_write` + `resolve_unknown_write`, latch via pending `unknown` intent, no second place.
+- Tests: `tests/test_live_paper_kalshi_executor.py`. `make test` 1385 passed. `make lint-all` clean. Not wired to MatchWorker (US-013). feature.json `passes` left false for the orchestrator.
+- **Learnings for future iterations:**
+  - V2 `side` is bid/ask; buy NO is `ask` at `1-entry`; store keeps `(no, bid, yes_price=1-entry)`. Do not add `outcome_side` to `place_event_order`.
+  - `post_only=True` always; `KalshiRestError` is reject, never `post_only=False`.
+  - Fee gate and `MIN_ENTRY_PRICE` sit on `KalshiQuoteIntent` after `evaluate_entry`. Do not mutate `evaluate_entry` / PM quoting.
+  - Unknown latch is `pending_intents()` place `unknown` for the ticker — no extra dict. Empty REST list stays latched.
+  - Paper does not call `place_event_order`. Live `fee_cost` is stored as-is; local maker is only paper simulation.
+  - Working bid rest with remaining > 0 is kept on a partial fill even when position != 0. Exit path only when there is no occupying entry rest.
+  - `sync` takes `ticker` as a required first arg because `intent is None` has no ticker (exit/cancel still need one).
+  - Not in MatchWorker. US-013 maps Kalshi `evaluate_entry` → `KalshiQuoteIntent` and calls `executor.sync`, then `write_kalshi_fill` after ingest.
+---
+## 2026-08-26 23:35 UTC+2 - US-012 review fix
+- BLOCKER: unknown cancel is now the same latch as unknown place (`pending_intents` status unknown for the ticker). `_cancel_rest` does not call `cancel_order` when that cid already has an unknown cancel. Occupying is `status == "resting"` only, so `set_desired` cannot land on `pending_cancel`. Live test: first cancel `KalshiUnknownWrite`, second sync `cancel_event_order` still 1.
+- SPAGHETTI: keep-partial-bid moved into `_quote_target`; `sync` is latch → refresh → target → match/cancel/place. All `KalshiDesired(...)` go through `_set_desired_from_row`. Did not explode `v2_place_from_leg`.
+- `make test` 1386 passed. `make lint-all` clean. feature.json `passes` left false.
+---
+## 2026-08-26 23:55 UTC+2 - US-013
+- Dual quote in MatchWorker: PM `_compute_decision` unchanged; `_quote_kalshi` after the PM cell/signal/wake. Kalshi `predict_fair(snapshot, kalshi_mid, kalshi_prior)` and `evaluate_entry` on Kalshi numbers only. Missing prior/book is venue-local. `kalshi_runtime.py` owns boot, one captured auth WS, poll, fence. Host: `wire_kalshi_for_host` (lock before `session.boot()`), `finish_kalshi_for_host` then PM `cancel_all`. Resume hydrates matched ticker from match.json. Telegram session finished adds a Kalshi leftover/net USD line; USD and USDC are never summed.
+- Tests: runtime isolation, wallet teardown order / lock-before-boot / observe-no-runtime, dual-tick arg isolation, notify two-line, store `fill_ids_for_ticker`, observe resume hydration.
+- `make test` 1403 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - `notify.py` cannot import `session_journal` at runtime (journal already imports notify). TYPE_CHECKING + quoted `KalshiSessionEndSnapshot` for the required `kalshi=` arg.
+  - `sdk.ws` is still one object stored on `KalshiRuntime._ws` from `async with rest.open_ws()`. Do not call `rest.open_ws()` per ticker.
+  - `apply_book_event(ticker, event)` ticker is the subscribe-task ticker; gap events have none.
+  - `write_kalshi_fill` after each quote/sync and once on `start_ticker` / quiesce (crash gap). Two `session_end` rows (PM + Kalshi) are valid; Telegram uses the Kalshi snapshot from quiesce, not "last session_end".
+  - `boot()` must not flock. `acquire_kalshi_lock` is in `wire_kalshi_for_host` during `open_wallet_host`. `__new__` teardown tests need `kalshi_runtime=None` as well as `_kalshi_client=None`.
+  - `_IdleWorker` stays 7 args. `WalletHost.__init__` gained `kalshi_runtime`. `wallet_host.py` is 1006 lines (review bar ~1000); further WS/sync must stay in `kalshi_runtime.py`.
+  - `compute_kalshi_intent` lives in `kalshi_runtime.py` so `match_worker.py` stays under 1k. No generic Venue. Kalshi never calls `engine.gateway`.
+---
+## 2026-08-27 00:25 UTC+2 - US-013 review fix
+- Moved `pin_engine_identity` from `wallet_host.py` to `engine_seams.py` (next to `bind_user_fill_address`). `lock_or_exit` stays next to `acquire_wallet_lock`. `wallet_host.py` 1006 → 997.
+- Tests import the pin from `engine_seams`. `make test` 1403 passed. `make lint-all` clean. feature.json US-013 `passes` left true.
+---
+## 2026-08-27 01:03 UTC+2 - US-014
+- Added `scripts/kalshi_execution_smoke.py`: manual `--env demo` command. WalletHost never starts it. Demo keys only (`KALSHI_DEMO_*`); `--env production` rejected. Temp sqlite + flock, then session boot/fence/reconcile. IOC YES buy + reduce-only sell of the filled count. Autotests: PASS, no market, unclosed leg.
+- Client: `list_all_open_markets` (capped 8x200, no series filter) and REST `get_market_orderbook` (yes/no lists use `quantity`). Two-sided proof is the REST book; list `no_bid_size` is always None.
+- `client_order_id` is now `d2m-{sub}-{token}{gen}{hash}`. Demo `invalid_parameters` on any `.` in the id (UUID and hyphens work). Ownership check is `d2m-{sub}-`.
+- Real demo PASS on `KXGOLDH-26AUG2620-T4637.99`; output in `betting_workspace/current-task/kalshi_execution_smoke_pass.txt`. `make test` 1412 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - Do not put `.` in Kalshi `client_order_id`. Two dots still 400. Hyphens keep `d2m-{sub}-`.
+  - Uncapped `list_all(status=open)` hangs; cap pages. List quotes are one-sided; confirm with REST orderbook (list of price+quantity, not WS dicts).
+  - Smoke `post_only=False` + IOC is allowed; executor stays `post_only=True`. Never retry an unknown write. No market hunt after a place.
+  - Demo hourly metals flicker one-sided within seconds; re-fetch the book immediately before place.
+---
+## 2026-08-27 01:15 UTC+2 - US-015
+- Added Kalshi operator section in `docs/live-paper.md` (modes, PEM mount, `[kalshi]`, match.json 4, session.jsonl 6, kalshi.db, safe mode/fence, demo smoke). Docs use `d2m-{sub}-` hyphens, not dotted ids.
+- Created `betting_workspace/.learnings/dota_2_model.md`: Kalshi layout + restart table (deps → build+up, src/config → restart, .env/PEM volume → up -d recreate).
+- `.env`: `KALSHI_TRADING` off → paper. Keys already present (`KALSHI_KEY_ID`, `KALSHI_PRIVATE_KEY_PATH`, `KALSHI_SUBACCOUNT`, demo pair). No new keys. PEM mounted `:ro` in `compose.yaml`.
+- Boot log: `live-paper config loaded [engine] [risk] [profiles] [wallet] [kalshi] kalshi_trading=…`.
+- `docker compose build` (kalshi-sdk==12.0.0 in image) then `up -d`. Container Up, RestartCount=0, no traceback. `make lint-all` clean.
+- **Learnings for future iterations:**
+  - Paper/live need the PEM inside the container. Host path in `.env` is not enough without a `:ro` volume.
+  - `docker compose restart` does not re-read `.env`. Env or volume changes need `up -d` (recreate).
+  - Bind-mounted `src/` means the boot log line is live without rebuild; kalshi-sdk still needed a rebuild.
+  - Abandoned `--live` archives without `session_end` are not a current map. Discovery `emitted=0` is the real "nothing quoting" signal.
+---
+## 2026-08-27 02:00 UTC+2 - Kalshi review stage 1 (behavioral fixes)
+- `_await_read` / `_await_write` wrap `ValidationError`, `TypeError`, `ValueError` as `KalshiRestError`. A candle with `yes_bid.close=null` no longer leaks `TypeError("Cannot convert NoneType to Decimal")` from `Candlestick.model_validate`; `KalshiObserve._load_prior` can retry. `get_candlesticks` docstring records that one one-sided bar fails the whole GET (`BidAskDistribution.close` required, not nullable).
+- `_poll_loop` logs `session.poll` exceptions with `exc_info=True` and continues (sleep stays outside the `try` so a stuck poll does not busy-loop). `_pump_fills` / `_pump_orders` send `KalshiWsDisconnect` into `apply_user_event`; `_pump_book` sends it via `apply_book_event`. Dead user-WS no longer stays `_user_ws_up=True`.
+- Tests: `test_null_yes_bid_close_sdk_candle_is_rest_error` (real `Candlestick` / `GetMarketCandlesticksResponse`); `test_poll_loop_survives_session_poll_error`; `test_fills_pump_failure_clears_user_ws_readiness`. `make test` 1415 passed. `make lint-all` clean. Commit on `dota_2_model` `main`.
+- **Learnings for future iterations:**
+    - `_try_map_candle` skip of null close is still only reachable with `SimpleNamespace` fakes. Production always dies in SDK validate before the mapper. Stage 3 factories must go through real `Candlestick` / `GetMarketCandlesticksResponse`, not duck types.
+    - `test_null_yes_bid_ask_close_is_skipped` still exists; it does not prove the production path. Do not delete it in stage 3 until the real-model factories replace it.
+    - Poll sleep is *after* the `except`, not inside the `try`. Wrapping sleep in the same `try` as `poll()` would skip the 0.25s cadence on failure and spin.
+    - Fills/orders pumps still have `except asyncio.CancelledError: raise`. Stage 10 item 5 deletes those as dead. Do not remove them here.
+    - Files touched: `src/live_paper/kalshi_client.py`, `src/live_paper/kalshi_runtime.py`, `tests/test_live_paper_kalshi_client.py`, `tests/test_live_paper_kalshi_runtime.py`. Helper `_BoomFillsWs` in the runtime test file. No new modules.
+    - Stages 2–12 are untouched. Do not "also" split pumps, type mappers, or edit `wallet_host.py`.
+---
+## 2026-08-27 02:18 UTC+2 - Kalshi review stage 2 (`kalshi_leg`: one leg model)
+- New lowest-layer module `src/live_paper/kalshi_leg.py`: `OutcomeSide`, `BookSide`, frozen `KalshiLeg(outcome_side, book_side)` with `position_sign`, `cash_sign`, `outcome_price`, `yes_price`, `v2_side`, `crosses`. No imports from other Kalshi modules. `_KalshiQuotes` is a read-only Protocol so frozen `KalshiBookPair` matches without an upward import.
+- Five dispatchers now call `KalshiLeg`: `kalshi_store._position_delta`, `kalshi_store._notional`, `kalshi_executor.v2_place_from_leg`, `kalshi_executor._paper_crosses`, outcome price in `_paper_fill`. Both store `ValueError("unknown outcome/book pair")` branches are gone; basedpyright exhausts the literals. `_reject_bad_fill` no longer calls `_position_delta` (that call only existed to raise on unknown pairs).
+- `kalshi_store` imports the literals from `kalshi_leg` and is no longer their home. session, executor, runtime, smoke, and their tests import `OutcomeSide`/`BookSide` from `kalshi_leg`.
+- Tests: four-leg table in `tests/test_live_paper_kalshi_leg.py` (4 parametrized cases). Removed executor `test_v2_four_leg_table` (same V2 side/YES-price mapping). Store `test_position_and_fee_ledger` kept: it is ledger accumulation, not the unit table. `make test` 1418 passed. `make lint-all` clean. Commit on `dota_2_model` `main`.
+- **Learnings for future iterations:**
+    - `KalshiFill.outcome_side` / `book_side` and `KalshiOrderRow` counterparts are still `str`. Stage 2 casts at the dispatcher. Stage 3 owns narrowing `KalshiRestingOrder`/`KalshiFill`; stage 5 owns store row literals. Do not narrow those fields here.
+    - Protocol attributes are writable; frozen dataclass fields are read-only. `_KalshiQuotes` must use `@property` or basedpyright rejects `KalshiBookPair` / test `_Quotes`.
+    - Ruff RUF002 forbids the Unicode multiplication sign in docstrings. Write "outcome/book", not "outcome×book".
+    - `crosses` takes `(pair, yes_price)`: the limit lives on the order, not on `KalshiBookPair`. Do not fold `yes_price` into the Protocol.
+    - Files touched: `src/live_paper/kalshi_leg.py` (new), `kalshi_store.py`, `kalshi_executor.py`, `kalshi_session.py`, `kalshi_runtime.py`, `scripts/kalshi_execution_smoke.py`, `tests/test_live_paper_kalshi_leg.py` (new), `tests/test_live_paper_kalshi_executor.py`, `tests/test_live_paper_kalshi_session.py`.
+    - Stage 3 starts next: SDK mapper types, `KalshiFill`/`KalshiRestingOrder` literals from `kalshi_leg`. Public frozen dataclass field *sets* stay the same; only those two field types narrow.
+---
+## 2026-08-27 03:10 UTC+2 - Kalshi review stage 3 (SDK mapper types)
+- REST mappers take SDK pydantic models (`Market`, `Candlestick`, `SeriesFeeChange`, `CreateOrderV2Response`, `CancelOrderV2Response`, `Order`, `Fill`, `MarketPosition`, `Orderbook`). WS mappers take `KalshiWebSocket`, `UserOrdersPayload`, `FillPayload`, `OrderbookSnapshotMessage | OrderbookDeltaMessage`, `FillMessage`, `UserOrdersMessage`. Coercers `_text`/`_int_value`/`_bool_value`/`_optional_subaccount`/… are gone; `_decimal` remains only for `price_ranges` (`list[dict[str, Any]]`).
+- Split `_map_resting_order`/`_map_fill` into REST vs WS. REST `Fill` has `fill_id`+`ticker`; WS `FillPayload` does not, so `_map_ws_fill` writes `fill_id=payload.trade_id` and `ticker=payload.market_ticker` (equality on the wire not proven). REST `Order.subaccount` vs WS `UserOrdersPayload.subaccount_number`. One `_extra_str` reads undeclared `client_order_id` off `Fill.model_extra`.
+- `KalshiRestingOrder.outcome_side/book_side` and `KalshiFill.outcome_side/book_side` are `OutcomeSide`/`BookSide` from `kalshi_leg`. Dead `KalshiOpenMarket` field defaults removed. Unreachable `KalshiWsMalformed` type/sid/seq/msg branches in `_parse_book_frame` deleted (`KalshiWsMalformed` stays in the book union via `_copy_book_levels`). `_recv_task_exception` is one `isinstance(task, asyncio.Task)`.
+- Tests: factories `_market(**overrides)`, `_candle`, `_order`, `_fill`, `_snapshot`, `_delta`, `_ws_fill`, `_ws_order`. Kept `test_null_yes_bid_close_sdk_candle_is_rest_error`. Added `test_sdk_market_missing_field_fails_at_construction` (`ValidationError` on `Market` without `ticker`).
+- Deleted tests: `test_null_yes_bid_ask_close_is_skipped` (SimpleNamespace skip via `_try_map_candle`; unreachable with real `Candlestick.close` required). `test_delivered_object_without_type_is_malformed` (duck-typed frame with no `type`; `type` is a Literal and `msg` is a required model).
+- Commits: `b51228a` REST, `4c04e2a` WS. `make test` 1419 passed. `make lint-all` clean.
+- **Learnings for future iterations:**
+    - `Fill` does not declare `client_order_id` but `extra="allow"` and the wire sometimes sends it. Do not add a second extra-field helper; `_extra_str` is only for `_map_rest_fill`.
+    - Executor `_paper_fill` gained `cast(OutcomeSide/BookSide, row.…)` because `KalshiOrderRow` is still `str`. Stage 7 owns deleting `_set_desired_from_row` casts; do not remove these `_paper_fill` casts until store rows are literals (stage 5).
+    - `_parse_book_frame` still `try/except KalshiRestError` around `_copy_book_levels`. Copy is a typed dict sort and currently does not raise; the except is the remaining malformed path in the union.
+    - Do not `replace_all` `_open_market` → `_market` in the REST test file: `_open_market` is a substring of `list_open_markets`.
+---
+## 2026-08-27 03:25 UTC+2 - Kalshi review stage 4 (split kalshi_client)
+- Split the REST+WS module into three, one-way imports, no re-exports: `kalshi_leg.py` (stage 2, literals+leg), `kalshi_types.py` (exceptions + frozen values + three unions), `kalshi_ws.py` (`KalshiWsClient` + frame parsers; does not import `kalshi_client`), `kalshi_client.py` (`KalshiRestClient`, factories, `_await_read`/`_await_write`, REST mappers, `open_ws`). Private `_sdk` stays inside REST.
+- Consumers (`kalshi_store`, `kalshi_session`, `kalshi_executor`, `kalshi_match`, `kalshi_prior`, `kalshi_runtime`, `kalshi_observe`, smoke, their tests) import values from `kalshi_types`. `KalshiWsClient` from `kalshi_ws`. REST client/factories stay on `kalshi_client`. Import fence allows `kalshi_client.py` and `kalshi_ws.py` only.
+- WS tests moved to `tests/test_live_paper_kalshi_ws.py`. REST tests stay in `tests/test_live_paper_kalshi_client.py`. Commit `d67e54c`. `make test` 1419 passed. `make lint-all` clean.
+- Line counts: `kalshi_client.py` 545, `kalshi_types.py` 246, `kalshi_ws.py` 291, `kalshi_session.py` 992. `kalshi_store.py` is 1014 (was already over 1000 before this stage; shrinking it is later).
+- **Learnings for future iterations:**
+    - `kalshi_client` imports `kalshi_ws`; `kalshi_ws` must not import `kalshi_client`. `open_ws` stays on the REST client.
+    - `_WriteKind` lives with `KalshiUnknownWrite` in `kalshi_types`. REST `_await_write` takes `Literal["place", "cancel"]` so it does not import the private alias (basedpyright `reportPrivateUsage`).
+    - `git add` new modules before `make lint-all`: pre-commit skips untracked, then the commit hook reformats them and fails.
+    - Stage 5 owns store settle / row literals. Stage 7 owns deleting executor `_set_desired_from_row` casts. Do not "also" drop those casts or re-export types from `kalshi_client`.
+---
+## 2026-08-27 03:13 UTC+2 - Kalshi review stage 5 (`kalshi_store`: one settle)
+- `_settle_order(client_order_id, fill_count, canceled_count)` is the only remaining count/status writer. `apply_place_ack`, `apply_cancel_ack`, `apply_cancel_fail`, `apply_order_update` (update path), `_ingest_fill_tx` all go through it. `_status_after_update` keeps terminal and `pending_cancel`; remaining 0 during `pending_cancel` is `canceled`. `apply_cancel_fail` drops `pending_cancel` to `resting` first so a rejected cancel can rest again. Late `apply_place_ack` can no longer downgrade `pending_cancel`.
+- `_sum_decimal` replaces the four Python SUM loops. `position_from_source` sums `position_ledger.delta` `JOIN fills USING (fill_id)` filtered by `source` (ledger is the authority). `ingest_fill` returns `bool`; `FillIngest` is gone. `order_by_order_id` is the one lookup name. Row literals `KalshiOrderRow`/`KalshiIntentRow`/`KalshiFillRow` are `BookSide`/`OutcomeSide` via the same `cast` as `status`/`source`. One `_ORDERS_INSERT_COLUMNS` for both INSERTs. `_reject_bad_fill` keeps value checks only.
+- Tests: `test_late_place_ack_does_not_drop_pending_cancel`. Journal/store `.applied` assertions now use the bool. Commit `6192584`. `make test` 1420 passed. `make lint-all` clean. `kalshi_store.py` 1014 → 962.
+- **Learnings for future iterations:**
+    - basedpyright `reportUnnecessaryCast` fails as soon as `KalshiOrderRow` fields are literals. Stage 7's "delete `_set_desired_from_row` / `_paper_fill` casts" is already done in this commit (forced, not extra). Do not put the casts back.
+    - Attribute `self._fence` cannot coexist with method `_fence`. Stage 6 stores `self._fence_state`.
+    - `apply_cancel_fail` must release `pending_cancel` before settle, or the shared rule keeps the order stuck in `pending_cancel`.
+    - Files: `kalshi_store.py`, `kalshi_executor.py` (`ingest_fill` bool + the now-unnecessary casts), `tests/test_live_paper_kalshi_store.py`, `tests/test_live_paper_session_journal.py`.
+---
+## 2026-08-27 03:13 UTC+2 - Kalshi review stage 6 (`kalshi_session`: explicit states)
+- `FenceState` (`self._fence_state`), `BookState` on `_TickerBook.state`, `SafeState` via `_safe_state()` (still written as `_boot_ready` / `_safe_mode_running` / `_account_block` because fencing and account-block overlap). `can_publish_targets` / `write_allowed` read those plus the pair. `_trip_sync` has one `unproven` gate instead of three nested checks. `poll` takes monotonic after join once and snapshots fence/safe for the reconcile decision.
+- Frozen `KalshiRestSnapshot(resting, fills, positions)` from `_load_rest`; three REST calls (and `get_series_fee_params`' two `_await_read`s) via `asyncio.gather`. Frozen `CancelScope(kind, tickers)` for `_owned_to_cancel`. `_ensure_book` with lying `yes_is_radiant=True` is gone; unknown-ticker write blocks live in `_blocked_tickers`. `_fence` returns `FenceState`; `fence_strategy_orders` is `state == "proven"`. Once unproven, `_run_safe_work` must not promote a later empty-id fence back to proven.
+- Commit `7167fb6`. `make test` 1420 passed. `make lint-all` clean. `kalshi_session.py` 992 → 1013 (enums + named types; store shrank).
+- **Learnings for future iterations:**
+    - Do not name a field `self._fence` next to `async def _fence`. The method wins until the first assignment, then `'str' object is not callable`.
+    - Empty `owned_ids.isdisjoint(resting)` is True. After unproven, a second trip can fence an empty set and look "proven". Keep the `state == "proven" and self._fence_state != "unproven"` guard in `_run_safe_work`.
+    - `_owned_for_pending` collapsed into `_run_safe_work` building a `CancelScope` then `_owned_to_cancel`. Stage 7 does not need it.
+    - Files: `kalshi_session.py`, `kalshi_client.py` (`get_series_fee_params` gather only). Public `kalshi_types.py` dataclasses unchanged.
+    - Stage 7 starts next: executor fees-as-argument, `sync(ticker, KalshiTickDecision, fees, now)`, the `_set_desired_from_row` casts are already gone.
+---
+## 2026-08-27 03:44 UTC+2 - Kalshi review stages 7–9 (sync signature, settings union, quote_pm/observe)
+- Stage 7 (`8410e9a`): `KalshiExecutor.sync(ticker, decision, fees, now)` and `apply_paper_book(ticker, pair, fees)`. Caller (`runtime.quote`) computes `effective_series_fees`. `_fee_type`/`_multiplier` gone so paper fills cannot charge the previous tick. `KalshiTickDecision` lives in `kalshi_executor.py` (runtime already imports executor). Identity `kind = "place" if ...` gone; two `_place` excepts merged; `_resolve_cancel_unknown` extracted. Stage-5 already dropped `_set_desired_from_row` casts — confirmed absent.
+- Stage 8 (`8aa8521`): `KalshiSettings` is `KalshiOff | KalshiObserve | KalshiTrading`. `KalshiTrading.source` replaces three `"paper" if ... else "live"` copies. Session `__init__` takes `KalshiTrading` (no `ValueError` for observe). Second `TradingDisabled` in `wire_kalshi_for_host` gone. `KalshiHostWire.settings`; `WalletHost(..., kalshi: KalshiHostWire)` one field `self.kalshi`. `match_worker` reads `host.kalshi.*`. `wallet_host.py` 995 lines. Deleted `test_observe_settings_rejected` (session used to raise on observe mode; the type now makes that unrepresentable).
+- Stage 9 (`800f0f6`): `_quote_pm` early-returns on journal fault; one `_wake_cid`; `_quote_kalshi(event, fresh)` is unconditional. `_compute_kalshi_decision(event, fresh, runtime, binding)` — assert gone. Frozen `_DesiredStamp` instead of `cid:count:price`. Quiesce uses last `KalshiTickDecision` (or `lift_kalshi_tick` if never quoted). Observe: one apply path (`_watch_resolve` + `settle_before_finalize`); `_accept_done_result` / `_arm` done-check / `_maybe_retry` gone; retry from `_accept` when `none` and `_in_progress`; `_error_result(exc)`; `ObserveState` plus data/clocks; cutoff derived via `_at_cutoff()`.
+- `make test` 1419 passed (1420 minus the deleted observe-settings test). `make lint-all` clean. Line counts: `wallet_host.py` 995, `match_worker.py` 980, `kalshi_observe.py` 443, `kalshi_executor.py` 578.
+- **Learnings for future iterations:**
+    - `KalshiTickDecision` cannot live in `kalshi_runtime.py`: runtime already imports executor. Do not re-export it.
+    - A helper whose name contains `"import kalshi"` trips the import fence (`kalshi_trading_label`). Inline the label.
+    - basedpyright narrows `ObserveState` after `if self._state == "committed": return` and then flags the post-`_accept` recheck as always-false. Route those checks through `_is_committed()`.
+    - Stages 10–12 next: `process_lock`, series helper, pump merge, `kalshi_meta`/`kalshi_journal` splits, smoke/docs. New signatures below are the contract.
+---
+## 2026-08-27 04:10 UTC+2 - Kalshi review stages 10–12 (last code run)
+- Stage 10 A (`d367c62`): one `FileLock`/`acquire_file_lock(path)` in `process_lock.py`; wallet flocks the db file, Kalshi flocks `kalshi.db.lock`. One `series_ticker_from_kind` in `kalshi_leg.py`. Cache join is `asyncio.shield`; three WS pumps are `_pump`; dead `CancelledError` re-raises gone; `_stop_background` builds the task tuple once; `record_venue` raises on unknown venue; `update_kalshi_binding` is `{**document, "kalshi": parsed}`; `_start_kalshi_block` gone; `KalshiSignalTape.from_pair`/`empty`; `wallet_db_path` named `filename`.
+- Stage 10 B (`da188f6`): `EntryGateInputs` / `EntryDecision.side` are yes/no, not token ids. Kalshi no longer forges PM token ids. PM `match_worker` maps side → `_yes`/`_no` after the gate.
+- Stage 11 C (`aea0e60`): `kalshi_meta.py` and `kalshi_journal.py`. `match_meta` imports `import live_paper.kalshi_meta as _kalshi_meta` so the import-fence substring `"import kalshi"` does not fire.
+- Stage 11 D (`cfb81ba`): journal `last_kalshi_fill_seq` (one tape scan); `KalshiStore.fill_ids_after(ticker, seq)`; `ingest_fill_ids_since(ticker, after_seq)`. `finish_kalshi_for_host(wire)` dispatches on Off/Observe/Trading. Replaced `test_fill_ids_for_ticker_oldest_first_skips_other` with `test_fill_ids_after_skips_up_to_seq` (same isolation, seq order instead of lexical fill_id).
+- Stage 12 E (`bc7788a`): `SmokeAbort` + mutable `SmokeState`, fence in `finally`; `SmokeLeg` instead of 12 positional args. `exc_info=True` on non-auth Kalshi warnings; auth WS open/pump stay type-only. Docs + `.learnings/dota_2_model.md` (learnings file is outside this repo).
+- `make test` 1420 passed. `make lint-all` clean. Did not deploy, `docker compose restart`, or run `--env demo` against the real API.
+- **Learnings for future iterations:**
+    - `from live_paper import kalshi_meta` contains the substring `"import kalshi"` and fails `test_import_fence`. Use `import live_paper.kalshi_meta as _kalshi_meta`.
+    - `KalshiHostWire` fields are still `| None`; variant dispatch is on `settings`, not three None probes. Fixtures that stuffed a FakeRuntime onto `KalshiOff` silently skipped fence after this change — they must be `KalshiTrading`.
+    - Fill tape dedup is `position_ledger.seq`, not a set of fill_ids. `fill_ids_for_ticker` ordered by fill_id string; `fill_ids_after` orders by seq (ingest order).
+    - Auth WS logs must not use `exc_info=True` (key material). Public REST / quote / persist / poll may.
+    - Orchestrator still owns VPS restart and `scripts/kalshi_execution_smoke.py --env demo`.
+---
+
+## 2026-08-27 05:05 UTC+2 - Kalshi review follow-up (post-stage-12 pass)
+- `4b69cc5`: broke the `match_meta` ↔ `kalshi_meta` cycle. The document reader cannot leave `match_meta` (it calls the Kalshi parser), so `update_kalshi_binding` / `kalshi_reason_for_match` / `read_kalshi_block` moved back next to `pin_horn_from_event`; `kalshi_meta.py` (87 lines) is pure document functions. `# pyright: reportPrivateUsage=false` and the inline `pyright: ignore` are gone; import is one-way.
+- Same commit: `_settle_order(order, fill_count, canceled_count, current_status)` — a rejected cancel no longer writes `'resting'` to read it back, and no caller re-selects a row it already holds. `KalshiRuntime.ingest_fill_ids_since` deleted (pass-through; `match_worker` calls `runtime.store.fill_ids_after`). `_pump` handler type is `_TEvent | KalshiWsDisconnect`, so the `cast` is gone. `kalshi_leg` docstring covers `series_ticker_from_kind` and says why it stays in the lowest layer.
+- `a7db3a3`: the SDK import fence is a line-anchored regex for a real top-level `kalshi` import instead of the substring `"import kalshi"`. That substring is what forced the module alias. Per-module fence in `test_live_paper_kalshi_match.py` dropped as redundant.
+- `make test` 1420 passed. `make lint-all` clean. `match_meta.py` 889, `kalshi_meta.py` 87.
+- **Learnings for future iterations:**
+    - `from live_paper.kalshi_meta import (...)` passes the fence; `from live_paper import kalshi_meta` does not. With the regex fence both are fine, so do not reintroduce module aliases for lint reasons.
+    - `kalshi_session.py` is 1012 lines, over the 1k review bar. Next extraction: `kalshi_book.py` with `KalshiBookPair`, `_TickerBook`, `derive_kalshi_book_pair`, `_best_bid`, `_level_map`, and the book half of `poll`. Session would drop to about 700.
+    - The one `except asyncio.CancelledError: return` left in `kalshi_observe._watch_resolve` is deliberate: cancelling the inner resolve task must not mark the watcher cancelled.
+    - Still not done: `scripts/kalshi_execution_smoke.py --env demo` against the real demo API, and the VPS `docker compose restart`.
+---
