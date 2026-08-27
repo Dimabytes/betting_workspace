@@ -1,7 +1,7 @@
 {
   "project": "dota_2_model",
   "relatedSources": [
-    "current-task/2026-08-27-lol-backtest-design.md",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/docs/next-task/2026-08-27-lol-backtest-design.md",
     "../dota_2_model/AGENTS.md",
     "../dota_2_model/docs/domain.md",
     "../dota_2_model/Makefile",
@@ -30,19 +30,17 @@
     "FR-7: Paired LoL run сравнивает B0 и S2 на одном ordered map set с одинаковыми strategy defaults и model inputs",
     "FR-8: На игровой секунде 1200 replay запрещает новые заявки, отменяет активную заявку с обычной latency и оценивает оставшуюся позицию как forced hold по известной резолюции",
     "FR-9: Results и summary отдельно показывают cutoff inventory, pnl_at_cutoff, tail_pnl и settled PnL, не подменяя отсутствующий свежий cutoff midpoint старой ценой",
-    "FR-10: LoL confidence intervals используют whole-event clusters и paired draws, а research verdict следует фиксированному порядку SUPPORTED, REJECTED, TAIL_SENSITIVE и INCONCLUSIVE",
-    "FR-11: Production-model replay служит только smoke test и всегда получает NO_HOLDOUT_VERDICT",
+    "FR-10: LoL report переиспользует Dota match_id bootstrap и общий build_decision для B0, S2 и paired difference без отдельного verdict или status",
+    "FR-11: Production-model replay проходит тот же report path только как compatibility smoke test, а не как holdout evaluation",
     "FR-12: LoL artifacts пишутся только под data/backtests/lol_maker, а manifest фиксирует игру, модель, inputs, split, strategy, execution priority и framework commit"
   ],
   "Resolved Questions": [
     "До ручной замены папок feature.json хранится в docs/next-task; после замены canonical design source будет current-task/2026-08-27-lol-backtest-design.md. Существующий current-task этой подготовкой не изменяется.",
     "Новая задача начинается только после полного завершения текущего LoL Stages 01–06 pipeline; существующий Stage 02, datasets и research/production models считаются готовыми входами, а не реализуются повторно.",
     "Telonex historical API access уже доступен через TELONEX_API_KEY. ../dota_2_model/AGENTS.md обновлён сейчас; Dota rolling archive по-прежнему пополняется с VPS collector.",
-    "Insufficient fills означает меньше двух общих event_id clusters с валидными 300-second BUY observations для обоих B0 и S2; такой research run получает INCONCLUSIVE вместо произвольного quality threshold.",
-    "LoL model.json получает явное model_kind со значением research или production; runner не определяет вид модели по имени каталога.",
     "Реальный Stage 02 -> Stage 07 -> paired research backtest -> production smoke оформляется отдельным последним user step и не считается выполненным по fixture-only данным.",
     "onchain_fills остаётся optional: его отсутствие, пустой parquet или неполное покрытие выбирает полный trades fallback для token-day и не делает карту неeligible при наличии обязательных books и trades.",
-    "Verdict остаётся исследовательским artifact: он не меняет exit code, не публикует модель и не блокирует production автоматически.",
+    "LoL не добавляет verdict, status, minimum-fill threshold, model_kind или event-level bootstrap. Общий report сохраняет Dota match_id bootstrap и build_decision, а пользователь интерпретирует числовые metrics.",
     "Работа выполняется на main в ../dota_2_model; feature orchestration, планы и progress остаются в current-task после ручной активации этой папки."
   ],
   "Non-Goals (Out of Scope for V1)": [
@@ -54,10 +52,10 @@
     "Объединение onchain_fills и trades для одного token-day",
     "Изменение существующих Dota defaults, paths, bootstrap cluster или исторических результатов",
     "Training labels или model predictions внутри Stage 07 signal cache",
-    "Автоматическая публикация, откат или блокировка production model по research verdict",
+    "LoL-specific verdict/status, model_kind, event-level bootstrap или автоматический model quality gate",
     "Новый execution downloader или отдельная миграция старого book-only audit"
   ],
-  "description": "LoL maker backtest — расширить локальный execution archive, подготовить validation replay inputs и прогнать research model в общем Dota/LoL runner с paired B0/S2 отчётом, forced-hold tail accounting и явным verdict",
+  "description": "LoL maker backtest — расширить локальный execution archive, подготовить validation replay inputs и прогнать research model в общем Dota/LoL runner с существующим paired B0/S2 report и forced-hold tail accounting",
   "steps": [
     {
       "id": "US-001",
@@ -89,6 +87,7 @@
         "Строить inference-only signal rows 541..899 теми же feature functions из raw lolesports frames, заканчивать timeline на настоящем game end и сохранять gaps без interpolation или labels",
         "Публиковать market_seconds.parquet для second 0..1200 с существующими Dota freshness и pair-sum rules, достаточный для 30/300-second markout, drawdown и cutoff valuation",
         "Публиковать audit.parquet с identity, token orientation, resolved outcome, двухчасовым pre-game lead, replay end через минуту после настоящего game end или cutoff, required-channel presence, row counts, eligible и одной стабильной exclusion reason на каждую validation-карту",
+        "Исключать продолжающуюся после секунды 1200 карту без свежего paired cutoff midpoint с явной audit reason вместо использования последней старой цены",
         "Останавливать Stage 07 до atomic publication при несовпадении validation rows/features/source lag/orientation/outcome/split contracts или duplicate match_id; ошибки отдельных карт сохранять в audit и возвращать ненулевой code только когда eligible-карт нет",
         "Проверять research source_lag_seconds из model.json и требовать тот же lag у production model без скрытого пересчёта cache",
         "Добавить fixture tests для exact rows 0..540, inference rows 541..899, pause-adjusted timestamps, boundaries 899/1200, early game end, gaps, stable reasons и outcome-leakage guard",
@@ -110,10 +109,12 @@
         "Добавить src/backtest/run.py аргумент --game dota|lol с default dota и выбрать Dota либо LoL input function обычной веткой до общего replay path",
         "Передавать capture_root в общие telonex_local eligibility и symlink functions; default остаётся data/raw/telonex/polymarket, а LoL использует data/lol/raw/telonex/polymarket",
         "Для каждого token-day выбирать ровно один execution source в порядке onchain_fills -> trades и устанавливать TELONEX_DISABLE_POLYMARKET_TRADE_FALLBACK=1",
-        "Добавить model_kind research|production в LoL Stage 06 model.json, проверять model source lag против Stage 07 и записывать game, model kind/hash/source lag, split/Stage 07 input hashes, framework commit, execution priority, cutoff rule, bootstrap cluster field и точные strategy parameters в resume manifest",
-        "Сохранять LoL checkpoints и artifacts только под data/backtests/lol_maker/<run-name>, сохраняя существующие --match-id, --validation, --limit, --resume, --shard, --merge-shards, --profile, --fill-model и --model-dir",
+        "Проверять model source lag против Stage 07 и записывать game, model path/hash/source lag, split/Stage 07 input hashes, framework commit, execution priority, cutoff rule и точные strategy parameters в resume manifest",
+        "Сохранять manifest.json, results.parquet, fills.parquet, quote_events.parquet и summary.json только под data/backtests/lol_maker/<run-name>, сохраняя существующие --match-id, --validation, --limit, --resume, --shard, --merge-shards, --profile, --fill-model и --model-dir",
         "Добавить make lol-backtest с --game lol и default profiles b0-join,s2-join; существующий make backtest и прямой CLI без --game остаются Dota",
-        "Добавить tests для Dota default/command regression, LoL dispatch/output root, source selection, model kind/lag validation и incompatible resume rejection",
+        "Переиспользовать Dota build_decision и match_id bootstrap для B0, S2 и paired S2 - B0 на одном ordered map set без LoL-specific report branch или status",
+        "Обновить AGENTS.md и docs/domain.md командами make lol-backtest и invariants общего runner",
+        "Добавить tests для Dota default/command regression, LoL dispatch/output root, source selection, model lag validation, incompatible resume rejection и небольшого paired B0/S2 end-to-end fixture",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
@@ -131,9 +132,9 @@
         "Для карт длиннее 1200 секунд запретить новые BUY и SELL заявки на wall timestamp игровой секунды 1200, отменить активную заявку через существующую cancel latency, не передавать books или executions после cutoff и завершить replay нейтральной boundary через одну минуту",
         "Сохранять незакрытый per-token inventory как forced hold и применять известный Gamma outcome только в postprocess, не раскрывая его strategy до завершения replay",
         "Добавить в results.parquet per-token cutoff inventory/midpoint и вычислять pnl_at_cutoff = cash_before_rebate + open_quantity * cutoff_midpoint, tail_pnl = open_quantity * (settlement_value - cutoff_midpoint) и settled PnL как их сумму по обоим tokens",
-        "Исключать карту без свежего paired cutoff midpoint из итогового verdict с явной audit reason вместо использования последней старой цены",
         "Проводить forced-hold settlement в shared wallet на max(cutoff timestamp, Gamma closed_at), чтобы капитал оставался занят до известного времени резолюции",
         "Для карт, завершившихся не позже 1200, сохранять настоящий game end, обычную резолюцию и минутный replay drain terminal events",
+        "Добавить в общий summary.json и terminal report число forced-hold карт, оставшиеся shares, pnl_at_cutoff, tail_pnl и settled PnL без verdict или quality gate",
         "Добавить tests для hard cutoff/cancel latency, early game end, inventories обоих tokens, cutoff/tail/settled arithmetic, missing midpoint exclusion и settlement timestamp в wallet path",
         "Add or update automated tests",
         "Tests pass",
@@ -147,43 +148,20 @@
     },
     {
       "id": "US-005",
-      "title": "Сформировать paired LoL report и verdict",
-      "description": "Как исследователь, я хочу сравнить B0 и S2 на одних картах с event-cluster uncertainty и явным research status, чтобы понять, добавляет ли S2 ценность без maker-rebate самообмана.",
-      "changes": [
-        "Требовать одинаковый ordered eligible map set для B0 и S2 и останавливать run при несовместимых paired checkpoints или любом различии selection",
-        "Для LoL считать quantity-weighted BUY 300-second markout и paired S2 - B0 bootstrap одинаковыми draws целых event_id clusters; Dota продолжает bootstrap по match_id",
-        "Возвращать INCONCLUSIVE при terminated_early, missing paired estimate/CI или менее двух общих event_id clusters с валидными 300-second BUY observations для обоих arms",
-        "Добавить в summary.json и terminal report per-arm и paired markouts/95% CI, pre-rebate cutoff/tail/settled PnL, forced-hold map/share counts и manifest fingerprints",
-        "Выбирать research status по фиксированному порядку: INCONCLUSIVE preconditions; REJECTED при неположительном S2 или paired point estimate либо S2 settled PnL before rebate; TAIL_SENSITIVE при положительном settled и неположительном cutoff PnL; SUPPORTED только при обеих положительных нижних 95% CI и положительном S2 cutoff/settled PnL before rebate; иначе INCONCLUSIVE",
-        "Всегда ставить production model status NO_HOLDOUT_VERDICT; status не меняет exit code и не публикует или блокирует model artifacts",
-        "Сохранять manifest.json, results.parquet, fills.parquet, quote_events.parquet и summary.json под LoL run directory и обновить AGENTS.md/docs/domain.md командами и invariants общего runner",
-        "Добавить tests всех пяти statuses, event-level paired sampling, pre-rebate gates, production smoke semantics и небольшой paired B0/S2 end-to-end fixture",
-        "Add or update automated tests",
-        "Tests pass",
-        "Dota report and bootstrap regression tests pass",
-        "make lint-all passes",
-        "Typecheck passes"
-      ],
-      "priority": 5,
-      "passes": false,
-      "designReference": []
-    },
-    {
-      "id": "US-006",
       "title": "Выполнить реальный LoL validation backtest",
-      "description": "Как пользователь, я хочу выполнить полный reproducible run на настоящем validation split, чтобы получить исследовательский verdict и отдельно подтвердить совместимость production model.",
+      "description": "Как пользователь, я хочу выполнить полный reproducible run на настоящем validation split, чтобы сравнить B0 и S2 по числовому Dota-style report и отдельно подтвердить совместимость production model.",
       "changes": [
         "Повторно запустить LoL Stage 02 с TELONEX_API_KEY и завершить обязательные books/trades jobs, сохранив допустимые onchain_fills gaps в channel audit",
         "Запустить Stage 07 на готовом validation split и проверить eligible/exclusion totals, exact signal rows, market-second coverage, source lag и отсутствие network dependencies у последующего replay",
-        "Запустить paired research make lol-backtest с B0,S2 на всех eligible maps, при необходимости параллельными shards с последующим merge, и проверить полный manifest и research verdict",
-        "Запустить production smoke на том же validation split с отдельным run name и проверить NO_HOLDOUT_VERDICT",
+        "Запустить paired research make lol-backtest с B0,S2 на всех eligible maps, при необходимости параллельными shards с последующим merge, и проверить manifest, B0/S2 markouts, paired difference, confidence intervals и cutoff/tail/settled PnL",
+        "Запустить production smoke на том же validation split с отдельным run name и проверить совместимость model, signals, strategy, engine и общего report path без интерпретации metrics как holdout",
         "Проверить, что research и production runs используют один ordered map set, LoL artifacts находятся только под data/backtests/lol_maker и Dota outputs не изменились",
         "Запустить релевантные LoL/Dota tests и make lint-all после реального прогона",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
-      "priority": 6,
+      "priority": 5,
       "passes": false,
       "designReference": []
     }

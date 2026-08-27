@@ -1,0 +1,3 @@
+SKIPPED by user 2026-08-27T21:36:00Z
+reason: live delay will be set from live like Dota TRAIN_LAG_SECONDS; keep LOL_SOURCE_LAG_SECONDS=25
+script killed before argmax

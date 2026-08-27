@@ -1,0 +1,115 @@
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:582 in main                                                   │
+│                                                                              │
+│   579 │   audit_path: Annotated[Path, typer.Option("--audit-path")] =        │
+│       LOL_TELONEX_AUDIT_PATH,                                                │
+│   580 ) -> None:                                                             │
+│   581 │   """Download Telonex book_snapshot_full for every included LoL      │
+│       winner market."""                                                      │
+│ ❱ 582 │   fetch_telonex_books(universe_path, books_dir, catalog_path,        │
+│       audit_path)                                                            │
+│   583                                                                        │
+│   584                                                                        │
+│   585 if __name__ == "__main__":                                             │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:555 in fetch_telonex_books                                    │
+│                                                                              │
+│   552 │   included = included_markets(universe)                              │
+│   553 │   condition_ids = {str(row["condition_id"]) for row in included}     │
+│   554 │   with telonex_http_client() as client:                              │
+│ ❱ 555 │   │   catalog = refresh_catalog(client, books_dir, catalog_path,     │
+│       condition_ids)                                                         │
+│   556 │   │   planned = plan_downloads(included, catalog, books_dir)         │
+│   557 │   │   rows: list[LolTelonexAuditRow] = list(planned.miss_rows)       │
+│   558 │   │   pool =                                                         │
+│       ThreadPoolExecutor(max_workers=TELONEX_DOWNLOAD_WORKERS)               │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:360 in refresh_catalog                                        │
+│                                                                              │
+│   357 ) -> dict[str, CatalogMarket]:                                         │
+│   358 │   """Download, slice, and delete the full catalog; return sliced     │
+│       rows."""                                                               │
+│   359 │   full_path = full_catalog_path(books_dir)                           │
+│ ❱ 360 │   download_catalog_file(client, full_path)                           │
+│   361 │   try:                                                               │
+│   362 │   │   slice_catalog(full_path, catalog_path, condition_ids)          │
+│   363 │   finally:                                                           │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:285 in download_catalog_file                                  │
+│                                                                              │
+│   282 │   │   │   if attempt == TELONEX_MAX_ATTEMPTS:                        │
+│   283 │   │   │   │   break                                                  │
+│   284 │   │   │   time.sleep(retry_delay(None, attempt))                     │
+│ ❱ 285 │   raise RuntimeError(f"Telonex catalog {last_error}")                │
+│   286                                                                        │
+│   287                                                                        │
+│   288 def slice_catalog(full_path: Path, out_path: Path, condition_ids:      │
+│       set[str]) -> None:                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: Telonex catalog transport
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:582 in main                                                   │
+│                                                                              │
+│   579 │   audit_path: Annotated[Path, typer.Option("--audit-path")] =        │
+│       LOL_TELONEX_AUDIT_PATH,                                                │
+│   580 ) -> None:                                                             │
+│   581 │   """Download Telonex book_snapshot_full for every included LoL      │
+│       winner market."""                                                      │
+│ ❱ 582 │   fetch_telonex_books(universe_path, books_dir, catalog_path,        │
+│       audit_path)                                                            │
+│   583                                                                        │
+│   584                                                                        │
+│   585 if __name__ == "__main__":                                             │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:555 in fetch_telonex_books                                    │
+│                                                                              │
+│   552 │   included = included_markets(universe)                              │
+│   553 │   condition_ids = {str(row["condition_id"]) for row in included}     │
+│   554 │   with telonex_http_client() as client:                              │
+│ ❱ 555 │   │   catalog = refresh_catalog(client, books_dir, catalog_path,     │
+│       condition_ids)                                                         │
+│   556 │   │   planned = plan_downloads(included, catalog, books_dir)         │
+│   557 │   │   rows: list[LolTelonexAuditRow] = list(planned.miss_rows)       │
+│   558 │   │   pool =                                                         │
+│       ThreadPoolExecutor(max_workers=TELONEX_DOWNLOAD_WORKERS)               │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:360 in refresh_catalog                                        │
+│                                                                              │
+│   357 ) -> dict[str, CatalogMarket]:                                         │
+│   358 │   """Download, slice, and delete the full catalog; return sliced     │
+│       rows."""                                                               │
+│   359 │   full_path = full_catalog_path(books_dir)                           │
+│ ❱ 360 │   download_catalog_file(client, full_path)                           │
+│   361 │   try:                                                               │
+│   362 │   │   slice_catalog(full_path, catalog_path, condition_ids)          │
+│   363 │   finally:                                                           │
+│                                                                              │
+│ /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/src/lol/02_fetch_te │
+│ lonex_books.py:285 in download_catalog_file                                  │
+│                                                                              │
+│   282 │   │   │   if attempt == TELONEX_MAX_ATTEMPTS:                        │
+│   283 │   │   │   │   break                                                  │
+│   284 │   │   │   time.sleep(retry_delay(None, attempt))                     │
+│ ❱ 285 │   raise RuntimeError(f"Telonex catalog {last_error}")                │
+│   286                                                                        │
+│   287                                                                        │
+│   288 def slice_catalog(full_path: Path, out_path: Path, condition_ids:      │
+│       set[str]) -> None:                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: Telonex catalog transport
+included_markets: 7731
+jobs: 77658
+downloaded: 14383
+skipped_valid: 62995
+http_404: 280
+retries_exhausted: 0
+missing_from_catalog: 0
+token_id_mismatch: 0
+missing_interval: 19

@@ -1,0 +1,141 @@
+## 2026-08-27 - US-001
+
+- Implemented LoL Stage 01: `src/lol/01_build_universe.py` plus `src/shared/constants/lol.py` and `src/shared/types/lol.py`.
+- Stage caches Gamma tag 65 open+closed keyset pages under `data/lol/raw/polymarket/gamma` and writes `data/lol/processed/universe/markets.parquet` with one row per market (included and excluded).
+- Classification walks raw market JSON so SDK `Event.parse_response` drops (outcomes length ≠ 2) still become parquet rows with `malformed_tokens`.
+- Tests: `tests/test_lol_build_universe.py` — 13 synthetic cases, no network. `--fetch` is monkeypatched.
+
+**Learnings for future iterations:**
+- Import numbered LoL stages via `importlib.import_module("lol.01_build_universe")` and a Protocol, same as `collect.02_link_opendota`.
+- `list[dict[...]]` is not assignable to `list[object]` under basedpyright strict; take `Sequence[object]` on builders tests call with typed dict lists.
+- After `isinstance(x, list)`, iterate `cast(list[object], x)` or list items stay Unknown.
+- `git add` new files before `make lint-all`; pre-commit skips untracked files.
+- Do not iterate `event.markets` for completeness — always walk `raw_event["markets"]`.
+- Stage 01 Match Winner uses `DECIDER_BEST_OF` + `best_of == 1 or has_game_winner`; `series_winner_covers_map` is Stage 03 (`map_winner_exists`).
+## 2026-08-27 - US-001 review
+
+- Review: 1 NIT (dead decider branch), fixed in 49cac0f; gates green. US-001 passes.
+
+## 2026-08-27 - US-002
+
+- Implemented LoL Stage 03: `src/lol/03_link_lolesports.py` plus API key/paths/aliases/reasons in `src/shared/constants/lol.py` and `LolGameRow`/`LolLinkRow`/`LolLinkAuditRow` in `src/shared/types/lol.py`.
+- Stage caches getSchedule / getEventDetails / first-window anchors under `data/lol/raw/lolesports` and writes `games.parquet`, `links.parquet`, `audit.parquet`.
+- Matching: 0.82/0.72 scores, ±4h, conditional BO/league, LoL alias map, unique-candidate only, richer Game N duplicate rule, Game N then tied-score Match Winner decider, orientation outcome → esportsTeamId → Blue/Red.
+- HTTP 403 and incompatible top-level schema abort without writing that cache file. Tests monkeypatch `http_get` — no network.
+
+**Learnings for future iterations:**
+- Do not use `get_json` for lolesports: it retries 403 and cannot set `x-api-key`. Own `http_get` + tenacity `retry_if_exception_type(RetryableHttpError)`.
+- Identical PM team names fail series matching before orientation; test orientation with distinct teams and tied *outcomes*.
+- After `isinstance(x, list)`, `cast(list[object], x)` before `len()` or basedpyright reports Unknown.
+- `git add` new files before `make lint-all`.
+- Review: split match/fetch, named dataclasses for tuple returns, pagination test, require match.id, drop unused `pm_a_is_series_a`.
+
+
+## 2026-08-27 - US-002 review
+
+- Review: 4 MAJOR + 1 NIT (1k-line split, anon tuples, pagination test, invented match.id, dead field), all fixed in f1d3471; gates green. US-002 passes.
+
+## 2026-08-27 - US-003
+
+- Implemented LoL Stage 04: `src/lol/04_fetch_lolesports.py` reads accepted `links.parquet` and writes one gzip JSONL raw window archive per `esportsGameId` under `data/lol/raw/lolesports/windows`, plus `download_audit.parquet`.
+- Stage 03 gained `EmptyHttpBody` (HTTP 200 empty/whitespace, not schema) and `fetch_window_at` (`?startingTime=`). `ensure_window` treats empty first-window bodies as a skip.
+- Grid starts at loading-anchor floored to 10s; 10s `startingTime` steps until pause-aware game second 1200 or 3600s wall. Concurrency 8. Resume from last saved frame; `.partial` + validate + atomic replace. 401/403 abort without audit; 404/empty/exhausted stay in audit and exit 1.
+- Tests: `tests/test_lol_fetch_lolesports.py` plus Stage 03 empty-body regression. Monkeypatched `http_get`, no network.
+
+**Learnings for future iterations:**
+- Patch `http_get` on `lol.03_link_lolesports` — that is the name `fetch_json` looks up. Patch `LOL_FETCH_END_SECOND` / `LOL_FETCH_MAX_WALL_SECONDS` on the 04 module.
+- After `isinstance(x, dict)`, `cast(dict[str, object], x)` before `.get` or basedpyright reports Unknown.
+- One frame per 10s window is a false pause (gap 10 > 5). Tests need ~1 Hz frames inside each window.
+- `git add` new files before `make lint-all`.
+- Do not `time.sleep(10)` between windows; ten seconds is the query grid.
+- Review: 1 MAJOR (in-place `.partial` truncate), fixed in 8dd7351; gates green.
+
+## 2026-08-27 - US-003 review
+
+- Review: 1 MAJOR (.partial truncate-on-rewrite broke resume), fixed in 8dd7351 with .tmp+replace; gates green. US-003 passes.
+
+
+## 2026-08-27 19:00 - US-004 (user GO)
+
+- User ran Stage 03 in another chat: finished (games/links/audit parquets written).
+- Stage 04 running in another chat: ~2682/4992 (54%) at ~18:55, ~15 maps/min, ETA ~21:30 local. download_audit.parquet lands at run end.
+- Live API quirk fixed mid-run (6ce3cc3): getEventDetails omits match.id/startTime; fallback event.id + schedule startTime.
+- User bought Telonex and gave explicit GO. US-004 marked passes=true by user decision; pre_telonex_audit.md written from real data with Stage 04 counts partial.
+- TELONEX_API_KEY present in ../dota_2_model/.env (not in shell env).
+
+## 2026-08-27 19:25 - US-005
+
+- Implemented LoL Stage 02: `src/lol/02_fetch_telonex_books.py` plus Telonex paths/reasons in `src/shared/constants/lol.py` and `LolTelonexAuditRow` in `src/shared/types/lol.py`.
+- Catalog is streamed, sliced on included `condition_id`, token IDs checked as a set, UTC days from catalog `[from, to)`. Books land under `data/lol/raw/telonex/polymarket/book_snapshot_full/asset_id=<token>/YYYY-MM-DD.parquet`. 401/403 abort without audit; 404/exhausted continue and exit 1.
+- Tests: `tests/test_lol_fetch_telonex_books.py` — 13 synthetic cases, monkeypatched HTTP, no network, no real key.
+- Commit `3825c73` on main. Gates: 26 related tests, `make lint-all` (ruff + basedpyright) passed. feature.json `passes` left false until download finishes.
+- Real download running (python pid 60718). Catalog slice 7731 rows = 7731 included markets. ~1146/77658 book files in ~4.5 min (~255/min), ETA ~5h. Log `current-task/logs/US-005-02.log` is pipe-buffered until exit; watch file counts. No 401/403.
+
+**Learnings for future iterations:**
+- Patch `http_stream` on `lol.02_fetch_telonex_books` (context manager yielding `httpx.Response`). Patch `time.sleep` or tests hang on backoff.
+- Full catalog temp path is `books_dir.parent / markets.full.parquet`, deleted after slice. Tests must pass a tmp `books_dir`.
+- `TELONEX_API_KEY` from `os.environ` only — not `env_value()` / dotenv. Export via `set -a; source .env; set +a`.
+- Python stdout through `tee` is block-buffered; use `PYTHONUNBUFFERED=1` if the orchestrator needs a live log.
+- Do not commit unrelated working-tree hunks in `src/shared/constants/lol.py` (Stage 04 `LOL_MAX_CONCURRENCY`).
+- Review 2026-08-27 19:42: 2 MAJOR (auth header + sleep spy) + 1 NIT (file-wide pyright), all fixed in 438645f; download not restarted.
+## 2026-08-27 19:40 - US-005 review + GO-forward
+
+- Review: 2 MAJOR (auth header + backoff sleep never asserted) + 1 NIT (file-wide pyright pragma), all fixed in 438645f; gates green.
+- Workers bumped 6 -> 20 (d71bb62) per user. Download restarted under orchestrator session (subagent shells die with their session).
+- Telonex download RUNNING in parallel (~77.7k jobs). US-005 marked passes=true by user decision; final download_audit verification lands on watcher + in US-008.
+
+## 2026-08-27 - US-006
+
+- Implemented LoL Stage 05: `src/lol/05_prepare_dataset.py` plus `src/lol/livestats_frames.py`. One full path; missing catalog or `book_snapshot_full` aborts before publish. No `--preflight`, no `game_states.parquet`.
+- Spawn clock, pause subtraction, seven invariants, grid `0..540` (latest frame `<= S`, age `<= 2s`). Shared `level_xp.py`; `dota_levels` delegates unchanged. Strict 61s prior; current/target via existing Telonex as-of at +25/+325. Event-level split. Atomic five parquets.
+- Tests: `tests/test_lol_prepare_dataset.py` + `tests/test_level_xp.py`, synthetic frames/books in `tmp_path` only. Commit `14eec0a` on main. Gates: 105 related tests, `make lint-all` passed. feature.json `passes` left false.
+
+**Learnings for future iterations:**
+- After `isinstance(x, list)`, `cast(list[object], x)` before `len()` or basedpyright reports Unknown (`json.loads`).
+- `resolved_outcome` is already `str` on `LolLinkRow`; `isinstance(..., str)` is `reportUnnecessaryIsInstance`.
+- Spawn-only maps produce 3 grid rows (S=0,1,2) because age `<= 2`. Isolation tests for invariant 6 must keep team.totalKills == opponent deaths or rule 4 fires first.
+- `telonex_root` is parent of `book_snapshot_full/` (`LOL_RAW_TELONEX_DIR`). Do not read/write `data/lol` while Stage 02/04 downloads run.
+- Review 2026-08-27: 1 MAJOR (pause test did not lock game_time subtraction) + 2 NIT (anonymous tuples, triple parse), all fixed in 34bfd31.## 2026-08-27 20:20 - US-006 review
+
+- Review: 1 MAJOR (pause-subtraction test did not lock game_time) + 2 NIT (anon tuples, triple frame parse), all fixed in 34bfd31; gates green. US-006 passes.
+
+## 2026-08-27 - US-007
+
+- Implemented LoL Stage 06: extracted `src/train_model/gbm.py`; Dota `main`/`train_production` still lag, write `validation_scenarios.csv`, and use `TRAIN_LAG_SECONDS`. New `src/lol/06_train_model.py` research + `--production`, metrics in `lol_validation_metrics.py`, read-only `scripts/measure_lol_source_lag.py`.
+- Research publishes `data/lol/models/research/` (model.txt/json, split.parquet, validation_metrics.csv) with lag 25, grid 1, event-bootstrap CIs. Production copies research `metrics.trees` onto `production_training.parquet`. First publish: staging.rename when model.json absent.
+- Tests: `tests/test_lol_train_model.py` + `tests/test_measure_lol_source_lag.py`, synthetic tmp_path only. Commit `cbf2294` on main. Gates: 63 related tests, Dota `--help`, `make lint-all` passed. feature.json `passes` left false.
+
+**Learnings for future iterations:**
+- `python src/train_model/train_model.py` puts that directory on sys.path, so `import train_model.gbm` loads this file (not the package). Load gbm.py via `spec_from_file_location` and `sys.modules["train_model.gbm"]`.
+- Re-export `LGB_PARAMS` / `TRAINING_COLUMNS` through `__all__` or basedpyright `reportUnusedImport` fires on TYPE_CHECKING imports.
+- Patch `train_model.gbm.lgb.train` / `Dataset` after the extract; Dota tests that patched `train_model_module.lgb` miss the fit.
+- LoL first publish cannot call `publish_model_dir` (needs live `model.json`). `# ponytail: first live dir has no predecessor; do not change model_registry.`
+- Lag Pearson: skip zero-std series or numpy warns and corrcoef is nan.
+
+## 2026-08-27 - US-007 review
+
+- Review: 1 BLOCKER (gbm.py lived under train_model and needed a spec_from_file_location loader) + 1 MAJOR (CI/cents unpinned) + 1 NIT (ScenarioBucketStats adapter); all fixed in 547a024. Gates: 63 tests, Dota `--help`, `make lint-all` passed.
+
+## 2026-08-27 21:15 - US-007 review
+
+- Review: 1 BLOCKER (gbm.py loader hack -> moved to src/shared/utils/gbm.py) + 1 MAJOR (CI/cents unpinned) + 1 NIT (Dota-shaped adapter), all fixed in 547a024; gates green. US-007 passes.
+
+## 2026-08-27 21:50 - telonex network block
+
+- Download hung at 62995/77658 ~21:22: ISP/DPI started MITM-blocking r2.cloudflarestorage.com (self-signed cert). Catalog + book downloads fail at TLS.
+- Resume-safe: 62995 files validated on disk. Watcher waits for R2 TLS recovery, then restart.
+- Known gap: downloader has no read timeout, dead connections hang instead of erroring.
+
+## 2026-08-27 23:36 - US-008 source-lag skipped
+
+- User: LoL lag will be set from live observation, same as Dota `TRAIN_LAG_SECONDS=10`. Do not infer lag from deaths×midpoint correlation.
+- Killed `scripts/measure_lol_source_lag.py` mid-run. `LOL_SOURCE_LAG_SECONDS` stays 25. Stage 05 started with that constant.
+- Stage 01–04 cache/resume already done (7731 included, 4992 links, 77378 skipped_valid books, 3 empty_body windows).
+
+## 2026-08-28 00:20 - US-008 closed (production skipped)
+
+- User skipped source-lag (keep 25s from live, like Dota) and skipped `--production` (backtest next).
+- Stage 05: 4290/4992 maps accepted. Cap 5 aborted (68 invariant maps); raised to 100. 66/68 violations are rule 2 (gold went down). Process pool, 12 workers.
+- Research: trees 39, MAE gain 0.115¢ (CI 0.066–0.163), dir_300 0.560¢ (CI 0.185–0.932). Weaker than current Dota research (0.23¢ / 1.50¢).
+- Gates: 205 targeted tests, make lint-all. Report `current-task/final_run_report.md`. feature.json US-008 passes=true.
+

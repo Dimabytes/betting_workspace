@@ -55,7 +55,7 @@ data/backtests/lol_maker/
 4. Paired B0 и S2 evaluation.
 5. Удержание незакрытой позиции после игровой секунды 1200 до известной
    резолюции.
-6. Отдельный LoL report и явный research verdict.
+6. Общий Dota report с отдельными LoL cutoff и tail PnL полями.
 
 Не входят:
 
@@ -65,7 +65,7 @@ data/backtests/lol_maker/
 - загрузка полного игрового хвоста после секунды 1200;
 - public Polymarket trade fallback;
 - provider framework, factories или plugin API;
-- автоматическая публикация или блокировка production model по verdict;
+- отдельный LoL verdict, status или автоматический quality gate;
 - изменение существующих Dota результатов и Dota defaults.
 
 ## Граница переиспользования
@@ -80,7 +80,7 @@ data/backtests/lol_maker/
 | B0 и S2 | текущие arms | те же arms и defaults |
 | queue, latency, cancel, reprice, unwind | текущая реализация | та же реализация |
 | selection и signals | текущие Dota loaders | один тонкий `lol_inputs.py` |
-| postprocess и report | текущие artifacts и metrics | те же artifacts плюс tail и verdict |
+| postprocess и report | текущие artifacts и metrics | те же artifacts плюс cutoff и tail PnL |
 
 `src/backtest/run.py` получает `--game dota|lol`. Значение по умолчанию —
 `dota`, поэтому существующий `make backtest` не меняется. Runner выбирает одну
@@ -344,12 +344,9 @@ settled_pnl   = pnl_at_cutoff + tail_pnl
 - tail PnL;
 - settled PnL.
 
-Карта без свежего paired midpoint на cutoff не участвует в итоговом verdict.
-Audit сохраняет причину. Такой пропуск нельзя маскировать последней старой
-ценой.
-
-Status `TAIL_SENSITIVE` служит точным сигналом рассмотреть полный tail replay в
-следующем design. V1 не строит его заранее.
+Stage 07 исключает продолжающуюся после секунды 1200 карту без свежего paired
+midpoint на cutoff. Audit сохраняет причину. Такой пропуск нельзя маскировать
+последней старой ценой.
 
 ## Отчёт отвечает, добавляет ли S2 ценность
 
@@ -367,71 +364,20 @@ Run сохраняет существующие файлы:
 - `quote_events.parquet`;
 - `summary.json`.
 
-Manifest дополнительно записывает игру, model kind, model hash, source lag,
+Manifest дополнительно записывает игру, model path и hash, source lag,
 validation split hash, Stage 07 input hashes, framework commit, execution source
-priority, cutoff rule и bootstrap cluster field.
+priority и cutoff rule.
 
 Основной показатель — quantity-weighted BUY 300-second markout. Summary
 показывает B0, S2 и paired difference `S2 - B0` на одном наборе карт.
 
-LoL confidence intervals используют whole PM `event_id` clusters. Карты одной
-серии не считаются независимыми наблюдениями. Paired bootstrap делает один и
-тот же draw event IDs для B0 и S2. Dota сохраняет текущий `match_id` bootstrap.
+LoL переиспользует текущий Dota `match_id` bootstrap и общий `build_decision`
+без отдельной ветки. Report показывает числовые estimates, confidence intervals
+и PnL до maker rebate, но не превращает их в LoL-specific verdict или status.
 
-PnL до maker rebate служит обязательной sanity check. Rebate остаётся в отчёте,
-но не может сделать отрицательный strategy result положительным для verdict.
-
-## Verdict
-
-Valid research run получает один status. Status не меняет exit code и не
-публикует модель автоматически.
-
-Runner выбирает первый подходящий status в таком порядке:
-
-```text
-production model                         -> NO_HOLDOUT_VERDICT
-missing estimate или terminated_early   -> INCONCLUSIVE
-неположительный point или settled PnL   -> REJECTED
-settled PnL > 0, но pnl_at_cutoff <= 0   -> TAIL_SENSITIVE
-обе нижние границы 95% CI > 0            -> SUPPORTED
-иначе                                    -> INCONCLUSIVE
-```
-
-### `SUPPORTED`
-
-Все условия выполняются:
-
-- S2 BUY 300-second markout больше нуля;
-- нижняя граница его 95% CI больше нуля;
-- paired `S2 - B0` больше нуля;
-- нижняя граница paired 95% CI больше нуля;
-- S2 PnL до rebate больше нуля и на cutoff, и после settlement;
-- ни одна включённая карта не завершилась `terminated_early`.
-
-### `REJECTED`
-
-Хотя бы одно условие выполняется:
-
-- S2 BUY 300-second point estimate не больше нуля;
-- paired `S2 - B0` point estimate не больше нуля;
-- S2 settled PnL до rebate не больше нуля.
-
-### `TAIL_SENSITIVE`
-
-S2 settled PnL положителен, но `pnl_at_cutoff` не положителен. Наблюдаемый replay
-не подтверждает результат без движения рынка после секунды 1200.
-
-### `INCONCLUSIVE`
-
-Point estimates и PnL положительны, но хотя бы один confidence interval
-пересекает ноль. Этот status также используется при недостаточных fills,
-отсутствующем paired estimate или любом `terminated_early`.
-
-### `NO_HOLDOUT_VERDICT`
-
-Любой запуск production model получает этот status. Production fit уже видел
-validation-карты, поэтому его replay проверяет только совместимость model,
-signals, strategy и engine.
+Production model проходит тот же report path как smoke test. Production fit уже
+видел validation-карты, поэтому его metrics проверяют только совместимость
+model, signals, strategy и engine, а не holdout quality.
 
 ## Failure policy
 
@@ -489,10 +435,9 @@ Backtest tests проверяют:
 - `make backtest` сохраняет текущую Dota команду;
 - LoL inputs пишут только в `data/backtests/lol_maker`;
 - B0 и S2 используют одинаковые карты;
-- event-level bootstrap группирует несколько карт одной серии;
+- LoL report переиспользует Dota `match_id` bootstrap и общий `build_decision`;
 - cancel на секунде 1200 и forced settlement дают правильный tail PnL;
-- все пять verdict statuses;
-- production model не получает holdout verdict;
+- production model проходит тот же report path без отдельного status;
 - один небольшой paired B0,S2 fixture проходит end to end.
 
 CI не скачивает Telonex и не запускает полный historical replay. Реальный финальный
@@ -533,3 +478,9 @@ fallback.
 Текущий raw lolesports contract заканчивается на секунде 1200. Forced settlement
 даёт проверяемый V1 без новой исторической загрузки. Отчёт отдельно показывает
 цену этого упрощения.
+
+### Автоматический LoL verdict
+
+Dota report уже показывает B0, S2, paired difference, confidence intervals и
+PnL. Отдельный LoL status дублировал бы интерпретацию этих чисел, но не менял бы
+exit code или публикацию модели. V1 оставляет итоговое решение пользователю.

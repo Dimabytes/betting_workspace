@@ -1,0 +1,5 @@
+START=2026-08-27T22:17:30Z
+[2026-08-28 00:17:39,169] trees: 39 (of 3000) | train matches: 2777 | validation matches: 1513 | train rows: 1328090 | validation rows: 757922
+[2026-08-28 00:17:39,194] published: /Users/dimabytes/work/polymarket/dota_2_bot/dota_2_model/data/lol/models/research | archived previous model: None
+EXIT:0
+END=2026-08-27T22:17:39Z

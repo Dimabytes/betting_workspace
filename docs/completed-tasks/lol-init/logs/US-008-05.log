@@ -1,0 +1,116 @@
+START=2026-08-27T22:04:49Z cap=100
+prepared: 50/4992 accepted=44
+prepared: 100/4992 accepted=85
+prepared: 150/4992 accepted=105
+prepared: 200/4992 accepted=131
+prepared: 250/4992 accepted=166
+prepared: 300/4992 accepted=204
+prepared: 350/4992 accepted=242
+prepared: 400/4992 accepted=291
+prepared: 450/4992 accepted=334
+prepared: 500/4992 accepted=364
+prepared: 550/4992 accepted=397
+prepared: 600/4992 accepted=441
+prepared: 650/4992 accepted=478
+prepared: 700/4992 accepted=506
+prepared: 750/4992 accepted=535
+prepared: 800/4992 accepted=584
+prepared: 850/4992 accepted=619
+prepared: 900/4992 accepted=649
+prepared: 950/4992 accepted=681
+prepared: 1000/4992 accepted=722
+prepared: 1050/4992 accepted=755
+prepared: 1100/4992 accepted=796
+prepared: 1150/4992 accepted=839
+prepared: 1200/4992 accepted=879
+prepared: 1250/4992 accepted=919
+prepared: 1300/4992 accepted=965
+prepared: 1350/4992 accepted=1003
+prepared: 1400/4992 accepted=1049
+prepared: 1450/4992 accepted=1094
+prepared: 1500/4992 accepted=1137
+prepared: 1550/4992 accepted=1187
+prepared: 1600/4992 accepted=1235
+prepared: 1650/4992 accepted=1281
+prepared: 1700/4992 accepted=1330
+prepared: 1750/4992 accepted=1379
+prepared: 1800/4992 accepted=1425
+prepared: 1850/4992 accepted=1472
+prepared: 1900/4992 accepted=1516
+prepared: 1950/4992 accepted=1565
+prepared: 2000/4992 accepted=1613
+prepared: 2050/4992 accepted=1658
+prepared: 2100/4992 accepted=1705
+prepared: 2150/4992 accepted=1751
+prepared: 2200/4992 accepted=1797
+prepared: 2250/4992 accepted=1842
+prepared: 2300/4992 accepted=1891
+prepared: 2350/4992 accepted=1936
+prepared: 2400/4992 accepted=1983
+prepared: 2450/4992 accepted=2024
+prepared: 2500/4992 accepted=2069
+prepared: 2550/4992 accepted=2112
+prepared: 2600/4992 accepted=2160
+prepared: 2650/4992 accepted=2208
+prepared: 2700/4992 accepted=2257
+prepared: 2750/4992 accepted=2302
+prepared: 2800/4992 accepted=2348
+prepared: 2850/4992 accepted=2392
+prepared: 2900/4992 accepted=2439
+prepared: 2950/4992 accepted=2485
+prepared: 3000/4992 accepted=2531
+prepared: 3050/4992 accepted=2577
+prepared: 3100/4992 accepted=2622
+prepared: 3150/4992 accepted=2668
+prepared: 3200/4992 accepted=2715
+prepared: 3250/4992 accepted=2753
+prepared: 3300/4992 accepted=2800
+prepared: 3350/4992 accepted=2846
+prepared: 3400/4992 accepted=2888
+prepared: 3450/4992 accepted=2937
+prepared: 3500/4992 accepted=2987
+prepared: 3550/4992 accepted=3037
+prepared: 3600/4992 accepted=3082
+prepared: 3650/4992 accepted=3130
+prepared: 3700/4992 accepted=3178
+prepared: 3750/4992 accepted=3223
+prepared: 3800/4992 accepted=3273
+prepared: 3850/4992 accepted=3315
+prepared: 3900/4992 accepted=3353
+prepared: 3950/4992 accepted=3391
+prepared: 4000/4992 accepted=3430
+prepared: 4050/4992 accepted=3477
+prepared: 4100/4992 accepted=3527
+prepared: 4150/4992 accepted=3567
+prepared: 4200/4992 accepted=3603
+prepared: 4250/4992 accepted=3650
+prepared: 4300/4992 accepted=3691
+prepared: 4350/4992 accepted=3740
+prepared: 4400/4992 accepted=3787
+prepared: 4450/4992 accepted=3829
+prepared: 4500/4992 accepted=3868
+prepared: 4550/4992 accepted=3912
+prepared: 4600/4992 accepted=3961
+prepared: 4650/4992 accepted=4004
+prepared: 4700/4992 accepted=4044
+prepared: 4750/4992 accepted=4082
+prepared: 4800/4992 accepted=4122
+prepared: 4850/4992 accepted=4170
+prepared: 4900/4992 accepted=4219
+prepared: 4950/4992 accepted=4258
+prepared: 4992/4992 accepted=4290
+accepted: 4290
+no_livestats: 3
+no_spawn_frame: 187
+livestats_invariant_violation: 68
+missing_books: 70
+missing_prior: 329
+zero_usable_rows: 45
+unresolved_market: 0
+livestats_invariant_maps: 68
+invariant_cap: 100
+invariant_rule_1: 1
+invariant_rule_2: 66
+invariant_rule_6: 1
+EXIT:0
+END=2026-08-27T22:17:01Z

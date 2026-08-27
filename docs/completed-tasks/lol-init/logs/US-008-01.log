@@ -1,0 +1,11 @@
+events: 3403
+markets: 78327
+included: 7731
+game_winner: 4783
+malformed_tokens: 24
+match_winner_decider: 2948
+missing_best_of: 8
+series_only: 32
+unresolved_market: 402
+unsupported_bo2: 192
+unsupported_contract: 69938
