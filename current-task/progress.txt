@@ -1,0 +1,13 @@
+## 2026-08-28 00:50 - US-001
+
+- Expanded LoL Stage 02 to download book_snapshot_full, trades, and onchain_fills in one resumable run. Capture root is still books_dir.parent. No --channels, no new downloader.
+- Ready books skip HTTP; trades required, onchain_fills optional (404 / empty window / retries_exhausted stay audit gaps and do not fail the run). Audit gained channel; rebuilt each run.
+- Fixture tests in tests/test_lol_fetch_telonex_books.py: 18 passed. make lint-all passed. make test passed (1531).
+- Commit in dota_2_model: 9729d743e70465fb9425c873b85efa7db7b89a50
+- **Learnings for future iterations:**
+  - Keep --books-dir as the book channel directory; siblings trades/ and onchain_fills/ fall out of books_dir.parent.
+  - Catalog windows are independent per channel; empty books still plans trades/onchain.
+  - Do not import src/backtest/telonex_local.py into LoL Stage 02. Execution source selection is US-003.
+  - make lint-all skips untracked files; git add first.
+  - Parallel WIP on constants/lol.py (LOL_VALIDATION_START_TIME) was left uncommitted; do not fold it into Stage 02.
+
