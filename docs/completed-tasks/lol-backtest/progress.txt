@@ -116,6 +116,18 @@
 - Uncommitted run blockers kept: Int64 nw_delta NaN, subsecond cutoff pause rounding, Stage 02 httpx GET (stream pool leak), dotenv in main.
 - Resume research backtest with **3** parallel shards, not 9, so this machine does not panic again.
 
+## 2026-08-28 16:08 - US-005 closed
 
+- User dropped paired B0+S2, production smoke, and Dota-root check. Close on the research S2 validation run already on disk plus a validation-only Stage 02 audit rewrite.
+- Stage 02 now defaults to `markets.validation_only.parquet`, channels `book_snapshot_full` + `trades` (no onchain). Newest days first. Ctrl-C writes the channel audit. Training universe only with an explicit `--universe-path`.
+- Real run: `included_markets=1513`, `jobs=23590`, `downloaded=12`, `skipped_valid=22914`, `http_404=664` (trades 546, books 118), `missing_interval=1`. Audit has `channel`. Exit 1 because required-channel 404s fail the run; most trade 404s are catalog days with no prints.
+- Stage 07 already: 1513 cards, 1408 eligible. Research S2 run `validation_s2_…20260828T084440Z` on disk. Production model on disk, not smoked.
+- Fixture tests `tests/test_lol_fetch_telonex_books.py`: 20 passed. Did not run full `make lint-all` on the dirty dota_2_model tree (horizon sweep / Stage 05 WIP).
+- US-005 passes. Archive `current-task` → `docs/completed-tasks/lol-backtest`.
+- **Learnings for future iterations:**
+  - Default Stage 02 to the validation universe. Full included archive is a night job and not needed for the maker backtest.
+  - Do not download `onchain_fills` for LoL: replay already falls back to `trades`.
+  - A trades 404 is often an empty tape day, not a hole the backtest needs. Eligibility only requires the trades asset dir.
+  - Cap Nautilus shards at 3 on this laptop. Nine plus a download panicked the kernel.
 
 

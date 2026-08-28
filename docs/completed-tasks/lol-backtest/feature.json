@@ -41,7 +41,8 @@
     "Реальный Stage 02 -> Stage 07 -> paired research backtest -> production smoke оформляется отдельным последним user step и не считается выполненным по fixture-only данным.",
     "onchain_fills остаётся optional: его отсутствие, пустой parquet или неполное покрытие выбирает полный trades fallback для token-day и не делает карту неeligible при наличии обязательных books и trades.",
     "LoL не добавляет verdict, status, minimum-fill threshold, model_kind или event-level bootstrap. Общий report сохраняет Dota match_id bootstrap и build_decision, а пользователь интерпретирует числовые metrics.",
-    "Работа выполняется на main в ../dota_2_model; feature orchestration, планы и progress остаются в current-task после ручной активации этой папки."
+    "Работа выполняется на main в ../dota_2_model; feature orchestration, планы и progress остаются в current-task после ручной активации этой папки.",
+    "US-005 закрыт без paired B0+S2, production smoke и сверки Dota-корня. Stage 02 качает только validation books+trades (без onchain и training-trades); channel audit записан; exit 1 из-за Telonex 404 на днях без принтов. Research S2 validation run уже на диске."
   ],
   "Non-Goals (Out of Scope for V1)": [
     "LoL live trading, live-paper, collector или VPS deployment",
@@ -162,7 +163,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "designReference": []
     }
   ]
