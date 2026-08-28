@@ -54,6 +54,68 @@
 - **Learnings for future iterations:**
   - Empty labeled_rows vs nonempty validation.parquet is a global abort only after a real rebuild. A card that never joined must not take the sibling set down with it.
 
+## 2026-08-28 01:40 - US-002 review
+
+- Review finding fixed in 5de4c873 (labeled-match gate only after rebuild). Cutoff nit skipped. US-002 passes.
+
+## 2026-08-28 03:10 - US-003
+
+- Connected LoL to shared `src/backtest/run.py` via `--game dota|lol` (default dota). Two input functions: `load_dota_selection` in run.py, `load_lol_selection` in `lol_inputs.py`. No plugin/ABC/registry.
+- Telonex helpers take required `capture_root`. Per token-day execution is nonempty `onchain_fills` else `trades` (file symlinks, not both dirs). `build_match_signals(..., lag_seconds)`; LoL passes 0.
+- `make lol-backtest` adds `--game lol` + B0/S2. `make backtest` unchanged. LoL artifacts under `data/backtests/lol_maker`. Dota manifest keys unchanged.
+- Tests: Dota CLI/Makefile regression, LoL dispatch/output root, source pick, lag gate, resume rejection, paired B0/S2 `build_decision`. pytest 1554 passed. make lint-all passed.
+- Commit in dota_2_model: 1640692c9551399742d62c238180dfab4105ab1b
+- Did not set feature.json passes. Did not implement US-004 cutoff/tail PnL. Did not run real `make lol-backtest` (US-005). Did not push.
+- **Learnings for future iterations:**
+  - Dota `--resume` fingerprints the current key set. Do not add `game`/`model_sha256` to Dota manifests.
+  - `lol_inputs` must not import `backtest.run` (`test_backtest_imports`). `ReplayLookups` lives in `context.py`.
+  - Stage 07 `state_ts_us` is already pause-adjusted; one synthetic OpenDota pause at time 0 aligns `buy_cutoff_ns` with second 540.
+  - Manifest `cutoff_rule=stage07_replay_end` is a stub. US-004 may rename it when forced-hold accounting is real.
+
+## 2026-08-28 03:25 - US-003 review
+
+- Dropped `load_replay_lookups_for_game` (dual optionals + ValueError). After `if game == "lol"`, bind `load_lookups` once to nested `load_lol_lookups` / `load_dota_lookups`; three sites call `load_lookups(known_ids)`.
+- Deleted `resolve_report_root`. `load_dota_selection` inlines `BACKTESTS_DIR / EXPERIMENT_NAME`. Dispatch test asserts `LolSelection.report_root` and `BACKTESTS_DIR / EXPERIMENT_NAME`.
+- Skipped nits: `OPTIONAL_CHANNELS` in telonex_local.py; full `main()` dispatch in the test.
+- Targeted pytest 93 passed. make lint-all passed. make test passed (1554).
+- Commit: f8586b9b92653f4b34de81b72298706ee147bb8b
+- Did not set feature.json passes. Did not push.
+- **Learnings for future iterations:**
+  - Nested closures with different names (`load_lol_lookups` vs `load_dota_lookups`) then `load_lookups = ...` avoids ruff F811 and keeps basedpyright happy on both branches.
+  - LoL report root lives on `LolSelection`; do not add a second helper that Dota-only callers must remember to use.
+
+## 2026-08-28 02:10 - US-003 review
+
+- Review findings fixed in f8586b9b (drop game dispatcher and report_root helper). Nits skipped. US-003 passes.
+
+## 2026-08-28 03:40 - US-004
+
+- Cutoff/forced-hold tail PnL: LoL still-going maps freeze via existing `game_end_ns` (Stage 07 1200 wall). No second timer, no strategy subclass, no poly-maker edit. 1-min `replay_end` drain kept.
+- `MarketContext.forced_hold` / `cutoff_ns`: Dota always false/0. LoL from audit `still_going_at_1200` + exact market-second 1200 `state_ts_us`.
+- Postprocess `attach_cutoff_accounting` (called from `build_maker_match_results`): exact mid only, no as-of. Missing mid fail-closed (qty kept, PnL zeros, skipped in arm sums). Non-hold: `pnl_at_cutoff=engine_pnl`, `tail_pnl=0`.
+- Wallet settle for forced-hold at `max(cutoff_ns, Gamma closed_at)`. Dota tape unchanged.
+- Shared summary/report rows: forced-hold maps/shares, pnl at cutoff, tail pnl, settled pnl. Dota prints zeros/identity. LoL `cutoff_rule=hard_1200_forced_hold`.
+- Tests: hard cutoff BUY/SELL+cancel latency, arithmetic, both tokens, early end, missing mid, wallet ts, summary/report, checkpoint defaults, LoL wiring. make test 1566 passed. make lint-all passed.
+- Commit in dota_2_model: 66b08465ce23b8ac83bee6f0c915c092caf627ea
+- Did not set feature.json passes. Did not push. Did not run real make lol-backtest (US-005).
+- **Learnings for future iterations:**
+  - Do not infer `forced_hold` from duration; postprocess Dota fixtures use GAME_END = HORN+2000s and must stay non-hold.
+  - Cutoff mid must use exact `state_ts_us * NS_PER_US`, not rounded `game_ended_at`.
+  - Old Dota results.parquet resume needs missing-column defaults; parquet NaN mids must become None.
+  - SELL-at-1200 tests need `predicted_delta=0.0` or unwind; default +5¢ fair blocks join-ask SELL.
+
+## 2026-08-28 03:30 - US-004 review
+
+- Review: NO COMMENTS. US-004 passes.
+
+## 2026-08-28 08:40 - US-005 interrupted
+
+- Mac kernel panic: WindowServer watchdog, compressor 100% (61 swapfiles). 9 parallel Nautilus shards + download. No summary.json.
+- Stage 07 survived: 1513 cards, eligible 1408, missing_cutoff_midpoint 104, missing_required_channel 1.
+- Production model exists. Trades on disk: 7472. onchain_fills: 0. Audit on disk is still the old book-only schema (Stage 02 did not finish writing the channel audit).
+- Uncommitted run blockers kept: Int64 nw_delta NaN, subsecond cutoff pause rounding, Stage 02 httpx GET (stream pool leak), dotenv in main.
+- Resume research backtest with **3** parallel shards, not 9, so this machine does not panic again.
+
 
 
 
