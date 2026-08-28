@@ -43,5 +43,17 @@
   - Labeled 0..540 must use the Stage 05 0..540 grid (including age-gated seconds past last frame) so exact-match against validation.parquet does not abort early-end maps. Cap last_game_time only for inference 541..899 and market seconds 0..1200.
   - python modules named `07_*.py` import as `lol.07_prepare_backtest`.
 
+## 2026-08-28 02:03 - US-002 review
+
+- Labeled-match gate runs only when `join_market_rows` actually ran (`CardBuild.labeled_rebuilt`). Livestats drops and failed book/prior loads stay audit-only; sibling eligible cards still publish.
+- Added `test_livestats_drop_stays_audit_when_sibling_matches`. 12 Stage 07 tests passed. Stage 05: 23 passed. make lint-all passed.
+- Commit: 5de4c873f7cd27fc7d47f4846204365199b25b13
+- Skipped cutoff `market_rows[-1]` nit.
+- Did not set feature.json passes.
+
+- **Learnings for future iterations:**
+  - Empty labeled_rows vs nonempty validation.parquet is a global abort only after a real rebuild. A card that never joined must not take the sibling set down with it.
+
+
 
 
