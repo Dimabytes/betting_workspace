@@ -21,6 +21,13 @@
   `received_at_utc`, `starting_time` и `payload`.
 - `target.json` — что именно записано.
 
+Каталог CBLOL дополнительно несёт вход реконструкции net worth:
+
+- `details.jsonl.gz` — исторические кадры `details` того же матча, по одному
+  на `rfc460Timestamp`.
+- `ddragon_items.json` — таблица предметов Data Dragon (патч 16.17.1): цены и
+  флаг `consumed`.
+
 Записывал `dota_2_model/scripts/record_lol_dual_feed.py`, по 12 минут на матч.
 
 CBLOL несёт основной результат: около 700 секунд пересечения и 10 смертей.
@@ -39,6 +46,17 @@ make run F=scripts/compare_lol_grid_livestats.py \
 
 Вывод обоих матчей на момент записи лежит в `comparator-output.txt`.
 
+Реконструкция GRID-эквивалентного net worth из истории lolesports (сдвиг +7 —
+это оценка по смертям из компаратора):
+
+```bash
+make run F=scripts/reconstruct_lol_networth.py \
+  ARGS="../betting_workspace/docs/live-lol/recordings/lol-fxw7-los-2026-08-29-20260829T180601Z --offset 7"
+```
+
+`details.jsonl.gz` и `ddragon_items.json` уже лежат рядом, поэтому запуск
+оффлайновый; на новой записи скрипт сам достанет и закэширует оба файла.
+
 ## Что должно получиться
 
 | Проверка | Ожидание на CBLOL |
@@ -52,6 +70,7 @@ make run F=scripts/compare_lol_grid_livestats.py \
 | `blue_nw`, `red_nw` | GRID ниже на 4.7% и 6.0% |
 | `nw_adv` | расхождение 145, это 32% сигнала |
 | `xp_adv` | медиана 0 |
+| Реконструкция `totalGold − consumed` | ratio к GRID 1.002 (blue) и 0.997 (red), перевороты знака `nw_adv` падают с 16% до 5.8% |
 
 На LEC ожидается пауза 99.5 с и меньше трёх общих смертей, поэтому скрипт
 там честно откатывается на оценку по золоту.
