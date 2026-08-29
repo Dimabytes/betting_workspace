@@ -1,14 +1,11 @@
 # LoL в live-paper: план реализации
 
-Дата: 2026-08-29
+Дата: 2026-08-29, обновлён 2026-08-30.
 
-Статус: готов к реализации.
+Статус: готов к реализации после отдельного переобучения на GRID-золоте.
 
-Design-источники: `docs/live-lol/2026-08-28-live-lol-design.md` и
-`docs/plans/lol-live.md`.
-
-Этот файл заменяет design 2026-08-28 как рабочий документ. Design остаётся
-историей решения.
+Цифры по GRID — в `docs/live-lol/2026-08-29-grid-source-verification.md`.
+Сырые записи — в `docs/live-lol/recordings/`.
 
 ## Результат
 
@@ -16,25 +13,57 @@ LoL торгует на Polymarket через GRID widget рядом с Dota. Do
 live, LoL стартует в paper. Оператор переводит LoL в live одной строкой в
 `.env` и пересозданием двух сервисов.
 
-## Что изменилось против design 2026-08-28
+## Не входит в этот план
 
-Четыре решения приняты 2026-08-29. Каждое сокращает объём работы.
+Перед стадиями 0–7, отдельно, сейчас уже идёт:
 
-| Тема | Design 2026-08-28 | Этот план | Причина |
-|---|---|---|---|
-| Live-источник LoL | lolesports livestats | GRID widget | Замер в `dota_2_model/docs/experiments/lol-grid-widget.md`: livestats в live отстаёт на 55–60 с, окна моложе 60 с отдают 400. GRID на странице Polymarket отстаёт на 7–8 с. Рынок видит GRID. |
-| Абстракция игры | `GameProvider`, `VenueProvider`, `MarketSession` | одна frozen dataclass `GameProfile` | GRID-путь для LoL совпадает с Dota. Разница — таблица XP, имена сторон, archive root, модель, профиль размера. Пять значений, не три интерфейса. |
-| Переименование | `live_paper` -> `trader` во всех местах | не делаем | Трогает около 60 файлов и все тесты, поведение не меняет. Переименуем один файл конфига. |
-| Kalshi для LoL | в первом деплое | отдельной стадией позже | Тикеры `KXLOLMAP` и `KXLOLGAME` не проверены. План `docs/plans/kalshi-live-paper-fixes.md` ещё не влит. |
+1. Докачать livestats windows до конца карты (все секунды).
+2. Докачать livestats `details` для тех же карт.
+3. Переобучить модель на золоте `totalGold − consumed`. Это GRID
+   `NetWorth` (`Money + LoadoutValue`). На CBLOL реконструкция сходится с
+   GRID до 0.2–0.5%.
 
-Ещё три упрощения против design:
+К старту этого плана production-модель лежит в
+`data/lol/models/production/` и обучена на том золоте, которое придёт с
+GRID. Live-путь читает GRID `NetWorth` как есть. Реконструкция на live не
+нужна.
 
-- `data/live_paper` не делим в Python. Два контейнера монтируют разные
-  host-каталоги в один путь `/app/data/live_paper`. Ноль изменений в коде.
-- Отдельный `stale_seconds` для LoL не нужен. Тот же socket, тот же cadence,
-  тот же `GRID_FEED_STALE_SECONDS = 16.0`.
-- Подкаталоги `matches/dota` и `matches/lol` не нужны. LoL match id всегда
-  `grid-<series>-m<n>`, Dota Steam-матч всегда числовой. Коллизий нет.
+## Что уже проверено
+
+Все три проверки GRID закрыты 2026-08-29. Новых замеров перед стартом
+стадий не нужно.
+
+| Вопрос | Результат | Правка в этом плане |
+|---|---|---|
+| Часы GRID и livestats | `grid_second = livestats_second + 6.7`, разброс 1.7 с на 10 смертях. Меньше, чем `source_lag_seconds = 10` | нет |
+| 12 фич модели | смерти совпадают; `xp_adv` медиана 0; сырой GRID `NetWorth` ниже livestats `totalGold` на 4–5% | золото закрывается переобучением выше, не стадиями 0–7 |
+| Доля `gridSeriesId` | 21 день: 61% map-рынков, **73% объёма**. Без id в основном LPL | нет: рынки без `gridSeriesId` не торгуем |
+| Парсер GRID | LoL разбирается без правок. Стороны `BLUE`/`RED`. `delay = 8` | стадия 0 — фикстуры из готовых записей, не новый spike |
+| Livestats в live | окна моложе 60 с отдают 400; отставание 55–60 с | источник — GRID, не livestats |
+| Формула top1 | модель LoL: `top1 / сумма`; live Dota: `top1 / (сумма − top1)`. На спавне 0.20 против 0.25 | стадия 5: LoL считает `top1 / сумма` |
+
+GRID на странице Polymarket отстаёт на 7–8 с. Рынок видит GRID.
+
+## Как устроено
+
+Одна frozen dataclass `GameProfile`. GRID-путь для LoL совпадает с Dota.
+Разница — таблица XP, имена сторон, archive root, модель, профиль размера и
+gold-velocity gate. Dota сохраняет предел 350 золота за 30 секунд. LoL не
+применяет этот gate.
+
+Переименование `live_paper` → `trader` во всех файлах не делаем. Меняем
+имена двух compose-сервисов и одного файла конфига.
+
+Kalshi для LoL — стадия 7, не первый деплой.
+
+`data/live_paper` в Python не делим. Два контейнера монтируют разные
+host-каталоги в `/app/data/live_paper`.
+
+Отдельный `stale_seconds` для LoL не нужен: тот же socket, тот же cadence,
+`GRID_FEED_STALE_SECONDS = 16.0`. На CBLOL GRID отдавал сэмпл раз в 4.3 с.
+
+Подкаталоги `matches/dota` и `matches/lol` не нужны. LoL match id всегда
+`grid-<series>-m<n>`, Dota Steam-матч всегда числовой.
 
 ## Почему GRID закрывает модель LoL
 
@@ -45,7 +74,7 @@ live, LoL стартует в paper. Оператор переводит LoL в 
 |---|---|
 | `second` | scoreboard `currentSeconds` минус table `feed_delay` |
 | `radiant_nw`, `dire_nw`, `radiant_nw_adv` | сумма `NetWorth` игроков стороны |
-| `top1_nw_adv`, `radiant_top1_nw_ratio`, `dire_top1_nw_ratio` | `NetWorth` по игрокам |
+| `top1_nw_adv`, `radiant_top1_nw_ratio`, `dire_top1_nw_ratio` | `NetWorth` по игрокам, ratio как `top1 / сумма` |
 | `deaths_radiant`, `deaths_dire` | сумма `Deaths` игроков стороны |
 | `radiant_xp_adv` | `increaseLevel + 1` -> `LOL_LEVEL_XP` |
 | `market_radiant_prior`, `market_p_radiant` | книга Polymarket, не игровой фид |
@@ -55,19 +84,19 @@ live, LoL стартует в paper. Оператор переводит LoL в 
 уровень тем же способом, что и в Dota. Сырой `ExperiencePoints` из GRID не
 используем: модель на нём не обучалась.
 
-`state_source` модели равен `lolesports_livestats`. Мы подаём GRID. Это
-осознанная замена источника. Dota уже работает так же: модель обучена на
-STRATZ и OpenDota, а в live читает Steam или GRID.
+После переобучения фичи золота считаются из GRID `NetWorth`. Сырой
+livestats `totalGold` в live не используем.
 
 ## Известные ограничения
 
-- `gridSeriesId` есть примерно у половины LoL-событий Polymarket. LPL часто
+- `gridSeriesId` есть у 61% map-рынков и 73% объёма за 21 день. LPL часто
   без него. Рынки без `gridSeriesId` не торгуем. Это то же правило, что и в
   Dota: нет пригодного источника — пропускаем.
-- Сходимость чисел GRID и livestats не измерена. Стадия 0 её проверяет на
-  одном живом матче.
-- LoL квотируем до `BUY_CUTOFF_SECOND = 540`, как Dota. Модель LoL обучена на
-  секундах 0..540.
+- GRID не шлёт `increaseLevel`, пока на карте не случился первый level-up.
+  До этого всем игрокам уровень 1 и `xp_adv` ноль. Это верно до первого
+  level-up.
+- LoL квотируем до `BUY_CUTOFF_SECOND = 540`, как Dota. Модель LoL обучена
+  на секундах 0..540.
 
 ## Топология после реализации
 
@@ -115,36 +144,32 @@ KALSHI_PRIVATE_KEY_PATH=/root/secrets/kalshi/prod.key
 
 ---
 
-### Стадия 0 — spike: запись живого LoL-фрейма GRID
+### Стадия 0 — фикстуры из живой записи GRID
 
 Репозиторий: `../dota_2_model`.
 
-Эта стадия — gate. Если payload LoL не разбирается текущими парсерами, план
-меняется целиком. Делаем её первой.
+Gate пройден 2026-08-29. Парсер разбирает LoL без правок. Живые payload
+лежат в `docs/live-lol/recordings/` (CBLOL `lol-fxw7-los-2026-08-29`, LEC
+`lol-navi-gx-2026-08-29`). Новый spike не нужен.
 
 Шаги:
 
-1. Найти живой LoL-матч: `make run F=scripts/watch_lol_live.py`.
-2. Запустить watcher на серию и сохранить сырые фреймы socket в файл.
-3. Прогнать фреймы через `parse_frame`, `read_map_scoreboard`,
-   `read_net_worth` из `src/shared/utils/grid_widgets.py`.
-4. Проверить пять пунктов:
+1. Вырезать из записей два payload (scoreboard и series_table) в
+   `tests/lol_grid_widget_fixtures.py` рядом с `tests/grid_widget_fixtures.py`.
+2. Прогнать их через `parse_frame`, `read_map_scoreboard`, `read_net_worth`
+   из `src/shared/utils/grid_widgets.py`.
+3. Зафиксировать в тесте уже проверенное:
    - `infoText.text` сторон равен `BLUE` и `RED`;
    - имена групп совпадают с `GAME_STATE_GROUP` и `PLAYER_ENTITY_GROUP`;
    - строка игрока несёт `NetWorth`, `Kills`, `Deaths`, `KillAssistsGiven`;
    - `increaseLevel` появляется после первого level-up;
    - `entity.teamColor` имеет тот же вид, что в Dota.
-5. Сохранить два payload (scoreboard и series_table) в
-   `tests/lol_grid_widget_fixtures.py` рядом с `tests/grid_widget_fixtures.py`.
 
 Проверка: новый тест разбирает LoL scoreboard и table, получает две стороны,
 десять игроков, сумму net worth и сумму deaths.
 
-Коммит: `Record a live LoL GRID widget payload as a parser fixture.`
-Драйвер: без записанного LoL payload любой тест LoL-фида пишется вслепую.
-
-Если пункт 4 не сходится: остановиться, доложить расхождение, план
-пересматриваем.
+Коммит: `Add LoL GRID widget parser fixtures from the 2026-08-29 recordings.`
+Драйвер: без LoL payload любой тест LoL-фида пишется вслепую.
 
 ---
 
@@ -198,10 +223,13 @@ KALSHI_PRIVATE_KEY_PATH=/root/secrets/kalshi/prod.key
        profile_name: str             # "dota-map" | "lol-map"
        production_model_dir: Path
        uses_steam: bool              # True | False
+       max_abs_nw_delta_30: float | None  # 350.0 | None
    ```
 
    Статический словарь `GAME_PROFILES: dict[str, GameProfile]`. Без registry-
-   класса, без фабрик, без entry points.
+   класса, без фабрик, без entry points. Dota получает
+   `max_abs_nw_delta_30 = 350.0`. LoL получает `None`, которое полностью
+   отключает gold-velocity gate без фиктивного большого порога.
 
 2. `git mv config/dota-map.toml config/trading.toml`. Добавить
    `[profiles.lol-map]` с `base_size_usdc = 20.0` и остальными ключами по
@@ -353,6 +381,11 @@ LoL всё ещё не котирует: режим `off`.
    - `_live_snapshot` считает XP через `xp_advantage(profile.level_xp, ...)`
      вместо `radiant_xp_advantage`;
    - `GridFrameReducer.__init__` принимает `GameProfile`.
+   - LoL считает `radiant_top1_nw_ratio` и `dire_top1_nw_ratio` как
+     `top1 / сумма` (`lol/livestats_frames.py:396`). Dota-путь не трогаем:
+     он остаётся `top1 / (сумма − top1)` в `build_top_player_features`.
+     `build_top_player_features` получает правило игры, или LoL-ветка
+     считает ratio своей функцией.
 
 2. `src/live_paper/grid_live_feed.py` и `feed_selection.py`: пробросить
    профиль. Для LoL `_pick_live_source` проверяет только GRID.
@@ -367,7 +400,13 @@ LoL всё ещё не котирует: режим `off`.
 5. `src/live_paper/match_worker.py`: выбирает модель и профиль по
    `discovered.game`.
 
-6. `compose.yaml`: монтировать `./data/lol/models:/app/data/lol/models:ro`.
+6. `src/live_paper/session_quoting.py`: добавить
+   `max_abs_nw_delta_30: float | None` в `EntryGateInputs`. Все callers
+   передают значение из `GameProfile`. При `None` функция `evaluate_entry`
+   пропускает gold-velocity gate. Остальные entry gates остаются общими для
+   Dota и LoL.
+
+7. `compose.yaml`: монтировать `./data/lol/models:/app/data/lol/models:ro`.
 
 Новых констант нет. `GRID_FEED_STALE_SECONDS = 16.0` и
 `BUY_CUTOFF_SECOND = 540` подходят обеим играм.
@@ -378,11 +417,16 @@ LoL всё ещё не котирует: режим `off`.
 - `radiant_xp_adv` считается по `LOL_LEVEL_XP`, а не по `LEVEL_XP`;
 - таблица без `increaseLevel` даёт всем игрокам уровень 1 и `radiant_xp_adv`
   ноль;
+- на спавне с равным золотом LoL `radiant_top1_nw_ratio` равен 0.20
+  (`top1 / сумма`), не 0.25 (`top1 / (сумма − top1)`);
+- LoL не блокирует вход при изменении перевеса больше 350 золота за 30 секунд;
+- Dota по-прежнему блокирует вход при изменении перевеса от 350 золота;
 - модель LoL грузится и принимает 12 фич без ошибки контракта;
 - Dota snapshot не изменился: существующие тесты `test_grid_feed` проходят.
 
 Коммит: `Feed LoL GRID ticks into the LoL model.`
-Драйвер: у GRID для LoL стороны BLUE и RED, а лестница XP своя.
+Драйвер: у GRID для LoL стороны BLUE и RED, лестница XP своя, top1 ratio
+считается как в обучении.
 
 ---
 
@@ -440,8 +484,9 @@ LoL всё ещё не котирует: режим `off`.
   `[kalshi.lol]` со своими `base_size_usd`;
 - `stale` игрового фида отменяет входные заявки на обеих биржах одного матча.
 
-Последний пункт — существующая асимметрия Dota, найденная в design
-2026-08-28. Она чинится вместе с этой стадией, а не раньше.
+Последний пункт — существующая асимметрия Dota: watchdog сразу очищает
+Polymarket entries, но не отправляет немедленную stale-отмену в Kalshi.
+Чинится вместе с этой стадией, а не раньше.
 
 ## Переход LoL из paper в live
 
@@ -461,7 +506,7 @@ Collectors при смене режима не трогаем.
 ## Порядок и зависимости
 
 ```text
-Стадия 0 (gate)
+Стадия 0 (фикстуры)
    |
    +-- Стадия 1 (collector, независима)
    |
