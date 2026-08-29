@@ -1,0 +1,130 @@
+{
+  "project": "dota_2_model",
+  "relatedSources": [
+    "../dota_2_model/docs/superpowers/specs/2026-08-28-lol-model-selection-campaign-design.md",
+    "../dota_2_model/AGENTS.md",
+    "../dota_2_model/scripts/lol_horizon_sweep.py",
+    "../dota_2_model/src/shared/constants/lol.py",
+    "../dota_2_model/src/shared/utils/gbm.py",
+    "../dota_2_model/src/lol/lol_validation_metrics.py",
+    "../dota_2_model/src/shared/utils/market_scenario_report.py",
+    "../dota_2_model/docs/experiments/README.md",
+    "../dota_2_model/docs/experiments/lol-horizon-window-deltas.md",
+    "../dota_2_model/docs/experiments/lol-horizon-sweep/README.md",
+    "../dota_2_model/docs/experiments/lol-horizon-sweep/comparison.md",
+    "../dota_2_model/tests/test_compare_backtests.py"
+  ],
+  "Functional Requirements Summary": [
+    "FR-1: scripts/lol_horizon_sweep.py принимает --row-stride и режет только train frame; eval frame всегда остаётся полной плотности",
+    "FR-2: Свип печатает row_stride и train_n в строке заголовка и пишет колонку row_stride в CSV",
+    "FR-3: Четыре набора фич (base, base_deltas, roles, all) прогнаны на second_max 540 по горизонтам 30,60,90,120,180,240,300,360,420 при полной плотности train",
+    "FR-4: Те же четыре набора прогнаны на сетке Dota через --row-stride 60",
+    "FR-5: Все восемь прогонов делят один eval set, поэтому их таблицы сравниваются напрямую",
+    "FR-6: Новые таблицы лежат в docs/experiments/lol-sweep-540/; старые таблицы на окне 0..1200 помечены историческими и не используются для решений кампании",
+    "FR-7: Одна сводная таблица feature_set × horizon × row_stride с dir_cents, cluster CI, dir_ratio, gated_share, trees и строкой ориентира Dota",
+    "FR-8: Отчёт называет 2–3 кандидата и статус значимости каждого; финальный выбор набора фич, горизонта и шага сетки делает пользователь"
+  ],
+  "Resolved Questions": [
+    "Объём задачи: только шаги 1–4 spec. Код свипа, восемь офлайн-прогонов и сводная таблица. Полные S2-бэктесты, публикация модели и шаги 5–8 уходят во второй feature.json, потому что шаг 4 spec отдаёт выбор победителя пользователю.",
+    "--row-stride режет только train frame. eval frame остаётся полным всегда. Причина: при stride 60 общий eval падает с 690 527 строк до ~11 500 и CI расширяется в 7.7 раза, после чего шаг 3 нельзя сравнить с шагом 2. Плюс в живой торговле LoL квотит каждую секунду, поэтому замер на каждой секунде и есть операционная правда. Текст шага 1 в spec говорил про оба frame и правится в US-001.",
+    "Stage 07 сейчас отдаёт в backtest только 12 базовых колонок, а src/backtest/signals.py жёстко сверяет фичи модели с Dota FEATURE_COLUMNS. Эта работа целиком уходит во второй feature.json, вместе с delta- и role-колонками для inference stream.",
+    "Модели-кандидаты кампании будут писаться в data/lol/models/experiments/<candidate>/ без ротации. data/lol/models/research/ не трогаем до шага 8. Опции тренера (набор фич, горизонт, second_max, шаг сетки, каталог вывода) в этом feature.json не делаются: свип моделей не публикует.",
+    "Диагностические бакеты и bootstrap CI в scripts/compare_backtests.py, а также maker-параметры через CLI бэктеста откладываются во второй feature.json. Они нужны только на шагах 5–7.",
+    "Датасеты не пересобираются. Все восемь прогонов читают data/lol/processed/datasets_roles/ (секунды 0..1200, 12 базовых фич, role-колонки, 20 дельт, сетка меток 10..420). Продовый data/lol/processed/datasets/ не трогается.",
+    "Окно обучения зафиксировано на 540 секундах. Окна 660, 720 и 1200 выброшены, а не отложены. Сетка горизонтов зафиксирована: 30,60,90,120,180,240,300,360,420.",
+    "Дата валидационного сплита не двигается, размер валидации не урезается. LoL зарабатывает вдвое меньше Dota на матч и разбросан сильнее, поэтому урезание валидации делает кампанию неразрешимой.",
+    "Role-колонки, role parsing и role-артефакты остаются на месте. Роли входят в кампанию как часть набора all, и их удаление — вопрос второго feature.json."
+  ],
+  "Non-Goals (Out of Scope for V1)": [
+    "Полные S2-бэктесты и любое сравнение прогонов через scripts/compare_backtests.py",
+    "Публикация победителя в data/lol/models/research/ или в production",
+    "Delta- и role-колонки в src/lol/07_prepare_backtest.py",
+    "Чтение списка фич из model.json в src/backtest/signals.py вместо Dota FEATURE_COLUMNS",
+    "Новые опции src/lol/06_train_model.py: набор фич, target_horizon_seconds, train_second_max, row stride, каталог кандидата",
+    "Maker-параметры через CLI бэктеста вместо src/shared/constants/strategy.py",
+    "Диагностические бакеты и bootstrap CI в scripts/compare_backtests.py",
+    "Пересборка Stage 05, dragon-дельты, role-дельты, pre-horn строки до секунды 0",
+    "Удаление role-колонок, role parsing и role-артефактов",
+    "Сдвиг даты валидационного сплита и любое урезание валидации",
+    "Окна обучения выше 540 секунд",
+    "LoL live trading и подтверждающий прогон на новых матчах"
+  ],
+  "description": "LoL model selection campaign, офлайн-стадия: шаг сетки в свипе, восемь прогонов на 540 секундах, одна сводная таблица для выбора модели",
+  "steps": [
+    {
+      "id": "US-001",
+      "title": "Добавить --row-stride в LoL horizon sweep",
+      "description": "Как исследователь, я хочу обучать booster на разреженной сетке секунд и мерить его на всех секундах, чтобы сравнить плотность строк Dota и LoL одной линейкой.",
+      "changes": [
+        "Добавить в scripts/lol_horizon_sweep.py typer-опцию --row-stride со значением по умолчанию 1 и передать её в run_sweep",
+        "Добавить функцию apply_row_stride(frame, stride): возвращает строки где second % stride == 0; stride меньше 1 поднимает RuntimeError с понятным текстом",
+        "Применять apply_row_stride только к train frame и только после фильтра --second-max; eval frame и valid frame раннего останова остаются полной плотности",
+        "Дописать row_stride и train_n в существующую строку заголовка рядом с feature_set, second_max и eval_n",
+        "Добавить в CSV колонку row_stride одним присваиванием на собранном DataFrame в run_sweep",
+        "Поправить шаг 1 в docs/superpowers/specs/2026-08-28-lol-model-selection-campaign-design.md: stride режет только train frame, eval всегда полный; причина — одна линейка eval для всех восьми таблиц и квотирование каждую секунду в живой торговле",
+        "Добавить tests/test_lol_horizon_sweep.py: stride 60 оставляет только секунды кратные 60, stride 1 возвращает frame без изменений, stride 0 и stride -1 падают",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "designReference": []
+    },
+    {
+      "id": "US-002",
+      "title": "Прогнать четыре набора фич на 540 секундах при полной плотности",
+      "description": "Как исследователь, я хочу пересобрать таблицу свипа на окне обучения 540 секунд, чтобы решения кампании опирались на то же окно, в котором модель будет квотить.",
+      "changes": [
+        "Создать docs/experiments/lol-sweep-540/",
+        "Прогнать четыре свипа по очереди, не больше двух одновременно (32 ГБ RAM, 12 ядер, LightGBM сам занимает все ядра): uv run python scripts/lol_horizon_sweep.py --datasets-dir data/lol/processed/datasets_roles --second-max 540 --horizons 30,60,90,120,180,240,300,360,420 --feature-set <set> --out docs/experiments/lol-sweep-540/sweep_540_<set>.csv для set из base, base_deltas, roles, all",
+        "Сохранить stdout каждого прогона в docs/experiments/lol-sweep-540/<set>.md",
+        "Проверить, что все четыре прогона печатают одинаковый eval_n (ожидание 690 527 строк, 1455 матчей); при расхождении eval_n между наборами остановиться и не запускать US-003",
+        "Проверить base на train_horizon 300: dir_cents близко к 0.560 из docs/experiments/lol-horizon-sweep/sweep_control_540_base.csv; eval set другой, поэтому значение близкое, а не равное",
+        "Записать в current-task/progress.txt фактические eval_n, train_n, число деревьев по каждому горизонту и время каждого прогона",
+        "git add четыре CSV и четыре md перед запуском lint",
+        "make lint-all passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "designReference": []
+    },
+    {
+      "id": "US-003",
+      "title": "Прогнать те же четыре набора на сетке строк Dota",
+      "description": "Как исследователь, я хочу обучить те же четыре набора на 10 точках матча вместо 541, чтобы проверить гипотезу о том, что LoL проигрывает Dota из-за 49-кратной плотности почти дублирующихся строк.",
+      "changes": [
+        "Прогнать четыре свипа с --row-stride 60, остальные флаги как в US-002, --out docs/experiments/lol-sweep-540/sweep_540_<set>_stride60.csv",
+        "Сохранить stdout каждого прогона в docs/experiments/lol-sweep-540/<set>_stride60.md",
+        "Проверить train_n: около 26 тысяч строк вместо 1.33 миллиона, сетка 0, 60, ..., 540 — 10 точек на матч",
+        "Проверить, что eval_n совпадает с US-002 до строки; расхождение значит, что stride протёк в eval frame, и тогда остановиться",
+        "Записать в current-task/progress.txt train_n, eval_n и число деревьев по каждому набору и горизонту",
+        "git add четыре CSV и четыре md перед запуском lint",
+        "make lint-all passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "designReference": []
+    },
+    {
+      "id": "US-004",
+      "title": "Свести восемь таблиц в один отчёт и назвать кандидатов",
+      "description": "Как пользователь, я хочу одну таблицу по осям набор фич, горизонт и шаг сетки, чтобы выбрать модель для первого полного S2-бэктеста.",
+      "changes": [
+        "Написать docs/experiments/lol-sweep-540/comparison.md: одна таблица по строкам table=same с осями feature_set × train_horizon × row_stride и колонками n, dir_cents, CI, dir_ratio, gated_share, trees",
+        "Помечать в таблице клетки, чей CI не содержит ноль",
+        "Добавить строку ориентира Dota: DIR 1.500c, CI [+1.041, +1.927], dir_ratio 0.185, no-move MAE 8.116c против LoL no-move MAE 9.809c",
+        "Добавить раздел с 2–3 кандидатами: набор фич, горизонт, шаг сетки и причина по каждому. Не брать argmax сетки: у кандидата соседние горизонты тоже высокие и CI не содержит ноль. Якорь — горизонт 300; он остаётся, пока другой горизонт не выигрывает и по dir_cents, и по ширине интервала",
+        "Написать docs/experiments/lol-sweep-540/README.md в форме старого: список файлов, значения колонок CSV, команда перезагрузки CSV в pandas",
+        "Дописать в docs/experiments/lol-horizon-sweep/README.md, что эти таблицы обучены на окне 0..1200 и для решений кампании не используются",
+        "Добавить строку про lol-sweep-540 в таблицу docs/experiments/README.md",
+        "Записать в отчёт, что финальный выбор делает пользователь; шаг не публикует модель, не тренирует кандидата и не запускает бэктест",
+        "make lint-all passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "designReference": []
+    }
+  ]
+}
