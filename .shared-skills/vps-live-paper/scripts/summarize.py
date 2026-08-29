@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import urllib.error
+import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -16,6 +18,7 @@ WALLET_DB = LIVE_PAPER / "wallet" / "live.db"
 BERLIN = ZoneInfo("Europe/Berlin")
 FEE_RATE = 0.05
 REBATE_RATE = 0.15
+POLYMARKET_DATA_API = "https://data-api.polymarket.com"
 
 
 def maker_rebate(price: float, size: float, is_maker: bool) -> float:
@@ -119,7 +122,10 @@ def summarize_session(archive: Path) -> dict:
     last_fill = fills[-1] if fills else None
     net = None
     if realized is not None and imv is not None:
-        net = float(realized) + float(imv) + rebate
+        try:
+            net = float(realized) + float(imv) + rebate
+        except (TypeError, ValueError):
+            net = None
     return {
         "start": start,
         "end": end,
@@ -145,7 +151,11 @@ def summarize_session(archive: Path) -> dict:
 def fmt_money(value: float | None) -> str:
     if value is None:
         return "n/a"
-    return f"{value:+.4f}"
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return "n/a"
+    return f"{number:+.4f}"
 
 
 def print_match_row(archive: Path, sess: dict, meta: dict) -> None:
@@ -156,7 +166,12 @@ def print_match_row(archive: Path, sess: dict, meta: dict) -> None:
     joined = meta.get("joined_at_utc", "")
     winner = (meta.get("final") or {}).get("winner")
     mode = (sess["start"] or {}).get("execution_mode", "?") if sess["start"] else "?"
-    status = "LIVE" if sess["live"] else (winner or "done")
+    if winner:
+        status = winner
+    elif sess["live"]:
+        status = "LIVE"
+    else:
+        status = "done"
     cleanup = "cleanup" if (archive / "execution_cleanup.json").is_file() else "no-cleanup"
     print(
         f"{archive.name}  {radiant} vs {dire}  map {map_no}  {status}  "
@@ -190,7 +205,8 @@ def cmd_list(today: bool, live_only: bool) -> None:
             continue
         print_match_row(archive, sess, meta)
         printed += 1
-        if sess["live"]:
+        winner = (meta.get("final") or {}).get("winner")
+        if sess["live"] and not winner:
             live_count += 1
         elif sess["net"] is not None:
             day_net += sess["net"]
@@ -198,15 +214,16 @@ def cmd_list(today: bool, live_only: bool) -> None:
             day_count += 1
     if printed == 0:
         print("no matches")
-        return
-    if today or live_only:
+    elif today or live_only:
         print()
         print(
             f"berlin_day={day}  finished={day_count}  live={live_count}  "
             f"sum_net={fmt_money(day_net if day_count else None)}  "
             f"sum_rebate={fmt_money(day_rebate if day_count else None)}"
         )
-        print("net = realized + imv + rebate. sqlite cash is not this number.")
+        print("telegram sum_net is maps with session_end only. not the day.")
+    if today:
+        print_polymarket_today(day)
 
 
 def cmd_one(match_id: str) -> None:
@@ -261,9 +278,16 @@ def cmd_one(match_id: str) -> None:
             f"fv={quote.get('fv_source')} placed={len(placed)}"
         )
     for fill in sess["fills"]:
+        token = str(fill.get("token_id") or "")
+        if yes_id and token == yes_id:
+            leg = "yes"
+        elif no_id and token == no_id:
+            leg = "no"
+        else:
+            leg = "?"
         print(
             f"  FILL {fill.get('ts_utc')} t={fill.get('second')} {fill.get('side')} "
-            f"{fill.get('size')} @ {fill.get('price')} maker={fill.get('is_maker')} "
+            f"{leg} {fill.get('size')} @ {fill.get('price')} maker={fill.get('is_maker')} "
             f"pos={fill.get('position_after')} cash={fill.get('net_cash')}"
         )
     if not sess["fills"]:
@@ -289,13 +313,180 @@ def cmd_wallet() -> None:
     conn.close()
 
 
+def read_funder() -> str | None:
+    """Return the pinned Safe / funder from live.db, or None."""
+    if not WALLET_DB.is_file():
+        return None
+    conn = sqlite3.connect(f"file:{WALLET_DB}?mode=ro", uri=True)
+    try:
+        row = conn.execute(
+            "SELECT v FROM wallet_identity WHERE k='funder' AND v IS NOT NULL AND v != ''"
+        ).fetchone()
+    except sqlite3.Error:
+        return None
+    finally:
+        conn.close()
+    if row is None:
+        return None
+    funder = row[0]
+    if not isinstance(funder, str) or not funder:
+        return None
+    return funder
+
+
+def unix_in_berlin_day(stamp: object, day) -> bool:
+    """True when a unix timestamp falls on this Europe/Berlin calendar day."""
+    try:
+        unix = float(stamp)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return False
+    parsed = datetime.fromtimestamp(unix, timezone.utc)
+    return parsed.astimezone(BERLIN).date() == day
+
+
+def fold_polymarket_day(activity: list, positions: list, day) -> dict:
+    """Fold data-api activity + open marks into Berlin-day cash and pnl."""
+    buy = 0.0
+    sell = 0.0
+    redeem = 0.0
+    rebate = 0.0
+    n_buy = 0
+    n_sell = 0
+    n_redeem = 0
+    n_rebate = 0
+    for row in activity:
+        if not unix_in_berlin_day(row.get("timestamp"), day):
+            continue
+        kind = str(row.get("type") or "")
+        side = str(row.get("side") or "").upper()
+        try:
+            usdc = float(row.get("usdcSize") or 0.0)
+        except (TypeError, ValueError):
+            usdc = 0.0
+        if kind == "TRADE" and side == "BUY":
+            buy += usdc
+            n_buy += 1
+        elif kind == "TRADE" and side == "SELL":
+            sell += usdc
+            n_sell += 1
+        elif kind == "REDEEM":
+            redeem += usdc
+            n_redeem += 1
+        elif kind == "MAKER_REBATE":
+            rebate += usdc
+            n_rebate += 1
+    open_mark = 0.0
+    n_open = 0
+    for pos in positions:
+        try:
+            size = float(pos.get("size") or 0.0)
+            price = float(pos.get("curPrice") or 0.0)
+        except (TypeError, ValueError):
+            continue
+        if size == 0.0:
+            continue
+        open_mark += size * price
+        n_open += 1
+    cash = -buy + sell + redeem + rebate
+    return {
+        "buy": buy,
+        "sell": sell,
+        "redeem": redeem,
+        "rebate": rebate,
+        "cash": cash,
+        "open": open_mark,
+        "pnl": cash + open_mark,
+        "n_buy": n_buy,
+        "n_sell": n_sell,
+        "n_redeem": n_redeem,
+        "n_rebate": n_rebate,
+        "n_open": n_open,
+    }
+
+
+def fetch_json(url: str) -> object:
+    """GET JSON from Polymarket data-api."""
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=25) as response:
+        return json.loads(response.read().decode())
+
+
+def fetch_activity(funder: str) -> list:
+    """Page data-api activity for this funder."""
+    rows: list = []
+    offset = 0
+    while offset <= 2000:
+        chunk = fetch_json(
+            f"{POLYMARKET_DATA_API}/activity?user={funder}&limit=100&offset={offset}"
+        )
+        if not isinstance(chunk, list) or not chunk:
+            break
+        rows.extend(chunk)
+        if len(chunk) < 100:
+            break
+        offset += 100
+    return rows
+
+
+def fetch_positions(funder: str) -> list:
+    """Open positions for this funder."""
+    payload = fetch_json(f"{POLYMARKET_DATA_API}/positions?user={funder}")
+    if isinstance(payload, list):
+        return payload
+    return []
+
+
+def print_polymarket_today(day) -> None:
+    """Print settled Berlin-day PnL from Polymarket activity + open marks."""
+    funder = read_funder()
+    if funder is None:
+        print("polymarket_today n/a  no funder in live.db")
+        return
+    try:
+        folded = fold_polymarket_day(fetch_activity(funder), fetch_positions(funder), day)
+    except (OSError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+        print(f"polymarket_today n/a  {type(exc).__name__}")
+        return
+    print(
+        f"polymarket_today  buy={folded['buy']:.2f} sell={folded['sell']:.2f} "
+        f"redeem={folded['redeem']:.2f} rebate={folded['rebate']:.2f} "
+        f"cash={folded['cash']:+.2f} open={folded['open']:+.2f} "
+        f"pnl={folded['pnl']:+.2f}  "
+        f"n_buy={folded['n_buy']} n_sell={folded['n_sell']} "
+        f"n_redeem={folded['n_redeem']} n_rebate={folded['n_rebate']} n_open={folded['n_open']}"
+    )
+    print("day number is polymarket_today pnl (cash+open). leftover BUY is not a loss if REDEEM paid.")
+
+
+def check_fold() -> None:
+    """Fail if redeem is omitted from the day number."""
+    day = datetime(2026, 8, 29, tzinfo=BERLIN).date()
+    noon = datetime(2026, 8, 29, 12, 0, tzinfo=BERLIN)
+    ts = noon.timestamp()
+    rows = [
+        {"type": "TRADE", "side": "BUY", "usdcSize": 50.0, "timestamp": ts},
+        {"type": "REDEEM", "usdcSize": 52.08, "timestamp": ts},
+        {"type": "MAKER_REBATE", "usdcSize": 0.2, "timestamp": ts},
+    ]
+    folded = fold_polymarket_day(rows, [{"size": 4.0, "curPrice": 0.3}], day)
+    cash = round(folded["cash"], 2)
+    pnl = round(folded["pnl"], 2)
+    if cash != 2.28 or pnl != 3.48:
+        raise SystemExit(f"fold check failed cash={cash} pnl={pnl}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--today", action="store_true", help="Berlin calendar day")
     parser.add_argument("--live", action="store_true", help="sessions without session_end")
     parser.add_argument("--match", help="one Steam match id")
     parser.add_argument("--wallet", action="store_true", help="sqlite inventory snapshot")
+    parser.add_argument("--self-check", action="store_true", help="assert redeem is in the day fold")
     args = parser.parse_args()
+    if args.self_check:
+        check_fold()
+        print("fold ok")
+        return
     if args.match:
         cmd_one(args.match)
         return
