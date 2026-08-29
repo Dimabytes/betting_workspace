@@ -47,7 +47,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
 
-`--live` means "no `session_end` yet". That includes the current map and also abandoned archives that never finalized. The current map is the newest `joined_at_utc`, or the match id in the latest `session started` docker line without a matching `session finished`.
+`--live` means "no `session_end` yet". That includes the current map and also abandoned archives that never finalized even if `match.json` already has a winner. The current map is the newest `joined_at_utc` without a Steam `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with a winner is not labeled LIVE.
 
 ## Which file answers what
 
@@ -62,14 +62,17 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 | Steam snapshots | `<match>/state.jsonl`. Do not dump it. Sample tail only if feed/pause/game_state is the bug |
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
 | Halt / 429 / Steam 400 / Telegram | `docker compose logs live-paper` |
+| Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
 
 ## PnL rules (strong)
 
-1. Report Telegram `net` as the match result. That is `realized + imv + rebate`.
-2. `match.json` `final.pnl` is often `0.0` after flatten. Ignore it for "сколько заработали".
-3. Sqlite `SUM(cash_delta)` is the wallet inventory ledger, not exchange-settled day PnL. A still-open or leftover position shows as negative cash. Do not tell the user they are down that amount.
-4. Rebate is not cash in the next fill. It is the sports maker rebate `0.15 * 0.05 * size * p * (1-p)` on maker fills, paid later by Polymarket.
-5. Sum "today" from finished `session finished` / `session_end` rows for matches whose `joined_at_utc` falls on the Berlin calendar day. Do not mix in sqlite day equity.
+1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + rebate`) plus open position marks. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs.
+2. Telegram `net` (`realized + imv + rebate`) is one map **when `session_end` exists**. `sum_net` on `--today` is only those maps. Maps without `session_end` can still settle on Polymarket. Never call telegram `sum_net` the day.
+3. `match.json` `final.pnl` is often `0.0` after flatten. Ignore it for "сколько заработали".
+4. Sqlite `SUM(cash_delta)` and `wallet_day` equity are inventory accounting, not exchange-settled day PnL. A leftover position looks like a cash loss in sqlite even after Polymarket `REDEEM`. Positions API / activity is source of truth for leftover size.
+5. Accrued rebate in `session.jsonl` is an estimate. The day number uses paid `MAKER_REBATE` from activity.
+6. Leftover BUY is not a loss until you check **which token** (`yes` vs `no` on `--match` FILL lines), **who won**, and whether activity has a `REDEEM`. Buying NO while YES mid crashes is the other side; a winning leftover pays via redeem, not via SELL.
+7. On-chain USDC.e on the Safe can be 0. Cash sits in Polymarket CLOB. For exact USDC, tell the user to read the Polymarket UI. Do not quote sqlite or chain as the tradable balance.
 
 ## Live match checklist
 

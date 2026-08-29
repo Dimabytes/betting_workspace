@@ -23,7 +23,7 @@ Skip the `wallet/` directory when listing matches.
 
 **quote.** Engine placement batch. `decision` is `normal` or `reduce_only`. `fv_source` is `model` or `engine`. `placed[]` has token/side/price/size. `canceled[]` is order ids.
 
-**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`.
+**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won.
 
 **tick_size_change.** Collector tick strings.
 
