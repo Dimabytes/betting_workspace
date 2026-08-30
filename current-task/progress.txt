@@ -22,4 +22,19 @@
   - Production still runs `archive`/`compact` until US-003. Editing compose on disk does not recreate them.
   - `docker.test.ts` runbook half still documents old `archive`/`compact` names; do not update runbook until US-014.
   - `JSON.stringify` in config error text fails Effect `preferSchemaOverJson`; quote the raw value instead.
+- Review: no comments.
+
+## 2026-08-30 12:06 CEST - US-003
+
+- Created `/var/lib/polymarket-lol-archive` as 0755 uid/gid 10001 (same as Dota). Applied collector compose with `--build --remove-orphans`. Did not touch dota_2_model or live-paper.
+- Compose services now: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol` (all Up). Old `archive`/`compact` containers removed. No leftover `polymarket-collector-archive-1` / `compact-1`.
+- LoL archive: 133 event sidecars all `tagId=65`, 324 market sidecars (`lol-*` slugs), book journal `/var/lib/polymarket-lol-archive/events/2026-08-30/10.jsonl.partial` growing (mtime 12:06:31 CEST, size ~88MB and still appending).
+- Dota archive kept writing after recreate: sidecars mtime 12:04:45 CEST (was 12:02:09 pre-deploy); journal `10.jsonl.partial` grew ~33MB → ~92MB by 12:06:31. Events stay `tagId=102366`.
+- live-paper before: Id=`a188e0d8ebb54486ad67e1722e5e207d283d5f442a258aabc1291046c44ef6bc` StartedAt=`2026-08-30T07:23:39.75028444Z` running. After: same Id and same StartedAt, still running.
+- Host `yarn typecheck` exit 0; `yarn check` 434 passed (0 errors). Image build also ran `yarn check` 434 passed.
+- **Learnings for future iterations:**
+  - Compose service rename leaves old `archive`/`compact` as orphans; `--remove-orphans` is required so `ps` has no old names.
+  - Event sidecars store `tagId` at the wrapper root and Gamma `event.tags[].id` (65 = league-of-legends). Market sidecars do not repeat the numeric tag.
+  - First LoL poll can warn on one decode issue (`clobTokenIds` not string) and still subscribe hundreds of markets; one issue is not an empty archive.
+  - Collector recreate does not restart live-paper if you only run compose in `/root/work/polymarket-collector`.
 
