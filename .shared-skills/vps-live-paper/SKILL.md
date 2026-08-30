@@ -41,10 +41,11 @@ Health:
 ```bash
 docker compose -f /root/work/dota_2_model/compose.yaml ps
 docker compose -f /root/work/polymarket-collector/compose.yaml ps
-docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-live
-docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-paper
-# until US-015 the running service is still live-paper:
-docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m live-paper
+# until US-015 compose has no live-paper service; log the running container:
+docker logs --since 30m dota_2_model-live-paper-1
+# after US-015:
+# docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-live
+# docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-paper
 ```
 
 Match / day summary (run this, do not re-parse JSONL by hand):
@@ -75,7 +76,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 | Steam snapshots | `<match>/state.jsonl`. Do not dump it. Sample tail only if feed/pause/game_state is the bug |
 | LoL GRID snapshots | `<match>/grid_state.jsonl` |
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
-| Halt / 429 / Steam 400 / Telegram | `docker compose logs trader-live` (and `trader-paper`; until rollout also `live-paper`) |
+| Halt / 429 / Steam 400 / Telegram | until US-015: `docker logs --since 30m dota_2_model-live-paper-1`. After rollout: `docker compose logs trader-live` / `trader-paper` |
 | Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
 
 ## PnL rules (strong)

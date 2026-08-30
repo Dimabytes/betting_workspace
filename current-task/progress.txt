@@ -227,4 +227,11 @@
   - Do not bake `.env` with `--build` (no dota_2_model `.dockerignore`).
   - Do not `up -d` without naming `trader-live trader-paper` while `live-paper` still runs (second live wallet on empty `live_paper_live`).
 
+## 2026-08-30 15:46 CEST - US-014 review
+
+- Fixed blocking: skill logs the running container `docker logs --since 30m dota_2_model-live-paper-1` (compose has no `live-paper` service). Halt row same. `## Two games` demoted to `###` under operations. Session journal schema 5 → 6.
+- Nits applied: `$800` exposure → 8× sum of loaded clips; compose-vs-running paragraph kept once in Two games.
+- `docker compose logs live-paper` exits 1 (`no such service`). `docker logs` on the container exits 0. `make lint-all` passed. summarize `--self-check` ok. US-014 stays passes true. US-015 not started.
+- Commits: dota_2_model `8b1faae`; betting_workspace this commit.
+
 
