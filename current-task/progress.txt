@@ -138,3 +138,9 @@
   - `_build_match(..., "dota")` is the US-010 seam; do not rewrite MarketDiscovery this story.
   - `make lint-all` skips untracked — `git add` first.
 
+## 2026-08-30 14:07 CEST - US-009 review
+
+- Fixed nit: `MatchMetaKalshi` docstring now says schema 4+ (matches `read_kalshi_block` / `kalshi_reason_from_document`). No other findings.
+- Checks: `make lint-all` passed; basedpyright 0 errors. Tests skipped (docstring only). live-paper Id/StartedAt unchanged. Commit `f8836ad`.
+- US-009 stays passes true.
+
