@@ -1,0 +1,13 @@
+## 2026-08-30 11:48 CEST - US-001
+
+- Added compact CBLOL (`lol-fxw7-los-2026-08-29`) and LEC (`lol-navi-gx-2026-08-29`) scoreboard + series_table fixtures in `dota_2_model/tests/lol_grid_widget_fixtures.py`.
+- Tests run them through existing `parse_frame`, `read_map_scoreboard`, `read_net_worth`. Production parser unchanged.
+- Checks: BLUE/RED sides, GAME_STATE_GROUP / PLAYER_ENTITY_GROUP, entity.teamColor `teams.<id>`, NetWorth/Kills/Deaths/KillAssistsGiven, increaseLevel absent before first level-up and present after, two sides / ten players / recorded NetWorth and Deaths sums.
+- **Learnings for future iterations:**
+  - GRID LoL portraits are character UUIDs; `hero_from_icon` returns "" and the parser still yields gold.
+  - GRID omits the whole `increaseLevel` column until the first level-up (not null cells). After it appears, some cells can still be null.
+  - LEC map 2 keeps `activeGameIndex=1`; NAVI was RED and GIANTX BLUE. Side is not team-order.
+  - Compact fixtures drop extra LoL columns (`ExperiencePoints`, `Money`, `LoadoutValue`, objectives). Parser only reads Game/Player typed fields.
+  - Production checkout had no leftover uncommitted Kalshi files; Kalshi work is already on main (`fix kalshi`).
+  - `make lint-all` skips untracked files: git add new tests before lint.
+
