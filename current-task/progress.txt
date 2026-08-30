@@ -91,3 +91,17 @@
 - **Learnings for future iterations:**
   - US-007 should consume `assigned_games` in `trading_mode` / a small helper, not grow `wallet_host.py` past 1k.
 
+## 2026-08-30 13:19 CEST - US-007
+
+- Extracted `open_wallet_host` + `run_wallet_daemon` into `host_resources.py`. `wallet_host.py` is 882 lines. `WalletHost.steam_client` may be None; LoL-paper `run()` waits instead of constructing `MarketDiscovery`.
+- `steam_required` follows `uses_steam`; `kalshi_required` follows assigned Dota. Dota-live opens CLOB wallet + Steam + Kalshi load. LoL-paper skips those three and still flocks the paper wallet with LoL clips. Empty assignment logs `mode=` + `assigned=()`, stays alive, opens nothing (no archive root either).
+- `read_template` extra profile tables are ignored; missing still errors. Committed `trading.toml` can serve Dota-only or LoL-only.
+- Checks: 123 pytest passed; `make lint-all` passed; `basedpyright` 0 errors. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. Commit `fc3e657`.
+- **Learnings for future iterations:**
+  - Extract `open_wallet_host` into `host_resources.py` because `wallet_host.py` was 995 lines; `host_resources` imports `WalletHost`, never the reverse.
+  - `read_template` must allow extra profile tables so one `trading.toml` serves both processes.
+  - LoL-only must not call `load_kalshi_settings` (shared env has Kalshi keys).
+  - Empty assignment must skip `load_archive_root`.
+  - `MarketDiscovery` still requires Steam — LoL-paper `run()` waits until US-010.
+  - Running Cmd still has no `--mode`.
+
