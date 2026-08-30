@@ -189,4 +189,14 @@
   - Compose YAML mount is file-only; do not up/restart. `make lint-all` skips untracked — `git add` first.
 - Review: no comments.
 
+## 2026-08-30 15:10 CEST - US-012 review
+
+- Unknown-game reject moved to `_launch` before mkdir/create_task. Reap no longer special-cases `completed`. `_pick_and_run` is pick-feed-then-run only.
+- Split pinned-Steam `CorruptFeedPin`: missing client vs missing server id.
+- Checks: 139 pytest passed; `make lint-all` passed; basedpyright 0 errors. US-012 stays passes true. Commit `c5f3576`.
+- **Learnings for future iterations:**
+  - Identity is a sync launch gate. Do not ride the worker-task/reap machine for a known-bad game key.
+  - `_start_or_defer` already skips `completed` records, so rediscovery of cs2 will not relaunch.
+- Review: blocking + nit both applied.
+
 
