@@ -210,5 +210,21 @@
   - Three `EntryGateInputs(` sites: match_worker, kalshi_decision, test `_gates`. basedpyright fails if either production site omits the field.
   - Do not grow Kalshi overlay/`quote_tick` args; Kalshi is Dota-only so index `GAME_PROFILES["dota"]` in `kalshi_decision`.
   - `make lint-all` skips untracked — `git add` first. Do not reuse backtest `nw_velocity_block_reason` (required `float`).
+- Review: no comments.
+
+## 2026-08-30 15:40 CEST - US-014
+
+- Operator docs and VPS diagnostics now match two traders (`trader-live` / `trader-paper`), four collectors, per-game modes, and two archive/model mounts. FILE-ONLY. Did not recreate, did not edit `.env`.
+- `summarize.py` scans `live_paper_live`, `live_paper_paper`, then leftover `data/live_paper`. `--game dota|lol`. Still finds today's Dota tape on the legacy tree.
+- Checks: 8 compose tests; `make lint-all`; basedpyright 0; `yarn typecheck`; `yarn check` 434; summarize `--self-check`. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` Cmd without `--mode`.
+- **Learnings for future iterations:**
+  - Compose names `trader-*` are the target; the running container is still `live-paper` until US-015. CLI/log prefix stays `live-paper`.
+  - Host binds `live_paper_live` / `live_paper_paper` vs in-container `data/live_paper`. Isolation is the bind, not a Python rename.
+  - `.env` mode/PK changes need `up -d --force-recreate`, not `restart`. YAML rename of `live-paper` is not applied by restart of the old container.
+  - Skill files are hardlinks (same inode under `.shared-skills`, `.cursor`, `.claude`, `.agents`). Write one path.
+  - `summarize.py` must keep the legacy tree until US-015 or the skill cannot find today's Dota matches.
+  - Collector `docs/docker-compose.md` still stale; `docker.test.ts` still asserts `logs -f archive compact`. Leave the collector repo alone.
+  - Do not bake `.env` with `--build` (no dota_2_model `.dockerignore`).
+  - Do not `up -d` without naming `trader-live trader-paper` while `live-paper` still runs (second live wallet on empty `live_paper_live`).
 
 

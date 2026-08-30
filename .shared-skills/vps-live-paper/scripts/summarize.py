@@ -13,8 +13,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-LIVE_PAPER = Path("/root/work/dota_2_model/data/live_paper")
-WALLET_DB = LIVE_PAPER / "wallet" / "live.db"
+DOTA_2_MODEL = Path("/root/work/dota_2_model")
+HOST_TREES: tuple[tuple[str, Path], ...] = (
+    ("live", DOTA_2_MODEL / "data" / "live_paper_live"),
+    ("paper", DOTA_2_MODEL / "data" / "live_paper_paper"),
+    ("legacy", DOTA_2_MODEL / "data" / "live_paper"),
+)
+LIVE_WALLET_CANDIDATES = (
+    DOTA_2_MODEL / "data" / "live_paper_live" / "wallet" / "live.db",
+    DOTA_2_MODEL / "data" / "live_paper" / "wallet" / "live.db",
+)
 BERLIN = ZoneInfo("Europe/Berlin")
 FEE_RATE = 0.05
 REBATE_RATE = 0.15
@@ -63,15 +71,37 @@ def iter_jsonl(path: Path):
                 continue
 
 
-def match_dirs() -> list[Path]:
-    if not LIVE_PAPER.is_dir():
-        return []
-    dirs = [
-        child
-        for child in LIVE_PAPER.iterdir()
-        if child.is_dir() and child.name != "wallet" and (child / "match.json").is_file()
-    ]
-    return sorted(dirs, key=lambda p: (p / "match.json").stat().st_mtime)
+def game_from_meta(meta: dict) -> str:
+    """Return match.json game; missing or empty is dota."""
+    game = meta.get("game")
+    if not game:
+        return "dota"
+    return str(game)
+
+
+def live_wallet_db() -> Path | None:
+    """First existing live.db among live then legacy. paper.db is not the funder."""
+    for path in LIVE_WALLET_CANDIDATES:
+        if path.is_file():
+            return path
+    return None
+
+
+def match_dirs() -> list[tuple[str, Path]]:
+    """Host trees in order, skip missing/empty. Each row is (tree, archive)."""
+    found: list[tuple[str, Path]] = []
+    for tree, root in HOST_TREES:
+        if not root.is_dir():
+            continue
+        children = [
+            child
+            for child in root.iterdir()
+            if child.is_dir() and child.name != "wallet" and (child / "match.json").is_file()
+        ]
+        if not children:
+            continue
+        found.extend((tree, child) for child in children)
+    return sorted(found, key=lambda item: (item[1] / "match.json").stat().st_mtime)
 
 
 def summarize_session(archive: Path) -> dict:
@@ -158,7 +188,7 @@ def fmt_money(value: float | None) -> str:
     return f"{number:+.4f}"
 
 
-def print_match_row(archive: Path, sess: dict, meta: dict) -> None:
+def print_match_row(archive: Path, sess: dict, meta: dict, tree: str) -> None:
     teams = meta.get("teams") or {}
     radiant = teams.get("radiant", "?")
     dire = teams.get("dire", "?")
@@ -166,6 +196,7 @@ def print_match_row(archive: Path, sess: dict, meta: dict) -> None:
     joined = meta.get("joined_at_utc", "")
     winner = (meta.get("final") or {}).get("winner")
     mode = (sess["start"] or {}).get("execution_mode", "?") if sess["start"] else "?"
+    game = game_from_meta(meta)
     if winner:
         status = winner
     elif sess["live"]:
@@ -174,7 +205,7 @@ def print_match_row(archive: Path, sess: dict, meta: dict) -> None:
         status = "done"
     cleanup = "cleanup" if (archive / "execution_cleanup.json").is_file() else "no-cleanup"
     print(
-        f"{archive.name}  {radiant} vs {dire}  map {map_no}  {status}  "
+        f"{archive.name}  [{tree}]  game={game}  {radiant} vs {dire}  map {map_no}  {status}  "
         f"mode={mode}  fills={sess['fill_count']}  "
         f"realized={fmt_money(sess['realized'])} imv={fmt_money(sess['imv'])} "
         f"rebate={fmt_money(sess['rebate'])} net={fmt_money(sess['net'])}  "
@@ -189,21 +220,23 @@ def in_berlin_day(stamp: str | None, day) -> bool:
     return parsed.astimezone(BERLIN).date() == day
 
 
-def cmd_list(today: bool, live_only: bool) -> None:
+def cmd_list(today: bool, live_only: bool, game: str | None) -> None:
     day = datetime.now(BERLIN).date()
     printed = 0
     day_net = 0.0
     day_rebate = 0.0
     day_count = 0
     live_count = 0
-    for archive in match_dirs():
+    for tree, archive in match_dirs():
         meta = load_json(archive / "match.json") or {}
+        if game is not None and game_from_meta(meta) != game:
+            continue
         if today and not in_berlin_day(meta.get("joined_at_utc"), day):
             continue
         sess = summarize_session(archive)
         if live_only and not sess["live"]:
             continue
-        print_match_row(archive, sess, meta)
+        print_match_row(archive, sess, meta, tree)
         printed += 1
         winner = (meta.get("final") or {}).get("winner")
         if sess["live"] and not winner:
@@ -227,7 +260,14 @@ def cmd_list(today: bool, live_only: bool) -> None:
 
 
 def cmd_one(match_id: str) -> None:
-    archive = LIVE_PAPER / match_id
+    hits = [(tree, archive) for tree, archive in match_dirs() if archive.name == match_id]
+    if not hits:
+        raise SystemExit(f"no match.json for {match_id} in live/paper/legacy trees")
+    for tree, archive in hits:
+        _print_one(match_id, tree, archive)
+
+
+def _print_one(match_id: str, tree: str, archive: Path) -> None:
     meta = load_json(archive / "match.json")
     if meta is None:
         raise SystemExit(f"no match.json at {archive}")
@@ -236,7 +276,7 @@ def cmd_one(match_id: str) -> None:
     market = meta.get("market") or {}
     model = meta.get("model") or {}
     final = meta.get("final") or {}
-    print(f"match {match_id}")
+    print(f"match {match_id}  [{tree}]  game={game_from_meta(meta)}")
     print(f"  {teams.get('radiant')} (radiant) vs {teams.get('dire')} (dire)  map {meta.get('map_number')}")
     print(f"  joined {meta.get('joined_at_utc')}  horn {meta.get('horn_at_utc')}")
     print(f"  market {market.get('market_slug')}  yes_is_radiant={market.get('yes_is_radiant')}")
@@ -295,17 +335,18 @@ def cmd_one(match_id: str) -> None:
 
 
 def cmd_wallet() -> None:
-    if not WALLET_DB.is_file():
-        print(f"no {WALLET_DB}")
+    wallet = live_wallet_db()
+    if wallet is None:
+        print("no live.db in live_paper_live or live_paper")
         return
-    conn = sqlite3.connect(f"file:{WALLET_DB}?mode=ro", uri=True)
+    conn = sqlite3.connect(f"file:{wallet}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     cash = conn.execute(
         "SELECT COALESCE(SUM(cash_delta), 0) AS s FROM fill_ledger WHERE status IN ('MATCHED', 'CONFIRMED')"
     ).fetchone()["s"]
     positions = list(conn.execute("SELECT token_id, size, avg_price FROM positions WHERE size != 0"))
     n_fills = conn.execute("SELECT COUNT(*) AS n FROM fill_ledger").fetchone()["n"]
-    print(f"wallet {WALLET_DB}")
+    print(f"wallet {wallet}")
     print(f"  ledger_net_cash={cash:+.4f}  fill_rows={n_fills}  nonzero_positions={len(positions)}")
     print("  this is inventory cash, not day PnL")
     for row in positions[:20]:
@@ -315,9 +356,10 @@ def cmd_wallet() -> None:
 
 def read_funder() -> str | None:
     """Return the pinned Safe / funder from live.db, or None."""
-    if not WALLET_DB.is_file():
+    wallet = live_wallet_db()
+    if wallet is None:
         return None
-    conn = sqlite3.connect(f"file:{WALLET_DB}?mode=ro", uri=True)
+    conn = sqlite3.connect(f"file:{wallet}?mode=ro", uri=True)
     try:
         row = conn.execute(
             "SELECT v FROM wallet_identity WHERE k='funder' AND v IS NOT NULL AND v != ''"
@@ -458,6 +500,16 @@ def print_polymarket_today(day) -> None:
     print("day number is polymarket_today pnl (cash+open). leftover BUY is not a loss if REDEEM paid.")
 
 
+def check_game_default() -> None:
+    """Fail if missing game is not dota."""
+    if game_from_meta({}) != "dota":
+        raise SystemExit("missing game must default to dota")
+    if game_from_meta({"game": "lol"}) != "lol":
+        raise SystemExit("lol game must stay lol")
+    if HOST_TREES[0][0] != "live" or HOST_TREES[1][0] != "paper" or HOST_TREES[2][0] != "legacy":
+        raise SystemExit("host tree order must be live, paper, legacy")
+
+
 def check_fold() -> None:
     """Fail if redeem is omitted from the day number."""
     day = datetime(2026, 8, 29, tzinfo=BERLIN).date()
@@ -479,12 +531,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--today", action="store_true", help="Berlin calendar day")
     parser.add_argument("--live", action="store_true", help="sessions without session_end")
+    parser.add_argument("--game", choices=("dota", "lol"), help="filter match.json game")
     parser.add_argument("--match", help="one Steam match id")
     parser.add_argument("--wallet", action="store_true", help="sqlite inventory snapshot")
     parser.add_argument("--self-check", action="store_true", help="assert redeem is in the day fold")
     args = parser.parse_args()
     if args.self_check:
         check_fold()
+        check_game_default()
         print("fold ok")
         return
     if args.match:
@@ -493,7 +547,7 @@ def main() -> None:
     if args.wallet:
         cmd_wallet()
         return
-    cmd_list(today=args.today, live_only=args.live)
+    cmd_list(today=args.today, live_only=args.live, game=args.game)
 
 
 if __name__ == "__main__":

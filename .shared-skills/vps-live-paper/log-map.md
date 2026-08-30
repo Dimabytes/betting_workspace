@@ -4,13 +4,16 @@ Read from SKILL.md when a reason/kind is unclear. Do not load this for a simple 
 
 ## Per-match files
 
-`data/live_paper/<steam_match_id>/`
+Host trees: `data/live_paper_live/<id>/` (live process), `data/live_paper_paper/<id>/`
+(paper process), leftover `data/live_paper/<id>/` until US-015. In-container the
+process still writes `data/live_paper/<match_id>/`.
 
 | File | Role |
 |---|---|
-| `match.json` | Start document, then finalized with `final`. Winner from last snapshot's surviving ancients. `pnl` is engine handoff, often zero after flatten |
-| `session.jsonl` | Trade tape. Schema 5. One compact JSON object per line |
-| `state.jsonl` | Raw Steam `GetRealtimeStats` plus `request_started_at_utc` / `received_at_utc`. Huge. Tail only |
+| `match.json` | Schema 5 + `game`. Start document, then finalized with `final`. Winner from last snapshot's surviving ancients. `pnl` is engine handoff, often zero after flatten. Missing `game` on read → `dota` |
+| `session.jsonl` | Trade tape. Schema 6. One compact JSON object per line |
+| `state.jsonl` | Raw Steam `GetRealtimeStats` plus `request_started_at_utc` / `received_at_utc`. Huge. Tail only. Dota Steam source |
+| `grid_state.jsonl` | Raw GRID socket frames. LoL archives this; Dota GRID source does too |
 | `execution_cleanup.json` | `{match_id, condition_id}` once orders on that market are proven gone |
 
 Skip the `wallet/` directory when listing matches.
@@ -23,7 +26,7 @@ Skip the `wallet/` directory when listing matches.
 
 **quote.** Engine placement batch. `decision` is `normal` or `reduce_only`. `fv_source` is `model` or `engine`. `placed[]` has token/side/price/size. `canceled[]` is order ids.
 
-**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won.
+**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won. PaperGateway fills are simulated.
 
 **tick_size_change.** Collector tick strings.
 
@@ -31,7 +34,7 @@ Skip the `wallet/` directory when listing matches.
 
 **session_end.** `terminal_reason`, leftover `positions` by token id, `net_cash`, `inventory_value`, `equity`. Null cash means trading never started or values were not finite.
 
-Telegram / docker:
+Telegram / docker (prefix stays `live-paper`, includes `mode live|paper`):
 
 ```
 live-paper session started: match <id> <radiant> vs <dire> map N market <slug> kind map_winner|series_winner condition 0x… mode live
@@ -65,13 +68,13 @@ live-paper session finished: match <id> realized X imv Y rebate Z net N leftover
 | `none` | Entry allowed |
 | `cutoff` | `second >= 540`, no new buys |
 | `min_delta` | `abs(fair - market) < 0.01` |
-| `nw_velocity` | 30s net-worth move above 350 |
-| `missing_nw` | No net-worth for the velocity gate |
+| `nw_velocity` | 30s net-worth move above 350. Dota only. LoL cap `None` skips this and `missing_nw` |
+| `missing_nw` | No net-worth for the velocity gate. Dota only |
 | `off_grid` | Price not on 0.01 grid |
 | `position_open` | Still in the clip, no second entry |
 | `no_edge` | Join bid has no edge vs fair |
 
-Trading window: Steam `game_state==5` and `0 <= second <= 599`. State 2 draft often has a positive clock; that is still `pre_horn`.
+Trading window: Steam `game_state==5` and `0 <= second <= 599`. State 2 draft often has a positive clock; that is still `pre_horn`. LoL is GRID-only.
 
 ## Wallet sqlite (`live.db`)
 
@@ -88,6 +91,8 @@ live-paper session started
 live-paper session finished
 live-paper session exhausted
 live-paper session abandoned
+live-paper assigned
+live-paper idle
 risk_halt
 HALTED
 429

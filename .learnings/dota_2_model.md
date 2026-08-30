@@ -4,24 +4,30 @@
 
 - Project path: `../dota_2_model` (sibling of `betting_workspace/`)
 - Read `../dota_2_model/AGENTS.md` before any work.
-- Live daemon on this VPS: Docker Compose service `live-paper` from
-  `../dota_2_model` (`compose.yaml`). Container name `dota_2_model-live-paper-1`.
-- `src`, `config`, and `data/new_model` are bind-mounted. Python/TOML/model
-  edits skip `--build`. WalletHost still loads `dota-map.toml` and `production/`
-  once at boot.
+- Compose file: `trader-live` (`--mode live`) and `trader-paper` (`--mode paper`).
+  After rollout the containers are `dota_2_model-trader-live-1` /
+  `dota_2_model-trader-paper-1`. Until US-015 the running name is still
+  `dota_2_model-live-paper-1` on `./data/live_paper`.
+- `src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted.
+  Python/TOML/model edits skip `--build`. WalletHost still loads
+  `config/trading.toml` and each assigned production model once at boot.
+- This VPS checkout is bind-mounted into production. Do not
+  `docker compose restart` / `up` / `--force-recreate` / `down` until the
+  controlled US-015 recreate.
 
 ## Kalshi overlay
 
 Kalshi sits next to Polymarket in the same WalletHost. Independent size, book,
-fair, orders, sqlite. A Kalshi miss does not stop PM.
+fair, orders, sqlite. A Kalshi miss does not stop PM. Kalshi opens only when
+assigned Dota is in this process. A LoL-only process does not load Kalshi.
 
 | What | Where |
 | --- | --- |
 | Env | `.env` (gitignored): `KALSHI_TRADING`, `KALSHI_KEY_ID`, `KALSHI_PRIVATE_KEY_PATH`, optional `KALSHI_SUBACCOUNT` (default 0). Smoke-only: `KALSHI_DEMO_KEY_ID`, `KALSHI_DEMO_PRIVATE_KEY_PATH`. Never `KALSHI_PRIVATE_KEY`. |
 | PEM | Host file mounted read-only into the container at the same path as `KALSHI_PRIVATE_KEY_PATH`. Unencrypted PKCS8. Do not log contents. |
-| TOML | `config/dota-map.toml` `[kalshi]`: `base_size_usd` (not derived from `base_size_usdc`), `book_stale_s`, `private_ws_blind_s`, `reconcile_interval_s`, `fence_timeout_s`. Not copied into fork TOML. |
-| Sqlite | `data/live_paper/wallet/kalshi.db` + flock `kalshi.db.lock`. Paper and live share the file (`source` column). |
-| match.json | Schema 4, always-present `kalshi` object. Schema 3 reads as Kalshi off. Bind writers live in `kalshi_meta.py`. |
+| TOML | `config/trading.toml` `[kalshi]`: `base_size_usd` (not derived from clips), `book_stale_s`, `private_ws_blind_s`, `reconcile_interval_s`, `fence_timeout_s`. Not copied into fork TOML. |
+| Sqlite | In-container `data/live_paper/wallet/kalshi.db` + flock `kalshi.db.lock`. Host live bind is `data/live_paper_live/wallet/`; paper bind is `data/live_paper_paper/wallet/`. Until US-015 the running tree is `data/live_paper/wallet/`. Paper and live share the file inside one process (`source` column). |
+| match.json | Writes schema 5 with `game`. Schema 4+ always-present `kalshi` object. Schema 3 reads as Kalshi off. Missing `game` on read → `dota`. Bind writers live in `kalshi_meta.py`. |
 | session.jsonl | Schema 6, `venue` `polymarket` \| `kalshi` on trade rows. Schema 1–5 omit venue = PM. Kalshi writers live in `kalshi_journal.py` (fill cursor = last `position_ledger.seq`). |
 | Ownership | `client_order_id` prefix `d2m-{sub}-` (hyphens; demo rejects dots). |
 | Smoke | `uv run python scripts/kalshi_execution_smoke.py --env demo`. WalletHost never starts it. `--env production` is rejected. |
@@ -41,7 +47,7 @@ Module map (`src/live_paper/`):
 | `kalshi_observe.py` | Public resolve + prior. Retries after a candle GET that dies on null close |
 
 `KALSHI_TRADING`: `off` / `observe` / `paper` / `live`. Default `off`. Independent
-of `LIVE_TRADING`. First cards 2026-08-28: `paper`.
+of `--mode`. First cards 2026-08-28: `paper`.
 
 Boot log line (health check): `live-paper config loaded [engine] [risk] [profiles] [wallet] [kalshi] kalshi_trading=…`.
 
@@ -51,16 +57,19 @@ a one-shot task.
 
 ## What to restart
 
-From `/root/work/dota_2_model`. Do not `compose down`.
+From `/root/work/dota_2_model`. Do not `compose down`. Check `summarize.py --live`
+plus logs first: a restart detaches that market. Running matches die.
 
-| What changed | What to do |
-| --- | --- |
-| `pyproject.toml` / `uv.lock` / Dockerfile / kalshi-sdk / poly-maker copy | `docker compose build`, confirm green, then `docker compose up -d` |
-| `src/` Python (`kalshi_*.py`, `process_lock.py`, `match_meta.py`, `session_journal.py`, `wallet_host.py`, …), `config/dota-map.toml` including `[kalshi]`, production model | `docker compose restart live-paper` (bind-mounted; no rebuild) |
-| `.env` `KALSHI_*` or the PEM volume in `compose.yaml` | `docker compose up -d` (recreate). `restart` does not re-read `env_file` |
-| Docs only (`docs/live-paper.md`) | nothing on the VPS |
+This production-mounted checkout: no restart until the controlled US-015
+rollout. `restart: unless-stopped` after a crash is not that rollout.
 
-A restart detaches any live market. Matches start 2026-08-28.
+| What changed | Service(s) | Restart vs recreate | Running matches |
+| --- | --- | --- | --- |
+| `src/` Python, `config/trading.toml`, Dota `data/new_model/production`, LoL `data/lol/models/production` | `trader-live` and/or `trader-paper` (the process that loaded it) | `docker compose restart` after `--live` is empty | die; archive resumes by append |
+| `.env` modes / Kalshi / PK | `trader-live` `trader-paper` | `up -d --force-recreate trader-live trader-paper` | die |
+| compose command/mounts/service split / first leave of `live-paper` | those trader services | recreate, not restart | die |
+| deps / Dockerfile / poly-maker copy | both traders | `docker compose build` then `up -d` | die. No `.dockerignore`; `--build` can bake host `.env` into `/app/.env` |
+| Docs only | nothing | nothing on the VPS | unchanged |
 
 Paper→live on the same `kalshi.db` is safe: REST compare ignores `source=paper`
 leftover. Do not invent a second db name.

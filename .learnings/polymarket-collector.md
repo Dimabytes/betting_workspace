@@ -3,11 +3,29 @@
 ## Setup
 
 - Project path: `../polymarket-collector` (sibling of `betting_workspace/`)
-- TypeScript daemon that archives Polymarket Dota 2 markets. Not a fork.
+- TypeScript daemon that archives Polymarket Dota 2 and LoL markets. Not a fork.
 - Yarn Berry + Node 24 + TypeScript 7 + Effect v4. Runs on the VPS through Docker Compose.
 - Feedback loop: `yarn check` (typecheck + Effect diagnostics + oxlint + tests). Leave it green.
 - This repo carries its own rules and specs. Read them before any change:
   `AGENTS.md`, `docs/polymarket_dota_archive_contracts.md` (normative), `docs/learnings.md`.
+
+## Compose
+
+One binary, four services. Only `archive-dota` has `build: .`; all four share
+`image: polymarket-collector:latest`.
+
+| Service | Role | Host bind | `POLYMARKET_TAG_ID` |
+| --- | --- | --- | --- |
+| `archive-dota` | collect | `/var/lib/polymarket-dota-archive` | `"102366"` |
+| `compact-dota` | compact | `/var/lib/polymarket-dota-archive` | `"102366"` |
+| `archive-lol` | collect | `/var/lib/polymarket-lol-archive` | `"65"` |
+| `compact-lol` | compact | `/var/lib/polymarket-lol-archive` | `"65"` |
+
+`POLYMARKET_TAG_ID` is required (no default). Empty/whitespace is rejected. Compose
+pins the tag per service; do not set the tag only in `.env`. In-container both
+roots are still `ARCHIVE_ROOT=/data`. Traders mount those host roots read-only at
+`/archive/dota` and `/archive/lol`. Compact is offline parquet; it does not affect
+quoting.
 
 ## What it produces
 
@@ -26,8 +44,9 @@ the outputs sit in a host bind mount.
 
 ## Discovery
 
-- Polls Gamma Events every 60 seconds with `tag_id=102366`, `active=true`, `closed=false`.
-  The tag id is explicit configuration; do not change the v1 default automatically.
+- Polls Gamma Events every 60 seconds with the service's `POLYMARKET_TAG_ID`,
+  `active=true`, `closed=false`. Dota is `102366`, LoL is `65`. There is no v1
+  default tag.
 - Keeps two market kinds: `moneyline` + `Match Winner` (series) and
   `child_moneyline` + `Game N Winner` (map).
 - A missing Event in one poll is not a signal to drop the subscription. A token leaves the
@@ -36,8 +55,9 @@ the outputs sit in a host bind mount.
 
 ## Reuse from other projects
 
-- Do not write another Gamma discovery for Dota. Read `metadata/markets/*.json` instead.
+- Do not write another Gamma discovery for Dota or LoL. Read `metadata/markets/*.json` instead.
 - Do not copy the order book into another archive. Read it by `asset_id` and day.
-- Reading the sidecars needs access to `ARCHIVE_ROOT`. Run the collector locally through its
-  `compose.yaml`, or mount the VPS directory.
+- Reading the sidecars needs access to that game's archive root. Run the collector locally
+  through its `compose.yaml`, or mount the VPS directory.
+- Fresh sidecars (mtime last 2h) live under `metadata/markets/*.json`.
 - Telegram alerts already exist here: `TG_BOT_API_TOKEN` and `TG_CHAT_ID`.
