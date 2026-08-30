@@ -83,3 +83,11 @@
   - `conftest` now `delenv LIVE_TRADING`; any assigned value (including `"0"`) trips `reject_legacy_env`.
   - `make lint-all` skips untracked files: `git add` first.
 
+## 2026-08-30 13:00 CEST - US-006 review
+
+- Renamed autouse fixture `force_paper_trading_flag` → `clear_legacy_live_trading`. Commented `assigned_games(mode)` as validate-only until US-007 (did not bind unused `games`; ruff F841).
+- Skipped wallet_host 1k-line split: this story is 995 lines; moving boot policy is US-007 work.
+- Checks: 93 pytest passed; `make lint-all` passed; `basedpyright` 0 errors. US-006 stays passes true.
+- **Learnings for future iterations:**
+  - US-007 should consume `assigned_games` in `trading_mode` / a small helper, not grow `wallet_host.py` past 1k.
+
