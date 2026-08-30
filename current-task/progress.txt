@@ -199,4 +199,16 @@
   - `_start_or_defer` already skips `completed` records, so rediscovery of cs2 will not relaunch.
 - Review: blocking + nit both applied.
 
+## 2026-08-30 15:18 CEST - US-013
+
+- `EntryGateInputs.max_abs_nw_delta_30: float | None` is required. `evaluate_entry` skips both `MISSING_NW` and `NW_VELOCITY` when the cap is `None`; numeric cap still does `isnan` then `>=`.
+- match_worker indexes `GAME_PROFILES[self._discovered.game]`; Kalshi uses `GAME_PROFILES["dota"]`. `_nw.record` still runs for LoL.
+- Tests: LoL 400 gold enters, Dota 400 is `NW_VELOCITY`; Dota NaN is `MISSING_NW`, LoL NaN is `NONE`; other gates parametrized over both caps. 125 pytest passed; `make lint-all` passed; basedpyright 0 errors. Commit `d04347d`.
+- live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. No compose, no `.env`, no docs.
+- **Learnings for future iterations:**
+  - `None` skips both gold-velocity reasons. A fake cap like `999999` would still `MISSING_NW` on NaN GRID holes.
+  - Three `EntryGateInputs(` sites: match_worker, kalshi_decision, test `_gates`. basedpyright fails if either production site omits the field.
+  - Do not grow Kalshi overlay/`quote_tick` args; Kalshi is Dota-only so index `GAME_PROFILES["dota"]` in `kalshi_decision`.
+  - `make lint-all` skips untracked — `git add` first. Do not reuse backtest `nw_velocity_block_reason` (required `float`).
+
 
