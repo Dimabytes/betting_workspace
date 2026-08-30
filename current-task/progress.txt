@@ -104,4 +104,24 @@
   - Empty assignment must skip `load_archive_root`.
   - `MarketDiscovery` still requires Steam — LoL-paper `run()` waits until US-010.
   - Running Cmd still has no `--mode`.
+- Review: no comments.
+
+## 2026-08-30 13:34 CEST - scope override: US-015 in, one implementer
+
+- User delivered LoL production model on this VPS (`data/lol/models/production/`, name `20260830T112804Z`, commit `13402bf` / merge `520deb8`). Contract on disk: `state_source=lolesports_window_details_grid_networth`, `feature_set=base`, horizon 300, `train_second_max=540`, `row_stride=1`, `train_matches=4229`, 12 canonical features.
+- Explicit override: after US-014, run US-015 (do not leave it pending). Simplified flow like US-003: one deployment implementer via feature-json-implement-step, no separate planner or code-quality reviewer.
+- User accepted this model for paper launch. Set `DOTA_TRADING_MODE=live`, `LOL_TRADING_MODE=paper`, recreate `trader-live` + `trader-paper` only at US-015.
+- Continue sequential US-008..US-014 first. Do not recreate dota_2_model until US-015.
+
+## 2026-08-30 13:36 CEST - US-008
+
+- Replaced compose `live-paper` with `trader-live` (`--mode live`, `./data/live_paper_live`) and `trader-paper` (`--mode paper`, `./data/live_paper_paper`). Dropped `env_file`. Listed keys under `environment`. PK/BROWSER_ADDRESS only on live. Archives at `/archive/dota` and `/archive/lol`. No `ARCHIVE_ROOT`. Makefile `trader` with `MODE ?= paper`. Empty gitignored host dirs; did not copy `data/live_paper`. File-only: no compose up/restart.
+- Checks: 8 compose tests + 36 with orchestrator/trading_mode; `make lint-all` passed; basedpyright 0 errors. `docker compose config --services` = trader-live, trader-paper. Paper env has no PK/BROWSER_ADDRESS/LIVE_TRADING. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged, no trader-* containers. Commit `2d6d2c9`.
+- **Learnings for future iterations:**
+  - `env_file: .env` dumps `PK` and `LIVE_TRADING` into every service. Drop it and list keys. Project `.env` still interpolates `${PK}` for live only.
+  - `docker compose config` interpolates secrets; tests must use `--no-interpolate` and assert key names, never values.
+  - Do not default `DOTA_TRADING_MODE` to live in YAML; empty is fail-closed until US-015 edits `.env`.
+  - Running container is still `live-paper` / `./data/live_paper`. YAML rename does not recreate it. A stray `up -d` would start a second live wallet on empty `live_paper_live`.
+  - `ARCHIVE_ROOT` removed because mounts moved under `/archive/dota` and `/archive/lol`. Accidental recreate before US-010 fail-closes on `load_archive_root`.
+  - Image currently has no `/app/.env`, but a future `--build` without dockerignore can bake host `.env` and `env_value` would feed `PK` to paper.
 
