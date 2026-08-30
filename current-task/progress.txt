@@ -158,4 +158,19 @@
   - `_pick_and_run` still waits without Steam (US-012). Discovered LoL matches waiting_for_feed is expected.
   - `make lint-all` skips untracked — `git add` first.
   - Do not pass the process Steam client into LoL discovery (false name-link against Dota live-list rows).
+- Review: no comments.
+
+## 2026-08-30 14:43 CEST - US-011
+
+- `GridFrameReducer` / `GridLiveFeed` take required `GameProfile`. `_lock_sides` uses `profile.side_0_text` / `side_1_text`. XP via `xp_advantage(profile.level_xp, ...)`. LoL top1 is `/ team total`; Dota keeps rest formula via new `build_top_player_features_over_total`.
+- Compile seam: `feed_selection` passes `GAME_PROFILES[handoff.game]`; match_meta replay uses `document.get("game") or "dota"`. `RADIANT_SIDE` import moved from `grid_feed` to `grid_widgets`.
+- Checks: 160 pytest passed; `make lint-all` passed; basedpyright 0 errors. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. Commit `1d01c9a`.
+- **Learnings for future iterations:**
+  - `read_board_sides` was already parameterized (US-010); `_lock_sides` was the leftover Dota constant.
+  - Missing `increaseLevel` is parser level 1. Do not reimplement in the reducer.
+  - US-001 before-level-up gold is 2450/2350, not 5x500, so 0.20 lives in `test_top_players`.
+  - `match_meta` imported `RADIANT_SIDE` from `grid_feed` (re-export) — move to `grid_widgets`.
+  - `GridLiveFeed` must take profile or typecheck dies.
+  - `_pick_and_run` Steam wait is still US-012.
+  - `make lint-all` skips untracked — `git add` first.
 
