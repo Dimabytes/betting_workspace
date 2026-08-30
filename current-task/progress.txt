@@ -173,4 +173,20 @@
   - `GridLiveFeed` must take profile or typecheck dies.
   - `_pick_and_run` Steam wait is still US-012.
   - `make lint-all` skips untracked — `git add` first.
+- Review: no comments.
+
+## 2026-08-30 15:02 CEST - US-012
+
+- LoL `_pick_live_source` is GRID-only via `uses_steam`; Dota still delay-compares. `select_feed` accepts `SteamClient | None`. Removed `_pick_and_run` Steam-None wait so LoL workers launch.
+- `load_production_model(profile)` reads `model.txt`/`model.json` from `profile.production_model_dir`. WalletHost stores `game -> model`. Unknown identity sets `completed=True` (reap skips it).
+- MatchWorker attach uses `GAME_PROFILES[discovered.game].profile_name` and `archive_for(game)`. Compose file-only mount `./data/lol/models` ro on both traders.
+- Checks: 285 pytest passed; `make lint-all` passed; basedpyright 0 errors. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. Commit `192ac92`.
+- **Learnings for future iterations:**
+  - GridLiveFeed already took a profile (US-011). The LoL launch blocker was `_pick_and_run` waiting solely because `steam_client is None`.
+  - Tests must `replace(GAME_PROFILES[g], production_model_dir=tmp)` — patching `PRODUCTION_MODEL_PATH` no longer selects the load dir.
+  - Unknown game must `completed=True`; reap treated a clean return without `waiting_for_feed` as a crash until reap also skipped completed records.
+  - `Config` is frozen: attach tests record `profile_for` via a FakeEngine cfg stub, not `setattr` on Config.
+  - Compose YAML mount is file-only; do not up/restart. `make lint-all` skips untracked — `git add` first.
+- Review: no comments.
+
 
