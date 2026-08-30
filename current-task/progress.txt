@@ -67,4 +67,19 @@
   - Production must pass both profiles against the committed file or boot crashes on extra `lol-map`.
   - `DiscoveredMatch` has no `game` field yet; `materialize_config_dir` takes `game: str`.
   - `make lint-all` skips untracked/renames: `git add` the `git mv` before lint.
+- Review: no comments.
+
+## 2026-08-30 12:53 CEST - US-006
+
+- CLI `--mode live|paper` is required. `execution_mode` no longer reads `LIVE_TRADING`. `assigned_games` validates both `DOTA_TRADING_MODE` / `LOL_TRADING_MODE` (missing/empty/unknown fail; explicit `off` unassigns). `reject_legacy_env` fails if `LIVE_TRADING` is set at all.
+- `run_wallet_daemon` validates env then still opens Steam/Kalshi/wallet for both games. Compose `live-paper` gained `command: … --mode live` (file only). Makefile `live-paper` appends `--mode paper`. Dockerfile and `.env` untouched.
+- Checks: 93 pytest passed; `make lint-all` passed; `basedpyright` 0 errors. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` Cmd still without `--mode`.
+- **Learnings for future iterations:**
+  - Running container Cmd has no `--mode`. `restart: unless-stopped` reuses that stored Cmd; compose `command:` is not applied until recreate (US-015). Do not `docker compose up`.
+  - Host `.env` still has `LIVE_TRADING=1` and neither per-game var. A new process fail-closes even with `--mode`. Do not edit `.env` until US-015.
+  - Tests must patch `live_paper.trading_mode.env_value`; `env_value` reads repo `.env`.
+  - Kalshi unset/blank=`off` must not be copied; missing per-game mode is a startup error.
+  - `assigned_games` result is discarded until US-007; materialize still gets both GameProfiles.
+  - `conftest` now `delenv LIVE_TRADING`; any assigned value (including `"0"`) trips `reject_legacy_env`.
+  - `make lint-all` skips untracked files: `git add` first.
 
