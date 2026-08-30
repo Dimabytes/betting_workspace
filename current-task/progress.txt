@@ -144,3 +144,18 @@
 - Checks: `make lint-all` passed; basedpyright 0 errors. Tests skipped (docstring only). live-paper Id/StartedAt unchanged. Commit `f8836ad`.
 - US-009 stays passes true.
 
+## 2026-08-30 14:27 CEST - US-010
+
+- `load_archive_root(profile)` reads `DOTA_ARCHIVE_ROOT` / `LOL_ARCHIVE_ROOT`. No `ARCHIVE_ROOT` fallback.
+- `MarketDiscovery` takes `GameProfile` and `SteamClient | None`. Null Steam skips live-list and server-id fetches. GRID sides come from `profile.side_0_text` / `side_1_text`; `DiscoveredMatch.game` is `profile.game`.
+- LoL uses `sidecar.grid_series_id` only (no Match Winner inheritance). Identical sides and ambiguous names emit nothing.
+- WalletHost builds one discovery per assigned game. `poll_discoveries` takes a tuple, one sleep, `merge_cycle_matches`. `run()` no longer Event-waits on missing Steam; `_pick_and_run` still does.
+- Checks: 212 pytest passed; `make lint-all` passed; basedpyright 0 errors. `wallet_host.py` 895 lines. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. Commit `a1d298c`.
+- **Learnings for future iterations:**
+  - LoL must not use `_effective_grid_series_id` (Dota Match Winner inheritance). Gate on `not profile.uses_steam` / `sidecar.grid_series_id`.
+  - `side_team` already rejects duplicate `infoText`; `read_board_sides` needs caller side names this story but reducer stays RADIANT/DIRE.
+  - Do not loop two sidecar scans over all workers (missing CID → safe mode). Refresh stays on `self.archive_root` (first game).
+  - `_pick_and_run` still waits without Steam (US-012). Discovered LoL matches waiting_for_feed is expected.
+  - `make lint-all` skips untracked — `git add` first.
+  - Do not pass the process Steam client into LoL discovery (false name-link against Dota live-list rows).
+
