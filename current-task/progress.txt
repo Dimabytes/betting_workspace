@@ -11,3 +11,15 @@
   - Production checkout had no leftover uncommitted Kalshi files; Kalshi work is already on main (`fix kalshi`).
   - `make lint-all` skips untracked files: git add new tests before lint.
 
+## 2026-08-30 11:57 CEST - US-002
+
+- Collector tag is `Settings.polymarketTagId` / required `POLYMARKET_TAG_ID` (no default). Empty/whitespace fail `validateSettings`; missing/empty env fail at Config load.
+- `compose.yaml` has `archive-dota`/`compact-dota` (tag 102366, dota archive) and `archive-lol`/`compact-lol` (tag 65, lol archive). One `build: .` on `archive-dota`. Not applied.
+- Checks: targeted config/docker/app tests, `yarn typecheck`, `yarn check` (434 tests), `docker compose config --services` shows four services. Running stack still `archive`/`compact` Up ~8 days.
+- **Learnings for future iterations:**
+  - Effect empty env ≡ missing, so empty `POLYMARKET_TAG_ID` fails at Config load; whitespace is what hits `validateSettings` trim.
+  - `app.test.ts` `withArchiveRoot` must supply `POLYMARKET_TAG_ID` or almost all daemon tests fail missing-key.
+  - Production still runs `archive`/`compact` until US-003. Editing compose on disk does not recreate them.
+  - `docker.test.ts` runbook half still documents old `archive`/`compact` names; do not update runbook until US-014.
+  - `JSON.stringify` in config error text fails Effect `preferSchemaOverJson`; quote the raw value instead.
+
