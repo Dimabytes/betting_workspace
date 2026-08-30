@@ -53,4 +53,18 @@
   - `make lint-all` skips untracked files: `git add` the new module before lint.
   - `object.__setattr__` bypasses frozen dataclasses (no slots); call `profile.__setattr__` to assert `FrozenInstanceError` without a direct assignment basedpyright rejects.
   - Dota sides are locked to `RADIANT_SIDE` / `DIRE_SIDE` in tests; LoL `"BLUE"` / `"RED"` stay profile field literals (do not add them to `grid_widgets.py` until US-011).
+- Review: no comments.
+
+## 2026-08-30 12:36 CEST - US-005
+
+- Renamed `config/dota-map.toml` → `config/trading.toml`. Added `[profiles.lol-map]` with `base_size_usdc=20.0` and the same key set; Dota clip stays 50.
+- `read_template(games)` pins exactly those `profiles.*` tables. Risk dollars from the sum of loaded clips; each profile's `q_max_usdc`/`merge_min_size` from its own clip. Wallet materialize picks the largest clip (`dota-map` when both).
+- Production callers pass both GameProfiles. `match_worker` still hardcodes `"dota-map"`. No compose restart. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged.
+- Checks: 98 pytest passed; `make lint-all` passed; `basedpyright` 0 errors.
+- **Learnings for future iterations:**
+  - compose already mounts `./config` as a directory, so the rename needs no YAML change.
+  - Running live-paper still has the old `dota-map.toml` in memory; a rename on disk is not a rollout.
+  - Production must pass both profiles against the committed file or boot crashes on extra `lol-map`.
+  - `DiscoveredMatch` has no `game` field yet; `materialize_config_dir` takes `game: str`.
+  - `make lint-all` skips untracked/renames: `git add` the `git mv` before lint.
 
