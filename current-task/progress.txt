@@ -124,4 +124,17 @@
   - Running container is still `live-paper` / `./data/live_paper`. YAML rename does not recreate it. A stray `up -d` would start a second live wallet on empty `live_paper_live`.
   - `ARCHIVE_ROOT` removed because mounts moved under `/archive/dota` and `/archive/lol`. Accidental recreate before US-010 fail-closes on `load_archive_root`.
   - Image currently has no `/app/.env`, but a future `--build` without dockerignore can bake host `.env` and `env_value` would feed `PK` to paper.
+- Review: no comments.
+
+## 2026-08-30 13:51 CEST - US-009
+
+- Required `game` on `DiscoveredMatch` / `MatchStart`. Discovery `_build_match(..., "dota")` is the US-010 seam. `match.json` schema 5 writes `game`; leftovers 3/4 stay unread.
+- Kalshi helpers use "has kalshi object", not `schema_version == 4`, so schema 5 still binds. Boot scan ACCEPTED includes 5.
+- Checks: 284 pytest passed; `make lint-all` passed; basedpyright 0 errors. live-paper Id=`a188e0d8ebb5…` StartedAt=`2026-08-30T07:23:39Z` unchanged. Commit `311493a`.
+- **Learnings for future iterations:**
+  - Do not inject `game` into parsed v3/v4 dicts (`finalize`/`pin_horn` rewrite the dict). Default only in `_match_start_from_document`.
+  - `kalshi_reason_from_document` / `update_kalshi_binding` must not stay `== 4` or schema 5 kills Kalshi.
+  - Session journal stays schema 6; no `game` on provenance.
+  - `_build_match(..., "dota")` is the US-010 seam; do not rewrite MarketDiscovery this story.
+  - `make lint-all` skips untracked — `git add` first.
 
