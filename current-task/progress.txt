@@ -234,4 +234,23 @@
 - `docker compose logs live-paper` exits 1 (`no such service`). `docker logs` on the container exits 0. `make lint-all` passed. summarize `--self-check` ok. US-014 stays passes true. US-015 not started.
 - Commits: dota_2_model `8b1faae`; betting_workspace this commit.
 
+## 2026-08-30 15:56 CEST - US-015
+
+- LoL production model `20260830T112804Z` re-verified on disk: `state_source=lolesports_window_details_grid_networth`, `feature_set=base`, horizon 300, `train_second_max=540`, `row_stride=1`, `train_matches=4229`, 12 canonical features matching `FEATURE_COLUMNS`. Did not retrain.
+- `dota_2_model` main clean at `8b1faae`. US-001 + US-004..US-014 on main. Kalshi already on main (`9280da4 fix kalshi`). No dirty product files.
+- Host `.env`: `DOTA_TRADING_MODE=live`, `LOL_TRADING_MODE=paper`, `DOTA_ARCHIVE_ROOT=/archive/dota`, `LOL_ARCHIVE_ROOT=/archive/lol`. Removed `LIVE_TRADING`. Not committed.
+- Migrated live wallet only: `data/live_paper/wallet/{live.db,live.db-wal,live.db-shm,kalshi.db,kalshi.db.lock,engine_journal/live.jsonl}` → `data/live_paper_live/wallet/`. live.db 3.9M identical. Did not copy `paper.db`. `data/live_paper_paper` started empty.
+- Recreate 2026-08-30T13:50:17Z: `docker compose up -d --no-build --pull never --force-recreate --remove-orphans trader-live trader-paper`. Tagged existing image `7878242dafd6` so compose did not `--build` (would bake `.env`). Old `dota_2_model-live-paper-1` removed. Did not reboot. Did not touch poly-maker or collector.
+- trader-live: `assigned: mode=live games=dota`, `--mode live`, bind `data/live_paper_live`, PK present, `engine_started paper=False`, Dota model `20260825T193532Z`. Rediscovered 8974217041 (session `execution_mode=live`, signals `outside_window`) and finished 8974185539. Gold-velocity still `MAX_ABS_NW_DELTA_30=350.0`. Polling `game=dota archive=/archive/dota`.
+- trader-paper: `assigned: mode=paper games=lol`, `--mode paper`, bind `data/live_paper_paper`, no PK/BROWSER_ADDRESS/LIVE_TRADING (exec env empty). `engine_started paper=True`, `kalshi_trading=off`, gateway `0xPAPER`. Discovery `game=lol archive=/archive/lol`. Emitted LoL `grid-2966909-m1` (Movistar KOI vs Heretics); GRID `series_scoreboard_v2` + `series_table` archiving; map still pre-start so no `match.json`/model tick yet. Cycle also `map_mismatches=1 series_skips=1`. 154 tradeable LoL sidecars without `gridSeriesId` created no extra match dirs. Zero session.jsonl fills / empty `paper.jsonl`.
+- Data dirs not shared (inodes 1950896 vs 1950897). Collectors four services same Ids as 10:03Z.
+- Checks: 34 pytest (compose + trading_mode); `make lint-all` passed; basedpyright 0. Collector untouched, yarn skipped. dota_2_model no tracked diff.
+- Rollback: `.env` `LOL_TRADING_MODE=paper` or `off`, then `docker compose up -d --force-recreate trader-live trader-paper`.
+- **Learnings for future iterations:**
+  - Service rename needs `--remove-orphans` or old `live-paper` keeps running with PK beside `trader-live`.
+  - `up` without `--no-build` would rebuild `dota_2_model-trader-*` and `COPY dota_2_model /app` bakes host `.env` (no dockerignore). Tag the existing image first.
+  - Copy wallet after `docker stop` so sqlite WAL is consistent. Do not copy `paper.db` into the live tree.
+  - Compose YAML already sets archive roots; host `.env` still needed for `${DOTA_TRADING_MODE}` / `${LOL_TRADING_MODE}` interpolation.
+  - GRID draft (`Game Started=false`) archives `grid_state.jsonl` but does not write `match.json` until the reducer yields.
+
 

@@ -352,7 +352,7 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "designReference": []
     }
   ]
