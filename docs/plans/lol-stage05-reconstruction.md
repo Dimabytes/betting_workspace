@@ -7,10 +7,10 @@ todos:
   status: completed
 - id: "phase-2-map-rules"
   content: "Скип вместо дропа для window stamp, счётчики пропущенных кадров с порогом, отдельная причина для пустой карты, граница поиска spawn, чистка apply_split_eligibility"
-  status: pending
+  status: completed
 - id: "phase-3-rerun"
   content: "Один прогон prepare, зафиксировать реальный stage05_audit.json, сверить с ожидаемыми числами"
-  status: pending
+  status: completed
 - id: "phase-4-ab"
   content: "train + backtest на новых данных, sensitivity по ok_quote_fraction, замер sign flip при offset +5 и +7"
   status: pending
