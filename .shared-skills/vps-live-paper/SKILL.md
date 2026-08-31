@@ -101,7 +101,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 
 ## Common false alarms
 
-- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (Dota only, cap 350), `cutoff` (after t=540), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all. LoL skips gold-velocity.
+- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=540), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all.
 - **Stopped quoting after one clip.** Round-trip then dust below `min_order_size` (usually 5 shares) is forgotten on purpose. Check leftover sizes on `session finished`.
 - **Telegram start but no finish.** Finish fires after Steam `game_state==6` and cleanup. A 400-zombie / no-snapshot death goes through backoff, not `session finished`. LoL GRID finish is pinned-map `status == finished`.
 - **Halt leftover.** Wallet-wide. New matches will not size in until restart or the halt clears. Do not restart just to "see if it helps" unless asked.
