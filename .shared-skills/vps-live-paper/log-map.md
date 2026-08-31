@@ -34,14 +34,26 @@ Skip the `wallet/` directory when listing matches.
 
 **session_end.** `terminal_reason`, leftover `positions` by token id, `net_cash`, `inventory_value`, `equity`. Null cash means trading never started or values were not finite.
 
-Telegram / docker (prefix stays `live-paper`, includes `mode live|paper`):
+Telegram / docker (prefix stays `live-paper`; first identity line is `GAME · live|paper · kind`):
 
 ```
-live-paper session started: match <id> <radiant> vs <dire> map N market <slug> kind map_winner|series_winner condition 0x… mode live
-live-paper session finished: match <id> realized X imv Y rebate Z net N leftover yes A no B
+live-paper session started
+DOTA · live · map_winner
+Aurora vs Team Secret · map 1
+dota2-aurora-secret-game1
+8944931337
+
+live-paper session finished
+DOTA · live · map_winner
+Aurora vs Team Secret · map 1
+dota2-aurora-secret-game1
+8944931337
+net +1.7600
+realized 1.2500  imv 0.5000  rebate 0.0100
+leftover yes 2.0000  no 0.0000
 ```
 
-`net = realized + imv + rebate` when realized and imv are both present, else `n/a`.
+Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + imv + rebate` when realized and imv are both present, else `n/a`.
 
 ## Signal reasons
 
@@ -68,8 +80,8 @@ live-paper session finished: match <id> realized X imv Y rebate Z net N leftover
 | `none` | Entry allowed |
 | `cutoff` | `second >= 540`, no new buys |
 | `min_delta` | `abs(fair - market) < 0.01` |
-| `nw_velocity` | 30s net-worth move above 350. Dota only. LoL cap `None` skips this and `missing_nw` |
-| `missing_nw` | No net-worth for the velocity gate. Dota only |
+| `nw_velocity` | 30s net-worth move above 350. Dota and LoL. |
+| `missing_nw` | No net-worth for the velocity gate. Dota and LoL. |
 | `off_grid` | Price not on 0.01 grid |
 | `position_open` | Still in the clip, no second entry |
 | `no_edge` | Join bid has no edge vs fair |
