@@ -156,8 +156,8 @@ Verify assignment and no live LoL CLOB:
 docker compose -f /root/work/dota_2_model/compose.yaml ps
 docker compose -f /root/work/dota_2_model/compose.yaml logs --since 5m trader-live
 docker compose -f /root/work/dota_2_model/compose.yaml logs --since 5m trader-paper
-# trader-live:  live-paper assigned: mode=live games=dota
-# trader-paper: live-paper assigned: mode=paper games=lol
+# trader-live:  live-paper assigned: mode=live games=dota,lol
+# trader-paper: live-paper idle: mode=paper assigned=()
 # neither: LIVE_TRADING is removed
 
 docker compose -f /root/work/dota_2_model/compose.yaml exec trader-paper env | grep -E '^(PK|BROWSER_ADDRESS|LIVE_TRADING)=' || true
@@ -177,7 +177,8 @@ cd /root/work/dota_2_model
 docker compose up -d --force-recreate trader-live trader-paper
 ```
 
-`LOL_TRADING_MODE=live` is later, not now.
+Both games live: `LOL_TRADING_MODE=live` with Dota live. `trader-live`
+gets `games=dota,lol`; `trader-paper` idles (`assigned=()`).
 
 ## Details
 
