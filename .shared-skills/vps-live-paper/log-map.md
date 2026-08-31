@@ -82,7 +82,7 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 | `min_delta` | `abs(fair - market) < 0.01` |
 | `nw_velocity` | 30s net-worth move above 350. Dota and LoL. |
 | `missing_nw` | No net-worth for the velocity gate. Dota and LoL. |
-| `off_grid` | Price not on 0.01 grid |
+| `off_grid` | CLOB tick coarser than 0.01 |
 | `position_open` | Still in the clip, no second entry |
 | `no_edge` | Join bid has no edge vs fair |
 
