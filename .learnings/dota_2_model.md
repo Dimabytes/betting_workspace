@@ -18,14 +18,15 @@
 ## Kalshi overlay
 
 Kalshi sits next to Polymarket in the same WalletHost. Independent size, book,
-fair, orders, sqlite. A Kalshi miss does not stop PM. Kalshi opens only when
-assigned Dota is in this process. A LoL-only process does not load Kalshi.
+fair, orders, sqlite. A Kalshi miss does not stop PM. Kalshi opens when this
+process has assigned games. A LoL-only process can start Kalshi.
+`KALSHI_TRADING=off` still opens no HTTP or WS.
 
 | What | Where |
 | --- | --- |
 | Env | `.env` (gitignored): `KALSHI_TRADING`, `KALSHI_KEY_ID`, `KALSHI_PRIVATE_KEY_PATH`, optional `KALSHI_SUBACCOUNT` (default 0). Smoke-only: `KALSHI_DEMO_KEY_ID`, `KALSHI_DEMO_PRIVATE_KEY_PATH`. Never `KALSHI_PRIVATE_KEY`. |
 | PEM | Host file mounted read-only into the container at the same path as `KALSHI_PRIVATE_KEY_PATH`. Unencrypted PKCS8. Do not log contents. |
-| TOML | `config/trading.toml` `[kalshi]`: `base_size_usd` (not derived from clips), `book_stale_s`, `private_ws_blind_s`, `reconcile_interval_s`, `fence_timeout_s`. Not copied into fork TOML. |
+| TOML | `config/trading.toml` `[kalshi]`: `dota_base_size_usd` ($5), `lol_base_size_usd` ($10). Not derived from USDC clips. `0.0` forbids new entries for that game; exits still close actual size. Timeouts: `book_stale_s`, `private_ws_blind_s`, `reconcile_interval_s`, `fence_timeout_s`. Not copied into fork TOML. Clip is one entry on one ticker, not a day or portfolio cap. |
 | Sqlite | In-container `data/live_paper/wallet/kalshi.db` + flock `kalshi.db.lock`. Host live bind is `data/live_paper_live/wallet/`; paper bind is `data/live_paper_paper/wallet/`. Until US-015 the running tree is `data/live_paper/wallet/`. Paper and live share the file inside one process (`source` column). |
 | match.json | Writes schema 5 with `game`. Schema 4+ always-present `kalshi` object. Schema 3 reads as Kalshi off. Missing `game` on read → `dota`. Bind writers live in `kalshi_meta.py`. |
 | session.jsonl | Schema 6, `venue` `polymarket` \| `kalshi` on trade rows. Schema 1–5 omit venue = PM. Kalshi writers live in `kalshi_journal.py` (fill cursor = last `position_ledger.seq`). |
@@ -36,7 +37,7 @@ Module map (`src/live_paper/`):
 
 | File | Role |
 | --- | --- |
-| `kalshi_leg.py` | `OutcomeSide`, `BookSide`, `KalshiLeg`, `series_ticker_from_kind` |
+| `kalshi_leg.py` | `OutcomeSide`, `BookSide`, `KalshiLeg`, `series_ticker_from_kind(game, kind)` → Dota `KXDOTA2MAP`/`KXDOTA2GAME`, LoL `KXLOLMAP`/`KXLOLGAME` |
 | `kalshi_types.py` | REST/WS errors and frozen values. Consumers import from here, no re-exports |
 | `kalshi_ws.py` | Auth WS client and frame parsers |
 | `kalshi_client.py` | REST only |

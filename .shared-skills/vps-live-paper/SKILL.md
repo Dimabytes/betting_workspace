@@ -25,7 +25,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Engine journal | `wallet/engine_journal/live.jsonl` (fork noise, not the trade tape) |
 | Dota model | `data/new_model/production/` (bind-mounted read-only). `research/` is train/backtest |
 | LoL model | `data/lol/models/production/` |
-| Size / risk | `config/trading.toml` `[profiles.dota-map]` / `[profiles.lol-map]` and `[risk]` |
+| Size / risk | `config/trading.toml` `[profiles.dota-map]` / `[profiles.lol-map]`, `[risk]`, `[kalshi]` (`dota_base_size_usd` $5, `lol_base_size_usd` $10) |
 | Collector archives | `/var/lib/polymarket-dota-archive` → `/archive/dota`, `/var/lib/polymarket-lol-archive` → `/archive/lol` |
 
 `src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. Do not `--build` this checkout before US-015 (no `.dockerignore`; host `.env` can bake into the image).
@@ -127,6 +127,8 @@ Confirm production model names from `data/new_model/production/model.json` and `
 ## Size change
 
 Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale that profile (`q_max_usdc`, `merge_min_size`) and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. `merge_min_size` is the fork's inventory merge threshold, not the clip size.
+
+Kalshi clips are `[kalshi].dota_base_size_usd` ($5) and `[kalshi].lol_base_size_usd` ($10). Each is one entry on one ticker, not a day or portfolio cap. `0.0` forbids new Kalshi entries for that game; an existing position can still exit. LoL series are `KXLOLMAP` / `KXLOLGAME`; Dota stays `KXDOTA2MAP` / `KXDOTA2GAME`. After `--live` is empty: `docker compose restart trader-live` only (no build, no `--force-recreate`). Rollback LoL Kalshi: set `lol_base_size_usd = 0.0` and the same restart; Dota stays $5. First LoL Kalshi session: `series_ticker` is `KXLOLMAP` or `KXLOLGAME`, reason `matched`/`none`, notional ≤ $10. A bet still needs the current model/edge/book/fee gates.
 
 ## Collector
 
