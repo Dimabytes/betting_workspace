@@ -15,6 +15,14 @@
   `docker compose restart` / `up` / `--force-recreate` / `down` until the
   controlled US-015 recreate.
 
+## Backtest launch
+
+Full commands live in `../dota_2_model/AGENTS.md` (Backtest). Do not set
+`BACKTEST_LOG_LEVEL` or `PYTHONUNBUFFERED=1` on validation shards. Redirect
+each shard to `data/backtests/<dota|lol>_maker/<name>/logs/shard_i.log`. Do
+not wrap `make backtest` / `make lol-backtest` in `rtk`. `INFO` is only for a
+live `--match-id` you are watching.
+
 ## Kalshi overlay
 
 Kalshi sits next to Polymarket in the same WalletHost. Independent size, book,
