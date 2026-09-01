@@ -105,11 +105,36 @@ live-paper session exhausted
 live-paper session abandoned
 live-paper assigned
 live-paper idle
+discovery emit:
+live-paper rebind:
+live-paper skip:
+live-paper feed_selected:
+live-paper launch:
 risk_halt
 HALTED
 429
 GetRealtimeStats
 model startup blocked
 ```
+
+`discovery emit` / `rebind` / `skip` / `feed_selected` / `launch` are INFO. Cycle
+summaries (`discovery cycle:`) are DEBUG. `skip` reasons:
+`own_final`, `occupied_other_cid`, `own_cleanup`, `cid_in_use`,
+`no_usable_feed`, `unreadable_archive`, `duplicate_owned_archives`,
+`canonical_id_collision`, `pinned_binding`. The same skip is not logged every
+tick.
+
+| Line | Fields |
+|---|---|
+| `discovery emit:` | `game`, `match_id`, `steam_match_id`, `grid_series_id`, `map`, `slug`, `cid`, `archive_id_kind=grid\|steam` |
+| `live-paper rebind:` | `old_match_id`, `new_match_id`, `cid`, `map`, `steam_match_id`, `grid_series_id` |
+| `live-paper skip:` | `reason`, `match_id`, `cid`, `record_cid`, `archive_cid`, `steam_match_id`, `grid_series_id` |
+| `live-paper feed_selected:` | `match_id`, `feed_source`, `steam_delay_s`, `grid_delay_s`, `cid` |
+| `live-paper launch:` | `match_id`, `cid`, `archive_id_kind`, `steam_match_id`, `grid_series_id`, `map` |
+
+`match_id` is the archive directory. When GRID series is known it is
+`grid-<series>-m<map>` even if the picker chose Steam. `steam_match_id` is the
+Valve id. `archive_id_kind=steam` is the numeric fallback when there is no
+series id.
 
 Steam 400 on one `server_steam_id` for a whole game, while neighbors return 200, is a known Valve miss. The feed dies after 30 consecutive non-2xx, then WalletHost backoff 60/120/240s, max 3 restarts.
