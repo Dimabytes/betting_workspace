@@ -178,6 +178,24 @@ def summarize_session(archive: Path) -> dict:
     }
 
 
+def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
+    """True when this archive might still be a running worker, not leftover tape.
+
+    `--live` used to mean "no session_end". Crash/exhaust leaves that gap forever,
+    and the pre-rollout `legacy` tree is full of them. Skip those so --live is
+    the current maps, not August leftovers.
+    """
+    if not sess["live"]:
+        return False
+    if tree == "legacy":
+        return False
+    if (meta.get("final") or {}).get("winner"):
+        return False
+    if (archive / "execution_cleanup.json").is_file():
+        return False
+    return True
+
+
 def fmt_money(value: float | None) -> str:
     if value is None:
         return "n/a"
@@ -234,7 +252,7 @@ def cmd_list(today: bool, live_only: bool, game: str | None) -> None:
         if today and not in_berlin_day(meta.get("joined_at_utc"), day):
             continue
         sess = summarize_session(archive)
-        if live_only and not sess["live"]:
+        if live_only and not is_open_session(tree, archive, sess, meta):
             continue
         print_match_row(archive, sess, meta, tree)
         printed += 1
@@ -508,6 +526,13 @@ def check_game_default() -> None:
         raise SystemExit("lol game must stay lol")
     if HOST_TREES[0][0] != "live" or HOST_TREES[1][0] != "paper" or HOST_TREES[2][0] != "legacy":
         raise SystemExit("host tree order must be live, paper, legacy")
+    dummy_sess = {"live": True}
+    dummy_meta: dict = {}
+    dummy_archive = Path("/nonexistent")
+    if is_open_session("legacy", dummy_archive, dummy_sess, dummy_meta):
+        raise SystemExit("legacy tree must not count as an open session")
+    if not is_open_session("live", dummy_archive, dummy_sess, dummy_meta):
+        raise SystemExit("live tree without end/final/cleanup must count as open")
 
 
 def check_fold() -> None:
@@ -530,7 +555,11 @@ def check_fold() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--today", action="store_true", help="Berlin calendar day")
-    parser.add_argument("--live", action="store_true", help="sessions without session_end")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="open live/paper sessions (no session_end, no final, no cleanup; not legacy)",
+    )
     parser.add_argument("--game", choices=("dota", "lol"), help="filter match.json game")
     parser.add_argument("--match", help="one Steam match id")
     parser.add_argument("--wallet", action="store_true", help="sqlite inventory snapshot")

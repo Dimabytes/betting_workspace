@@ -61,7 +61,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
 
-`--live` means "no `session_end` yet". That includes the current map and also abandoned archives that never finalized even if `match.json` already has a winner. The current map is the newest `joined_at_utc` without a Steam `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with a winner is not labeled LIVE.
+`--live` is open sessions in `live_paper_live` / `live_paper_paper` only: no `session_end`, no `final.winner`, no `execution_cleanup.json`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a Steam/GRID `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with a winner is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
 
 ## Which file answers what
 
