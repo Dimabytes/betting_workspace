@@ -15,12 +15,12 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 
 | What | Where |
 |---|---|
-| Live trader | `/root/work/dota_2_model` service `trader-live` (`WalletHost`, `--mode live`). After rollout: `dota_2_model-trader-live-1`, host `data/live_paper_live` |
-| Paper trader | same compose, service `trader-paper` (`--mode paper`). After rollout: `dota_2_model-trader-paper-1`, host `data/live_paper_paper` |
-| Until US-015 | running container is still `dota_2_model-live-paper-1` on `./data/live_paper`. Do not recreate until the controlled rollout |
+| Live trader | `/root/work/dota_2_model` service `trader-live` (`WalletHost`, `--mode live`). Container `dota_2_model-trader-live-1`, host `data/live_paper_live` |
+| Paper trader | same compose, service `trader-paper` (`--mode paper`). Container `dota_2_model-trader-paper-1`, host `data/live_paper_paper` |
+| Pre-rollout tape | host `./data/live_paper` is the leftover `live-paper` tree. Read-only history; `--live` omits it. Do not delete |
 | Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol` |
 | Match archives (in-container) | `data/live_paper/<match_id>/` inside each trader |
-| Host state | `data/live_paper_live/`, `data/live_paper_paper/`, leftover `data/live_paper` until US-015 |
+| Host state | `data/live_paper_live/`, `data/live_paper_paper/`, plus the leftover pre-rollout `data/live_paper` |
 | Wallet sqlite | in-container `data/live_paper/wallet/live.db` (real money). `paper.db` is paper mode, not the Polymarket live funder |
 | Engine journal | `wallet/engine_journal/live.jsonl` (fork noise, not the trade tape) |
 | Dota model | `data/new_model/production/` (bind-mounted read-only). `research/` is train/backtest |
@@ -28,11 +28,11 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Size / risk | `config/trading.toml` `[profiles.dota-map]` / `[profiles.lol-map]`, `[risk]`, `[kalshi]` (`dota_base_size_usd` $5, `lol_base_size_usd` $10) |
 | Collector archives | `/var/lib/polymarket-dota-archive` → `/archive/dota`, `/var/lib/polymarket-lol-archive` → `/archive/lol` |
 
-`src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. Do not `--build` this checkout before US-015 (no `.dockerignore`; host `.env` can bake into the image).
+`src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. Do not `--build` this checkout: there is no `.dockerignore`, so host `.env` can bake into the image.
 
 WalletHost reads `trading.toml` and production models once at boot. A new match does not re-read them.
 
-Until US-015: do not `docker compose restart` / `up` / `--force-recreate` / `down` on `dota_2_model`. Bind-mounted files are visible on disk; the running WalletHost does not re-import them.
+Bind-mounted files are visible on disk, but the running WalletHost does not re-import them. Restart the process that loaded the change, and never `compose down`.
 
 ## First commands
 
@@ -41,11 +41,8 @@ Health:
 ```bash
 docker compose -f /root/work/dota_2_model/compose.yaml ps
 docker compose -f /root/work/polymarket-collector/compose.yaml ps
-# until US-015 compose has no live-paper service; log the running container:
-docker logs --since 30m dota_2_model-live-paper-1
-# after US-015:
-# docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-live
-# docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-paper
+docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-live
+docker compose -f /root/work/dota_2_model/compose.yaml logs --since 30m trader-paper
 ```
 
 Match / day summary (run this, do not re-parse JSONL by hand):
@@ -76,7 +73,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 | Steam snapshots | `<match>/state.jsonl`. Do not dump it. Sample tail only if feed/pause/game_state is the bug |
 | LoL GRID snapshots | `<match>/grid_state.jsonl` |
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
-| Halt / 429 / Steam 400 / Telegram | until US-015: `docker logs --since 30m dota_2_model-live-paper-1`. After rollout: `docker compose logs trader-live` / `trader-paper` |
+| Halt / 429 / Steam 400 / Telegram | `docker compose logs --since 30m trader-live` / `trader-paper` |
 | Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
 
 ## PnL rules (strong)
@@ -110,11 +107,11 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 
 ## Restart (only when asked)
 
-Check `--live` (and logs) first. If a match is live, say so before restarting: restart detaches that market. Never `compose down`. Never restart this production-mounted checkout during the development window before US-015.
+Check `--live` (and logs) first. If a match is live, say so before restarting: restart detaches that market. Never `compose down`.
 
-Bind-mounted code/model: `restart` the process that loaded it. Env / service migration (`.env` modes, first leave of `live-paper`): `up -d --force-recreate trader-live trader-paper`. Do not `up -d` without naming those two services while `live-paper` still runs.
+Bind-mounted code/model: `restart` the process that loaded it. An `.env` change (modes, keys) needs `up -d --force-recreate trader-live trader-paper`, because `restart` does not re-interpolate the environment.
 
-From `/root/work/dota_2_model` after US-015:
+From `/root/work/dota_2_model`:
 
 ```bash
 docker compose restart trader-live
@@ -134,7 +131,7 @@ Kalshi clips are `[kalshi].dota_base_size_usd` ($5) and `[kalshi].lol_base_size_
 
 Separate compose. Four services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`. `POLYMARKET_TAG_ID` is required (compose pins `"102366"` / `"65"`). Discovery reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting.
 
-## Initial LoL paper deploy / verify / rollback (US-015; do not run until asked)
+## LoL deploy / verify / rollback (US-015 is done; kept for the rollback path)
 
 ```bash
 python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summarize.py --live
@@ -147,9 +144,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-live-paper/scripts/summa
 
 cd /root/work/dota_2_model
 docker compose up -d --force-recreate trader-live trader-paper
-# Do not: docker compose restart
-# The old live-paper container is an orphan after the YAML rename; US-015 removes it.
-# Do not `up -d` without naming the two trader services while live-paper still runs.
+# Do not: docker compose restart — it does not re-interpolate the environment.
 ```
 
 Verify assignment and no live LoL CLOB:

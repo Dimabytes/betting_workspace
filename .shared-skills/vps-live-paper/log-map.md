@@ -5,8 +5,8 @@ Read from SKILL.md when a reason/kind is unclear. Do not load this for a simple 
 ## Per-match files
 
 Host trees: `data/live_paper_live/<id>/` (live process), `data/live_paper_paper/<id>/`
-(paper process), leftover `data/live_paper/<id>/` until US-015. In-container the
-process still writes `data/live_paper/<match_id>/`.
+(paper process), plus the pre-rollout `data/live_paper/<id>/` tape. In-container
+the process still writes `data/live_paper/<match_id>/`.
 
 | File | Role |
 |---|---|
