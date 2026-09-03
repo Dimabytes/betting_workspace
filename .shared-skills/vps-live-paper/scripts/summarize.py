@@ -189,7 +189,7 @@ def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
         return False
     if tree == "legacy":
         return False
-    if (meta.get("final") or {}).get("winner"):
+    if meta.get("final") is not None:
         return False
     if (archive / "execution_cleanup.json").is_file():
         return False
@@ -212,11 +212,14 @@ def print_match_row(archive: Path, sess: dict, meta: dict, tree: str) -> None:
     dire = teams.get("dire", "?")
     map_no = meta.get("map_number", "?")
     joined = meta.get("joined_at_utc", "")
-    winner = (meta.get("final") or {}).get("winner")
+    final = meta.get("final")
+    winner = (final or {}).get("winner")
     mode = (sess["start"] or {}).get("execution_mode", "?") if sess["start"] else "?"
     game = game_from_meta(meta)
     if winner:
         status = winner
+    elif final is not None:
+        status = "done"
     elif sess["live"]:
         status = "LIVE"
     else:
@@ -533,6 +536,8 @@ def check_game_default() -> None:
         raise SystemExit("legacy tree must not count as an open session")
     if not is_open_session("live", dummy_archive, dummy_sess, dummy_meta):
         raise SystemExit("live tree without end/final/cleanup must count as open")
+    if is_open_session("live", dummy_archive, dummy_sess, {"final": {"winner": None}}):
+        raise SystemExit("GRID final with null winner must not count as open")
 
 
 def check_fold() -> None:
