@@ -94,3 +94,9 @@
   - `test_lol_backtest.py` and `test_backtest_validation.py` had to drop `default_maker_knobs` even though they are not in the plan's git-add list.
   - Live `UNWIND_AFTER_SECONDS` / GameProfile unwind stay until US-008. Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 21:59 CEST - US-007 review
+
+- Applied blocking: deleted `_cancel_for_no_target` and the `"dust"` arm in `_no_target_reason`; the two no-target sites now call `_cancel_live_if_needed`. Applied nit: GRID tests call `build_maker_config` directly. Product commit `6a08b7c`. `passes` still false.
+- **Learnings for future iterations:**
+  - After deleting unwind, re-read every early-return that used `not unwinding`. The dust skip was the unwind-only path that made `_cancel_for_no_target` exist.
+
