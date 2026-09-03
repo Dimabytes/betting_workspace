@@ -123,3 +123,11 @@
 
 - Review nits applied once (`f93f19d`). US-008 passes true. Pending: US-009.
 
+## 2026-09-03 22:22 CEST - US-009
+
+- Task 7 docs + verify. AGENTS.md / domain.md / live-paper.md state one prepare/train/backtest path. Experiment READMEs mark removed tooling historical. Dropped leftover `missing_cutoff_midpoint` from `src/lol/stage05_audit.json` so the snapshot matches `AUDIT_COUNT_KEYS`. Collapse plan staged. Product commit `d72fbc6` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - CLI `--help` needs `PYTHONPATH=src` (Makefile export); bare `uv run python src/... --help` fails on `market_data`.
+  - Step 6 `rg` still hits negative CLI/hasattr asserts in tests. Production `src` / scripts / Makefile / AGENTS.md / domain.md / live-paper.md are clean.
+  - `.streamlit/config.toml` deletion and `docs/next_steps.md` left unstaged.
+
