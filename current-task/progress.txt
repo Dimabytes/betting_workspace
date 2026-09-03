@@ -63,3 +63,12 @@
 
 - Review findings applied once (`a29c85b`). US-004 passes true. Pending: US-005.
 
+## 2026-09-03 21:07 CEST - US-005
+
+- One Dota prepare writes research training/validation/split plus production training/split. One train publishes research then production with the research tree count. Deleted `--production`, `DatasetOutputs`, `prepare_output_paths`, `prepare-production`, `train-production`, `RESEARCH_MODEL_META_PATH`. Kept `research_boost_rounds` for LoL until US-006. Product commit `6fa6ca8` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - `train_production(..., *, boost_rounds=)` is keyword-only; the order test stubs it that way. `main(["--production"])` must raise before LightGBM, so parse_args runs first.
+  - Existing research orchestration test calls `train_research` with explicit paths, not `main()`, because `main()` now also trains production.
+  - Step 8 `rg` still hits the negative `--production` CLI asserts. Production `src` / Makefile are clean.
+  - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
+
