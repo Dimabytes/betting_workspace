@@ -1,359 +1,211 @@
 {
-  "project": "Live LoL alongside Dota: dota_2_model + polymarket-collector",
+  "project": "Canonical pipeline cleanup: dota_2_model",
   "relatedSources": [
-    "docs/live-lol/2026-08-29-live-lol-implementation-plan.md",
-    "docs/live-lol/2026-08-30-lol-grid-networth-retrain-plan.md",
-    "docs/live-lol/2026-08-29-grid-source-verification.md",
-    "docs/live-lol/recordings/README.md",
-    "../dota_2_model/AGENTS.md",
-    "../dota_2_model/docs/live-paper.md",
-    ".learnings/polymarket-collector.md",
-    ".shared-skills/vps-live-paper/SKILL.md"
+    "../dota_2_model/docs/superpowers/plans/2026-09-03-fix-run-seeds-four-shards.md",
+    "../dota_2_model/docs/superpowers/plans/2026-09-03-remove-lol-forced-hold.md",
+    "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+    "../dota_2_model/AGENTS.md"
   ],
   "Functional Requirements Summary": [
-    "FR-1: Зафиксировать реальными GRID-фикстурами контракт LoL scoreboard и series table до изменения live-пути",
-    "FR-2: Запускать polymarket-collector отдельно для Dota и LoL через обязательный game-neutral POLYMARKET_TAG_ID и разные archive roots",
-    "FR-3: Описать Dota и LoL одной frozen GameProfile с разными сторонами, XP, моделью, размером, архивом, Steam и gold-velocity gate",
-    "FR-4: Маршрутизировать каждую игру ровно в один процесс trader-live или trader-paper через обязательные DOTA_TRADING_MODE и LOL_TRADING_MODE",
-    "FR-5: Дискаверить LoL map-рынки только через LoL archive и GRID gridSeriesId, без Steam и без fallback для рынков без gridSeriesId",
-    "FR-6: Строить 12 live-фич LoL из GRID NetWorth, BLUE/RED, LOL_LEVEL_XP и top1 / team total, затем подавать их в отдельную LoL production-модель",
-    "FR-7: Отключать для LoL только gold-velocity gate, сохраняя Dota-порог 350 золота за 30 секунд и остальные общие entry gates",
-    "FR-8: Сохранить торговое поведение Dota при переименовании сервисов и переходе на per-game profiles/modes",
-    "FR-9: Изолировать live и paper кошелёк, journals, match data и секреты двумя контейнерами и разными host-каталогами",
-    "FR-10: Развернуть LoL на VPS сначала только в paper после доставки принятой production-модели и подтвердить отсутствие реальных LoL-ордеров"
+    "FR-1: Every three-seed validation run uses exactly four shards; run_seeds.sh no longer takes a shard count",
+    "FR-2: LoL replay, results, wallet, and summaries use the last livestats frame and engine PnL; no forced-hold or cutoff accounting",
+    "FR-3: Canonical prediction loads one model.txt; bank.json cannot redirect it",
+    "FR-4: Dota prepare/train is fixed at 300s on minute rows -60..540 with no horizon/window tooling",
+    "FR-5: One Dota prepare writes research + production datasets; one Dota train publishes research then production",
+    "FR-6: LoL Stage 05/06 is fixed at 300s, seconds 0..540, stride 1, canonical paths, research then production",
+    "FR-7: Backtest has one queue/join policy and no strategy/model-path knobs; cadence seed remains",
+    "FR-8: Live keeps only real per-game differences and the restart-mismatch emergency exit; no clock unwind or size ramp",
+    "FR-9: Authoritative docs match the frozen pipeline; historical experiment reports keep evidence but not keep-tooling verdicts"
   ],
   "Resolved Questions": [
-    "Обучение и десятишардовый research-бэктест идут параллельно на другой машине и не блокируют US-001..US-014.",
-    "Принятые data/lol/models/production/model.json и model.txt являются внешним входом и обязательным gate только для US-015; эта feature не повторяет retrain-план.",
-    "Финальная точка feature — фактический запуск LoL в paper рядом с Dota live на VPS после проверки production-модели.",
-    "Переключение LOL_TRADING_MODE=live и реальные LoL-ордера не входят в feature; это отдельное операторское решение после наблюдения paper.",
-    "Stage 7 с Kalshi для LoL не входит в feature; начальная реализация не открывает Kalshi в LoL-only процессе и сохраняет текущий Dota Kalshi path.",
-    "Крупные стадии 2, 3, 5 и 6 разбиты на несколько зависимых историй. Каждая история получает отдельный коммит в каждом изменяемом репозитории вместо требования один большой коммит на исходную стадию.",
-    "Отсутствующая, пустая или неизвестная DOTA_TRADING_MODE либо LOL_TRADING_MODE является startup error; отключение игры задаётся только явным значением off.",
-    "По решению пользователя US-001 и US-004..US-014 выполняются прямо в текущем /root/work/dota_2_model checkout, из которого src, config и модели bind-mounted в production live-paper.",
-    "До US-015 ни агент, ни пользователь не запускают для dota_2_model docker compose restart, up, up --force-recreate, down и не перезагружают VPS. Уже работающий WalletHost использует загруженные при старте Python modules, config и production model.",
-    "Сервис имеет restart: unless-stopped: если live-paper неожиданно упадёт или VPS перезагрузится во время разработки, он может стартовать на промежуточном working tree. В этом случае реализация останавливается до проверки container status/logs и текущего кода; автоматический restart не считается безопасным rollout.",
-    "Обнаруженные 2026-08-30 незакоммиченные Kalshi-изменения в production checkout принадлежат параллельной работе: их нельзя перезаписывать, откатывать или случайно включать в коммиты этой feature; пересекающиеся файлы редактируются с сохранением этих изменений.",
-    "US-003 пересоздаёт только services отдельного polymarket-collector compose и не перезапускает dota_2_model live-paper. Явное пересоздание Trader выполняется только в US-015 после model и clean-tree gates.",
-    "Файл задачи живёт в betting_workspace/current-task/feature.json; продуктовые git-операции выполняются внутри соответствующих checkout dota_2_model и polymarket-collector, а workspace-документация коммитится отдельно в betting_workspace.",
-    "poly-maker и upstream warproxxx/poly-maker остаются read-only."
+    "Execute the three 2026-09-03 plans in order: four-shard launcher, LoL forced-hold removal, then collapse-canonical-pipeline-optionality Tasks 1–7.",
+    "The two sibling plans are one user step each; the collapse plan's seven Tasks are seven user steps.",
+    "Do not run full prepare/train/backtest jobs. Focused tests, CLI help, make test, and make lint-all are the verification boundary.",
+    "Preserve unrelated working-tree changes in dota_2_model, including the existing .streamlit/config.toml deletion and docs/next_steps.md.",
+    "poly-maker remains read-only.",
+    "No compatibility shims for removed CLI flags. Old commands fail argument parsing.",
+    "Keep --signal-cadence-seed, operational backtest flags, onchain_fills vs trades, LoL Stage 05 --workers/--accept-audit, and research vs production artifact separation."
   ],
   "Non-Goals (Out of Scope for V1)": [
-    "Переобучение research/production LoL-моделей, выполнение backtest shards или принятие метрик из отдельного retrain-плана",
-    "Перевод LoL из paper в live и выставление реальных LoL-ордеров",
-    "Kalshi KXLOLMAP/KXLOLGAME, per-game Kalshi config и stale-cancel fix стадии 7",
-    "Торговля LoL-рынками без gridSeriesId или добавление альтернативного live-источника для них",
-    "Использование lolesports livestats в live или реконструкция consumed-item gold во время live",
-    "Переименование Python-пакета live_paper в trader",
-    "Разделение data/live_paper внутри Python или добавление matches/dota и matches/lol",
-    "Отдельный stale_seconds для LoL, изменение GRID_FEED_STALE_SECONDS или BUY_CUTOFF_SECOND",
-    "Перенос paper-позиций, ордеров или wallet state в live-каталог",
-    "Изменения poly-maker, классификации moneyline/child_moneyline или торговой логики Dota"
+    "Full prepare, train, or validation backtest jobs",
+    "Changing poly-maker",
+    "Live LoL mode switch or VPS deploys",
+    "Compatibility shims for deleted flags, bank.json, or old result columns beyond ignoring extra parquet fields",
+    "Deleting historical experiment measurement documents"
   ],
-  "description": "Добавить LoL GRID trading path к существующему Dota WalletHost: отдельный collector archive, per-game profiles и modes, два изолированных Trader-процесса и безопасный первый запуск LoL только в paper после доставки принятой production-модели.",
+  "description": "Freeze Dota and LoL prepare/train/backtest/live on the one model and one policy production uses: four-shard seeds, no LoL forced-hold, no experiment switches on the canonical path.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Зафиксировать контракт LoL GRID живыми фикстурами",
-      "description": "Как разработчик, я хочу проверять общий GRID parser на реальных LoL payload, чтобы дальнейшие discovery и feed изменения опирались на наблюдаемый контракт BLUE/RED, а не на предположения.",
+      "title": "Fix validation runs at four shards",
+      "description": "Как оператор, я хочу запускать scripts/run_seeds.sh <dota|lol> <name> [extra flags] без позиционного shard count, чтобы каждый three-seed validation run всегда был 3×4=12 процессов.",
       "changes": [
-        "В ../dota_2_model/tests/lol_grid_widget_fixtures.py добавить компактные scoreboard и series_table payload из CBLOL lol-fxw7-los-2026-08-29 и LEC lol-navi-gx-2026-08-29 recordings",
-        "Прогнать LoL payload через parse_frame, read_map_scoreboard и read_net_worth из src/shared/utils/grid_widgets.py без изменения production parser",
-        "Проверить в тестах стороны BLUE/RED, GAME_STATE_GROUP, PLAYER_ENTITY_GROUP, entity.teamColor и поля NetWorth, Kills, Deaths, KillAssistsGiven",
-        "Проверить отдельно отсутствие increaseLevel до первого level-up и его наличие после первого level-up",
-        "LoL fixture test получает ровно две стороны, десять игроков, ожидаемые суммы NetWorth и Deaths",
+        "Implement the entire plan ../dota_2_model/docs/superpowers/plans/2026-09-03-fix-run-seeds-four-shards.md",
+        "Replace positional SHARDS=$3 with local SHARDS=4; shift 2; usage is <dota|lol> <name> [extra flags]",
+        "Update AGENTS.md and docs/domain.md; leave the three-way cold-cache warmup example unchanged",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-fix-run-seeds-four-shards.md"
+      ]
     },
     {
       "id": "US-002",
-      "title": "Сделать collector game-neutral и добавить LoL services",
-      "description": "Как оператор, я хочу запускать один collector binary с явным тегом игры, чтобы Dota и LoL писались в независимые архивы одинаковым проверенным кодом.",
+      "title": "Remove LoL forced-hold accounting",
+      "description": "Как разработчик, я хочу, чтобы каждый LoL map заканчивался на последнем livestats frame и шёл по обычному engine PnL, потому что forced-hold ни разу не срабатывал.",
       "changes": [
-        "В ../polymarket-collector/src/config.ts переименовать dotaTagId в polymarketTagId и DOTA_TAG_ID в POLYMARKET_TAG_ID без default значения",
-        "validateSettings отклоняет отсутствующий, пустой или whitespace-only POLYMARKET_TAG_ID",
-        "Обновить использования тега в src/app.ts, текст ошибки в src/discovery.ts и описание в src/schema/primitives.ts на game-neutral формулировки",
-        "В compose.yaml переименовать archive/compact в archive-dota/compact-dota и передать им POLYMARKET_TAG_ID=102366",
-        "В compose.yaml добавить archive-lol/compact-lol с POLYMARKET_TAG_ID=65 и bind mount /var/lib/polymarket-lol-archive",
-        "docker compose config показывает четыре сервиса, правильный tag id и отдельный archive root для каждой пары",
-        "Добавить config tests для отсутствующего, пустого и валидного POLYMARKET_TAG_ID",
+        "Implement the entire plan ../dota_2_model/docs/superpowers/plans/2026-09-03-remove-lol-forced-hold.md (all three Tasks)",
+        "ReplayBounds and audit schema drop still_going/cutoff_ts; MarketContext drops forced_hold/cutoff_ns",
+        "MakerMatchResult, summaries, wallet settlement, and reports use engine_pnl and game_ended_at only",
+        "read_results_checkpoint ignores extra legacy columns by selecting current fields",
+        "Update AGENTS.md and docs/domain.md; leave historical experiment docs unchanged",
         "Add or update automated tests",
         "Tests pass",
-        "yarn check passes",
+        "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-remove-lol-forced-hold.md"
+      ]
     },
     {
       "id": "US-003",
-      "title": "Развернуть четыре collector services на VPS",
-      "description": "Как оператор, я хочу начать собирать LoL sidecars и книги до готовности trader, чтобы финальный paper-деплой не ждал наполнения нового архива.",
+      "title": "Remove model-bank routing from canonical backtest",
+      "description": "Как разработчик, я хочу, чтобы predict всегда грузил один model.txt, чтобы sibling bank.json не мог перенаправить канонический бустер.",
       "changes": [
-        "Перед деплоем подтвердить чистый production checkout ../polymarket-collector и наличие завершённого коммита US-002",
-        "Создать host-каталог /var/lib/polymarket-lol-archive с теми же владельцем и правами, что у Dota archive",
-        "Применить compose US-002 и запустить archive-dota, compact-dota, archive-lol и compact-lol без остановки Dota archive дольше обычного recreate",
-        "docker compose ps показывает четыре running/healthy collector services без старых archive и compact service names",
-        "В /var/lib/polymarket-lol-archive появляются свежие LoL metadata/markets sidecars и book journal data с tag id 65",
-        "Dota sidecars и book journal продолжают обновляться в /var/lib/polymarket-dota-archive после деплоя",
-        "yarn check passes",
+        "Implement Task 1 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Delete BANK_FILENAME, BankRoute, load_bank_routes, assign_bank_routes, predict_bank_deltas, ModelBank, bank_fingerprint, tests/test_backtest_bank.py",
+        "predict_model_deltas loads exactly one LightGBM booster from model_path; LoL manifest fingerprints only that booster",
+        "Add or update automated tests",
+        "Tests pass",
+        "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-004",
-      "title": "Добавить frozen GameProfile для Dota и LoL",
-      "description": "Как разработчик, я хочу хранить различия игр в двух статических профилях, чтобы общий live-paper код не разрастался registry-классами и несогласованными константами.",
+      "title": "Fix Dota training at the 300-second window",
+      "description": "Как разработчик, я хочу, чтобы Dota fit был только 300s на минутных рядах -60..540, без horizon/window tooling.",
       "changes": [
-        "Создать ../dota_2_model/src/live_paper/game_profile.py с frozen dataclass GameProfile и обязательными полями game, archive_root_env, mode_env, level_xp, side_0_text, side_1_text, profile_name, production_model_dir, uses_steam и max_abs_nw_delta_30",
-        "Добавить статический GAME_PROFILES для dota и lol без factory, entry points или registry-класса",
-        "Dota profile использует DOTA_ARCHIVE_ROOT, DOTA_TRADING_MODE, RADIANT/DIRE, LEVEL_XP, dota-map, Dota production model, uses_steam=true и max_abs_nw_delta_30=350.0",
-        "LoL profile использует LOL_ARCHIVE_ROOT, LOL_TRADING_MODE, BLUE/RED, LOL_LEVEL_XP, lol-map, data/lol/models/production, uses_steam=false и max_abs_nw_delta_30=null",
-        "Добавить tests на точный набор profiles, immutable values и отсутствие общих mutable collections",
+        "Implement Task 2 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Delete horizon_window_dataset, horizon_label_grid, HorizonWindowTrainRow, build_horizon_window_train_rows, --target-horizon-seconds, --train-second-max, require_live_research_defaults",
+        "Fixed slice_train_rows / select_usable_validation_rows / select_validation_prediction_frame / select_validation_fit_frame; Dota uses build_price_delta_labels",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-005",
-      "title": "Материализовать per-game trading profiles и общие risk limits",
-      "description": "Как оператор, я хочу задавать размер каждой игры отдельно, сохраняя один Engine risk budget на процесс, чтобы LoL стартовал с 20 USDC и не менял Dota sizing.",
+      "title": "Publish both Dota artifact tiers per run",
+      "description": "Как оператор, я хочу, чтобы make prepare и make train всегда писали research и production вместе, без --production и отдельных Make targets.",
       "changes": [
-        "Переименовать ../dota_2_model/config/dota-map.toml в config/trading.toml и сохранить существующий [profiles.dota-map] без изменения значений",
-        "Добавить [profiles.lol-map] с base_size_usdc=20.0 и полным набором ключей существующей profile schema",
-        "read_template принимает tuple загруженных GameProfile и требует ровно соответствующие profile tables",
-        "ConfigTemplate хранит profiles по profile_name, а DOLLAR_MULTIPLES применяет каждый profiles.* относительно его собственного base_size_usdc",
-        "Общие [risk] dollar limits рассчитываются от суммы base_size_usdc всех загруженных игр; рядом с max_market_notional_usdc добавлен ponytail-комментарий о q_max_usdc как настоящем per-market ограничении",
-        "materialize_config_dir выбирает profile по игре матча, а materialize_wallet_config_dir выбирает profile с наибольшим base_size_usdc",
-        "Добавить tests для Dota-only, LoL-only и совместного template: risk limits от суммы, q_max_usdc каждого profile от собственного размера и ошибка при лишнем/отсутствующем profile",
+        "Implement Task 3 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Prepare writes research training/validation/split and production training/split in one run; no DatasetOutputs / --production",
+        "train_research then train_production(boost_rounds=research tree count); delete prepare-production and train-production",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-006",
-      "title": "Назначать игры процессам явным trading mode",
-      "description": "Как оператор, я хочу явно назначать Dota и LoL процессу live, paper или off, чтобы paper monkey-patch никогда не сосуществовал с реальным исполнением в одном процессе.",
+      "title": "Fix LoL training at the 300-second window",
+      "description": "Как разработчик, я хочу, чтобы Stage 05/06 публиковали только 300s, 0..540, stride 1, канонические пути, research затем production.",
       "changes": [
-        "execution_mode читает обязательный CLI --mode live|paper вместо LIVE_TRADING",
-        "assigned_games(mode) читает DOTA_TRADING_MODE и LOL_TRADING_MODE и возвращает profiles только с совпадающим mode",
-        "Отсутствующее, пустое или неизвестное значение любой per-game mode variable завершает startup понятной ошибкой; явный off не назначает игру ни одному процессу",
-        "reject_legacy_env завершает startup ошибкой при любом заданном LIVE_TRADING",
-        "orchestrator daemon требует --mode live|paper и передаёт его в run_wallet_daemon",
-        "Добавить tests для Dota live + LoL paper, обеих игр off, отсутствующих variables, неизвестного mode и legacy LIVE_TRADING",
+        "Implement Task 4 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Stage 05 CLI only --workers and --accept-audit; one 300s label; partition on LOL_GRID_START/END",
+        "slice_model_rows fixed; train_research returns tree count; delete build_horizon_price_delta_labels and research_boost_rounds",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-007",
-      "title": "Открывать WalletHost resources только для назначенных игр",
-      "description": "Как оператор, я хочу, чтобы каждый Trader открывал только нужные ему credentials и providers, а процесс без игр оставался безопасно живым и наблюдаемым.",
+      "title": "Freeze backtest policy at canonical defaults",
+      "description": "Как исследователь, я хочу один queue/join policy без strategy/model knobs, чтобы accidental non-canonical runs были невозможны.",
       "changes": [
-        "open_wallet_host принимает execution mode и tuple назначенных GameProfile",
-        "Реальный wallet и require_live_wallet вызываются только для live процесса с назначенными играми",
-        "SteamClient создаётся только когда хотя бы один назначенный profile имеет uses_steam=true",
-        "Kalshi создаётся только для процесса с назначенной Dota, поддерживаемой текущими Dota series; LoL-only процесс Kalshi не открывает",
-        "Процесс без назначенных игр логирует mode и empty game assignment, остаётся живым и не открывает wallet, Steam или Kalshi",
-        "Добавить tests с fakes, доказывающие набор созданных resources для Dota-live, LoL-paper и empty assignment",
+        "Implement Task 5 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Delete MakerKnobs, eleven public strategy flags, size ramp, clock unwind, scripts/pred_size_replay.py",
+        "Keep operational flags and --signal-cadence-seed; always load canonical research model for --game",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-008",
-      "title": "Разделить Trader на live и paper compose services",
-      "description": "Как оператор, я хочу изолировать live и paper в разных контейнерах и каталогах состояния, чтобы LoL paper не мог использовать Dota wallet или реальные credentials.",
+      "title": "Remove dead live policy options",
+      "description": "Как оператор, я хочу, чтобы live profiles держали только настоящие различия игр, а emergency SELL оставался только для restart/journal mismatch.",
       "changes": [
-        "В ../dota_2_model/compose.yaml заменить live-paper на trader-live с daemon --mode live и trader-paper с daemon --mode paper",
-        "Оба services монтируют Dota и LoL archives read-only в /archive/dota и /archive/lol",
-        "trader-live монтирует ./data/live_paper_live в /app/data/live_paper, а trader-paper монтирует ./data/live_paper_paper",
-        "PK, BROWSER_ADDRESS и live wallet secrets присутствуют только в environment trader-live; общий env_file больше не раздаёт wallet secrets trader-paper",
-        "Оба services получают только необходимые mode/archive/Kalshi variables, а compose config не раскрывает live credentials в trader-paper",
-        "Makefile target live-paper заменён на trader с MODE=paper и формирует обязательный --mode",
-        "docker compose config показывает два Trader services, разные state binds и отсутствие PK/BROWSER_ADDRESS у trader-paper",
+        "Implement Task 6 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Delete identical GameProfile policy fields, optional NW gate, model clock end, ordinary clock unwind",
+        "Rename StrategyCell.unwinding to resume_exit; delete docs/no-unwind-default-plan.md",
         "Add or update automated tests",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     },
     {
       "id": "US-009",
-      "title": "Записывать game identity в discovery и match metadata",
-      "description": "Как разработчик, я хочу переносить identity игры от discovery до match.json, чтобы downstream worker однозначно выбирал profile и старые Dota archives оставались читаемыми.",
+      "title": "Reconcile canonical docs and verify the repository",
+      "description": "Как оператор, я хочу актуальные AGENTS.md/domain/live-paper и historical experiment notes, плюс полный make test / make lint-all.",
       "changes": [
-        "Добавить обязательное поле game в DiscoveredMatch и передавать его во все construction sites",
-        "Поднять версию match.json schema и записывать game для новых матчей",
-        "При чтении старой версии match.json без game устанавливать dota",
-        "Обновить serialization/deserialization и journal tests для новых LoL записей и backward-compatible Dota records",
-        "Add or update automated tests",
+        "Implement Task 7 of ../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md",
+        "Update AGENTS.md, docs/domain.md, docs/live-paper.md, experiment READMEs; mark removed tooling as historical",
+        "Scan removed surfaces; verify CLI help; run make test and make lint-all",
         "Tests pass",
         "make lint-all passes",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-010",
-      "title": "Дискаверить LoL markets через отдельный GRID archive",
-      "description": "Как Trader, я хочу сопоставлять LoL map-рынок с GRID scoreboard без Steam, чтобы карты с достоверным gridSeriesId запускали LoL worker с правильной ориентацией.",
-      "changes": [
-        "load_archive_root(profile) читает обязательный archive root из profile.archive_root_env",
-        "MarketDiscovery принимает GameProfile и SteamClient или null; при null не вызывает live league games и server id fetches",
-        "GRID source использует profile.side_0_text/profile.side_1_text и пишет profile.game в DiscoveredMatch",
-        "LoL sidecar без gridSeriesId, scoreboard с одинаковыми сторонами или неоднозначной ориентацией не создаёт match",
-        "WalletHost создаёт один MarketDiscovery на назначенную игру, а poll_discoveries объединяет результаты одного cadence cycle без duplicate matches",
-        "Discovery cycle log включает game и archive root",
-        "Добавить tests на LoL fixture с gridSeriesId, missing gridSeriesId, одинаковые стороны, корректный map number/orientation и Dota regression",
-        "Add or update automated tests",
-        "Tests pass",
-        "make lint-all passes",
-        "Typecheck passes"
-      ],
-      "priority": 10,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-011",
-      "title": "Строить LoL GameSnapshot по profile правилам",
-      "description": "Как модель LoL, я хочу получать live snapshot в том же feature contract, что и обучение на GRID NetWorth, чтобы side labels, XP и top-player ratios не наследовали Dota-семантику.",
-      "changes": [
-        "read_board_sides принимает ожидаемые side names из GameProfile вместо Dota constants",
-        "GridFrameReducer принимает GameProfile и считает XP через xp_advantage(profile.level_xp, players)",
-        "Для LoL radiant_top1_nw_ratio и dire_top1_nw_ratio считаются как top1 / team total; Dota сохраняет top1 / (team total - top1)",
-        "GRID table без increaseLevel до первого level-up даёт всем игрокам level 1 и radiant_xp_adv=0",
-        "LoL scoreboard/table fixtures дают ожидаемые radiant_nw, dire_nw, radiant_nw_adv, deaths, top1 features и XP по LOL_LEVEL_XP",
-        "Regression tests сохраняют существующий Dota snapshot и Dota top1 formula",
-        "Add or update automated tests",
-        "Tests pass",
-        "make lint-all passes",
-        "Typecheck passes"
-      ],
-      "priority": 11,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-012",
-      "title": "Маршрутизировать feed и production model по игре",
-      "description": "Как match worker, я хочу выбирать feed, profile и модель по DiscoveredMatch.game, чтобы Dota и LoL могли одновременно работать в разных процессах без глобального model singleton.",
-      "changes": [
-        "grid_live_feed и feed_selection передают GameProfile до GridFrameReducer; LoL pick_live_source допускает только GRID",
-        "load_production_model(profile) читает model.txt/model.json из profile.production_model_dir и проверяет существующий feature contract",
-        "WalletHost загружает ровно одну модель на каждую назначенную игру при startup и хранит mapping game -> model",
-        "match_worker выбирает GameProfile и модель по discovered.game и отклоняет неизвестную game identity",
-        "compose.yaml монтирует ./data/lol/models в /app/data/lol/models read-only для обоих Trader services",
-        "Automated tests используют временные Dota/LoL model directories и доказывают правильный выбор пути без зависимости от ещё не доставленной production-модели",
-        "LoL model fixture принимает canonical 12 features без contract error, а Dota model regression остаётся зелёным",
-        "Add or update automated tests",
-        "Tests pass",
-        "make lint-all passes",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-013",
-      "title": "Применять game-specific gold-velocity gate",
-      "description": "Как стратегия LoL, я хочу пропускать только неприменимый к LoL gold-velocity gate, сохраняя все остальные entry protections и текущую защиту Dota.",
-      "changes": [
-        "Добавить max_abs_nw_delta_30: float | null в EntryGateInputs и передавать его из GameProfile во всех callers",
-        "evaluate_entry полностью пропускает gold-velocity check при null и применяет существующее сравнение при числовом threshold",
-        "LoL test допускает вход при изменении net-worth advantage больше 350 за 30 секунд при прохождении остальных gates",
-        "Dota regression test блокирует тот же вход при threshold=350.0",
-        "Добавить tests, подтверждающие неизменность остальных entry gate reasons для обеих игр",
-        "Add or update automated tests",
-        "Tests pass",
-        "make lint-all passes",
-        "Typecheck passes"
-      ],
-      "priority": 13,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-014",
-      "title": "Обновить operator docs и VPS diagnostics под две игры",
-      "description": "Как оператор, я хочу иметь один актуальный runbook для четырёх collectors и двух Traders, чтобы безопасно деплоить, проверять и откатывать LoL paper без воздействия на Dota live.",
-      "changes": [
-        "Обновить ../dota_2_model/AGENTS.md: новые trader commands, mode variables, archive/model mounts и правило не перезапускать production-mounted checkout между началом разработки и контролируемым rollout",
-        "Обновить ../dota_2_model/docs/live-paper.md: GRID-only LoL path, GameProfile, два процесса, отдельные state directories, explicit off/paper/live и production model gate",
-        "Обновить .learnings/dota_2_model.md таблицей что перезапускать для trader-live/trader-paper и правилами model/config/code rollout",
-        "Обновить .learnings/polymarket-collector.md четырьмя service names, обязательным POLYMARKET_TAG_ID и двумя archive roots",
-        "Обновить .shared-skills/vps-live-paper для новых service names, data roots, game-specific summaries и безопасного restart/recreate только после проверки активных матчей",
-        "Документация содержит exact команды initial paper deploy, проверки отсутствия live LoL orders и rollback в LOL_TRADING_MODE=paper или off",
-        "Проверить все упомянутые compose service names, paths и CLI commands по итоговому коду",
-        "Tests pass",
-        "make lint-all passes",
-        "yarn check passes",
-        "Typecheck passes"
-      ],
-      "priority": 14,
-      "passes": true,
-      "designReference": []
-    },
-    {
-      "id": "US-015",
-      "title": "Доставить принятую модель и запустить LoL paper на VPS",
-      "description": "Как оператор, я хочу применить завершённые commits и принятую LoL production-модель одним контролируемым rollout, чтобы Dota продолжила live trading, а LoL начала paper trading без доступа к реальному кошельку.",
-      "changes": [
-        "До любых Trader изменений получить явное принятие research backtest пользователем и доставить data/lol/models/production/model.json и model.txt из завершённого retrain-плана",
-        "Проверить production model contract: state_source=lolesports_window_details_grid_networth, feature_set=base, target_horizon_seconds=300, train_second_max=540, row_stride=1, train_matches>0 и ровно canonical 12 features",
-        "Подтвердить, что параллельные Kalshi changes завершены или безопасно интегрированы, production checkout ../dota_2_model чист и содержит только проверенные commits US-001 и US-004..US-014",
-        "Задать DOTA_TRADING_MODE=live, LOL_TRADING_MODE=paper, DOTA_ARCHIVE_ROOT=/archive/dota и LOL_ARCHIVE_ROOT=/archive/lol; удалить legacy LIVE_TRADING",
-        "Применить итоговый compose через docker compose up -d --force-recreate trader-live trader-paper, не используя docker compose restart для env/service migration",
-        "docker compose ps и startup logs подтверждают: trader-live назначена только Dota, trader-paper назначена только LoL, обе загрузили правильные profiles/models и не делят data directory",
-        "В окружении trader-paper отсутствуют PK и BROWSER_ADDRESS; LoL session journal показывает mode=paper и ни одного реального CLOB order/fill",
-        "Свежий LoL market с gridSeriesId создаёт LoL DiscoveredMatch и получает GRID GameSnapshot/model signal; market без gridSeriesId пропускается с ожидаемой причиной",
-        "Dota trader-live после recreate обнаруживает Dota match, сохраняет threshold 350 и продолжает live quoting без model/profile contract errors",
-        "Зафиксировать deployment timestamp, model name, compose service status и rollback command в operator notes",
-        "Tests pass",
-        "make lint-all passes",
-        "yarn check passes",
-        "Typecheck passes"
-      ],
-      "priority": 15,
-      "passes": true,
-      "designReference": []
+      "passes": false,
+      "designReference": [
+        "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
+      ]
     }
   ]
 }
