@@ -127,7 +127,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "designReference": [
         "../dota_2_model/docs/superpowers/plans/2026-09-03-collapse-canonical-pipeline-optionality.md"
       ]

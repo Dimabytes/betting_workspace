@@ -72,3 +72,7 @@
   - Step 8 `rg` still hits the negative `--production` CLI asserts. Production `src` / Makefile are clean.
   - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 21:10 CEST - US-005 review
+
+- Review: no comments. US-005 passes true. Product commit `6fa6ca8`. Pending: US-006.
+
