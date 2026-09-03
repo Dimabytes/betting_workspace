@@ -85,3 +85,12 @@
   - Step 8 `rg` still hits the negative `--target-horizon-seconds` CLI strings. Production `src` is clean.
   - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 21:50 CEST - US-007
+
+- Froze backtest at one queue/join policy. Deleted MakerKnobs, eleven public strategy flags, size ramp, clock unwind, `scripts/pred_size_replay.py`. Canonical research model loads from `--game`. Kept operational flags and `--signal-cadence-seed`. Product commit `952f160` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - Default maker tests used `exit_settle_ns=0`; after the settle constant is always 10s, SELL-after-BUY assertions must wait `last_buy + 10s`.
+  - Step 12 `rg` still hits the negative CLI/manifest absence asserts in `tests/test_backtest.py`. Production `src` / Makefile / scripts are clean.
+  - `test_lol_backtest.py` and `test_backtest_validation.py` had to drop `default_maker_knobs` even though they are not in the plan's git-add list.
+  - Live `UNWIND_AFTER_SECONDS` / GameProfile unwind stay until US-008. Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
+
