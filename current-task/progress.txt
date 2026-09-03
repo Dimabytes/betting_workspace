@@ -14,3 +14,7 @@
   - `local SHARDS=4` is illegal at bash script top-level; keep it script-scoped.
   - Old trailing `4` is now an extra flag forwarded to argparse and fails on purpose. Do not smoke-test with a real `<name>` (starts 12 backtests).
   - Do not stage sibling 2026-09-03 plans, `.streamlit/config.toml`, or `docs/next_steps.md`.
+
+## 2026-09-03 19:55 CEST - US-001 review
+
+- Review: no comments. US-001 passes true. Product commit `e6aae12`. Pending: US-002.
