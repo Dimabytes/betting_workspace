@@ -26,3 +26,7 @@
   - `read_results_checkpoint` is column selection, not fill-defaults. Invert of the old missing-column test: write extras, assert equality with the current dataclass.
   - Task 3 `rg` still hits tests on purpose: negative schema asserts, `removed.isdisjoint`, and the legacy-column checkpoint fixture. Production `src` / `scripts` / `AGENTS.md` / `docs/domain.md` are clean.
   - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged. `uv run pytest` needs `PYTHONPATH=src` (Makefile export).
+
+## 2026-09-03 20:23 CEST - US-002 review
+
+- Review: no comments. US-002 passes true. Product commits `9b897c1`, `dc1461c`, `b275ef5`. Remaining steps skip planning: implement then review. Pending: US-003.
