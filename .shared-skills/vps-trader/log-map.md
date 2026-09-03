@@ -1,12 +1,12 @@
-# Live paper log map
+# Trader log map
 
 Read from SKILL.md when a reason/kind is unclear. Do not load this for a simple PnL question.
 
 ## Per-match files
 
-Host trees: `data/live_paper_live/<id>/` (live process), `data/live_paper_paper/<id>/`
+Host trees: `data/trader_live/<id>/` (live process), `data/trader_paper/<id>/`
 (paper process), plus the pre-rollout `data/live_paper/<id>/` tape. In-container
-the process still writes `data/live_paper/<match_id>/`.
+the process still writes `data/trader/<match_id>/`.
 
 | File | Role |
 |---|---|
@@ -103,8 +103,8 @@ live-paper session started
 live-paper session finished
 live-paper session exhausted
 live-paper session abandoned
-live-paper assigned
-live-paper idle
+trader assigned
+trader idle
 discovery emit:
 live-paper rebind:
 live-paper skip:
