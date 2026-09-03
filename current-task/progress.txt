@@ -18,3 +18,11 @@
 ## 2026-09-03 19:55 CEST - US-001 review
 
 - Review: no comments. US-001 passes true. Product commit `e6aae12`. Pending: US-002.
+
+## 2026-09-03 20:21 CEST - US-002
+
+- Implemented all three source-plan Tasks. LoL replay always ends at the last livestats frame; `still_going` / `cutoff_ts` / `LOL_MARKET_END_SECOND` gone. Forced-hold fields deleted from `MarketContext`, `MakerMatchResult`, wallet, summaries, reports. Checkpoint resume selects current dataclass fields and ignores extra legacy columns. `LOL_PREPARE_END_SECOND = LOL_FETCH_END_SECOND`. `buy_cutoff_ns` / `game_end_ns` / `_on_game_end` kept. Product commits in dota_2_model: `9b897c1`, `dc1461c`, `b275ef5`. Forced-hold plan staged with Task 3. `passes` still false.
+- **Learnings for future iterations:**
+  - `read_results_checkpoint` is column selection, not fill-defaults. Invert of the old missing-column test: write extras, assert equality with the current dataclass.
+  - Task 3 `rg` still hits tests on purpose: negative schema asserts, `removed.isdisjoint`, and the legacy-column checkpoint fixture. Production `src` / `scripts` / `AGENTS.md` / `docs/domain.md` are clean.
+  - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged. `uv run pytest` needs `PYTHONPATH=src` (Makefile export).
