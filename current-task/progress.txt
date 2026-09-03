@@ -119,3 +119,7 @@
 - **Learnings for future iterations:**
   - After renaming unwind to resume_exit, grep `_cell(..., True` — millitick/share_floor/HALTED/EVENT still used True as “just sell.”
 
+## 2026-09-03 22:15 CEST - US-008 pass
+
+- Review nits applied once (`f93f19d`). US-008 passes true. Pending: US-009.
+
