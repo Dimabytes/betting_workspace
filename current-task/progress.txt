@@ -30,3 +30,13 @@
 ## 2026-09-03 20:23 CEST - US-002 review
 
 - Review: no comments. US-002 passes true. Product commits `9b897c1`, `dc1461c`, `b275ef5`. Remaining steps skip planning: implement then review. Pending: US-003.
+
+## 2026-09-03 20:35 CEST - US-003
+
+- Removed model-bank routing. Canonical predict loads one `model.txt`; sibling `bank.json` cannot redirect. Deleted `BANK_FILENAME`, `BankRoute`, `load_bank_routes`, `assign_bank_routes`, `predict_bank_deltas`, `ModelBank`, `bank_fingerprint`, `tests/test_backtest_bank.py`. LoL manifest fingerprints `model_sha256` only. Product commit `c9d91d9` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - TDD: `test_predict_model_deltas_always_loads_model_txt` with a fake bank pointing at `late.txt` fails first because current code loads `late.txt`.
+  - `test_lol_run_manifest_fingerprints_inputs` lives in `tests/test_backtest.py`; LoL `build_run_manifest` hashes split/signals/market/audit paths, so stub those constants.
+  - Step 5 `rg` still hits the negative `"bank_sha256" not in manifest` assert. Production `src` is clean.
+  - `uv run pytest` needs `PYTHONPATH=src:scripts:../prediction-market-backtesting uv run --group backtest`. Collapse plan, `.streamlit/config.toml`, `docs/next_steps.md` left unstaged.
+
