@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Summarize live_paper match archives on this VPS. Stdlib only."""
+"""Summarize trader match archives on this VPS. Stdlib only."""
 
 from __future__ import annotations
 
@@ -13,15 +13,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-DOTA_2_MODEL = Path("/root/work/dota_2_model")
+ESPORTS_TRADER = Path("/root/work/esports-trader")
 HOST_TREES: tuple[tuple[str, Path], ...] = (
-    ("live", DOTA_2_MODEL / "data" / "live_paper_live"),
-    ("paper", DOTA_2_MODEL / "data" / "live_paper_paper"),
-    ("legacy", DOTA_2_MODEL / "data" / "live_paper"),
+    ("live", ESPORTS_TRADER / "data" / "trader_live"),
+    ("paper", ESPORTS_TRADER / "data" / "trader_paper"),
+    ("legacy", ESPORTS_TRADER / "data" / "live_paper"),
 )
 LIVE_WALLET_CANDIDATES = (
-    DOTA_2_MODEL / "data" / "live_paper_live" / "wallet" / "live.db",
-    DOTA_2_MODEL / "data" / "live_paper" / "wallet" / "live.db",
+    ESPORTS_TRADER / "data" / "trader_live" / "wallet" / "live.db",
+    ESPORTS_TRADER / "data" / "live_paper" / "wallet" / "live.db",
 )
 BERLIN = ZoneInfo("Europe/Berlin")
 FEE_RATE = 0.05
@@ -358,7 +358,7 @@ def _print_one(match_id: str, tree: str, archive: Path) -> None:
 def cmd_wallet() -> None:
     wallet = live_wallet_db()
     if wallet is None:
-        print("no live.db in live_paper_live or live_paper")
+        print("no live.db in trader_live or live_paper")
         return
     conn = sqlite3.connect(f"file:{wallet}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row

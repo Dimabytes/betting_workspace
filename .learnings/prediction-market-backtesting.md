@@ -4,8 +4,8 @@
 
 - Project path: `../prediction-market-backtesting` (sibling of `betting_workspace/`)
 - Local source checkout of the NautilusTrader prediction-market backtesting library (`origin` is upstream: `evan-kolberg/prediction-market-backtesting`).
-- Kept next to `dota_2_model` so agents can read the library source instead of guessing from the installed package.
-- `dota_2_model` consumes this stack as a package (Nautilus + this framework). This checkout is not our product.
+- Kept next to `esports-trader` so agents can read the library source instead of guessing from the installed package.
+- `esports-trader` consumes this stack as a package (Nautilus + this framework). This checkout is not our product.
 
 ## Stance
 
