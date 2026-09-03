@@ -100,3 +100,7 @@
 - **Learnings for future iterations:**
   - After deleting unwind, re-read every early-return that used `not unwinding`. The dust skip was the unwind-only path that made `_cancel_for_no_target` exist.
 
+## 2026-09-03 22:01 CEST - US-007 pass
+
+- Review findings applied once (`6a08b7c`). US-007 passes true. Pending: US-008.
+
