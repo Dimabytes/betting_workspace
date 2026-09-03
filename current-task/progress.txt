@@ -76,3 +76,12 @@
 
 - Review: no comments. US-005 passes true. Product commit `6fa6ca8`. Pending: US-006.
 
+## 2026-09-03 21:25 CEST - US-006
+
+- LoL Stage 05 CLI is only `--workers`/`--accept-audit`; one 300s label; partition 0..540. Stage 06 `slice_model_rows` is fixed stride 1; `train_research` then `train_production_model(boost_rounds)`. Deleted `build_horizon_price_delta_labels`, `research_boost_rounds`, and experiment keys from `LolModelMeta`. Product commit `5b2cee7` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - `tests/test_lol_validation_metrics.py` does not exist; holdout tests live in `tests/test_lol_train_model.py`.
+  - `docs/experiments/dota-minute-specialists` and `lol-late-phase/compare.py` are typechecked; they had to follow the deleted GBM/slice signatures.
+  - Step 8 `rg` still hits the negative `--target-horizon-seconds` CLI strings. Production `src` is clean.
+  - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
+
