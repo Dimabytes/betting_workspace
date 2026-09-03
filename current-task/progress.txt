@@ -131,3 +131,9 @@
   - Step 6 `rg` still hits negative CLI/hasattr asserts in tests. Production `src` / scripts / Makefile / AGENTS.md / domain.md / live-paper.md are clean.
   - `.streamlit/config.toml` deletion and `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 22:28 CEST - US-009 review
+
+- Applied nits: README no-unwind rows no longer say “CLI default off.” Status/decision lines on `no-unwind.md`, `lol-no-unwind.md`, `lol-horizon-window-deltas.md` marked historical. Skipped nit 1 (audit json already in `d72fbc6`). Left measurement `--unwind-after-seconds 999999` in lol-no-unwind method. Product commit `3262457`. `passes` still false.
+- **Learnings for future iterations:**
+  - After rewriting one index row (overnight), grep the rest of the same table for the old CLI phrasing.
+
