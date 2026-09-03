@@ -52,3 +52,10 @@
   - `docs/experiments/dota-minute-specialists/{train,sweep,check_m420}.py` call the Dota helpers; basedpyright typechecks them, so extra horizon/window args had to drop in this commit.
   - Collapse plan, `.streamlit/config.toml`, `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 21:00 CEST - US-004 review
+
+- Applied blocking: `load_training_dataset` now returns `frame[TRAINING_COLUMNS]` only. Deleted `test_load_training_dataset_keeps_extra_horizon_labels`. Product commit `a29c85b`. `passes` still false.
+- Skipped nits: minute-specialist signature drops stay; reviewer said they are required for lint, not extra scope.
+- **Learnings for future iterations:**
+  - After deleting a parquet writer, grep the loader that kept its extra columns. Task 7 `rg` for names will miss a generic `signal_market_p_radiant_` extras branch.
+
