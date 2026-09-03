@@ -104,3 +104,11 @@
 
 - Review findings applied once (`6a08b7c`). US-007 passes true. Pending: US-008.
 
+## 2026-09-03 22:06 CEST - US-008
+
+- Removed dead live policy options. GameProfile keeps only real game differences. NW gate is unconditional `MAX_ABS_NW_DELTA_30`. No model clock end, no ordinary clock unwind. `StrategyCell.unwinding` renamed `resume_exit`; only `_lock_resume(held)` sets it. Deleted `docs/no-unwind-default-plan.md`. Product commit `509b648` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - Task 6 `rg` still hits the negative `hasattr` strings in `test_game_profiles_contain_only_real_game_differences`. Production `src/live_paper` is clean.
+  - `UNWIND_AFTER_SECONDS` and `MODEL_SIGNAL_END_SECOND` both left `strategy.py`; they had no remaining Python callers.
+  - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
+
