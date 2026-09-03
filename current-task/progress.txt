@@ -6,3 +6,11 @@
 - Product git lives in `../dota_2_model` on `main`. Preserve `.streamlit/config.toml` deletion and `docs/next_steps.md`.
 - poly-maker frozen. No full prepare/train/backtest jobs.
 - Pending: US-001.
+
+## 2026-09-03 19:52 CEST - US-001
+
+- Fixed `scripts/run_seeds.sh` at four shards: `SHARDS=4` script-scope, `shift 2`, usage `<dota|lol> <name> [extra flags]`. Integer shard validation deleted. AGENTS.md + domain.md say fixed at 4; Dota/LoL examples dropped trailing `4`. Cold-cache 3-shard example left. Plan file staged. Product commit `e6aae12` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - `local SHARDS=4` is illegal at bash script top-level; keep it script-scoped.
+  - Old trailing `4` is now an extra flag forwarded to argparse and fails on purpose. Do not smoke-test with a real `<name>` (starts 12 backtests).
+  - Do not stage sibling 2026-09-03 plans, `.streamlit/config.toml`, or `docs/next_steps.md`.
