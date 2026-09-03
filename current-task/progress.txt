@@ -112,3 +112,10 @@
   - `UNWIND_AFTER_SECONDS` and `MODEL_SIGNAL_END_SECOND` both left `strategy.py`; they had no remaining Python callers.
   - Collapse plan, `.streamlit/config.toml` deletion, and `docs/next_steps.md` left unstaged.
 
+## 2026-09-03 22:13 CEST - US-008 review
+
+- Applied all nits: ordinary SELL fixtures use `resume_exit=False` with fair; dust restore docstring drops unwind clock; `dataset.py` comment no longer claims live MODEL_SIGNAL_END. Product commit `f93f19d`. `passes` still false.
+- Also flipped the HALTED young-SELL fixture (`test_build_dota_quotes_halted_cancels_young_sell`); same leftover unwind-as-sell helper.
+- **Learnings for future iterations:**
+  - After renaming unwind to resume_exit, grep `_cell(..., True` — millitick/share_floor/HALTED/EVENT still used True as “just sell.”
+
