@@ -44,3 +44,11 @@
 
 - Review: no comments. US-003 passes true. Product commit `c9d91d9`. Pending: US-004.
 
+## 2026-09-03 20:55 CEST - US-004
+
+- Fixed Dota at 300s, minute rows `-60..540`. Deleted horizon/window tooling (`horizon_window_dataset`, `horizon_label_grid`, `HorizonWindowTrainRow`, `build_horizon_window_train_rows`, `--target-horizon-seconds`, `--train-second-max`, `require_live_research_defaults`). Dota labels via `build_price_delta_labels`. Backtest inference uses `select_usable_validation_rows` (full map). Product commit `9d71f6d` in dota_2_model. `passes` still false.
+- **Learnings for future iterations:**
+  - Path/`--production` stay until US-005. `build_horizon_price_delta_labels` stays until US-006 (LoL).
+  - `docs/experiments/dota-minute-specialists/{train,sweep,check_m420}.py` call the Dota helpers; basedpyright typechecks them, so extra horizon/window args had to drop in this commit.
+  - Collapse plan, `.streamlit/config.toml`, `docs/next_steps.md` left unstaged.
+
