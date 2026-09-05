@@ -1,0 +1,162 @@
+baseline:  data/backtests/dota_maker/validation_join_delta01_cut540_nw350_p35_l1-val454  seeds 0,1,2,3,4,5,6,7,8,9,10,11  max_signal_age_seconds=16.0
+candidate: data/backtests/dota_maker/validation_join_delta01_cut540_nw350_p35_hubermono-val454  seeds 0,1,2,3,4,5,6,7,8,9,10,11  max_signal_age_seconds=16.0
+
+shared matches (all 24 runs): 454
+outside intersection (excluded from stats): 0
+
+-- seed0 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +448.15 vs baseline +376.54, delta +71.61
+per-match diff: mean +0.1577, 10% trimmed mean +0.1503
+paired t: t=+0.373 p=0.7091 | wilcoxon: W=27963.0 p=0.5731 (nonzero diffs 340)
+better 167 / worse 169 / tie 118 (tie: |diff| < $0.005)
+
+-- seed1 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +494.22 vs baseline +300.91, delta +193.32
+per-match diff: mean +0.4258, 10% trimmed mean +0.5054
+paired t: t=+0.941 p=0.3474 | wilcoxon: W=23480.0 p=0.0418 (nonzero diffs 328)
+better 178 / worse 148 / tie 128 (tie: |diff| < $0.005)
+
+-- seed2 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +213.12 vs baseline +243.04, delta -29.92
+per-match diff: mean -0.0659, 10% trimmed mean +0.0996
+paired t: t=-0.132 p=0.8953 | wilcoxon: W=27958.5 p=0.7024 (nonzero diffs 338)
+better 171 / worse 163 / tie 120 (tie: |diff| < $0.005)
+
+-- seed3 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +107.15 vs baseline +14.76, delta +92.39
+per-match diff: mean +0.2035, 10% trimmed mean +0.2858
+paired t: t=+0.480 p=0.6318 | wilcoxon: W=27573.0 p=0.4363 (nonzero diffs 340)
+better 170 / worse 169 / tie 115 (tie: |diff| < $0.005)
+
+-- seed4 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +443.42 vs baseline +73.32, delta +370.10
+per-match diff: mean +0.8152, 10% trimmed mean +0.5145
+paired t: t=+1.903 p=0.0577 | wilcoxon: W=28059.5 p=0.0560 (nonzero diffs 356)
+better 188 / worse 165 / tie 101 (tie: |diff| < $0.005)
+
+-- seed5 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate -97.91 vs baseline +103.50, delta -201.40
+per-match diff: mean -0.4436, 10% trimmed mean -0.0767
+paired t: t=-1.051 p=0.2936 | wilcoxon: W=28643.5 p=0.5781 (nonzero diffs 344)
+better 160 / worse 182 / tie 112 (tie: |diff| < $0.005)
+
+-- seed6 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +362.31 vs baseline +407.99, delta -45.68
+per-match diff: mean -0.1006, 10% trimmed mean +0.1267
+paired t: t=-0.201 p=0.8409 | wilcoxon: W=30907.0 p=0.6558 (nonzero diffs 356)
+better 178 / worse 176 / tie 100 (tie: |diff| < $0.005)
+
+-- seed7 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +324.46 vs baseline +102.11, delta +222.36
+per-match diff: mean +0.4898, 10% trimmed mean +0.3434
+paired t: t=+1.144 p=0.2531 | wilcoxon: W=27963.5 p=0.2014 (nonzero diffs 348)
+better 186 / worse 161 / tie 107 (tie: |diff| < $0.005)
+
+-- seed8 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +257.43 vs baseline +135.98, delta +121.44
+per-match diff: mean +0.2675, 10% trimmed mean +0.3218
+paired t: t=+0.590 p=0.5557 | wilcoxon: W=27097.0 p=0.2979 (nonzero diffs 340)
+better 176 / worse 162 / tie 116 (tie: |diff| < $0.005)
+
+-- seed9 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +366.47 vs baseline +325.58, delta +40.89
+per-match diff: mean +0.0901, 10% trimmed mean +0.3550
+paired t: t=+0.222 p=0.8247 | wilcoxon: W=25818.0 p=0.2981 (nonzero diffs 332)
+better 170 / worse 162 / tie 122 (tie: |diff| < $0.005)
+
+-- seed10 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +118.74 vs baseline +170.54, delta -51.80
+per-match diff: mean -0.1141, 10% trimmed mean +0.0548
+paired t: t=-0.244 p=0.8072 | wilcoxon: W=28894.0 p=0.8131 (nonzero diffs 342)
+better 171 / worse 170 / tie 113 (tie: |diff| < $0.005)
+
+-- seed11 --
+== 1. match-level: engine PnL before rebate ==
+matches: shared 454
+shared PnL: candidate +216.72 vs baseline +106.90, delta +109.82
+per-match diff: mean +0.2419, 10% trimmed mean +0.0285
+paired t: t=+0.648 p=0.5170 | wilcoxon: W=26499.0 p=0.7805 (nonzero diffs 328)
+better 161 / worse 164 / tie 129 (tie: |diff| < $0.005)
+
+== pooled: mean_k delta[m,k] ==
+paired t: t=+0.679 p=0.4977 | wilcoxon: W=45367.0 p=0.3078 (n=454, nonzero 438)
+seed-total sd: baseline 129.68  candidate 171.58  effect +74.43
+
+TIME DELTA  (engine PnL before rebate; diagnostic only)
+period  dates UTC                 matches                                                                           delta $ per seed   pooled $/match   wilcoxon p
+early   2026-06-04..2026-07-15        151  +154.53/+78.00/-26.48/+38.18/+145.92/-80.39/+184.37/+111.37/+97.73/+141.96/+80.53/+171.98           0.6058       0.4601
+middle  2026-07-15..2026-08-02        151     -172.54/+11.42/-50.86/-80.66/+129.23/-174.74/-234.54/+105.29/+40.15/-5.75/-41.05/+2.43          -0.2603       0.9662
+late    2026-08-02..2026-09-03        152        +89.62/+103.90/+47.42/+134.87/+94.95/+53.73/+4.49/+5.70/-16.43/-95.31/-91.28/-64.59           0.1464       0.2968
+
+    143.23 ┤                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    135.28 ┤                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    127.32 ┤                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+    119.36 ┤                                                                                                                                                                                                                                                                                                                                                                                                                                  ╭────╮                              
+    111.40 ┤                                                                                                                                                                                                                                                                                                                                                                                                                               ╭──╯    ╰╮                             
+    103.45 ┤                                                                                                                                                                                                                                                                                                                                                                                                                               │        ╰─╮╭──╮╭╮╭─╮                  
+     95.49 ┤                                                                                                                                                  ╭──╮                                                                                                                                                                                                                                                                      ╭──╯          ╰╯  ╰╯╰╯ │                  
+     87.53 ┤                                                                                                                                           ╭──────╯  ╰──╮                                                                                                                                                                                                                                                                   │                      │                  
+     79.57 ┤                                                                                                                                           │            ╰──╮╭───────╮  ╭╮                                  ╭──╮                                                                                                                                                                                                           ╭─╯                      │            ╭──╮  
+     71.62 ┤                                                                                                                                     ╭─╮   │               ╰╯       │╭─╯╰─╮╭─╮╭─╮ ╭╮  ╭╮     ╭─────────╮╭──╯  ╰──────╮                                                                                                                         ╭──╮                                                                     ╭─╯                        ╰───╮  ╭─────╯  ╰──
+     63.66 ┤                                                                                                                                     │ ╰╮╭╮│                        ╰╯    ╰╯ ╰╯ ╰─╯╰──╯╰─────╯         ╰╯            ╰─╮   ╭─╮╭╮                                               ╭──╮   ╭─────╮                   ╭─╮             ╭───────╮      │  │                                                                   ╭─╯                              ╰──╯           
+     55.70 ┤                                                                                                                                  ╭──╯  ╰╯╰╯                                                                           ╰───╯ ╰╯│                                ╭╮    ╭────╮╭──╯  │   │     ╰────╮      ╭╮  ╭───╯ ╰╮    ╭───╮  ╭╯       ╰──────╯  ╰──╮ ╭─────╮         ╭──────╮                                       │                                               
+     47.74 ┤                                                                                             ╭╮                             ╭─────╯                                                                                            ╰─╮      ╭──╮╭───╮╭╮      ╭╮ ╭───╯╰────╯    ╰╯     ╰───╯          ╰─╮    │╰──╯      ╰─╮  │   ╰──╯                     ╰─╯     │   ╭─────╯      ╰─╮ ╭────────────╮         ╭────────────╯                                               
+     39.79 ┤                                                      ╭──╮                                ╭──╯╰──╮ ╭─────╮ ╭────╮        ╭──╯                                                                                                    ╰──╮╭──╯  ╰╯   ╰╯│╭─────╯│╭╯                                      ╰────╯            │╭╮│                                    ╰╮ ╭╯              ╰─╯            ╰─────────╯                                                            
+     31.83 ┤                                                     ╭╯  │                             ╭──╯      ╰─╯     ╰─╯    ╰────╮ ╭─╯                                                                                                          ╰╯            ╰╯      ╰╯                                                         ╰╯╰╯                                     ╰─╯                                                                                                     
+     23.87 ┤ ╭─────╮                                           ╭─╯   ╰╮                 ╭───────╮ ╭╯                             ╰─╯                                                                                                                                                                                                                                                                                                                                              
+     15.91 ┤ │     ╰──╮╭─╮ ╭╮       ╭─╮╭─╮              ╭─╮╭───╯      ╰───╮  ╭───╮   ╭──╯       ╰─╯                                                                                                                                                                                                                                                                                                                                                                               
+      7.96 ┤─╯        ╰╯ │ ││ ╭╮ ╭──╯ ╰╯ ╰╮╭─╮╭──╮      │ ╰╯              ╰──╯   ╰───╯                                                                                                                                                                                                                                                                                                                                                                                            
+      0.00 ┼─────────────╰─╯╰─╯╰─╯────────╰╯─╰╯──╰───╮─╭╯─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+     -7.96 ┤                                         ╰─╯                                                                                                                                                                                                                                                                                                                                                                                                                          
+
+round-level section uses seed0 only
+
+== 2. round-level decomposition over shared matches ==
+bucket           rounds   sum delta $
+identical           180         +0.00
+diverged pairs      251       -125.96
+baseline-only       229        +94.61
+candidate-only      185       +102.97
+buckets total                  +71.61
+match-level delta              +71.61
+residual                        +0.00
+
+top 15 matches by |delta|:
+match_id      delta $  baseline (hold/pnl)                  candidate (hold/pnl)
+8844308689     -50.44  1r: open/+61.29                      2r: 179s/+6.45 open/+4.40
+8841114801     +47.83  3r: 87s/-13.28 21s/+2.54 open/+0.61  1r: 532s/+37.69
+8962592819     -45.06  1r: open/-8.03                       1r: open/-53.08
+8973010298     +44.55  1r: 679s/-44.55                      no rounds
+8976511215     -38.13  2r: 344s/+40.39 120s/-3.61           1r: open/-1.36
+8924468754     -36.72  2r: 112s/-0.30 open/+14.13           2r: 112s/-0.30 600s/-22.60
+8972773416     +34.48  1r: open/-15.01                      2r: 129s/+3.88 open/+15.58
+8896380183     +29.48  2r: 29s/+0.75 273s/-30.23            no rounds
+8916102349     -27.67  1r: open/+3.73                       2r: 115s/+0.20 657s/-24.14
+8922552315     -27.63  1r: open/+27.63                      no rounds
+8927539264     +24.87  2r: 86s/+0.00 993s/+1.50             3r: 68s/-1.39 99s/-0.60 426s/+28.36
+8971988345     +23.59  3r: 37s/-25.71 13s/+0.30 open/-2.29  2r: 13s/+0.30 open/-4.42
+8928163118     +23.46  2r: 220s/-7.69 193s/-15.77           no rounds
+8839366504     -22.53  1r: open/+0.86                       1r: 300s/-21.67
+8912831712     -22.41  1r: 303s/+2.80                       1r: open/-19.61

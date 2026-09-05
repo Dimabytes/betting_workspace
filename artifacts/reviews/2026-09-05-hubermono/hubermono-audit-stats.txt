@@ -1,0 +1,30 @@
+l1-val454 
+       completed      traded  total_engine_pnl     net_pnl  maker_rebate  loss_match_rate     cvar_5  worst_match  buy_turnover  loss_if_traded  cvar_traded  required_cash  max_match_drawdown  min_equity  roi_with_rebate
+mean      454.0  395.166667        196.762591  470.382842    273.620251         0.404185 -29.716971   -58.136868  48180.234048        0.464401   -31.191920     300.998494           83.788203 -174.013631         1.613612
+std         0.0    4.323999        129.683814  129.761948     11.644560         0.017980   1.528785    13.152959   1815.104056        0.020998     1.721554      42.406974           16.354936   48.536080         0.543441
+hubermono-val454 
+       completed      traded  total_engine_pnl     net_pnl  maker_rebate  loss_match_rate     cvar_5  worst_match  buy_turnover  loss_if_traded  cvar_traded  required_cash  max_match_drawdown  min_equity  roi_with_rebate
+mean      454.0  377.333333        271.189854  518.392948    247.203094         0.382709 -28.827424   -58.854865  44810.931453        0.460455   -30.474956     237.127991           88.486167 -121.427673         2.563100
+std         0.0    4.396969        171.584389  171.526753      9.706717         0.016298   1.411192    16.717915   1588.401853        0.018564     1.491632      83.680926           17.954148   89.794006         1.280879
+manifest differences {'model_name': ['20260904T222046Z', '20260904T225909Z']}
+seed total delta [71.611434, 193.315093, -29.916224, 92.392002, 370.100117, -201.403681, -45.679334, 222.355174, 121.440929, 40.894418, -51.80335, 109.820582]
+seed conditional t CI (np.float64(-20.528583992050912), np.float64(169.38311077205123))
+pooled paired TtestResult(statistic=np.float64(0.6786546073084767), pvalue=np.float64(0.4977032823634515), df=np.int64(453)) WilcoxonResult(statistic=np.float64(45367.0), pvalue=np.float64(0.3077699961085061)) mean 0.16393670350220296 total 74.42726339000015
+cluster CI engine_pnl {"match": {"clusters": 454, "mean": 0.163936703502203, "ci95": [-0.30827907598880305, 0.6345933481373897]}, "event_id": {"clusters": 218, "mean": 0.163936703502203, "ci95": [-0.28696899254794755, 0.6194281544084395]}, "date": {"clusters": 52, "mean": 0.163936703502203, "ci95": [-0.2909278147859464, 0.6263831598377223]}, "week": {"clusters": 11, "mean": 0.163936703502203, "ci95": [-0.23840886157131871, 0.46207853773251845]}}
+cluster CI net_pnl {"match": {"clusters": 454, "mean": 0.10574913144975967, "ci95": [-0.3676009033356573, 0.568887735040107]}, "event_id": {"clusters": 218, "mean": 0.10574913144975967, "ci95": [-0.34549840376845825, 0.5542041261720589]}, "date": {"clusters": 52, "mean": 0.10574913144975967, "ci95": [-0.34672246014411157, 0.5714235419616597]}, "week": {"clusters": 11, "mean": 0.10574913144975967, "ci95": [-0.30346186632945243, 0.4093942856095467]}}
+net paired t TtestResult(statistic=np.float64(0.44048078363180887), pvalue=np.float64(0.6597990381242206), df=np.int64(453)) net seed deltas [47.643, 165.066, -50.929, 80.309, 340.316, -230.507, -76.182, 182.376, 97.235, 12.581, -91.695, 99.909]
+cluster CI loss {"match": {"clusters": 454, "mean": -0.021475770925110133, "ci95": [-0.04331864904552129, 2.005248634781255e-18]}, "event_id": {"clusters": 218, "mean": -0.021475770925110133, "ci95": [-0.04390711275791921, 0.0008865720788156425]}, "date": {"clusters": 52, "mean": -0.021475770925110133, "ci95": [-0.043239076290893706, 0.001491489300070407]}, "week": {"clusters": 11, "mean": -0.021475770925110133, "ci95": [-0.03957916606248986, -0.001461535956227242]}}
+cluster CI traded {"match": {"clusters": 454, "mean": -0.03928046989720999, "ci95": [-0.05763582966226138, -0.022026431718061675]}, "event_id": {"clusters": 218, "mean": -0.03928046989720999, "ci95": [-0.05809260588832884, -0.02101934523809524]}, "date": {"clusters": 52, "mean": -0.03928046989720999, "ci95": [-0.05933499040641897, -0.01908654225152911]}, "week": {"clusters": 11, "mean": -0.03928046989720999, "ci95": [-0.04928774928774929, -0.022363153365510556]}}
+third 0 151 2026-06-04 2026-07-15 mean 0.6057933990673291 total 91.47480325916669 wilcoxon 0.4600888224677264 positive_seeds 10
+third 1 151 2026-07-15 2026-08-02 mean -0.2602894954304634 total -39.30371380999998 wilcoxon 0.9662444529764852 positive_seeds 5
+third 2 152 2026-08-02 2026-09-03 mean 0.14642219697916756 total 22.256173940833467 wilcoxon 0.2968197160165369 positive_seeds 8
+top positive {8896380183: 31.536, 8893165071: 20.279, 8973010298: 20.241, 8928163118: 16.443, 8841114801: 16.424, 8925847726: 12.647, 8972773416: 12.216, 8933575351: 12.206, 8888555097: 11.978, 8885470551: 11.115} top negative {8976511215: -29.416, 8938565057: -20.223, 8922818221: -15.682, 8886641793: -15.582, 8840821227: -14.999, 8842052142: -13.579, 8911277378: -13.547, 8912831712: -13.365, 8962592819: -12.08, 8902431810: -11.611}
+remove top 1/3/5 total [42.89141026833349, 2.3711348066668165, -30.49598921333316]
+loss conditional difference -0.003946645695657225 series cluster ci [-0.02635558  0.01868255]
+loss lower seeds 11 conditional lower seeds 7
+trade decomposition both count/seed 365.75 base/seed 280.915499934167 candidate/seed 275.820710571667 delta/seed -5.094789362499928
+trade decomposition base only count/seed 29.416666666666668 base/seed -84.15290923916669 candidate/seed 0.0 delta/seed 84.15290923916669
+trade decomposition candidate only count/seed 11.583333333333334 base/seed 0.0 candidate/seed -4.630856486666638 delta/seed -4.630856486666638
+trade decomposition neither count/seed 47.25 base/seed 0.0 candidate/seed 0.0 delta/seed 0.0
+variance diagnostic delta per match {'diag': 88.4586351024678, 'off_diagonal': 20.85839660970766, 'common_fraction': 0.2357983094080745, 'se_on_total_12': 109.66883977282107, 'se_on_total_infinite_seeds': 97.31244555968819, 'conditional_seed_mc_se': 43.14242962823864}
+ALL NUMERICAL AND MANIFEST CHECKS PASSED
