@@ -133,7 +133,7 @@ def summarize_session(archive: Path) -> dict:
         elif kind == "quote":
             quotes += 1
             last_quote = rec
-        elif kind == "fill":
+        elif kind == "fill" or kind == "late_fill":
             fills.append(rec)
             rebate += maker_rebate(
                 float(rec.get("price") or 0.0),
