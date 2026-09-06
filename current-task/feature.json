@@ -1,0 +1,217 @@
+{
+  "project": "esports-trader",
+  "relatedSources": [
+    "../esports-trader/docs/superpowers/specs/2026-09-06-follow300-shared-core-design.md",
+    "../esports-trader/AGENTS.md",
+    "docs/analysis/2026-09-06-follow300-review.md",
+    "../esports-trader/src/backtest/strategy.py",
+    "../esports-trader/src/backtest/maker_orders.py",
+    "../esports-trader/src/trader/session_quoting.py",
+    "../esports-trader/src/trader/engine_seams.py",
+    "../esports-trader/src/trader/session_config.py",
+    "../esports-trader/config/trading.toml"
+  ],
+  "Functional Requirements Summary": [
+    "FR-1: One Follow300 policy lives in src/strategy/ with no Nautilus, polymaker, pandas, filesystem, network, or system-clock dependencies",
+    "FR-2: Backtest and live/paper adapters call that core; a strategy change in this branch reaches both consumers in one code update",
+    "FR-3: Same initial state, settings, and inbound event order produce the same core decisions, orders, and reject reasons; fill/PnL may still differ because queue, data source, latency, trade confirms, and wallet come from outside",
+    "FR-4: level_usdc is a required session input. Four independent adapter-config values: backtest Dota $100, backtest LoL $100, live/paper Dota $65, live/paper LoL $20. Core has no game or mode constants",
+    "FR-5: One latched token per episode; up to three open BUY rungs at $0.01; BUY and one SELL may rest together; an open position does not block BUY",
+    "FR-6: Mid-episode restart is exit-only: cancel restored BUY, wait for cancel/settle outcomes, sell the verified position, no new BUY for that restored map session",
+    "FR-7: A new BUY is admitted against a budget snapshot that includes resting, in-flight, and to-be-cancelled BUY across Dota and LoL. Shortfall skips the whole rung; it does not shrink level_usdc. Live/paper dollar caps stay multiples of the two clips so they move when those sizes move",
+    "FR-8: Live executes the core plan (keep/cancel/place) through existing Engine seams. The esports path does not run a second generic quote-diff or resize_frac reconcile",
+    "FR-9: poly-maker stays frozen. Engine classes and methods are patched from esports-trader only",
+    "FR-10: Extraction identity is proven on four seed-0 postcleanup replays before any labeled behavior change. After those changes, a new 12-seed baseline per game is the accepted Follow300 result"
+  ],
+  "Resolved Questions": [
+    "V1 boundary: stop after both adapters, labeled behavior changes, paper decision traces, and a 12-seed new baseline. VPS drain, deploy, rollback, and merge to main are a later feature. All steps land on ladder-experiment.",
+    "Extraction pass bar: fills, place/cancel, episode/level links, reserve size and timestamps on Dota 8837869969, 8911784562, 8933879286 and LoL 115564793879469302, seed 0. Known Nautilus zero-fill faults stay labeled engine faults. PnL is a check, not the only check. Quote-event logs may gain extra core-trace fields; comparison uses the identity fields above, not bit-identical files.",
+    "Recalc cadence: the accepted end state is live's clocks in both adapters — debounce_ms=100 on book/signal plus quoter_tick_s=2.0 fallback. Extraction identity still uses today's backtest 1s timer. Switching clocks is a later labeled policy bump with a new 12-seed baseline, because doing it in the first engine commit would break the identity bar.",
+    "Live/paper capital: user wallet is ~$1000; both games run at once; user watches HALT by hand and does not want a map-count cap. Keep session_config.py DOLLAR_MULTIPLES (daily_loss_kill 4x, max_total_exposure 8x, max_event_group_loss 4x, max_market_notional 4x, q_max 4x) derived from the two live clips. After clips become level_usdc $65 / $20, that is kill $340, exposure $680, market $340, q_max $260 / $80. Changing the two sizes auto-raises the caps. No extra concurrent-map counter: skip-whole-level on the budget snapshot is the limiter. Resting BUY must count in the snapshot (today they do not in fork exposure).",
+    "Restart: already chosen in the spec — exit-only, no new BUY for a restored map session. New maps in the same process still get the full ladder. Old journals that lack rung/order links use the same drain path. Resume-ladder-from-snapshot is out of scope.",
+    "SELL table: extract current backtest semantics first (a new BUY fill restarts the 10s settle and the working SELL is cancelled on the next requote). Then a labeled change adopts live MATCHED-unconfirmed hold plus 1s SELL min-life in both adapters, including backtest. That change needs a new baseline; old Follow300 numbers are not a check of the new table.",
+    "Late fill of an old episode: current backtest _credit_detached_level_fill matches a rung by index without episode_id. Core implements ownership by episode_id from the start. The 4 identity replays are not this scenario. A labeled step adds the regression (including a different token) and blocks new BUY until unresolved ownership is reconciled.",
+    "EVENT cooloff: remove from the esports strategy path. Real HALT, wallet limits, and reduce-only stay as adapter-supplied permissions into the core.",
+    "Signal contract: inbound delta is the raw model delta. Live must stop reconstructing clipped_fair - market_p. Anchor gate in live uses the book the signal was computed on, not a dataset price.",
+    "Cutoff: adapters pass game-second 540. They do not convert cutoff into data-delay or network-latency time.",
+    "min_order_size: same market-limits struct in both adapters. Live uses market metadata. Backtest 5 shares when history has no metadata, flagged on the manifest.",
+    "PaperGateway PnL is not a queue/partial-fill equivalence check against the historical simulator. Equivalence is same synthetic tape → same core state and commands, plus the paper decision-trace replay.",
+    "Full historical shared-wallet fill-path rerun under a tight $1000 budget is out of scope. This feature adds contract scenarios with a fake tight budget and replays decisions under identical limits.",
+    "poly-maker: frozen. No strategy-driver PR to the fork. No edits under ../poly-maker."
+  ],
+  "Non-Goals (Out of Scope for V1)": [
+    "VPS inspect, drain, enable, rollback, or version-pin deploy",
+    "Merge ladder-experiment into main",
+    "Any file change in ../poly-maker or a strategy-driver API inside the fork",
+    "Full historical portfolio simulator that reruns the fill path when shared capital is short",
+    "Resume the BUY ladder from a saved snapshot after crash (exit-only only)",
+    "Extend session.jsonl to restore rungs",
+    "Registry of experimental strategies or re-running the discarded strategy grid",
+    "Using PaperGateway PnL as proof that live and backtest queues match",
+    "A hard max concurrent-map counter"
+  ],
+  "description": "Shared Follow300 core for backtest and live/paper, with labeled behavior changes after extraction identity",
+  "steps": [
+    {
+      "id": "US-001",
+      "title": "Freeze the extraction oracle and disputed scenarios",
+      "description": "As a developer, I need pinned inputs and expected decisions for the four seed-0 postcleanup replays so later steps can tell preserved behavior from labeled fixes.",
+      "changes": [
+        "Record code SHA, policy/config identity, model artifact identity, and replay input paths for Dota 8837869969, 8911784562, 8933879286 and LoL 115564793879469302, seed 0, in a freeze note under esports-trader",
+        "Store expected fills, place/cancel, episode/level links, and reserve size/timestamps for those four runs as machine-readable golden artifacts",
+        "Add compact golden scenarios for partial BUY fill, rung move that keeps queue, and fill/cancel race",
+        "The freeze note lists which extra scenarios are in-scope for extraction identity versus later labeled fixes (late old-episode fill, SELL min-life/MATCHED, 100ms/2s cadence)",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-002",
+      "title": "Build the dependency-free Follow300 core",
+      "description": "As a developer, I need types, policy, signals, lifecycle, quoting, and a single-event engine in src/strategy/ so both adapters share one ruleset without Nautilus or poly-maker.",
+      "changes": [
+        "Add src/strategy/types.py, policy.py, signals.py, lifecycle.py, quoting.py, engine.py. Frozen dataclasses for books, raw-delta signal, game clock, market limits, permissions, order events, state snapshot, and the outbound plan",
+        "One Follow300 policy: 3 rungs, $0.01 step, required level_usdc, filters, 10s sell settle, cadence fields. No game or live/backtest constants in the core. Extraction cadence is fallback_timer_s=1.0; live 100ms/2s is not applied yet",
+        "Signals reuse shared helpers: fair clip to [0,1], raw predicted delta for the entry filter, NW lookback, signal TTL. Lifecycle: one latched token, episode_id ownership, cancel does not free a rung until confirmed, dust stays a real position. Quoting: keep/move/replace, full level_usdc on partial replace, skip a whole rung on short budget. Engine: one timed event in, plan plus next_wake out; timeout is unknown not reject",
+        "Importing strategy fails a test if it imports backtest, trader, nautilus, polymaker, pandas, or opens network/filesystem/system clock",
+        "Unit tests: filter boundaries both polarities, duplicate fill, cancel-then-fill race, keep vs move vs replace, cutoff during submit, cancel timeout, recovery event shape",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-003",
+      "title": "Wire the backtest adapter and prove extraction identity",
+      "description": "As a developer, I need the historical runner to drive the core and match the US-001 four-replay oracle so the port is not a silent rewrite.",
+      "changes": [
+        "DotaMakerStrategy becomes an adapter: it feeds books/signals/fills into src/strategy/engine.py and executes the plan through the existing Nautilus place/cancel path. Nautilus still owns matching, timers, telemetry",
+        "Delete Follow300 filter/episode/quoting implementations that now live in src/strategy/. Extraction still uses the 1s timer; book updates still do not by themselves requote",
+        "Run Dota 8837869969, 8911784562, 8933879286 and LoL 115564793879469302 seed 0 against the US-001 goldens. Pass means fills, place/cancel, episode/level links, reserve size and timestamps match. Known Nautilus zero-fill faults stay labeled. PnL is reported, not the only gate",
+        "Add or update automated tests that fail if those identity fields drift",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-004",
+      "title": "Wire live/paper to execute the core plan",
+      "description": "As a trader, I need live to place the core's ladder through Engine seams, with every submit and fill coming back on the same queue.",
+      "changes": [
+        "Live/paper builds core inputs (books, raw-delta signal, game-second cutoff, market limits, HALT/reduce-only/wallet permissions) and executes keep/cancel/place via existing engine_seams.py. No ../poly-maker file is edited. Esports path does not run generic quote-diff or resize_frac=0.2 as a second source of truth",
+        "Place/cancel ack/reject/timeout, partial/full fill, MATCHED/CONFIRMED/FAILED enqueue on the same serialized queue as books and signals. User-WS callbacks do not mutate episode state off to the side. The allowed batch is finalized before send so a filtered SELL does not quarantine a sibling BUY",
+        "Remove POSITION_OPEN as a BUY block and skip Regime.EVENT cooloff on the esports path. HALT still cancels. live/paper level_usdc is Dota $65 and LoL $20, passed in",
+        "Ledger dedup is unchanged: one fill credits once",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-005",
+      "title": "Prove both adapters agree on one synthetic tape",
+      "description": "As a developer, I need the same event sequence to produce the same core state and commands from backtest and live adapters.",
+      "changes": [
+        "Contract tests feed both adapters the same synthetic sequence (MATCHED then CONFIRMED/FAILED delay, submit timeout, mixed BUY+SELL batch) and compare normalized commands and core snapshot after each event",
+        "Simulator-immediate CONFIRMED fill and delayed MATCHED→CONFIRMED/FAILED are both covered; MATCHED is not treated as irreversible",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-006",
+      "title": "Persist core state and drain mid-episode recovery",
+      "description": "As a trader, I need a crash to restore bindings from SQLite/outbox and a restored map to sell-only, never rebuild the ladder.",
+      "changes": [
+        "Live writes episode/rung/order mapping and in-flight command identity through the existing SQLite/outbox. Wallet ledger stays the cash source of truth. A crash between network result, ledger commit, and snapshot write still applies each fill once. Position is not turned into rungs by guessing aggregate size. session.jsonl schema is not extended",
+        "Core Recovery event: cancel restored BUY, wait for cancel/settle outcomes, verify position, permissions become sell-only for that map session. New maps in the same process still get the full policy. Journals that lack rung/order links take this same drain path. Recovery is also driven through the backtest adapter",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-007",
+      "title": "Put both games on the core and auto-scale live caps",
+      "description": "As a trader, I need Dota and LoL to share one policy and one wallet snapshot so a second game cannot silently oversize BUY.",
+      "changes": [
+        "Dota and LoL live/paper and backtest both call src/strategy. Delete the old sequential entry/exit live branches and duplicated strategy knobs the core replaced",
+        "Adapter config carries four independent level_usdc values: backtest Dota $100, backtest LoL $100, live/paper Dota $65, live/paper LoL $20",
+        "Live/paper risk dollars keep DOLLAR_MULTIPLES on the sum of the two live clips ($65+$20 → kill $340, exposure $680, market $340, q_max $260 / $80). Changing a clip changes the caps. Budget snapshot includes resting BUY. A shortfall skips the whole rung",
+        "Contract tests: two markets (both games) sharing a tight fake budget; a Dota rung skipped for cash does not shrink LoL level_usdc",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-008",
+      "title": "Apply the three labeled behavior changes",
+      "description": "As a trader, I need late-episode fills, the SELL settle table, and live clocks applied as named changes with before/after, not hidden inside the extraction.",
+      "changes": [
+        "Late fill: a fill whose order belongs to a prior episode_id credits that episode, including when the new episode is on the other token. Unresolved ownership blocks new BUY until reconciled. Before/after on the compact scenario; US-001 numbers are not this check",
+        "SELL table: keep live MATCHED-unconfirmed hold and 1s SELL min-life; model both in backtest. BUY continues within reserves. HALT still cancels immediately. Policy version bumps. Before/after covers new BUY fill, MATCHED-unconfirmed SELL, 10s expiry, 1s min-life, emergency cancel",
+        "Cadence: debounce_ms=100 on book/signal and fallback_timer_s=2.0 in both adapters (trading.toml engine.debounce_ms / quoter_tick_s). Before/after on a compact book-move scenario; US-001 goldens are not this check",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-009",
+      "title": "Write a versioned paper decision trace for both games",
+      "description": "As a developer, I need an offline-replayable trace of core inputs and decisions so a paper mismatch names the first disagreeing event instead of a PnL delta.",
+      "changes": [
+        "Paper for Dota and LoL writes the same decision-trace schema, versioned independently of session.jsonl: policy/config SHA, model SHA, signal/book timestamps, event/order/episode/level ids, actions, reserves, block reasons",
+        "An offline replay of that archive reproduces core decisions; a mismatch reports the first event where input or decision differs",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "designReference": []
+    },
+    {
+      "id": "US-010",
+      "title": "Publish the post-change 12-seed Follow300 baseline",
+      "description": "As a trader, I need a new accepted 12-seed result per game after the labeled changes so later work does not compare against extraction-era Follow300 numbers.",
+      "changes": [
+        "Run the accepted 12-seed set for Dota and LoL with the final policy (including US-008). Store the new baseline and name the labeled changes that explain drift from US-001 Follow300",
+        "Known Nautilus zero-fill faults stay visible engine faults",
+        "Applicable pytest, ruff, format, and basedpyright checks pass on the branch",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "designReference": []
+    }
+  ]
+}
