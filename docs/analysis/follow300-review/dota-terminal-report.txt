@@ -1,0 +1,1085 @@
+================================== SEED 0 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      0
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            393
+  no-trade                  61
+  traded + no-trade         454
+  buy fills                 1702  (4.3 / traded)
+  sell fills                1866
+  turnover                  $89204.19
+  median clip               $100.00
+  fill rate                 7.4%
+
+PNL
+  span                      91d
+  starting capital          $704.54
+  pnl before rebate         $404.10
+  ROI before rebate         57%
+  rebate                    $515.72
+  pnl with rebate           $919.82
+  final balance with rebate $1624.36
+  ROI with rebate           131%
+  pnl per match             $0.890
+  pnl per match with rebate $2.026
+  median match pnl          $0.000
+  pnl per share             0.262¢
+  pnl per share with rebate 0.597¢
+  maps at once              2
+
+BALANCE
+   1108.64 ┤                                                                                                  ╭─
+   1063.74 ┤                                                                                                 ╭╯ 
+   1018.84 ┤                                                                   ╭╮                       ╭╮ ╭╮│  
+    973.94 ┤                                    ╭╮                             ││                       ││ │╰╯  
+    929.04 ┤                                    │╰─╮                           │╰╮                      ││ │    
+    884.14 ┤    ╭──────╮                        │  │                           │ │                 ╭╮╭──╯│ │    
+    839.24 ┤    │      ╰────────────────────────╯  ╰─╮                   ╭╮   ╭╯ ╰──╮ ╭────────────╯╰╯   │ │    
+    794.34 ┤    │                                    │                ╭╮ ││  ╭╯     ╰─╯                  ╰─╯    
+    749.44 ┤    │                                    │                ││╭╯│  │                                  
+    704.54 ┼╮─╭─╯────────────────────────────────────│───────────╭─╮──│╰╯─╰╮─│──────────────────────────────────
+    659.64 ┤╰─╯                                      │       ╭─╮╭╯ │╭─╯    │ │                                  
+    614.74 ┤                                         │       │ ││  ╰╯      │╭╯                                  
+    569.84 ┤                                         ╰─╮     │ ╰╯          ││                                   
+    524.94 ┤                                           │     │             ╰╯                                   
+    480.04 ┤                                           │     │                                                  
+    435.14 ┤                                           ╰╮    │                                                  
+    390.24 ┤                                            ╰─╮ ╭╯                                                  
+    345.34 ┤                                              │ │                                                   
+    300.44 ┤                                              │╭╯                                                   
+    255.54 ┤                                              ╰╯                                                    
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.617¢    [ -0.887,  -0.344]
+  buy 300s        0.756¢    [ -0.315,   1.851]
+  sell 30s       -0.485¢    [ -0.888,  -0.087]
+  sell 300s      -0.630¢    [ -1.808,   0.544]
+
+HOLD
+  min                       12s
+  p50                       93s
+  p90                       380s
+
+RISK
+  loss rate                 40.3%
+  CVaR 5%                   -$61.478
+  worst match               -$117.426
+  lowest capital point      $271.27
+
+================================== SEED 1 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      1
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            404
+  no-trade                  50
+  traded + no-trade         454
+  buy fills                 1880  (4.7 / traded)
+  sell fills                1939
+  turnover                  $92251.45
+  median clip               $100.00
+  fill rate                 7.5%
+
+PNL
+  span                      91d
+  starting capital          $634.83
+  pnl before rebate         $700.87
+  ROI before rebate         110%
+  rebate                    $525.47
+  pnl with rebate           $1226.33
+  final balance with rebate $1861.17
+  ROI with rebate           193%
+  pnl per match             $1.544
+  pnl per match with rebate $2.701
+  median match pnl          $0.000
+  pnl per share             0.443¢
+  pnl per share with rebate 0.775¢
+  maps at once              3
+
+BALANCE
+   1407.55 ┤                                                                                                    
+   1348.11 ┤                                                                                                 ╭──
+   1288.67 ┤                                                                                                ╭╯  
+   1229.23 ┤                                                                                               ╭╯   
+   1169.79 ┤                                                                                            ╭╮ │    
+   1110.35 ┤                                                                   ╭╮                       ││ │    
+   1050.91 ┤                                                                   ││                       ││ │    
+    991.47 ┤                                                                 ╭─╯╰╮                      ││╭╯    
+    932.03 ┤                                                                 │   │                      │││     
+    872.59 ┤                                                          ╭╮     │   │                   ╭──╯╰╯     
+    813.15 ┤                                                  ╭╮      │╰╮╭╮  │   │                  ╭╯          
+    753.71 ┤                                    ╭╮            │╰──────╯ ╰╯│ ╭╯   │ ╭╮ ╭─────────────╯           
+    694.27 ┤    ╭───────────────────────────────╯│ ╭─╮       ╭╯           │ │    ╰─╯│╭╯                         
+    634.83 ┼╮─╭─╯────────────────────────────────╰─╯─│───────│────────────╰─╯───────╰╯──────────────────────────
+    575.40 ┤╰─╯                                      │       │                                                  
+    515.96 ┤                                         ╰─╮     │                                                  
+    456.52 ┤                                           │     │                                                  
+    397.08 ┤                                           ╰─╮   │                                                  
+    337.64 ┤                                             ╰─╮ │                                                  
+    278.20 ┤                                               ╰─╯                                                  
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.652¢    [ -0.921,  -0.380]
+  buy 300s        0.767¢    [ -0.273,   1.802]
+  sell 30s       -0.769¢    [ -1.112,  -0.430]
+  sell 300s      -0.358¢    [ -1.542,   0.811]
+
+HOLD
+  min                       12s
+  p50                       97s
+  p90                       344s
+
+RISK
+  loss rate                 40.1%
+  CVaR 5%                   -$69.595
+  worst match               -$216.164
+  lowest capital point      $278.20
+
+================================== SEED 2 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      2
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            390
+  no-trade                  64
+  traded + no-trade         454
+  buy fills                 1676  (4.3 / traded)
+  sell fills                1784
+  turnover                  $84550.98
+  median clip               $100.00
+  fill rate                 7.2%
+
+PNL
+  span                      91d
+  starting capital          $784.80
+  pnl before rebate         $658.39
+  ROI before rebate         84%
+  rebate                    $486.29
+  pnl with rebate           $1144.68
+  final balance with rebate $1929.48
+  ROI with rebate           146%
+  pnl per match             $1.450
+  pnl per match with rebate $2.521
+  median match pnl          $0.000
+  pnl per share             0.452¢
+  pnl per share with rebate 0.786¢
+  maps at once              3
+
+BALANCE
+   1539.52 ┤                                                                                            ╭╮      
+   1476.63 ┤                                                                   ╭╮                       ││      
+   1413.73 ┤                                                                   │╰╮                      ││   ╭──
+   1350.84 ┤                                                                  ╭╯ │                   ╭──╯╰───╯  
+   1287.95 ┤                                                                 ╭╯  │ ╭╮               ╭╯          
+   1225.05 ┤                                                                 │   │ ││╭──────────────╯           
+   1162.16 ┤                                                                 │   ╰─╯╰╯                          
+   1099.27 ┤                                                                 │                                  
+   1036.37 ┤                                                                ╭╯                                  
+    973.48 ┤    ╭──────╮                                                    │                                   
+    910.59 ┤    │      ╰───────────────────────╮                      ╭─╮╭╮ │                                   
+    847.70 ┤  ╭╮│                              ╰──╮╭─╮          ╭──╮╭─╯ ╰╯│╭╯                                   
+    784.80 ┼╮╭╯╰╯─────────────────────────────────╰╯─│───────╭─╮│──╰╯─────╰╯────────────────────────────────────
+    721.91 ┤╰╯                                       │       │ ╰╯                                               
+    659.02 ┤                                         │       │                                                  
+    596.12 ┤                                         │       │                                                  
+    533.23 ┤                                         ╰─╮    ╭╯                                                  
+    470.34 ┤                                           ╰─╮  │                                                   
+    407.44 ┤                                             ╰──╯                                                   
+    344.55 ┤                                                                                                    
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.762¢    [ -1.024,  -0.494]
+  buy 300s        1.128¢    [  0.057,   2.182]
+  sell 30s       -0.468¢    [ -0.821,  -0.111]
+  sell 300s      -0.927¢    [ -2.073,   0.281]
+
+HOLD
+  min                       12s
+  p50                       97s
+  p90                       351s
+
+RISK
+  loss rate                 39.4%
+  CVaR 5%                   -$63.670
+  worst match               -$182.494
+  lowest capital point      $392.32
+
+================================== SEED 3 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      3
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            396
+  no-trade                  58
+  traded + no-trade         454
+  buy fills                 1750  (4.4 / traded)
+  sell fills                1937
+  turnover                  $87485.21
+  median clip               $100.00
+  fill rate                 7.3%
+
+PNL
+  span                      91d
+  starting capital          $750.05
+  pnl before rebate         $299.30
+  ROI before rebate         40%
+  rebate                    $510.68
+  pnl with rebate           $809.98
+  final balance with rebate $1560.03
+  ROI with rebate           108%
+  pnl per match             $0.659
+  pnl per match with rebate $1.784
+  median match pnl          $0.000
+  pnl per share             0.197¢
+  pnl per share with rebate 0.532¢
+  maps at once              3
+
+BALANCE
+   1136.60 ┤                                                                                                    
+   1093.65 ┤                                                                                            ╭╮      
+   1050.70 ┤                                                                                         ╭──╯│   ╭──
+   1007.75 ┤                                                                   ╭╮                  ╭─╯   │   │  
+    964.80 ┤                                                                  ╭╯│      ╭───────────╯     │  ╭╯  
+    921.85 ┤                                                                 ╭╯ ╰╮  ╭╮╭╯                 │ ╭╯   
+    878.90 ┤                                                 ╭╮              │   │ ╭╯╰╯                  │ │    
+    835.95 ┤                                                 │╰╮             │   ╰─╯                     ╰╮│    
+    793.00 ┤                                                 │ │╭╮          ╭╯                            ││    
+    750.05 ┼╮──────────────────────────────────────╭─╮───────│─╰╯╰─╮──╭╮────│─────────────────────────────╰╯────
+    707.10 ┤│                                      │ │       │     │ ╭╯│    │                                   
+    664.15 ┤│   ╭────────╮                      ╭╮ │ │       │     │╭╯ │ ╭─╮│                                   
+    621.20 ┤│ ╭╮│        ╰──────────────────────╯╰─╯ │       │     ╰╯  │╭╯ ││                                   
+    578.25 ┤╰─╯╰╯                                    │       │         ╰╯  ││                                   
+    535.30 ┤                                         │       │             ││                                   
+    492.35 ┤                                         ╰─╮     │             ││                                   
+    449.40 ┤                                           │     │             ││                                   
+    406.45 ┤                                           ╰─╮   │             ╰╯                                   
+    363.50 ┤                                             ╰╮╭─╯                                                  
+    320.55 ┤                                              ╰╯                                                    
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.558¢    [ -0.867,  -0.263]
+  buy 300s        0.981¢    [ -0.143,   2.140]
+  sell 30s       -0.581¢    [ -0.938,  -0.223]
+  sell 300s      -0.671¢    [ -1.888,   0.555]
+
+HOLD
+  min                       12s
+  p50                       111s
+  p90                       362s
+
+RISK
+  loss rate                 41.9%
+  CVaR 5%                   -$68.983
+  worst match               -$151.453
+  lowest capital point      $320.55
+
+================================== SEED 4 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      4
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            394
+  no-trade                  60
+  traded + no-trade         454
+  buy fills                 1824  (4.6 / traded)
+  sell fills                1973
+  turnover                  $89385.96
+  median clip               $100.00
+  fill rate                 7.3%
+
+PNL
+  span                      91d
+  starting capital          $911.43
+  pnl before rebate         -$296.57
+  ROI before rebate         -33%
+  rebate                    $515.14
+  pnl with rebate           $218.56
+  final balance with rebate $1129.99
+  ROI with rebate           24%
+  pnl per match             -$0.653
+  pnl per match with rebate $0.481
+  median match pnl          $0.000
+  pnl per share             -0.192¢
+  pnl per share with rebate 0.142¢
+  maps at once              3
+
+BALANCE
+   1080.17 ┤                                      ╭╮                                                            
+   1037.98 ┤                                      ││                                                            
+    995.80 ┤    ╭──────────────────────────────╮╭╮││                                                            
+    953.61 ┤    │                              ╰╯╰╯╰╮                          ╭╮                               
+    911.43 ┼╮───│───────────────────────────────────│────────────────────╭╮───╭╯│───────────────────────────────
+    869.24 ┤│  ╭╯                                   ╰╮                ╭─╮││  ╭╯ ╰╮                              
+    827.06 ┤│ ╭╯                                     │        ╭╮ ╭─╮  │ ╰╯│  │   │                              
+    784.87 ┤╰─╯                                      │       ╭╯│╭╯ │╭─╯   │ ╭╯   │                              
+    742.69 ┤                                         │       │ ╰╯  ╰╯     ╰╮│    │                              
+    700.51 ┤                                         │       │             ││    ╰──╮                           
+    658.32 ┤                                         │       │             ││       │                           
+    616.14 ┤                                         │       │             ╰╯       │                         ╭─
+    573.95 ┤                                         │       │                      ╰╮                       ╭╯ 
+    531.77 ┤                                         │   ╭╮ ╭╯                       │              ╭───╮  ╭╮│  
+    489.58 ┤                                         ╰─╮ │╰─╯                        │             ╭╯   ╰╮ │╰╯  
+    447.40 ┤                                           │╭╯                           │ ╭───────────╯     │ │    
+    405.22 ┤                                           ││                            ╰─╯                 │ │    
+    363.03 ┤                                           ╰╯                                                ╰╮│    
+    320.85 ┤                                                                                              ││    
+    278.66 ┤                                                                                              ╰╯    
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.650¢    [ -0.969,  -0.337]
+  buy 300s        0.426¢    [ -0.654,   1.520]
+  sell 30s       -0.293¢    [ -0.666,   0.075]
+  sell 300s      -1.081¢    [ -2.313,   0.122]
+
+HOLD
+  min                       12s
+  p50                       96s
+  p90                       341s
+
+RISK
+  loss rate                 41.4%
+  CVaR 5%                   -$81.445
+  worst match               -$250.570
+  lowest capital point      $278.66
+
+================================== SEED 5 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      5
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            393
+  no-trade                  61
+  traded + no-trade         454
+  buy fills                 1774  (4.5 / traded)
+  sell fills                1826
+  turnover                  $87440.34
+  median clip               $100.00
+  fill rate                 7.1%
+
+PNL
+  span                      91d
+  starting capital          $637.51
+  pnl before rebate         $437.01
+  ROI before rebate         69%
+  rebate                    $501.68
+  pnl with rebate           $938.68
+  final balance with rebate $1576.19
+  ROI with rebate           147%
+  pnl per match             $0.963
+  pnl per match with rebate $2.068
+  median match pnl          $0.000
+  pnl per share             0.290¢
+  pnl per share with rebate 0.623¢
+  maps at once              2
+
+BALANCE
+   1354.28 ┤                                                                                                    
+   1309.48 ┤                                                                                            ╭╮      
+   1264.69 ┤                                                                                        ╭───╯│      
+   1219.89 ┤                                                                                        │    │      
+   1175.09 ┤                                                                                       ╭╯    │      
+   1130.29 ┤                                                                          ╭────────────╯     │      
+   1085.49 ┤                                                                          │                  │    ╭─
+   1040.69 ┤                                                                   ╭─╮   ╭╯                  │   ╭╯ 
+    995.89 ┤                                                                  ╭╯ │ ╭─╯                   │  ╭╯  
+    951.10 ┤                                                                 ╭╯  ╰─╯                     │  │   
+    906.30 ┤                                                           ╭╮    │                           ╰╮ │   
+    861.50 ┤           ╭─╮                       ╭╮           ╭╮  ╭╮  ╭╯│    │                            │╭╯   
+    816.70 ┤    ╭──────╯ ╰───────────────────────╯╰╮          ││ ╭╯│╭─╯ ╰─╮  │                            ╰╯    
+    771.90 ┤    │                                  ╰─╮        │╰─╯ ╰╯     ╰╮ │                                  
+    727.10 ┤   ╭╯                                    │       ╭╯            │╭╯                                  
+    682.30 ┤   │                                     ╰─╮     │             ││                                   
+    637.51 ┼─╮─│───────────────────────────────────────│─────│─────────────││───────────────────────────────────
+    592.71 ┤ │╭╯                                       ╰╮╭───╯             ╰╯                                   
+    547.91 ┤ ││                                         ╰╯                                                      
+    503.11 ┤ ╰╯                                                                                                 
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.412¢    [ -0.699,  -0.119]
+  buy 300s        0.469¢    [ -0.596,   1.515]
+  sell 30s       -0.461¢    [ -0.817,  -0.112]
+  sell 300s       0.266¢    [ -0.885,   1.438]
+
+HOLD
+  min                       12s
+  p50                       94s
+  p90                       394s
+
+RISK
+  loss rate                 41.0%
+  CVaR 5%                   -$68.610
+  worst match               -$180.125
+  lowest capital point      $503.11
+
+================================== SEED 6 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      6
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            396
+  no-trade                  58
+  traded + no-trade         454
+  buy fills                 1731  (4.4 / traded)
+  sell fills                1815
+  turnover                  $87125.02
+  median clip               $100.00
+  fill rate                 7.2%
+
+PNL
+  span                      91d
+  starting capital          $663.18
+  pnl before rebate         $740.85
+  ROI before rebate         112%
+  rebate                    $508.54
+  pnl with rebate           $1249.39
+  final balance with rebate $1912.56
+  ROI with rebate           188%
+  pnl per match             $1.632
+  pnl per match with rebate $2.752
+  median match pnl          $0.000
+  pnl per share             0.489¢
+  pnl per share with rebate 0.825¢
+  maps at once              2
+
+BALANCE
+   1404.03 ┤                                                                                                 ╭──
+   1354.64 ┤                                                                                                 │  
+   1305.25 ┤                                                                                            ╭╮  ╭╯  
+   1255.86 ┤                                                                                            ││ ╭╯   
+   1206.47 ┤                                                                   ╭─╮                      ││ │    
+   1157.08 ┤                                                                   │ │                 ╭─╮  ││ │    
+   1107.69 ┤                                                                  ╭╯ │                 │ ╰──╯│ │    
+   1058.30 ┤                                                                 ╭╯  │     ╭───────────╯     ╰─╯    
+   1008.91 ┤                                                                 │   │ ╭╮╭─╯                        
+    959.52 ┤                                                                 │   │ │╰╯                          
+    910.13 ┤                                                             ╭╮  │   ╰─╯                            
+    860.74 ┤                                                         ╭─╮ ││ ╭╯                                  
+    811.35 ┤    ╭──────╮                          ╭╮            ╭╮  ╭╯ ╰─╯╰╮│                                   
+    761.96 ┤    │      ╰────────────────────────╮╭╯╰─╮       ╭──╯╰╮ │      ││                                   
+    712.57 ┤    │                               ╰╯   ╰─╮     │    ╰─╯      ││                                   
+    663.18 ┼╮╭──╯──────────────────────────────────────│─────│─────────────││───────────────────────────────────
+    613.79 ┤╰╯                                         ╰─╮  ╭╯             ╰╯                                   
+    564.40 ┤                                             ╰╮ │                                                   
+    515.01 ┤                                              ╰╮│                                                   
+    465.62 ┤                                               ╰╯                                                   
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.492¢    [ -0.777,  -0.202]
+  buy 300s        0.910¢    [ -0.257,   2.096]
+  sell 30s       -0.592¢    [ -0.931,  -0.250]
+  sell 300s      -0.600¢    [ -1.866,   0.684]
+
+HOLD
+  min                       12s
+  p50                       88s
+  p90                       354s
+
+RISK
+  loss rate                 36.1%
+  CVaR 5%                   -$70.110
+  worst match               -$217.414
+  lowest capital point      $482.36
+
+================================== SEED 7 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      7
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            395
+  no-trade                  59
+  traded + no-trade         454
+  buy fills                 1803  (4.6 / traded)
+  sell fills                1871
+  turnover                  $88121.91
+  median clip               $100.00
+  fill rate                 7.5%
+
+PNL
+  span                      91d
+  starting capital          $909.13
+  pnl before rebate         $333.85
+  ROI before rebate         37%
+  rebate                    $507.22
+  pnl with rebate           $841.07
+  final balance with rebate $1750.20
+  ROI with rebate           93%
+  pnl per match             $0.735
+  pnl per match with rebate $1.853
+  median match pnl          $0.000
+  pnl per share             0.219¢
+  pnl per share with rebate 0.553¢
+  maps at once              3
+
+BALANCE
+   1265.95 ┤                                        ╭╮       ╭╮                                                 
+   1226.30 ┤                                        ││       ││                                               ╭─
+   1186.66 ┤                                       ╭╯│       │╰╮ ╭╮                                          ╭╯ 
+   1147.01 ┤                                    ╭──╯ │       │ │╭╯╰╮ ╭─╮                                     │  
+   1107.36 ┤                                    │    │       │ ╰╯  │╭╯ ╰╮                                   ╭╯  
+   1067.72 ┤    ╭──────────────────────────────╮│    │       │     ╰╯   ╰─╮                             ╭╮ ╭╯   
+   1028.07 ┤    │                              ╰╯    ╰─╮     │            │    ╭╮                       ││╭╯    
+    988.42 ┤    │                                      │     │            │    │╰╮                      │╰╯     
+    948.78 ┤    │                                      │    ╭╯            │    │ │                      │       
+    909.13 ┼╮──╭╯──────────────────────────────────────╰─╮─╭╯─────────────╰╮──╭╯─│──────────────────────│───────
+    869.48 ┤│  │                                         ╰╮│               │ ╭╯  │                  ╭───╯       
+    829.84 ┤╰──╯                                          ╰╯               │ │   │                  │           
+    790.19 ┤                                                               │ │   ╰──╮               │           
+    750.55 ┤                                                               │╭╯      │               │           
+    710.90 ┤                                                               ││       │               │           
+    671.25 ┤                                                               ╰╯       │               │           
+    631.61 ┤                                                                        ╰──────────────╮│           
+    591.96 ┤                                                                                       ││           
+    552.31 ┤                                                                                       ││           
+    512.67 ┤                                                                                       ╰╯           
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.751¢    [ -1.079,  -0.437]
+  buy 300s        0.306¢    [ -0.785,   1.337]
+  sell 30s       -0.019¢    [ -0.410,   0.366]
+  sell 300s       0.046¢    [ -1.307,   1.403]
+
+HOLD
+  min                       12s
+  p50                       97s
+  p90                       340s
+
+RISK
+  loss rate                 40.1%
+  CVaR 5%                   -$65.042
+  worst match               -$206.866
+  lowest capital point      $525.85
+
+================================== SEED 8 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      8
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            394
+  no-trade                  60
+  traded + no-trade         454
+  buy fills                 1730  (4.4 / traded)
+  sell fills                1890
+  turnover                  $89271.81
+  median clip               $100.00
+  fill rate                 7.5%
+
+PNL
+  span                      91d
+  starting capital          $576.16
+  pnl before rebate         $606.83
+  ROI before rebate         105%
+  rebate                    $522.78
+  pnl with rebate           $1129.61
+  final balance with rebate $1705.77
+  ROI with rebate           196%
+  pnl per match             $1.337
+  pnl per match with rebate $2.488
+  median match pnl          $0.000
+  pnl per share             0.389¢
+  pnl per share with rebate 0.725¢
+  maps at once              3
+
+BALANCE
+   1216.77 ┤                                                                                                    
+   1171.01 ┤                                                                                                  ╭─
+   1125.25 ┤                                                                                                 ╭╯ 
+   1079.50 ┤                                                          ╭╮ ╭╮    ╭╮                          ╭─╯  
+   1033.74 ┤                                                          ││ ││   ╭╯╰╮                         │    
+    987.98 ┤                                                          ││╭╯│  ╭╯  │                         │    
+    942.22 ┤                                                 ╭╮     ╭─╯││ │  │   │                      ╭╮ │    
+    896.46 ┤                                                 │╰╮    │  ╰╯ │  │   │  ╭╮             ╭────╯╰─╯    
+    850.71 ┤                                                 │ │ ╭╮ │     ╰╮╭╯   │ ╭╯│╭────────────╯            
+    804.95 ┤                                                 │ ╰─╯╰─╯      ││    │ │ ╰╯                         
+    759.19 ┤                                       ╭─╮       │             ╰╯    ╰─╯                            
+    713.43 ┤                                       │ │       │                                                  
+    667.68 ┤    ╭─────╮                         ╭╮╭╯ │       │                                                  
+    621.92 ┤    │     ╰────────────────────────╮│╰╯  │       │                                                  
+    576.16 ┼╮───│──────────────────────────────╰╯────╰─╮╭╮───│──────────────────────────────────────────────────
+    530.40 ┤│  ╭╯                                      ╰╯│ ╭─╯                                                  
+    484.64 ┤╰╮╭╯                                         ╰─╯                                                    
+    438.89 ┤ ││                                                                                                 
+    393.13 ┤ ││                                                                                                 
+    347.37 ┤ ╰╯                                                                                                 
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.753¢    [ -1.026,  -0.480]
+  buy 300s        0.067¢    [ -1.026,   1.188]
+  sell 30s       -0.300¢    [ -0.714,   0.098]
+  sell 300s       0.247¢    [ -1.045,   1.517]
+
+HOLD
+  min                       12s
+  p50                       97s
+  p90                       342s
+
+RISK
+  loss rate                 43.0%
+  CVaR 5%                   -$69.610
+  worst match               -$192.245
+  lowest capital point      $347.37
+
+================================== SEED 9 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      9
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            390
+  no-trade                  64
+  traded + no-trade         454
+  buy fills                 1688  (4.3 / traded)
+  sell fills                1818
+  turnover                  $85408.09
+  median clip               $100.00
+  fill rate                 7.2%
+
+PNL
+  span                      91d
+  starting capital          $739.39
+  pnl before rebate         $601.29
+  ROI before rebate         81%
+  rebate                    $493.74
+  pnl with rebate           $1095.03
+  final balance with rebate $1834.42
+  ROI with rebate           148%
+  pnl per match             $1.324
+  pnl per match with rebate $2.412
+  median match pnl          $0.000
+  pnl per share             0.407¢
+  pnl per share with rebate 0.741¢
+  maps at once              3
+
+BALANCE
+   1340.68 ┤                                                                                                  ╭─
+   1290.57 ┤                                                                                                 ╭╯ 
+   1240.46 ┤                                                                                                ╭╯  
+   1190.35 ┤                                                                                               ╭╯   
+   1140.25 ┤                                                                                               │    
+   1090.14 ┤                                                                                               │    
+   1040.03 ┤                                                                                               │    
+    989.92 ┤                                                                                              ╭╯    
+    939.82 ┤                                    ╭╮                                                      ╭╮│     
+    889.71 ┤                                    ││                                                  ╭╮  │╰╯     
+    839.60 ┤    ╭───────────────────────────────╯╰─╮╭╮                                             ╭╯│  │       
+    789.49 ┤   ╭╯                                  ╰╯│       ╭╮                ╭─╮                 │ ╰──╯       
+    739.39 ┼─╮─│─────────────────────────────────────│───────││──╭╮────────────│─│───╭─────────────╯────────────
+    689.28 ┤ │╭╯                                     │       │╰╮ ││      ╭╮  ╭─╯ │   │                          
+    639.17 ┤ ╰╯                                      │       │ ╰─╯│      ││  │   │ ╭╮│                          
+    589.07 ┤                                         ╰─╮     │    ╰╮╭╮╭╮╭╯╰╮╭╯   │ │╰╯                          
+    538.96 ┤                                           ╰──╮  │     ╰╯╰╯╰╯  ││    ╰─╯                            
+    488.85 ┤                                              ╰──╯             ││                                   
+    438.74 ┤                                                               ││                                   
+    388.64 ┤                                                               ╰╯                                   
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.546¢    [ -0.843,  -0.252]
+  buy 300s        0.704¢    [ -0.415,   1.800]
+  sell 30s       -0.332¢    [ -0.699,   0.038]
+  sell 300s      -0.633¢    [ -1.920,   0.704]
+
+HOLD
+  min                       12s
+  p50                       94s
+  p90                       372s
+
+RISK
+  loss rate                 37.9%
+  CVaR 5%                   -$69.142
+  worst match               -$216.029
+  lowest capital point      $404.78
+
+================================== SEED 10 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      10
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            400
+  no-trade                  54
+  traded + no-trade         454
+  buy fills                 1721  (4.3 / traded)
+  sell fills                1828
+  turnover                  $87851.77
+  median clip               $100.00
+  fill rate                 7.0%
+
+PNL
+  span                      91d
+  starting capital          $565.69
+  pnl before rebate         $727.22
+  ROI before rebate         129%
+  rebate                    $506.74
+  pnl with rebate           $1233.96
+  final balance with rebate $1799.65
+  ROI with rebate           218%
+  pnl per match             $1.602
+  pnl per match with rebate $2.718
+  median match pnl          $0.000
+  pnl per share             0.479¢
+  pnl per share with rebate 0.813¢
+  maps at once              3
+
+BALANCE
+   1342.23 ┤                                                                                                    
+   1282.50 ┤                                                                                                  ╭─
+   1222.77 ┤                                                                                            ╭╮    │ 
+   1163.03 ┤                                                                                            ││   ╭╯ 
+   1103.30 ┤                                                                                            │╰╮╭─╯  
+   1043.56 ┤                                                                                            │ ╰╯    
+    983.83 ┤                                                                                            │       
+    924.10 ┤                                                                                            │       
+    864.36 ┤                                                                                         ╭──╯       
+    804.63 ┤                                                                   ╭─╮                 ╭─╯          
+    744.89 ┤                                      ╭─╮        ╭╮                │ │   ╭─────────────╯            
+    685.16 ┤                                      │ ╰╮       │╰╮     ╭─╮╭─╮   ╭╯ │   │                          
+    625.42 ┤    ╭──────╮                       ╭╮╭╯  │       │ ╰───╮╭╯ ╰╯ │   │  │ ╭─╯                          
+    565.69 ┼╮───│──────╰───────────────────────╯╰╯───╰─╮╭╮─╭─╯─────╰╯─────│──╭╯──╰─╯────────────────────────────
+    505.96 ┤│  ╭╯                                      ││╰─╯              │ ╭╯                                  
+    446.22 ┤╰╮ │                                       ╰╯                 ╰╮│                                   
+    386.49 ┤ ╰─╯                                                           ││                                   
+    326.75 ┤                                                               ││                                   
+    267.02 ┤                                                               ││                                   
+    207.29 ┤                                                               ╰╯                                   
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.392¢    [ -0.692,  -0.091]
+  buy 300s        0.962¢    [ -0.114,   2.010]
+  sell 30s       -0.662¢    [ -1.023,  -0.301]
+  sell 300s      -1.170¢    [ -2.463,   0.132]
+
+HOLD
+  min                       11s
+  p50                       104s
+  p90                       354s
+
+RISK
+  loss rate                 38.8%
+  CVaR 5%                   -$68.852
+  worst match               -$188.045
+  lowest capital point      $207.29
+
+================================== SEED 11 ==================================
+join/queue
+
+  model                     20260904T222046Z
+  trainlag                  10s
+  btlag                     10s
+  seed                      11
+  sigage                    16s
+  exitage                   45s
+  cut                       540
+  nw                        350
+  delta                     0.01
+  minpx                     0.35
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  454
+  selected                  454
+  completed                 454
+  terminated                0
+  traded matches            385
+  no-trade                  69
+  traded + no-trade         454
+  buy fills                 1752  (4.6 / traded)
+  sell fills                1774
+  turnover                  $86963.96
+  median clip               $100.00
+  fill rate                 7.3%
+
+PNL
+  span                      91d
+  starting capital          $919.61
+  pnl before rebate         $173.42
+  ROI before rebate         19%
+  rebate                    $495.40
+  pnl with rebate           $668.83
+  final balance with rebate $1588.43
+  ROI with rebate           73%
+  pnl per match             $0.382
+  pnl per match with rebate $1.473
+  median match pnl          $0.000
+  pnl per share             0.117¢
+  pnl per share with rebate 0.450¢
+  maps at once              3
+
+BALANCE
+   1243.45 ┤                                                                                                    
+   1197.19 ┤                                                                                            ╭╮      
+   1150.93 ┤                                                                                            ││      
+   1104.66 ┤                                                                                            ││    ╭─
+   1058.40 ┤                                                                   ╭╮                       ││    │ 
+   1012.13 ┤                                                                 ╭─╯╰╮                   ╭──╯│   ╭╯ 
+    965.87 ┤                                                                 │   │                  ╭╯   │  ╭╯  
+    919.61 ┼╮────────────────────────────────────────────────────────────────│───│─────────────────╭╯────│─╭╯───
+    873.34 ┤╰──╮                                                             │   │     ╭───────────╯     ╰─╯    
+    827.08 ┤   │╭──────╮                       ╭╮                            │   │ ╭╮ ╭╯                        
+    780.81 ┤   ╰╯      ╰───────────────────────╯╰─╮                      ╭╮  │   ╰─╯╰─╯                         
+    734.55 ┤                                      ╰╮             ╭╮   ╭──╯│  │                                  
+    688.29 ┤                                       ╰╮           ╭╯│  ╭╯   ╰╮ │                                  
+    642.02 ┤                                        ╰╮          │ │ ╭╯     │╭╯                                  
+    595.76 ┤                                         │          │ ╰╮│      ││                                   
+    549.49 ┤                                         │       ╭──╯  ╰╯      ╰╯                                   
+    503.23 ┤                                         ╰─╮     │                                                  
+    456.97 ┤                                           │╭─╮  │                                                  
+    410.70 ┤                                           ╰╯ ╰─╮│                                                  
+    364.44 ┤                                                ╰╯                                                  
+
+FILLS
+                     est    95% CI
+  buy  30s       -0.729¢    [ -1.032,  -0.426]
+  buy 300s        0.258¢    [ -0.846,   1.394]
+  sell 30s       -0.519¢    [ -0.909,  -0.123]
+  sell 300s      -0.045¢    [ -1.412,   1.278]
+
+HOLD
+  min                       12s
+  p50                       96s
+  p90                       385s
+
+RISK
+  loss rate                 39.2%
+  CVaR 5%                   -$69.491
+  worst match               -$217.963
+  lowest capital point      $364.44
+seed            completed           traded        buy_fills       sell_fills          net_pnl  roi_with_rebate  loss_match_rate           cvar_5      worst_match         buy_300s
+0                454.0000         393.0000        1702.0000        1866.0000         919.8201           1.3056           0.4031         -61.4776        -117.4263           0.0076
+1                454.0000         404.0000        1880.0000        1939.0000        1226.3323           1.9317           0.4009         -69.5953        -216.1639           0.0077
+2                454.0000         390.0000        1676.0000        1784.0000        1144.6767           1.4586           0.3943         -63.6704        -182.4935           0.0113
+3                454.0000         396.0000        1750.0000        1937.0000         809.9841           1.0799           0.4185         -68.9828        -151.4534           0.0098
+4                454.0000         394.0000        1824.0000        1973.0000         218.5644           0.2398           0.4141         -81.4450        -250.5701           0.0043
+5                454.0000         393.0000        1774.0000        1826.0000         938.6825           1.4724           0.4097         -68.6100        -180.1247           0.0047
+6                454.0000         396.0000        1731.0000        1815.0000        1249.3855           1.8839           0.3612         -70.1104        -217.4139           0.0091
+7                454.0000         395.0000        1803.0000        1871.0000         841.0693           0.9251           0.4009         -65.0422        -206.8657           0.0031
+8                454.0000         394.0000        1730.0000        1890.0000        1129.6110           1.9606           0.4295         -69.6103        -192.2453           0.0007
+9                454.0000         390.0000        1688.0000        1818.0000        1095.0303           1.4810           0.3789         -69.1419        -216.0287           0.0070
+10               454.0000         400.0000        1721.0000        1828.0000        1233.9615           2.1813           0.3877         -68.8519        -188.0453           0.0096
+11               454.0000         385.0000        1752.0000        1774.0000         668.8265           0.7273           0.3921         -69.4914        -217.9631           0.0026
+mean             454.0000         394.1667        1752.5833        1860.0833         956.3287           1.3873           0.3992         -68.8358        -194.7328           0.0064
+sd                 0.0000           4.8586          59.4757          64.0574         299.0748           0.5713           0.0184           4.8393          35.0265           0.0033
+
+TIME STABILITY  (equal-match chronological thirds; one row per seed)
+period  dates UTC                 matches   seed   traded      turnover    net PnL $   pre $/match   net ¢/share    buy 300s
+early   2026-06-04..2026-07-15        151  seed0      128       $31,704         -147        -2.138       -0.275¢      0.042¢
+early   2026-06-04..2026-07-15        151  seed1      136       $32,417          -66        -1.577       -0.123¢     -0.073¢
+early   2026-06-04..2026-07-15        151  seed2      129       $31,345         -148        -2.098       -0.288¢      0.260¢
+early   2026-06-04..2026-07-15        151  seed3      132       $32,831         -187        -2.441       -0.338¢      0.231¢
+early   2026-06-04..2026-07-15        151  seed4      130       $31,076         -365        -3.523       -0.708¢     -0.043¢
+early   2026-06-04..2026-07-15        151  seed5      131       $30,588          +72        -0.615        0.142¢     -0.022¢
+early   2026-06-04..2026-07-15        151  seed6      128       $29,959          +68        -0.675        0.132¢      0.517¢
+early   2026-06-04..2026-07-15        151  seed7      132       $31,422         +158        -0.096        0.299¢      0.502¢
+early   2026-06-04..2026-07-15        151  seed8      130       $32,870         +143        -0.276        0.256¢     -0.353¢
+early   2026-06-04..2026-07-15        151  seed9      129       $30,636          -19        -1.252       -0.037¢     -0.107¢
+early   2026-06-04..2026-07-15        151 seed10      132       $32,791         +132        -0.308        0.241¢      0.796¢
+early   2026-06-04..2026-07-15        151 seed11      130       $30,851         -287        -3.006       -0.559¢     -0.410¢
+middle  2026-07-15..2026-08-02        151  seed0      131       $26,984         +385         1.470        0.804¢      2.206¢
+middle  2026-07-15..2026-08-02        151  seed1      131       $28,264         +457         1.890        0.913¢      1.022¢
+middle  2026-07-15..2026-08-02        151  seed2      126       $24,803         +669         3.429        1.510¢      2.438¢
+middle  2026-07-15..2026-08-02        151  seed3      132       $26,536         +277         0.750        0.581¢      2.092¢
+middle  2026-07-15..2026-08-02        151  seed4      130       $28,553         +466         1.946        0.919¢      1.324¢
+middle  2026-07-15..2026-08-02        151  seed5      127       $27,256         +336         1.123        0.689¢      1.450¢
+middle  2026-07-15..2026-08-02        151  seed6      131       $27,343         +340         1.168        0.711¢      1.171¢
+middle  2026-07-15..2026-08-02        151  seed7      124       $25,939           +0        -1.065        0.000¢      0.681¢
+middle  2026-07-15..2026-08-02        151  seed8      131       $27,735         +485         2.100        0.982¢      0.497¢
+middle  2026-07-15..2026-08-02        151  seed9      129       $25,433          +90        -0.415        0.201¢      0.901¢
+middle  2026-07-15..2026-08-02        151 seed10      129       $25,702         +108        -0.323        0.236¢      0.687¢
+middle  2026-07-15..2026-08-02        151 seed11      123       $25,821         +337         1.233        0.758¢      1.574¢
+late    2026-08-02..2026-09-03        152  seed0      134       $30,516         +682         3.322        1.289¢      0.163¢
+late    2026-08-02..2026-09-03        152  seed1      137       $31,571         +835         4.300        1.520¢      1.350¢
+late    2026-08-02..2026-09-03        152  seed2      135       $28,402         +624         3.010        1.250¢      0.859¢
+late    2026-08-02..2026-09-03        152  seed3      132       $28,118         +720         3.649        1.463¢      0.745¢
+late    2026-08-02..2026-09-03        152  seed4      134       $29,757         +118        -0.384        0.225¢      0.017¢
+late    2026-08-02..2026-09-03        152  seed5      135       $29,597         +530         2.371        1.039¢      0.018¢
+late    2026-08-02..2026-09-03        152  seed6      137       $29,824         +841         4.384        1.608¢      1.056¢
+late    2026-08-02..2026-09-03        152  seed7      139       $30,761         +683         3.350        1.298¢     -0.225¢
+late    2026-08-02..2026-09-03        152  seed8      133       $28,666         +502         2.181        0.992¢      0.113¢
+late    2026-08-02..2026-09-03        152  seed9      132       $29,339        +1024         5.612        1.995¢      1.346¢
+late    2026-08-02..2026-09-03        152 seed10      139       $29,358         +994         5.411        1.936¢      1.383¢
+late    2026-08-02..2026-09-03        152 seed11      132       $30,292         +619         2.902        1.171¢     -0.199¢

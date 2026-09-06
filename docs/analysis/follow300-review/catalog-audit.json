@@ -1,0 +1,567 @@
+{
+  "catalogs": [
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 0,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3568,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 1,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3819,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 2,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3460,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 3,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3687,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 4,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3797,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 5,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3600,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 6,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3546,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 7,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3674,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 8,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3620,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 9,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3506,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 10,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3549,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "lfollow300",
+      "seed": 11,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3526,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 0,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2576,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 1,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2864,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 2,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2658,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 3,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2745,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 4,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2914,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 5,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2788,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 6,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2780,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 7,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2700,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 8,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2779,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 9,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2646,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 10,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2785,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b200",
+      "seed": 11,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2624,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b300",
+      "seed": 0,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2764,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b300",
+      "seed": 1,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 3079,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "dota",
+      "arm": "b300",
+      "seed": 2,
+      "maps": 454,
+      "failed_maps": [],
+      "fills": 2838,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 0,
+      "maps": 1292,
+      "failed_maps": [
+        116855104460702379
+      ],
+      "fills": 7743,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 1,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7859,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 2,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7837,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 3,
+      "maps": 1292,
+      "failed_maps": [
+        116566854547769589
+      ],
+      "fills": 7685,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 4,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7887,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 5,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7820,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 6,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7736,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 7,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7695,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 8,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7927,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 9,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 8067,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 10,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 8000,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "lfollow300",
+      "seed": 11,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 7599,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 0,
+      "maps": 1292,
+      "failed_maps": [
+        116855104460702379
+      ],
+      "fills": 5403,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 1,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5375,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 2,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5584,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 3,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5440,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 4,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5416,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 5,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5470,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 6,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5432,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 7,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5351,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 8,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5569,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 9,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5626,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 10,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5487,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    },
+    {
+      "game": "lol",
+      "arm": "b200",
+      "seed": 11,
+      "maps": 1292,
+      "failed_maps": [],
+      "fills": 5344,
+      "inventory_errors": 0,
+      "overfilled_orders": 0
+    }
+  ],
+  "new_seed_exits": [
+    {
+      "seed": 3,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:54.729959+00:00"
+    },
+    {
+      "seed": 4,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:44.137350+00:00"
+    },
+    {
+      "seed": 5,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:25.929388+00:00"
+    },
+    {
+      "seed": 6,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:33:46.802606+00:00"
+    },
+    {
+      "seed": 7,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:35:31.180018+00:00"
+    },
+    {
+      "seed": 8,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:47.336048+00:00"
+    },
+    {
+      "seed": 9,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:36.234275+00:00"
+    },
+    {
+      "seed": 10,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:36.549554+00:00"
+    },
+    {
+      "seed": 11,
+      "exit_code": 0,
+      "finished_at": "2026-09-06T09:34:08.554022+00:00"
+    }
+  ]
+}
