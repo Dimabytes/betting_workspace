@@ -184,3 +184,14 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - In-flight `core_commands` are the crash-window double-spend leg. A quote-cycle test with `upsert_command(..., dispatch_state="prepared")` is enough to prove a rung skip.
   - `build_strategy_configs` / `run_batch` / `replay_matches` take `level_usdc`, not `game`. Lookup lives in `main()`.
 
+## 2026-09-07 00:30 - US-008
+
+- Applied the three labeled Follow300 changes as `follow300-v4`. Late fills keep episode/token ownership and block BUY on `ownership_unresolved`. SELL min-life starts at `OrderAccepted`; MATCHED hold is on in both adapters. Cadence is 100 ms coalesce + 2 s fallback; backtest wakes at `next_wake_ns`; live `_next_wake_s` is capped at that deadline. Left `feature.json` US-008 `passes: false`. Did not recapture US-001 goldens. Did not run 12-seed. Did not push.
+- Current-policy four-map smoke: Dota 8837869969 fills 5 (was 6), 8911784562 still 14, 8933879286 fills 8 (was 26), LoL still 3. Tapes in `tests/fixtures/follow300_changes/smoke/`. Report: `docs/analysis/2026-09-06-follow300-behavior-changes.md`. Before SHA `7422332`.
+- **Learnings for future iterations:**
+  - `set_only_live` must reject dropped core ids. Venue-only surgery leaves canceling phantoms that eat rungs.
+  - OrderRejected / submit / cancel timeout must open the dirty window or `_evaluate` at the same ns will wait for fallback.
+  - Uptime is elapsed ns of a live interval, flushed at game end. Do not count 1 Hz ticks.
+  - `test_seed0_map_replay_matches_extraction_golden` must not run current policy against US-001 files. Structural goldens stay; current tapes are `test_follow300_replay.py`.
+  - `evaluate_at` still jumps a live `quote_cycle` to the debounce deadline so sync_inputs BookUpdate at quote time does not open a second window. Fork coalesce sleep is not stacked.
+
