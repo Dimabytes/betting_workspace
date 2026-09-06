@@ -167,3 +167,12 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - Journal `acked` does not settle MATCHED. Use `matched_keys_for_tokens`.
   - Fake attach stubs must take `**kwargs` now that `_try_attach` is keyword-only on `prior_archive`.
 
+## 2026-09-06 23:05 - US-007
+
+- Four independent clips: backtest Dota/LoL `$100` via required `DotaMakerConfig.level_usdc` + `BACKTEST_LEVEL_USDC`; live Dota `$65` / LoL `$20` unchanged. Dropped 11 unused fork quoting knobs from `trading.toml` and the template schema. Shared-wallet test: two `LiveCore`s, one cache/store; a Dota shortfall leaves LoL at a full `$20`. Cap tests: changing a clip moves `[risk]` and `q_max`; Dota-only load is `$65` → kill `$260`. Flipped US-006 `passes: true`. Left US-007 `passes: false`. Did not recapture goldens. Did not push.
+- **Learnings for future iterations:**
+  - Backtest clip is adapter config, not a module constant. `build_strategy_configs` / `run_batch` / `replay_matches` take `game` and look up `BACKTEST_LEVEL_USDC`.
+  - Dropped fork knobs (`gamma`, `layers`, `reprice_ticks`, `resize_frac`, …) fall back to poly-maker defaults (`0.5`/`2`/`2`/`0.15` vs our old `3.0`/`1`/`0`/`0.2`). No esports reader. Do not treat a grep of fork defaults as a behavior change.
+  - `_place_missing` sets `block_reason=no_cash` only when no BUY is placed. A partial ladder (2 of 3) is absent-not-shrunk with an empty reason. Assert `no_cash` on the market that places nothing.
+  - Manifest identity: both games still fingerprint `layer_usdc=100.0` and `base_size_usdc=300.0`. `make test` four seed-0 replays still match US-001 goldens.
+
