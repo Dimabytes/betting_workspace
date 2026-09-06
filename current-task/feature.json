@@ -128,7 +128,7 @@
       "description": "As a developer, I need the same event sequence to produce the same core state and commands from backtest and live adapters.",
       "changes": [
         "Contract tests feed both adapters the same synthetic sequence (MATCHED then CONFIRMED/FAILED delay, submit timeout, mixed BUY+SELL batch) and compare normalized commands and core snapshot after each event",
-        "Simulator-immediate CONFIRMED fill and delayed MATCHED→CONFIRMED/FAILED are both covered; MATCHED is not treated as irreversible",
+        "Simulator-immediate CONFIRMED fill is on the tape; delayed MATCHED→CONFIRMED/FAILED is on the wallet ledger (MATCHED is not irreversible). Recovery sell-only is a separate tape leg, not a FAILED stand-in",
         "Add or update automated tests",
         "Tests pass",
         "Typecheck passes"
