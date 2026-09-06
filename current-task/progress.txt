@@ -115,3 +115,13 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
 
 - User will run live on small clips, not paper. US-009 is now a live decision-trace, not paper. PaperGateway stays as test/fixture infra. feature.json + design spec updated. Did not implement US-009. Did not mark US-004 `passes`.
 
+## 2026-09-06 21:30 - US-004
+
+- Review-fix on `f73bd85`. Left `feature.json` US-004 `passes: false`. Did not push.
+- **Fixed:** F1 `note_placed` matches `token_id/side/price/size`; extra venue rows are logged, not asserted. Esports cids skip `wrap_inventory_place_guard` re-filter. F2 `held_position` is the one hold rule (larger wins, YES on tie, `min_size` floor). F3 deleted `make_core_quotes_adapter`; `LiveSources` is built in `host_resources`. F4 skip canceling SELL in `_held_sell`; hold also requires `allow_sell`. F5 `MatchWorker.core` and public watchdog timeouts. F6 deleted `PublishedFair`; `StrategyCell.yes_fair` is the field. F7 module-level `_ENTRY_BLOCK`. F8 `_live_matches` dropped unused `state`. F9 `asyncio.gather` in collateral wrapper. F11 core `now_ns` is `time.monotonic_ns()`; journal `arrived_at` stays unix. Book wall ts converted via age. F12 no-core reconcile cancels live, does not call fork `resize_frac`. `original_reconcile` kept only to restore the module on close.
+- **Skipped:** F7 delete `EntryBlock` (session.jsonl v6 + non-core journal reasons). F10 full move of worker note_* / `open_core` (extracted `feed_core` + `queue_resume_recovery`; `match_worker` is 973). F9 move collateral off `positions()` (gathered in place).
+- **Learnings for future iterations:**
+  - Place responses can drop a middle item. Never zip planned vs placed by index.
+  - Book `last_update_ts` is wall clock. If core `now_ns` is monotonic, convert by age, do not multiply wall ts by 1e9.
+  - `CancelAck` already requotes. A canceling SELL must not be a hold target or `_place_missing` doubles it.
+
