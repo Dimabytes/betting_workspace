@@ -157,3 +157,13 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - Persist keys are `session_id` + core id. `c0` is unique only inside one session. Session identity is `condition_id`.
   - Adapter contract: do not hide `recovery_pending` / `recovery_generation` in `_ORDER_EXCLUSIONS`. Tape is `TapeRecovery` then `TapeRecoveryVerified`.
 
+## 2026-09-06 23:20 - US-006
+
+- Review-fix for `US-006-review.md` (5 P1 + 2 P2). Gateway now persists prepared place/cancel before POST; outbox cursor advances only after fill apply+checkpoint; classify fresh vs recovery before register; RecoveryCoordinator continues after cancel and requires venue balances + ledger MATCHED (not journal ack). Tests cover subprocess crash-after-POST, new-map BUY, consume-after-apply, acked MATCHED still pending, cancel-then-prove, and tape through SELL+flat. Left `passes: false`. Did not recapture goldens. Did not push.
+- **Learnings for future iterations:**
+  - Persist intent, commit, then POST. A crash inside `post()` must leave `dispatch_started` + hash.
+  - Enqueue is not consume. Apply the fill, then write checkpoint and cursor in one commit; on write failure revert core memory.
+  - `session_start` is not prior activity. Classify on fills/quotes/`prior_archive`/checkpoint/inventory.
+  - Journal `acked` does not settle MATCHED. Use `matched_keys_for_tokens`.
+  - Fake attach stubs must take `**kwargs` now that `_try_attach` is keyword-only on `prior_archive`.
+
