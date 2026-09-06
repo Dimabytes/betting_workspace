@@ -24,7 +24,7 @@
     "FR-10: Extraction identity is proven on four seed-0 postcleanup replays before any labeled behavior change. After those changes, a new 12-seed baseline per game is the accepted Follow300 result"
   ],
   "Resolved Questions": [
-    "V1 boundary: stop after both adapters, labeled behavior changes, paper decision traces, and a 12-seed new baseline. VPS drain, deploy, rollback, and merge to main are a later feature. All steps land on ladder-experiment.",
+    "V1 boundary: stop after both adapters, labeled behavior changes, live decision traces, and a 12-seed new baseline. VPS drain, deploy, rollback, and merge to main are a later feature. All steps land on ladder-experiment.",
     "Extraction pass bar: fills, place/cancel, episode/level links, reserve size and timestamps on Dota 8837869969, 8911784562, 8933879286 and LoL 115564793879469302, seed 0. Known Nautilus zero-fill faults stay labeled engine faults. PnL is a check, not the only check. Quote-event logs may gain extra core-trace fields; comparison uses the identity fields above, not bit-identical files.",
     "Recalc cadence: the accepted end state is live's clocks in both adapters — debounce_ms=100 on book/signal plus quoter_tick_s=2.0 fallback. Extraction identity still uses today's backtest 1s timer. Switching clocks is a later labeled policy bump with a new 12-seed baseline, because doing it in the first engine commit would break the identity bar.",
     "Live/paper capital: user wallet is ~$1000; both games run at once; user watches HALT by hand and does not want a map-count cap. Keep session_config.py DOLLAR_MULTIPLES (daily_loss_kill 4x, max_total_exposure 8x, max_event_group_loss 4x, max_market_notional 4x, q_max 4x) derived from the two live clips. After clips become level_usdc $65 / $20, that is kill $340, exposure $680, market $340, q_max $260 / $80. Changing the two sizes auto-raises the caps. No extra concurrent-map counter: skip-whole-level on the budget snapshot is the limiter. Resting BUY must count in the snapshot (today they do not in fork exposure).",
@@ -35,7 +35,8 @@
     "Signal contract: inbound delta is the raw model delta. Live must stop reconstructing clipped_fair - market_p. Anchor gate in live uses the book the signal was computed on, not a dataset price.",
     "Cutoff: adapters pass game-second 540. They do not convert cutoff into data-delay or network-latency time.",
     "min_order_size: same market-limits struct in both adapters. Live uses market metadata. Backtest 5 shares when history has no metadata, flagged on the manifest.",
-    "PaperGateway PnL is not a queue/partial-fill equivalence check against the historical simulator. Equivalence is same synthetic tape → same core state and commands, plus the paper decision-trace replay.",
+    "Paper is not a V1 acceptance path. The user will run live on small clips and will not start the paper daemon. PaperGateway stays as test/fixture infra only. Do not delete it; do not write the decision-trace archive from paper.",
+    "PaperGateway PnL is not a queue/partial-fill equivalence check against the historical simulator. Equivalence is same synthetic tape → same core state and commands, plus the live decision-trace replay.",
     "Full historical shared-wallet fill-path rerun under a tight $1000 budget is out of scope. This feature adds contract scenarios with a fake tight budget and replays decisions under identical limits.",
     "poly-maker: frozen. No strategy-driver PR to the fork. No edits under ../poly-maker."
   ],
@@ -48,6 +49,7 @@
     "Extend session.jsonl to restore rungs",
     "Registry of experimental strategies or re-running the discarded strategy grid",
     "Using PaperGateway PnL as proof that live and backtest queues match",
+    "Running paper or writing decision traces from paper as a V1 acceptance path",
     "A hard max concurrent-map counter"
   ],
   "description": "Shared Follow300 core for backtest and live/paper, with labeled behavior changes after extraction identity",
@@ -117,7 +119,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -185,10 +187,10 @@
     },
     {
       "id": "US-009",
-      "title": "Write a versioned paper decision trace for both games",
-      "description": "As a developer, I need an offline-replayable trace of core inputs and decisions so a paper mismatch names the first disagreeing event instead of a PnL delta.",
+      "title": "Write a versioned live decision trace for both games",
+      "description": "As a trader, I need an offline-replayable trace of core inputs and decisions from live so a mismatch names the first disagreeing event instead of a PnL delta.",
       "changes": [
-        "Paper for Dota and LoL writes the same decision-trace schema, versioned independently of session.jsonl: policy/config SHA, model SHA, signal/book timestamps, event/order/episode/level ids, actions, reserves, block reasons",
+        "Live for Dota and LoL writes the same decision-trace schema, versioned independently of session.jsonl: policy/config SHA, model SHA, signal/book timestamps, event/order/episode/level ids, actions, reserves, block reasons",
         "An offline replay of that archive reproduces core decisions; a mismatch reports the first event where input or decision differs",
         "Add or update automated tests",
         "Tests pass",

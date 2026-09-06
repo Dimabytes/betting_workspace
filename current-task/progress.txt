@@ -111,3 +111,7 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - Paper 3-rung batch is valid on the 0.01 grid; do not treat paper full-size fills as queue equivalence.
   - Manual paper map check (plan §9) was not run here.
 
+## 2026-09-06 21:10 - scope
+
+- User will run live on small clips, not paper. US-009 is now a live decision-trace, not paper. PaperGateway stays as test/fixture infra. feature.json + design spec updated. Did not implement US-009. Did not mark US-004 `passes`.
+
