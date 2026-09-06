@@ -125,3 +125,15 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - Book `last_update_ts` is wall clock. If core `now_ns` is monotonic, convert by age, do not multiply wall ts by 1e9.
   - `CancelAck` already requotes. A canceling SELL must not be a hold target or `_place_missing` doubles it.
 
+## 2026-09-06 21:48 - US-005
+
+- Contract test feeds one synthetic tape to both adapters and compares normalized commands plus core state after every event. 12 scenarios plus a TapePlaceRejected leg. Live budget now reserves core BUY leftover (pending/live/canceling/unknown) with a store-orphan fallback. Backtest `_REQUOTE_EVENTS` includes Recovery so the Recovery plan is executed; US-006 still owns the producer. Left `feature.json` US-005 `passes: false`. Did not recapture goldens. Did not touch poly-maker. Did not push.
+- **Learnings for future iterations:**
+  - Pin `extraction_policy` on both drivers. Live clips and SELL guards are US-008.
+  - Live `run_cycle` drops places from CancelAck/Recovery and only stashes the Wake plan. The live driver must record those requote places before `drive`, or CancelAck replacements vanish from commands while still landing in core state.
+  - Live `store_yes/store_no` must track verified position or every fill Wake injects Recovery via `_position_mismatch`.
+  - Backtest `_clock_at` is 0 or 540. Tape seconds have to match that, and books/signals must be refreshed before a +10s settle Wake (`book_stale_s=5`).
+  - `_adopt_venue_into_core` has no `unknown`. Compare `status` only as an exclusion; assert unknown on the live side after CancelTimeout/SubmitTimeout.
+  - PlaceMissing on live is `note_placed(batch minus refs)` and accepts the siblings. The backtest driver must accept the rest in the same event.
+  - `seen_fill_ids` namespaces differ. `cancel_reason`/`ack_reason` are rewritten by `_venue_cancel_reason` on adopt.
+
