@@ -1,0 +1,113 @@
+# Follow300 shared core — orchestration log
+
+Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4.6) → Implement (Grok 4.6) → Review (Herdr Claude Code Opus medium).
+
+## 2026-09-06 16:44 - orchestrator
+
+- Started US-001 (first-step exception) as a single Grok 4.6 implementer. No separate review for this step.
+
+## 2026-09-06 16:55 - US-001
+
+- Froze Follow300 extraction identity: four seed-0 replays plus three compact harness scenarios. Goldens and projector in esports-trader; freeze note lists later labeled fixes (late old-episode fill, SELL min-life/MATCHED, 100ms/2s cadence) as out of this bar.
+- **Learnings for future iterations:**
+  - Replay CLI is `python src/backtest/run.py --game … --match-id … --signal-cadence-seed 0 --name …`. Old ladder-v2 flags are gone.
+  - Identity is fills + place/cancel kinds (not `no_quote`) + episode/level + reserved_buy_notional/ts. Compare via `backtest.extraction_identity`, not bit-identical parquet.
+  - Single-map seed-0 replays are ~7–12s locally. Compact scenarios reuse `tests/test_backtest_maker.py` harness; do not spin Nautilus for those.
+  - Capture SHA is `ef680f2`; goldens were projected from `match_<id>_extraction-oracle` run dirs (left untracked).
+
+## 2026-09-06 16:58 - orchestrator
+
+- US-001 first-step exception accepted (no review). `passes: true`. Commit `a847856` on ladder-experiment.
+- Starting US-002 Plan (Grok 4.6).
+
+## 2026-09-06 17:04 - orchestrator
+
+- US-002 plan written to `plans/US-002.md`. Starting implement (Grok 4.6). Leave `passes: false` until Herdr review.
+
+## 2026-09-06 17:25 - US-002
+
+- Added `src/strategy/` in esports-trader: types, Follow300 policy (`extraction_policy(level_usdc=...)`), signals, lifecycle, quoting, single-event `step`. Tests in `tests/test_strategy_imports.py` and `tests/test_strategy_core.py`. Did not wire adapters. Left `feature.json` US-002 `passes: false`. No `__init__.py`: pre-commit `no-init-py` bans them (namespace packages). Import from submodules.
+- **Learnings for future iterations:**
+  - Isolation test must be a subprocess: `tests/conftest.py` imports `trader.notify`. Patch `builtins.open` before import is fine — importlib does not use it to load `.py`.
+  - Join bid `== 0.35` only admits the top rung; 0.34/0.33 fail `min_entry_price`. Do not assert 3 places.
+  - Latch rebuild: `fair_ts_ns` is `signal.received_ns` even on anchor fail (carries fair/valid, not the old ts). Same-tick Wakes skip rebuild via `received_ns <= fair_ts_ns`.
+  - Recovery does not mark ids itself. `sell_only` + requote unmatched-cancels BUY so the Recovery plan includes `CancelOrder`.
+  - Short budget: choose_targets checks the snapshot per unoccupied rung; reconcile decrements cash so two rungs are not placed from `level_usdc + 1`.
+  - Core may import `shared.constants.strategy` and `shared.utils.trading` only. Not `telonex_book` (pandas).
+
+## 2026-09-06 17:27 - orchestrator
+
+- US-002 Herdr Claude Opus medium review: REQUEST CHANGES (`plans/US-002-review.md`). Resuming implementer once.
+
+## 2026-09-06 17:40 - US-002
+
+- Review pass on `6feb54e`. Fixed F1–F9. Left `passes: false`.
+- **Fixed:** F1 begin_episode before `_price_rungs` (unfunded rungs keep 0.50/0.49/0.48). F2 `buy_reject_reason` is the only gate; dropped `_spread_blocked`/`_floor_blocked`/`cash_blocked`. F3 plan.cancels is a step-entry diff of `canceling` ids. F4 settle test actually places a SELL, BUY-fills again, asserts cancel. F5 `BUY_LEVEL_COUNT`/`STEP_TICKS`/`POLICY_VERSION` in `shared.constants.strategy`; backtest uses COUNT/STEP internally, callers of POLICY_VERSION import shared. F6 Recovery marks listed BUY ids canceling. F7 dropped unused `policy`/`now_ns`/`min_order_size`; `begin_episode` takes `level_count`. F8 `QuoteChoice`/`LatchSync`; `BlockReason` Literal (no `exit_settle`/`no_quote`). F9 deleted `BookLevel`, `abs_nw_delta_30`, `level_moves`. Cheap nits: `empty_plan` reason required, `token_book` inlined, `BookPair.__post_init__`, unpack `_` instead of `del state`.
+- **Skipped:** equal-edge through `step` (NIT) — complementary fairs plus min_entry 0.35 cannot tie; kept `pick_episode_token` public for that unit check. Did not drop `TokenBook.token_index`. Did not add `blocked_plan` — F3 already left `_blocked` as cancel-then-`empty_plan`.
+- **Learnings for future iterations:**
+  - Price rungs after `begin_episode`, or zeroed rungs stay dead until a new model tick.
+  - `Plan.cancels` belongs at `step`, not threaded through requote. Recovery marks canceling before requote; the diff still sees them.
+  - Core block reasons are the plan Literal. Backtest `exit_settle`/`no_quote` stay adapter telemetry.
+  - A public constant that lived on `backtest.strategy` but is unused there cannot be re-imported for re-export (ruff F401). Point callers at `shared.constants.strategy`.
+
+## 2026-09-06 17:37 - orchestrator
+
+- US-002 one review-fix cycle done (`95168c6`). Set `passes: true` (nits skipped by implementer are accepted). Starting US-003 Plan (Grok 4.6).
+
+## 2026-09-06 17:51 - orchestrator
+
+- US-003 plan written to `plans/US-003.md` (after one resource_exhausted retry). Starting implement (Grok 4.6). Leave `passes: false` until Herdr review.
+
+## 2026-09-06 18:28 - orchestrator
+
+- User stopped Task-tool subagents. From here, plan/implement spawn only via Herdr Cursor CLI `--model cursor-grok-4.6-high`. Review stays Herdr Claude Code Opus medium.
+- Resuming US-003 implement from uncommitted WIP (adapter + subprocess identity test). Do not recapture goldens.
+
+## 2026-09-06 19:16 - US-003
+
+- Wired `DotaMakerStrategy` as a Nautilus adapter around `strategy.engine.step`. Four seed-0 maps match US-001 goldens on tape fields. Left `feature.json` US-003 `passes: false`. Commit `7b2b65b` on `ladder-experiment`. Did not push. Did not recapture goldens. Did not commit parquet dumps.
+- **Learnings for future iterations:**
+  - Never run four Nautilus kernels in one pytest process (`logging system was already initialized`). Keep subprocess isolation in `replay_seed0_identity`.
+  - Core fill complete must round share qty to 2 decimals. `40.0+91.58` is `131.57999999999998 < 131.58` as raw float, so L0 never went `done` and the next follow-book tick kept a stale 0.74 BUY.
+  - Empty BUY targets: original `_flat_no_buy_reason` uses current **join**, not the first latched-rung reject. Latched 0.44 vs a now-wide book is `wide_spread` on the rung and `min_price` on the join.
+  - `cancel_request` is the **first** reason (stale_signal / nw_velocity). `canceled` / `cancel_ack` are the **last** (`exit_settle` after held-position remap). Snapshot first-reason cancels before later `_cancel_orders` overwrites.
+  - BUY fills must not Wake. Incomplete books are `None` (stale_book), not the previous pair. Cutoff/game-end must not full-evaluate.
+  - `needs_price = follow_book` only. Restoring US-002 `price==0` / always-`begin_episode` breaks compact episode tests.
+
+## 2026-09-06 19:20 - US-003
+
+- Continuation re-ran identity after the map-2 failure report. `8911784562` already matched on `7b2b65b` (2-decimal fill complete). Compact 126 passed. Four maps each in their own process: 8837869969, 8911784562, 8933879286, lol 115564793879469302 all PASS. No new esports-trader diff; no second commit. `passes` still false.
+
+## 2026-09-06 19:21 - orchestrator
+
+- US-003 implement landed `7b2b65b`. Starting Herdr Claude Opus medium review (`us003-review`). Leave `passes: false` until review/fix cycle.
+
+## 2026-09-06 19:55 - orchestrator
+
+- Previous turn hung on `herdr agent prompt --wait`; review had already finished. Verdict REQUEST CHANGES (`plans/US-003-review.md`). Resuming `us003-impl` once.
+
+## 2026-09-06 20:08 - US-003
+
+- Review-fix commit `5c658f7` on `ladder-experiment`. Left `feature.json` US-003 `passes: false`. Did not start US-004. Did not recapture goldens. Did not push.
+- **Fixed:** F2 first-write-wins `cancel_reason` + `ack_reason` last; dropped quoting snapshots and engine dedupe. F3 `share_floor` (kept 40+91.58 test). F4 typed `_HELD_NO_TARGET_REASONS` as `frozenset[BlockReason]`; kept adapter remap and core `held_reason`. F5 `load_run_selection(*, game, match_id, limit)` with `model_path`/`lag_seconds` on `RunSelection`. F6 `episode_token_index is None` (kept synthetic `buy_targets`). F7 deleted `_can_afford` and its test. F8 `SignalUpdate.signal: RawDeltaSignal | None`; dropped `_last_model_ts_ns`. F9 `BookUpdate.books: BookPair | None`. F1 partial: skip shim on store-only events. Nits: `warnings.warn`, assert `fill_count`, `write_identity_json`, `__all__` for in-process replay.
+- **Skipped:** F1 full (keep `_adopt_venue_into_core` / `_ensure_core_order_for_fill` — plan forbids rewriting `test_backtest_maker.py`; identity still needs adopt for `set_only_live`). F4 full held-reason removal (F2 already splits first vs last; adapter owns `exit_settle`/`no_quote`). F6 drop synthetic `buy_targets` (would rewrite ~20 compact assertions). F10 `maker_telemetry.py` (mechanical 220-line move; 1k-line target was a miss). NIT `_drive(execute=)` — `on_order_canceled` still passes `execute=False`. NIT comment on `_join_reject_reason` — AGENTS.md no narrating comments.
+- Compact: 125 passed (deleted `_can_afford` test), 4 deselected. Four maps PASS in subprocess isolation. ruff + basedpyright clean on touched files.
+
+## 2026-09-06 21:06 - US-004
+
+- Wired live/paper through `LiveCore` + patched `reconcile`. Esports path no longer runs generic quote-diff / `resize_frac=0.2`. Deleted `evaluate_entry` / `build_dota_quotes` / POSITION_OPEN BUY block. Live clips Dota $65 / LoL $20. Left `feature.json` US-004 `passes: false`. Did not recapture goldens. Did not run 12-seed. Did not push. Did not run a live paper map.
+- Core now: `LimitsUpdate`, `Permissions.sell_unconfirmed`, `sell_min_life_s`, `RestingOrder.placed_ns`. `extraction_policy` keeps guards off (`0.0`, `False`). Live SELL hold is on.
+- **Named live change:** BUY continues inside reserves while a SELL is unconfirmed or inside 1s min-life. Old `settling` emptied the whole market.
+- **`arrived_at` is unix seconds** (`time.time()`), not monotonic. `session.jsonl` schema stays v6.
+- Budget: REST wallet (`CollateralCache`, default `0.0` → BUY `no_cash` until first read) minus resting/in-flight BUY notional across both games. Paper uses `PAPER_START_USDC=1000` + ledger net.
+- FAILED trade and resume/ledger mismatch queue core `Recovery`. Unknown venue fills are logged and dropped (no adopt).
+- **Learnings for future iterations:**
+  - `engine.state.orders` is a dict; budget must use `.values()`. Core `StrategyState.orders` is a tuple.
+  - Never send core ids (`c0`) to CLOB. Pending place has no venue id yet — do not cancel `c0`.
+  - `CancelAck` requotes. A min-life reprice places the new SELL on the ack step, not the next Wake.
+  - Recovery must go through `step()` so `Plan.cancels` is a canceling-id diff. Applying Recovery outside `step` marks BUY canceling with no venue cancel.
+  - First `construct_quotes` can raise; `clear_plan` first so `reconcile` cancels everything instead of replaying a stale batch.
+  - `forced` stays "no published fair" (`PublishedFair` is None). Latch-based forced made the first quote cycle REDUCE_ONLY.
+  - Paper 3-rung batch is valid on the 0.01 grid; do not treat paper full-size fills as queue equivalence.
+  - Manual paper map check (plan §9) was not run here.
+
