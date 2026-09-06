@@ -217,3 +217,15 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - `match_worker.py` grew 1113 → 1151 for header wiring; codec lives in `core_trace.py` (984). Do not put row encoding in the worker.
   - Manual replay: `PYTHONPATH=src uv run python src/trader/replay_core_trace.py --trace … --policy archive|current`.
 
+## 2026-09-07 01:25 - US-009 review-fix
+
+- Verdict REQUEST CHANGES then FIXED. `core_trace.py` 984 → writer 277 + `core_trace_codec.py` 685. `match_worker.py` 1151 → 1106 (below pre-US-009 1113; still over 1k). `session_core.py` 786. `core_persistence.py` 753 (owns `apply_checkpoint` / `restore_last_buy`).
+- **Fixed:** P1 encode/digest inside `_emit` so NaN/`TypeError` cannot raise into `apply`. P1 `try_open_trace` catches corrupt tails. P1 split codec; cleanup helpers to `archive_paths.py`; `start_market_trace` for header wiring. P2 later-header `policy_sha` switches archive policy. P2 deleted fake `EVENT_ENCODERS`; validate `BlockReason`; shared `DIGEST_GROUPS`.
+- **Skipped NIT:** CLI boundary-note print; splitting MatchWorker `note_*`/sidecar to get under 1k; thinning `encode_plan`.
+- `make test` 1778 passed. pre-commit passed. Left US-009 `passes: true`. Did not start US-010. Did not push.
+- **Learnings for future iterations:**
+  - Trace encode must live inside the same try as the write. `digest_state` uses `allow_nan=False`; a NaN book in `write_event` is a trace fault, not a quote-path exception.
+  - `try_open_trace` must catch `ValueError` (`JSONDecodeError`, `StrictJsonError`), not only `OSError`.
+  - Restore helpers belong in `core_persistence`, not the trace writer. Replayer and LiveCore both call them.
+  - `match_worker.py` is still over 1k. US-009 must not grow it; execution_cleanup already belonged in `archive_paths`.
+
