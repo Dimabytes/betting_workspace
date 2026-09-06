@@ -147,3 +147,13 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - MATCHED/FAILED live in `fill_parsing` / `wallet_store`, not core. Recovery is sell-only (US-006 execute path), not a FAILED stand-in.
   - Backtest TapeSignal/TapeClock are not sequenced: signals are preloaded, `_clock_at` is 0 or 540. Document that in the fixtures module.
 
+## 2026-09-06 22:45 - US-006
+
+- Mid-episode crash is sell-only. Recovery marks restored BUY/SELL canceling and sets `recovery_pending`; `RecoveryVerified` writes inventory only after unresolved orders and MATCHED are gone. New maps in-process still get the full ladder. Core checkpoints + command hashes live on the wallet SQLite; `session.jsonl` stays v6. Wallet ledger stays cash/position truth. `make test` + basedpyright green. Did not recapture goldens. Did not push.
+- **Learnings for future iterations:**
+  - `Recovery` must not set position. A later `RecoveryVerified` (generation match, no unresolved orders) is the only path that writes qty/`last_buy_ns`.
+  - Any fill while `sell_only` bumps generation and re-enters pending. Do not sell from a stale verification.
+  - Fake lifecycle hosts use fork `StateStore`, not `WalletStateStore`. Guard wallet-only APIs (`_conn`, `has_unacked_matched`) via `_wallet_store(object)`.
+  - Persist keys are `session_id` + core id. `c0` is unique only inside one session. Session identity is `condition_id`.
+  - Adapter contract: do not hide `recovery_pending` / `recovery_generation` in `_ORDER_EXCLUSIONS`. Tape is `TapeRecovery` then `TapeRecoveryVerified`.
+
