@@ -176,3 +176,11 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - `_place_missing` sets `block_reason=no_cash` only when no BUY is placed. A partial ladder (2 of 3) is absent-not-shrunk with an empty reason. Assert `no_cash` on the market that places nothing.
   - Manifest identity: both games still fingerprint `layer_usdc=100.0` and `base_size_usdc=300.0`. `make test` four seed-0 replays still match US-001 goldens.
 
+## 2026-09-06 23:20 - US-007
+
+- Review-fix. `budget_from_orders` takes `store` (required); it reads resting store BUY and SQLite in-flight itself. No `durable_reserved` default. Shared-wallet test: a prepared BUY in `core_commands` skips a LoL rung at full clip. `main()` resolves `level_usdc` once and passes it into the manifest and replay. Deleted the dead `DROPPED_FORK_QUOTING_KEYS` loops. Left `passes: false`. Did not push.
+- **Learnings for future iterations:**
+  - Do not split `store.orders` and `reserved_buy_notional(store._conn)` across arguments. The caller that has the store should pass the store.
+  - In-flight `core_commands` are the crash-window double-spend leg. A quote-cycle test with `upsert_command(..., dispatch_state="prepared")` is enough to prove a rung skip.
+  - `build_strategy_configs` / `run_batch` / `replay_matches` take `level_usdc`, not `game`. Lookup lives in `main()`.
+
