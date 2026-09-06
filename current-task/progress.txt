@@ -195,3 +195,25 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - `test_seed0_map_replay_matches_extraction_golden` must not run current policy against US-001 files. Structural goldens stay; current tapes are `test_follow300_replay.py`.
   - `evaluate_at` still jumps a live `quote_cycle` to the debounce deadline so sync_inputs BookUpdate at quote time does not open a second window. Fork coalesce sleep is not stacked.
 
+## 2026-09-07 00:45 - US-008
+
+- Review-fix. `Wake.forced` is the quote-pass gate; `now_ns` is the real clock. Deleted `evaluate_at` and `QuoteSchedule.wake_generation`. Checkpoint codec is msgspec; v2 inventory is `TokenInventoryCheckpoint` with `last_buy_remaining_s`; v1 leftover settle timer follows `position.token_index`. SELL hold/boundary live in quoting; scheduling calls `sell_boundary_ns`. `core_persistence.py` 1026 → 711. Left `passes: false`. Did not push.
+- Recaptured four-map smoke after honest-clock: fill counts unchanged (5 / 14 / 8 / 3). Some order-id / ts_ns rows moved earlier because places are no longer stamped +100 ms.
+- **Learnings for future iterations:**
+  - Adapter quote-pass is `Wake(now_ns, forced=True)`. Debounce tests use `forced=False`. Do not round `now_ns` up to open a gate.
+  - msgspec is a direct dep. Hand-rolled `_require_*` / encode dicts are the wrong layer once the venv already has it.
+  - v1 `last_buy_remaining_s` belongs on `position.token_index`, not YES-by-default.
+  - `Engine._next_wake_s` exists on the fork. Test fakes must define it; do not `getattr` and silently skip.
+
+## 2026-09-07 01:08 - US-009
+
+- Live writes append-only `<archive_dir>/core_trace.jsonl` (`core_trace` schema v1, independent of session.jsonl v6). `LiveCore` takes a required `trace: CoreTrace | None`; MatchWorker opens the file before restore. Offline `replay_core_trace.py` drives `strategy.engine.step` and names the first disagreeing field. Dota and LoL share one writer. Did not recapture US-001 goldens. Did not run live/paper daemons. Did not flip US-010. Did not push.
+- Measured on the ladder-open tape: **472.1 bytes/row**. Estimated 40-minute map at 100ms debounce × 6 rows/cycle: **~68 MB**. Size cap 256 MB then `truncated`.
+- US-008 review-fix committed first as `40558d9` (`fix: [US-008] - address review findings`). Oracle dumps left untracked.
+- **Learnings for future iterations:**
+  - Trace is diagnostic: buffered write, no fsync. Wallet ledger and session.jsonl stay money truth. A trace OSError/NaN sets `_failed` and trading continues.
+  - `now_ns` is monotonic and resets on restart. Order rows by `seq`. A later `header` with a new `policy_sha` is a boundary, not a mismatch.
+  - Restore paths must be shared: `apply_checkpoint` / `restore_last_buy` are used by LiveCore and the replayer. `revert` carries `trace_seq`, not a checkpoint (checkpoints drop latch/schedule/books).
+  - `match_worker.py` grew 1113 → 1151 for header wiring; codec lives in `core_trace.py` (984). Do not put row encoding in the worker.
+  - Manual replay: `PYTHONPATH=src uv run python src/trader/replay_core_trace.py --trace … --policy archive|current`.
+
