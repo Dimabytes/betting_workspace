@@ -137,3 +137,13 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - PlaceMissing on live is `note_placed(batch minus refs)` and accepts the siblings. The backtest driver must accept the rest in the same event.
   - `seen_fill_ids` namespaces differ. `cancel_reason`/`ack_reason` are rewritten by `_venue_cancel_reason` on adopt.
 
+## 2026-09-06 22:20 - US-005
+
+- Review-fix. LiveDriver no longer builds LiveSources or drains the queue itself. `quote_cycle` + `live_sources` in session_core assemble permissions/budget/store sizes; `_bind_quotes_adapter` only maps engine/store. `run_cycle` keeps CancelAck/Recovery places. MATCHED→FAILED is `test_matched_is_not_irreversible` on the ledger; the tape Recovery leg is renamed. `owns_venue` replaced by `venue_ids`. Left `passes: false`. Did not recapture goldens. Did not push.
+- **Learnings for future iterations:**
+  - Snapshot budget after `drain_apply`, not before. A Fill still queued when `live_sources` runs leaves leftover reserved at the pre-fill size.
+  - Tape rows for PlaceOk/Fill/PlaceMissing/CancelTimeout must `drain_apply` only. `quote_cycle` after PlaceOk re-snapshots budget and breaks accept_live, which does not `_evaluate`.
+  - Production wakes on place/fill; the tape keeps those acks and Wake as two rows. CancelAck and Recovery still quote in place because both adapters requote there.
+  - MATCHED/FAILED live in `fill_parsing` / `wallet_store`, not core. Recovery is sell-only (US-006 execute path), not a FAILED stand-in.
+  - Backtest TapeSignal/TapeClock are not sequenced: signals are preloaded, `_clock_at` is 0 or 540. Document that in the fixtures module.
+
