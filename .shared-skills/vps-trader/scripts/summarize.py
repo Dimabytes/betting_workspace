@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sqlite3
+import tempfile
 import urllib.error
 import urllib.request
 from collections import Counter
@@ -27,6 +29,7 @@ BERLIN = ZoneInfo("Europe/Berlin")
 FEE_RATE = 0.05
 REBATE_RATE = 0.15
 POLYMARKET_DATA_API = "https://data-api.polymarket.com"
+STALE_OPEN_SECONDS = 900.0
 
 
 def maker_rebate(price: float, size: float, is_maker: bool) -> float:
@@ -198,12 +201,31 @@ def summarize_session(archive: Path) -> dict:
     }
 
 
+def archive_last_write(archive: Path) -> float | None:
+    """Newest mtime among this match's archive files. None when the archive has no file."""
+    stamps = [entry.stat().st_mtime for entry in archive.glob("*") if entry.is_file()]
+    if not stamps:
+        return None
+    return max(stamps)
+
+
+def is_stale_archive(archive: Path) -> bool:
+    """True when no file in this archive changed for STALE_OPEN_SECONDS."""
+    last_write = archive_last_write(archive)
+    if last_write is None:
+        return False
+    age = datetime.now(timezone.utc).timestamp() - last_write
+    return age > STALE_OPEN_SECONDS
+
+
 def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
     """True when this archive might still be a running worker, not leftover tape.
 
     `--live` used to mean "no session_end". Crash/exhaust leaves that gap forever,
     and the pre-rollout `legacy` tree is full of them. Skip those so --live is
-    the current maps, not August leftovers.
+    the current maps, not August leftovers. A container restart or a feed that
+    ends without a final leaves the same gap in `live`/`paper`, so an archive
+    nobody wrote to for STALE_OPEN_SECONDS is an orphan, not a live map.
     """
     if not sess["live"]:
         return False
@@ -212,6 +234,8 @@ def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
     if meta.get("final") is not None:
         return False
     if (archive / "execution_cleanup.json").is_file():
+        return False
+    if is_stale_archive(archive):
         return False
     return True
 
@@ -240,6 +264,8 @@ def print_match_row(archive: Path, sess: dict, meta: dict, tree: str) -> None:
         status = winner
     elif final is not None:
         status = "done"
+    elif sess["live"] and is_stale_archive(archive):
+        status = "ORPHAN"
     elif sess["live"]:
         status = "LIVE"
     else:
@@ -280,7 +306,7 @@ def cmd_list(today: bool, live_only: bool, game: str | None) -> None:
         print_match_row(archive, sess, meta, tree)
         printed += 1
         winner = (meta.get("final") or {}).get("winner")
-        if sess["live"] and not winner:
+        if sess["live"] and not winner and not is_stale_archive(archive):
             live_count += 1
         elif sess["net"] is not None:
             day_net += sess["net"]
@@ -563,6 +589,24 @@ def check_game_default() -> None:
         raise SystemExit("live tree without end/final/cleanup must count as open")
     if is_open_session("live", dummy_archive, dummy_sess, {"final": {"winner": None}}):
         raise SystemExit("GRID final with null winner must not count as open")
+    check_stale_open()
+
+
+def check_stale_open() -> None:
+    """Fail if an archive nobody wrote to for hours still counts as an open session."""
+    with tempfile.TemporaryDirectory() as tmp:
+        archive = Path(tmp) / "grid-1-m1"
+        archive.mkdir()
+        tape = archive / "grid_state.jsonl"
+        tape.write_text("{}\n")
+        old = datetime.now(timezone.utc).timestamp() - 4.0 * STALE_OPEN_SECONDS
+        os.utime(tape, (old, old))
+        if is_open_session("live", archive, {"live": True}, {}):
+            raise SystemExit("stale archive must not count as an open session")
+        fresh = datetime.now(timezone.utc).timestamp()
+        os.utime(tape, (fresh, fresh))
+        if not is_open_session("live", archive, {"live": True}, {}):
+            raise SystemExit("freshly written archive must count as an open session")
 
 
 def check_fold() -> None:
@@ -588,7 +632,10 @@ def main() -> None:
     parser.add_argument(
         "--live",
         action="store_true",
-        help="open live/paper sessions (no session_end, no final, no cleanup; not legacy)",
+        help=(
+            "open live/paper sessions (no session_end, no final, no cleanup, "
+            "written within 15 min; not legacy)"
+        ),
     )
     parser.add_argument("--game", choices=("dota", "lol"), help="filter match.json game")
     parser.add_argument("--match", help="one Steam match id")
