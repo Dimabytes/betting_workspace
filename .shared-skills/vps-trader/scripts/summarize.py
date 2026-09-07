@@ -116,6 +116,7 @@ def summarize_session(archive: Path) -> dict:
     last_quote: dict | None = None
     last_model: dict | None = None
     rebate = 0.0
+    late: list[dict] = []
     for rec in iter_jsonl(archive / "session.jsonl"):
         kind = rec.get("kind")
         if kind == "session_start":
@@ -133,8 +134,10 @@ def summarize_session(archive: Path) -> dict:
         elif kind == "quote":
             quotes += 1
             last_quote = rec
-        elif kind == "fill":
+        elif kind in {"fill", "late_fill"}:
             fills.append(rec)
+            if kind == "late_fill":
+                late.append(rec)
             rebate += maker_rebate(
                 float(rec.get("price") or 0.0),
                 float(rec.get("size") or 0.0),
@@ -144,11 +147,26 @@ def summarize_session(archive: Path) -> dict:
             errors.append(f"{rec.get('phase')}:{rec.get('error_type')}")
     realized = None
     imv = None
-    leftover_sum = 0.0
+    positions: dict[str, float] = {}
     if end is not None:
         realized = end.get("net_cash")
         imv = end.get("inventory_value")
-        leftover_sum = sum(float(v) for v in (end.get("positions") or {}).values())
+        positions = {k: float(v) for k, v in (end.get("positions") or {}).items()}
+    # A late_fill lands after session_end, so the end record's cash and inventory
+    # are stale. Each late_fill carries the ledger cash for the whole market and
+    # the size of its own token after the fill, so the last one wins.
+    if late:
+        realized = late[-1].get("net_cash", realized)
+        before = dict(positions)
+        for rec in late:
+            token = rec.get("token_id")
+            if token is not None and rec.get("position_after") is not None:
+                positions[str(token)] = float(rec["position_after"])
+        if positions != before:
+            # inventory_value needs book marks, and the books are gone once the
+            # session closed. A flat book needs none, so only that case is known.
+            imv = 0.0 if all(abs(v) < 1e-9 for v in positions.values()) else None
+    leftover_sum = sum(positions.values())
     last_fill = fills[-1] if fills else None
     net = None
     if realized is not None and imv is not None:
@@ -173,6 +191,8 @@ def summarize_session(archive: Path) -> dict:
         "realized": realized,
         "imv": imv,
         "net": net,
+        "late_fills": len(late),
+        "positions": positions,
         "leftover": leftover_sum,
         "live": end is None,
     }
@@ -310,9 +330,14 @@ def _print_one(match_id: str, tree: str, archive: Path) -> None:
         f"rebate={fmt_money(sess['rebate'])} net={fmt_money(sess['net'])}  "
         f"leftover_sum={sess['leftover']:.4f}  live={sess['live']}"
     )
+    if sess["late_fills"]:
+        print(
+            f"  late_fill  {sess['late_fills']} recovered after session_end; "
+            "realized and leftover are corrected, imv has no post-close mark"
+        )
     yes_id = market.get("yes_token_id")
     no_id = market.get("no_token_id")
-    end_pos = (sess["end"] or {}).get("positions") or {}
+    end_pos = sess["positions"]
     if yes_id or no_id:
         print(
             f"  leftover yes={float(end_pos.get(yes_id, 0.0) if yes_id else 0.0):.4f} "
