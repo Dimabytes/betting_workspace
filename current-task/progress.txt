@@ -229,3 +229,19 @@ Scheme: US-001 and US-010 = single Grok 4.6 agent. US-002..US-009 = Plan (Grok 4
   - Restore helpers belong in `core_persistence`, not the trace writer. Replayer and LiveCore both call them.
   - `match_worker.py` is still over 1k. US-009 must not grow it; execution_cleanup already belonged in `archive_paths`.
 
+## 2026-09-07 12:55 - US-010
+
+- 12-seed `follow300-v4` catalogs exist for both games. Promoted `LIVE` → `validation_join_delta01_cut540_nw350_p35_follow300-v4`. Means: Dota net $1187.07 (454 maps), LoL $2723.64 (1290 completed; 2 Nautilus zero-fill maps × 12 seeds). Baseline note names US-008 v2/v3/v4 as the drift from extraction Follow300 ($956 / $3306).
+- CLI is `python -m backtest.run` (script path shadowed `src/strategy`). Book deltas arm one wake per debounce window. Quote events write per-map parts (`quote_store.py`) instead of rewriting one parquet every map.
+- **Learnings for future iterations:**
+  - `python src/backtest/run.py` puts `backtest/` on sys.path and `import strategy` resolves to `backtest/strategy.py`. Use `-m backtest.run`.
+  - 100 ms cadence makes `no_quote` ~10× vs 1 Hz. RAM/time was O(maps²) parquet rewrite, not a cold Telonex cache. Resume keeps the already-written seed rows.
+  - LoL `terminated=2` per seed is the known Nautilus zero-fill; `promote_backtest` allows it. Gate-seconds in summary still count events, not wall seconds.
+
+## 2026-09-07 13:05 - US-010
+
+- Gates: pytest 1785 passed; pre-commit ruff/format/basedpyright passed. Promoted LIVE, stored `docs/analysis/2026-09-07-follow300-v4-baseline.md`. `feature.json` US-009 and US-010 `passes: true`. Did not push. Did not merge to main. Did not deploy.
+- A book-delta coalescing skip of `core.step` was tried during the 12-seed run and reverted: it changed US-008 smoke fills (`tests/test_follow300_replay.py`). Quote-event parts stay; quoting cadence stays every L2 delta.
+
+---
+
