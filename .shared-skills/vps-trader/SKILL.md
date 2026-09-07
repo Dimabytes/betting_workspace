@@ -58,7 +58,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
 
-`--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a Steam/GRID `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
+`--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`, and a file written in the last 15 minutes. A restart or a feed that ends without a final leaves a session with no `session_end` forever. `--today` labels such a dead session `ORPHAN`, not `LIVE`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a Steam/GRID `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
 
 ## Which file answers what
 
