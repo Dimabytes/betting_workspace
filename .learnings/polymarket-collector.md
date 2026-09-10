@@ -22,7 +22,10 @@ One binary, four services. Only `archive-dota` has `build: .`; all four share
 | `compact-lol` | compact | `/var/lib/polymarket-lol-archive` | `"65"` |
 
 `POLYMARKET_TAG_ID` is required (no default). Empty/whitespace is rejected. Compose
-pins the tag per service; do not set the tag only in `.env`. In-container both
+pins the tag per service; do not set the tag only in `.env`. Compose also pins
+`COMPACTION_HOUR_UTC` (Dota 3, LoL 9) and `DUCKDB_MEMORY_LIMIT` (`1024MB`) on the two
+compact services; the memory limit is DuckDB `memory_limit` and is what keeps the
+LoL day compaction under about 2 GB RSS on the 16 GB VPS. In-container both
 roots are still `ARCHIVE_ROOT=/data`. Traders mount those host roots read-only at
 `/archive/dota` and `/archive/lol`. Compact is offline parquet; it does not affect
 quoting.
