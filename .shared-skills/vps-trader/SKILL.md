@@ -125,6 +125,10 @@ Confirm production model names from `data/new_model/production/model.json` and `
 
 Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale that profile (`q_max_usdc`, `merge_min_size`) and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. `merge_min_size` is the fork's inventory merge threshold, not the clip size.
 
+## Tests on this VPS
+
+Do not run `make test` / pytest while a map is live. Use `PYTEST_XDIST_AUTO_NUM_WORKERS=1`. `/tmp` is tmpfs (RAM); pytest tmp goes to `/var/tmp/pytest-esports-trader`. If a test is killed, `rm -rf /var/tmp/pytest-esports-trader /tmp/pytest-of-root`.
+
 ## Collector
 
 Separate compose. Four services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`. `POLYMARKET_TAG_ID` is required (compose pins `"102366"` / `"65"`). Discovery reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting.
