@@ -1,0 +1,272 @@
+{
+  "dota": {
+    "reference_error": 0.0,
+    "note": "Same baseline fills until trigger, instant complete liquidation at paired mid; no future trades. Cost scenario deducts 1 cent/share plus archived taker fee. Neither is executable backtest.",
+    "rules": [
+      {
+        "threshold": 25.0,
+        "mean_triggered_maps": 77.16666666666667,
+        "mean_triggered_winners": 12.75,
+        "mean_triggered_best_maps": 3.0,
+        "mean_triggered_tail_maps": 18.416666666666668,
+        "mean_net_mid": 767.3181180342559,
+        "mean_delta_mid": -419.755945234665,
+        "mean_net_with_cost": 104.61383140095234,
+        "mean_delta_with_cost": -1082.4602318679688,
+        "mean_cvar_mid_pre_rebate": -36.43591406331522,
+        "mean_cvar_cost_pre_rebate": -48.02540878894215,
+        "mean_worst_mid_pre_rebate": -71.73592677,
+        "mean_worst_cost_pre_rebate": -85.60788471790448,
+        "largest_stop_overshoot": 76.02439999999999,
+        "median_trigger_elapsed": 200.47500000000002,
+        "fraction_trigger_after_sample_gap_gt5s": 0.0021598272138228943,
+        "mean_forgone_winner_net": 983.6597761098643,
+        "mean_effect_on_baseline_losers": -98.80045575810418,
+        "chronological_third_deltas_with_cost": [
+          -252.0736815758345,
+          -218.86225319041924,
+          -611.5242971017148
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -1659.3089157054287,
+          -576.3024760272712
+        ],
+        "seed_deltas_with_cost": [
+          -841.6991186387403,
+          -1349.3040069622677,
+          -1067.076541147399,
+          -1029.3964937646278,
+          -911.7131297888566,
+          -928.4989600157448,
+          -881.0357106661226,
+          -1450.793122698267,
+          -1577.3471048131955,
+          -1013.7654355424388,
+          -1134.5952451190833,
+          -804.2979132588802
+        ]
+      },
+      {
+        "threshold": 50.0,
+        "mean_triggered_maps": 27.333333333333332,
+        "mean_triggered_winners": 3.5,
+        "mean_triggered_best_maps": 1.0833333333333333,
+        "mean_triggered_tail_maps": 13.166666666666666,
+        "mean_net_mid": 859.7040310578873,
+        "mean_delta_mid": -327.3700322110336,
+        "mean_net_with_cost": 595.2211161730555,
+        "mean_delta_with_cost": -591.8529470958655,
+        "mean_cvar_mid_pre_rebate": -57.185704137681164,
+        "mean_cvar_cost_pre_rebate": -67.61813477097463,
+        "mean_worst_mid_pre_rebate": -96.77358441708333,
+        "mean_worst_cost_pre_rebate": -110.6017638266527,
+        "largest_stop_overshoot": 81.54939999999996,
+        "median_trigger_elapsed": 295.8459995,
+        "fraction_trigger_after_sample_gap_gt5s": 0.018292682926829267,
+        "mean_forgone_winner_net": 396.77312993777196,
+        "mean_effect_on_baseline_losers": -195.07981715809342,
+        "chronological_third_deltas_with_cost": [
+          -173.1349669559579,
+          -148.8128032110409,
+          -269.90517692886664
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -1044.4023259200742,
+          -213.62159996100922
+        ],
+        "seed_deltas_with_cost": [
+          -680.4162416523702,
+          -545.9402363399778,
+          -717.5452818957398,
+          -501.11198344158146,
+          -562.4698543713617,
+          -467.02580124247606,
+          -412.03849549769734,
+          -909.2935217001109,
+          -823.8756552846925,
+          -697.99072461447,
+          -440.1852506332471,
+          -344.34231847665984
+        ]
+      },
+      {
+        "threshold": 75.0,
+        "mean_triggered_maps": 11.583333333333334,
+        "mean_triggered_winners": 1.3333333333333333,
+        "mean_triggered_best_maps": 0.5,
+        "mean_triggered_tail_maps": 6.75,
+        "mean_net_mid": 957.5963605143015,
+        "mean_delta_mid": -229.4777027546195,
+        "mean_net_with_cost": 840.3219542476404,
+        "mean_delta_with_cost": -346.75210902128043,
+        "mean_cvar_mid_pre_rebate": -66.24758257980072,
+        "mean_cvar_cost_pre_rebate": -71.34646980878597,
+        "mean_worst_mid_pre_rebate": -111.82829603583332,
+        "mean_worst_cost_pre_rebate": -122.1164458437327,
+        "largest_stop_overshoot": 56.54939999999996,
+        "median_trigger_elapsed": 442.364,
+        "fraction_trigger_after_sample_gap_gt5s": 0.007194244604316547,
+        "mean_forgone_winner_net": 201.85852807803963,
+        "mean_effect_on_baseline_losers": -144.8935809432408,
+        "chronological_third_deltas_with_cost": [
+          -76.79981738246134,
+          -145.25602401098266,
+          -124.69626762783646
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -653.0311290075183,
+          -82.44413028726152
+        ],
+        "seed_deltas_with_cost": [
+          -405.0729863414212,
+          -217.64776131782645,
+          -573.1746442076769,
+          -547.651389806658,
+          -147.61926368040304,
+          -254.2661770748805,
+          -285.5983772104527,
+          -432.48349288766633,
+          -870.021705140711,
+          -210.34478296065075,
+          -33.98234438052121,
+          -183.1623832464974
+        ]
+      }
+    ]
+  },
+  "lol": {
+    "reference_error": 0.0,
+    "note": "Same baseline fills until trigger, instant complete liquidation at paired mid; no future trades. Cost scenario deducts 1 cent/share plus archived taker fee. Neither is executable backtest.",
+    "rules": [
+      {
+        "threshold": 25.0,
+        "mean_triggered_maps": 103.66666666666667,
+        "mean_triggered_winners": 15.5,
+        "mean_triggered_best_maps": 1.6666666666666667,
+        "mean_triggered_tail_maps": 36.166666666666664,
+        "mean_net_mid": 2832.293070262757,
+        "mean_delta_mid": -271.6117689031875,
+        "mean_net_with_cost": 2044.8589286360286,
+        "mean_delta_with_cost": -1059.045910529916,
+        "mean_cvar_mid_pre_rebate": -34.8996191799783,
+        "mean_cvar_cost_pre_rebate": -44.50051977294004,
+        "mean_worst_mid_pre_rebate": -71.18237347499999,
+        "mean_worst_cost_pre_rebate": -81.72699419359374,
+        "largest_stop_overshoot": 63.44459999999998,
+        "median_trigger_elapsed": 168.257,
+        "fraction_trigger_after_sample_gap_gt5s": 0.0,
+        "mean_forgone_winner_net": 954.40511497634,
+        "mean_effect_on_baseline_losers": -104.64079555357586,
+        "chronological_third_deltas_with_cost": [
+          -170.5292036735826,
+          -311.40172448980735,
+          -577.1149823665259
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -1510.5745002887954,
+          -660.9873012918952
+        ],
+        "seed_deltas_with_cost": [
+          -626.7734540740304,
+          -1109.5747120749024,
+          -1302.587885790169,
+          -1168.6853167052545,
+          -1076.1123172901562,
+          -1298.4278891262134,
+          -695.5189749845638,
+          -1225.4065919167924,
+          -1221.6053359658463,
+          -1009.0968099744196,
+          -1101.6500106459691,
+          -873.1116278106737
+        ]
+      },
+      {
+        "threshold": 50.0,
+        "mean_triggered_maps": 37.0,
+        "mean_triggered_winners": 2.4166666666666665,
+        "mean_triggered_best_maps": 0.5,
+        "mean_triggered_tail_maps": 21.333333333333332,
+        "mean_net_mid": 2972.8351622693276,
+        "mean_delta_mid": -131.06967689661698,
+        "mean_net_with_cost": 2651.7890685061393,
+        "mean_delta_with_cost": -452.11577065980555,
+        "mean_cvar_mid_pre_rebate": -51.354063084596355,
+        "mean_cvar_cost_pre_rebate": -58.04252337132943,
+        "mean_worst_mid_pre_rebate": -90.01737995741667,
+        "mean_worst_cost_pre_rebate": -102.39894806323527,
+        "largest_stop_overshoot": 84.30050000000003,
+        "median_trigger_elapsed": 229.547,
+        "fraction_trigger_after_sample_gap_gt5s": 0.0,
+        "mean_forgone_winner_net": 285.74353457181957,
+        "mean_effect_on_baseline_losers": -166.37223608798595,
+        "chronological_third_deltas_with_cost": [
+          -61.017382795726895,
+          -70.4806683170876,
+          -320.61771954699105
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -737.7732729168121,
+          -221.61351189287961
+        ],
+        "seed_deltas_with_cost": [
+          -396.3979515517286,
+          -779.7880743366267,
+          -476.553044222751,
+          -840.6088242119715,
+          -41.41210902474939,
+          -810.0683776908015,
+          -249.61744557918814,
+          -234.69751129238858,
+          -536.745260521696,
+          -214.8021858791434,
+          -354.1124297727072,
+          -490.58603383391477
+        ]
+      },
+      {
+        "threshold": 75.0,
+        "mean_triggered_maps": 13.75,
+        "mean_triggered_winners": 0.5833333333333334,
+        "mean_triggered_best_maps": 0.08333333333333333,
+        "mean_triggered_tail_maps": 10.666666666666666,
+        "mean_net_mid": 3054.749202012526,
+        "mean_delta_mid": -49.15563715341883,
+        "mean_net_with_cost": 2920.8783120302537,
+        "mean_delta_with_cost": -183.02652713569137,
+        "mean_cvar_mid_pre_rebate": -53.05593962784548,
+        "mean_cvar_cost_pre_rebate": -55.84491650247616,
+        "mean_worst_mid_pre_rebate": -102.8705275895,
+        "mean_worst_cost_pre_rebate": -116.05224070730453,
+        "largest_stop_overshoot": 59.30050000000003,
+        "median_trigger_elapsed": 237.131,
+        "fraction_trigger_after_sample_gap_gt5s": 0.0,
+        "mean_forgone_winner_net": 106.40303572250961,
+        "mean_effect_on_baseline_losers": -76.62349141318175,
+        "chronological_third_deltas_with_cost": [
+          -1.1083188498646876,
+          -15.06725403907384,
+          -166.85095424675288
+        ],
+        "event_cluster_bootstrap_delta_ci": [
+          -389.40978280793075,
+          -6.826796512569103
+        ],
+        "seed_deltas_with_cost": [
+          -365.52437639996833,
+          -76.48661169203197,
+          -239.99375770919886,
+          -76.88295781137495,
+          140.1408267609496,
+          -455.43699411562034,
+          -57.40596052919676,
+          -287.1780607194166,
+          -302.2219609761765,
+          -157.05598324035253,
+          -136.11617729019824,
+          -182.15631190571108
+        ]
+      }
+    ]
+  }
+}
