@@ -27,6 +27,7 @@ Before any work on a sibling project (code, commands, tests, architecture) read 
 
 ## Git Rules
 
+- Do not `git push` unless the user explicitly asks.
 - All git operations (status, branch, pull, rebase, push, commit) run inside the sibling project repo you are changing.
 - work on `main` by default, unless the user says otherwise.
 
