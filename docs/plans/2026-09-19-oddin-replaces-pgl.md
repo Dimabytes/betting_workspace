@@ -252,3 +252,15 @@ Fixtures из реальных payload после удаления token/пер�
 - Предыдущие заметки: `.learnings/pgl-source-delay-20260919.md`, `.learnings/pgl-lag25-model-comparison-20260919.md`, `.learnings/dota-training-filter-and-zero-lag-20260919.md`.
 - LightGBM: число/порядок признаков контролируется нашим кодом; `predict_disable_shape_check` не является способом получить модель без XP.
 - Временные артефакты замеров: `/private/tmp/analyze_oddin_capture.py`, `/private/tmp/oddin-capture-analysis.json`; существенные цифры и строки доказательств сохранены здесь.
+
+## Прогресс
+
+**Шаг 1 готов.** Код, тесты (328), `make train` (четыре каталога), бэктест — сделаны. Live/VPS не трогали. Шаги 2–3 не начинались.
+
+Что в коде (`esports-trader`, `main`): `NO_XP_FEATURE_COLUMNS` (11), каталоги `research-noxp` / `production-noxp`, `make train` учит XP затем no-XP (lag 10), `ModelServer` строит строку по `model.json.features`, модели ключуются именем strategy-профиля. `dota-oddin-map` clip $5 → `production-noxp`. `dota-pgl-map` пока оставлен: иначе live PGL сломался бы до шага 3. `FeedSource.ODDIN` в enum уже есть.
+
+Каталоги после `make train`: research/production `20260919T182811Z` / `20260919T182816Z` (12, lag 10); research-noxp/production-noxp `20260919T182833Z` / `20260919T182837Z` (11, lag 10). Первая публикация no-XP — rename, архива не было.
+
+Бэктест шага 1 (5.4): `research-noxp @ exec15`, `--name oddin15-noxp`, cadence 1, seed 0, 10 шардов, тот же `pgl-lag-25` validation parquet. Контроль — существующий `pgl25-t10/seed0` (XP, exec 25). Разбор: `esports-trader/docs/experiments/oddin-no-xp.md`.
+
+Коротко по цифрам: 556 общих карт, +$150 pre-rebate vs PGL@25, cluster 95% CI per-map **включает 0**, 183 лучше / 190 хуже, mid-third −$212, buy 300s 1.18¢ vs 1.61¢. Один terminated (`nautilus_zero_fill`) — total PnL кандидата не полностью доверенный. Гейт плана («если no-XP@15 не лучше текущего PGL — 2–3 можно не начинать»): **не доказано лучше**. Можно идти в шаг 2 только если сознательно принимаете «точка в плюс, доказательств нет».
