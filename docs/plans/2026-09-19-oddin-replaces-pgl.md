@@ -255,6 +255,14 @@ Fixtures из реальных payload после удаления token/пер�
 
 ## Прогресс
 
+**Шаги 3 и 4 готовы.** Discovery/picker/metadata/worker: Oddin занял места PGL. Live PGL удалён. Viewer читает `source=oddin` из `oddin_state.jsonl`. Live/VPS не трогали. Шаг 5 (деплой) не начинался.
+
+Что в коде (`esports-trader`, `main`): `oddin_discovery.py` (Bitsler list один раз за цикл, unique name bind через `orient_outcomes`). Oddin штампуется только на уже существующий Steam/GRID identity; archive id остаётся steam/`grid-…-m…`. `probe_oddin_delay` как GRID (первый WS `VALID_DATA` + нужный `mapOrder`, `round(received − lastUpdatedAt)`, таймаут `GRID_FEED_STALE_SECONDS`, без HTTP seed). GRID+Oddin пробы через `asyncio.gather`. `SOURCE_TIE_ORDER = (STEAM, GRID, ODDIN)`. `match.json` schema v8 (`oddin_match_id`, `oddin_delay_s`); v3–v7 читаются, включая leftover PGL. Pin `feed_source=pgl` → `CorruptFeedPin`. `dota-pgl-map` убран; сателлит только `dota-oddin-map` clip $5 → production-noxp. Viewer: `feed_source=="oddin"` через тот же reducer, XP-линия константный 0. Старые PGL-архивы viewer'ом читаются.
+
+Удалено из live: `pgl_live_feed.py`, `pgl_display.py`, `scripts/watch_pgl_live.py`, `tests/test_watch_pgl_live.py`; сетевая часть `pgl_sse.py`. Для viewer архивов оставлены `FeedSource.PGL`, `pgl_feed.py`, payload-парс в `pgl_sse.py`, `pgl_archive.py`.
+
+Проверки: 462 теста (source_picker / discovery / wallet_host / match_meta / match_lifecycle / live_inspect / game_profile / dota_map_config / session_config / pgl_feed / oddin_reducer / lol_discovery / cadence / host_resources / oddin_feed / watch_bitsler). GRID 8 > Oddin 15 > Steam 60/900; Steam 10 > Oddin 15; pin побеждает ranking; leftover pgl pin без входов; schema v8 round trip. ruff + basedpyright по изменённым файлам чистые.
+
 **Шаг 2 готов.** Oddin split на client / types / reducer / live feed / archive. Watcher на общий клиент. Live/VPS не трогали. Шаг 3 не начинался.
 
 Что в коде (`esports-trader`, `main`): `oddin_types.py`, `oddin_client.py` (Bitsler + GraphQL HTTP/WS), `oddin_feed.py` (строгая projection + `OddinSnapshotReducer`), `oddin_live_feed.py` (`FeedSource.ODDIN`, stale 15 с, архив `oddin_state.jsonl` до reducer, HTTP seed не редьюсится), `oddin_archive.py` (replay тем же reducer). `scripts/watch_bitsler_live.py` читает тот же клиент. Crypto не трогали. Discovery / picker / удаление PGL — шаг 3.
