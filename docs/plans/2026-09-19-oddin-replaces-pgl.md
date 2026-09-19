@@ -255,7 +255,13 @@ Fixtures из реальных payload после удаления token/пер�
 
 ## Прогресс
 
-**Шаг 1 готов.** Код, тесты (328), `make train` (четыре каталога), бэктест — сделаны. Live/VPS не трогали. Шаги 2–3 не начинались.
+**Шаг 2 готов.** Oddin split на client / types / reducer / live feed / archive. Watcher на общий клиент. Live/VPS не трогали. Шаг 3 не начинался.
+
+Что в коде (`esports-trader`, `main`): `oddin_types.py`, `oddin_client.py` (Bitsler + GraphQL HTTP/WS), `oddin_feed.py` (строгая projection + `OddinSnapshotReducer`), `oddin_live_feed.py` (`FeedSource.ODDIN`, stale 15 с, архив `oddin_state.jsonl` до reducer, HTTP seed не редьюсится), `oddin_archive.py` (replay тем же reducer). `scripts/watch_bitsler_live.py` читает тот же клиент. Crypto не трогали. Discovery / picker / удаление PGL — шаг 3.
+
+Проверки: 57 тестов (`test_oddin_feed`, `test_oddin_crypto`, `test_watch_bitsler_live`, `test_oddin_reducer`); live→archive→replay parity; stale HTTP map2 не тик для map3; missing NW/deaths не zero-fill; home=Dire; duplicate/out-of-order; same-second; pause; reconnect сохраняет горн; `currentMap`/`previousMaps`/`FINISHED` → один терминальный тик с нулевыми признаками. ruff + basedpyright по изменённым файлам чистые.
+
+**Шаг 1 готов.** Код, тесты (328), `make train` (четыре каталога), бэктест — сделаны. Live/VPS не трогали.
 
 Что в коде (`esports-trader`, `main`): `NO_XP_FEATURE_COLUMNS` (11), каталоги `research-noxp` / `production-noxp`, `make train` учит XP затем no-XP (lag 10), `ModelServer` строит строку по `model.json.features`, модели ключуются именем strategy-профиля. `dota-oddin-map` clip $5 → `production-noxp`. `dota-pgl-map` пока оставлен: иначе live PGL сломался бы до шага 3. `FeedSource.ODDIN` в enum уже есть.
 
