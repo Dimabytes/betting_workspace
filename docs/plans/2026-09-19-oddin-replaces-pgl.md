@@ -15,7 +15,7 @@
 - Задержку Oddin **замеряем одной пробой** на карту (не константа): у пользователя были матчи с задержкой больше 15 с.
 - Clip Oddin `base_size_usdc = 5.0` через профиль `dota-oddin-map`, по образцу `dota-pgl-map`. Steam/GRID сохраняют `60.0`.
 - Без paper-этапа и без отдельного recorder'а: когда готово — деплой между картами, live на $5, анализ по архивам трейдера.
-- PGL уходит из кандидатов новых сессий. Чтение старых PGL-архивов сохраняется.
+- PGL как live-источник удаляется из кода полностью (6.6); пользователь сам следит, чтобы при рестарте на VPS не было открытого PGL pin. Чтение старых PGL-архивов viewer'ом сохраняется.
 
 Главный вывод замеров: Oddin быстрее PGL примерно на 15–16 с. Но в книге есть движения **до** Oddin (7–11 с в двух эпизодах из трёх). 15 с сужает окно adverse selection, но не закрывает его. Ответ даст только live на $5 и markouts.
 
@@ -125,13 +125,13 @@ data/new_model/archive/research-noxp/, archive/production-noxp/
 - `ModelServer` хранит `features` из `_ValidatedMeta` и строит строку по ним. `_validate_meta(meta, expected_features)` получает ожидаемый список от вызывающего (`FEATURE_COLUMNS` для `production`, `NO_XP_FEATURE_COLUMNS` для `production-noxp`); чужой список — `ModelContractError`, как сейчас. `_build_feature_values` требует finite XP только если `radiant_xp_adv` в `features`; проверка `set(values) == set(features)`.
 - `GameSnapshot.radiant_xp_adv` остаётся `int`; Oddin пишет `0`, как уже делают терминальные снапшоты Steam/GRID. Эту колонку no-XP модель не читает.
 - `match.json` уже хранит `ModelReference(name, trained_at)`; два каталога одного `make train` имеют разные `name`, проверка identity при resume работает без изменений.
-- `config/trading.toml`: `[profiles.dota-oddin-map] base_size_usdc = 5.0` с тем же комментарием-сателлитом, что у `dota-pgl-map`; комментарии в `[risk]` и `session_config.py` про сателлит обновить.
+- `config/trading.toml`: `[profiles.dota-oddin-map] base_size_usdc = 5.0` вместо `[profiles.dota-pgl-map]`, тот же комментарий-сателлит; комментарии в `[risk]` и `session_config.py` про сателлит переписать на Oddin.
 
 ### 5.4. Бэктест
 
-Существующий `make backtest ARGS="--validation --model-dir data/new_model/research-noxp --name noxp-exec15 ..."` с execution lag 15, cadence 1, одним seed (при cadence 1 сиды идентичны), clip $5 и реальным `min_order_size`. Selection читает общий research split — для no-XP модели, обученной на том же split, это корректно. Manifest уже пишет `model_sha256` и features.
+Контроль уже есть: `data/backtests/dota_maker/validation_join_delta02_cut480_nw350_p35_pgl25-t10/seed0` — полная research-модель, execute 25, cadence 1, стандартный размер, 556 карт (см. `.learnings/pgl-lag25-model-comparison-20260919.md`). Нужен **один** новый прогон с теми же настройками, кроме модели и лага: `make backtest ARGS="--validation --model-dir data/new_model/research-noxp --name ...-oddin15-noxp"` с execution lag 15. Размер не менять на $5: бэктест сравнивает модели, а не предсказывает live PnL. Один seed (при cadence 1 сиды идентичны). Selection читает общий research split — для no-XP модели на том же split это корректно; manifest уже пишет `model_sha256` и features.
 
-Правильный контроль для решения «Oddin лучше PGL»: **research-noxp @ execute15 против research @ execute30** на тех же картах (PGL сегодня торгуется полной моделью на 30 с). Сравнение no-XP против XP на одинаковом execute15 показывает лишь цену отсутствия XP — эта модель не заменяет Steam/GRID, поэтому небольшая просадка там не блокер. Оценка — paired per-map diff, как в `.learnings/pgl-lag25-model-comparison-20260919.md`.
+Оценка — paired per-map diff между двумя прогонами на общих картах, как в lag25-разборе. Это ответ на вопрос «Oddin на 15 с без XP против того, чем PGL торгуется сейчас». Сравнение no-XP против XP на одинаковом лаге — не нужно: эта модель не заменяет Steam/GRID.
 
 ## 6. Источник
 
@@ -150,7 +150,7 @@ data/new_model/archive/research-noxp/, archive/production-noxp/
 
 ### 6.2. Discovery и binding
 
-`FeedSource.ODDIN = "oddin"`. В `_SideSource`/`DiscoveredMatch` — `oddin_match_id: str | None` (Bitsler/Oddin `od:match:N`), зеркально `pgl_channel_id`; PGL-поля остаются для чтения старых `match.json`.
+`FeedSource.ODDIN = "oddin"`. В `_SideSource`/`DiscoveredMatch` — `oddin_match_id: str | None` (Bitsler/Oddin `od:match:N`) на месте сегодняшних `pgl_channel_id/pgl_match_id/pgl_sides_match_steam`, которые удаляются по 6.6.
 
 Bitsler перечислять **один раз на discovery cycle** (как `_index_pgl_probes`), синхронные HTTP — не в async loop. Привязка: обе команды через существующий `orient_outcomes` с `TEAM_ALIASES` против имён Steam/GRID game; ровно одно совпадение, иначе не привязывать и логировать причину. Oddin присоединяется только к уже существующему каноническому Steam/GRID binding; archive ID остаётся `9006723487` / `grid-…-m…`. Oddin-only рынок без Steam/GRID identity — не в этом плане.
 
@@ -160,7 +160,7 @@ Bitsler перечислять **один раз на discovery cycle** (как 
 
 `probe_oddin_delay(oddin_match_id, map_number) -> int | None` в `source_picker.py`, по образцу `probe_grid_delay`: открыть WS, взять первый снапшот с `VALID_DATA` и `currentMap.mapOrder == map_number`, вернуть `round(received_at − lastUpdatedAt)`. HTTP seed не используется. Таймаут — `GRID_FEED_STALE_SECONDS`, любой сбой → `None` (источник просто выпадает).
 
-`_collect_candidates`: убрать ветку PGL, добавить `FeedCandidate(ODDIN, oddin_delay_s)` когда `oddin_match_id` есть и проба вернула число. `SOURCE_TIE_ORDER = (STEAM, GRID, ODDIN)`. Гейт 61 с и «pin побеждает ranking» без изменений. `_PickedSource`/`_log_feed_selected`: `pgl_delay_s → oddin_delay_s`.
+`_collect_candidates`: ветка PGL становится веткой Oddin — `FeedCandidate(ODDIN, oddin_delay_s)` когда `oddin_match_id` есть и проба вернула число. `SOURCE_TIE_ORDER = (STEAM, GRID, ODDIN)`. Гейт 61 с и «pin побеждает ranking» без изменений. `_PickedSource`/`_log_feed_selected`: `pgl_delay_s → oddin_delay_s`. Пробы GRID и Oddin для одной карты запускать конкурентно (`asyncio.gather`), отказ одной не блокирует другую.
 
 Ожидаемый выбор на проверенных условиях: GRID 0/8 < Oddin ~15; Steam 10 < Oddin ~15; Oddin ~15 < Steam 60/900; Oddin 30 на «медленном» матче проигрывает Steam 10 и GRID, но выигрывает Steam 60.
 
@@ -181,10 +181,23 @@ Stale: `ODDIN_FEED_STALE_SECONDS = 15.0`. Keepalive, seed, дубликат и �
 
 `oddin_state.jsonl`: `{received_at_utc, event: snapshot|ws|reconnect, payload}` с **расшифрованным** payload (ротация ключа не должна делать архив нечитаемым), без token/ключей. HTTP seed архивируется с `event=snapshot`, но не редьюсится. Replay через `oddin_archive.py` тем же reducer даёт те же тики, orientation и finish.
 
-### 6.6. Вывод PGL из live
+### 6.6. Удаление PGL из live
 
-- `_collect_candidates` без PGL → новых PGL-сессий нет.
-- Ветка PGL в `_build_feed`, `PglLiveFeed`, `pgl_sse`, `dota-pgl-map` остаются **на один деплой**, чтобы возможный незакрытый PGL pin на VPS доиграл штатно. Удалить их отдельным коммитом после деплоя, когда на VPS нет открытого PGL pin. `pgl_feed` reducer, `pgl_archive`, `pgl_types` остаются для viewer старых архивов.
+PGL как торговый источник удаляется полностью в шаге 3. Пользователь сам гарантирует, что в момент рестарта на VPS нет открытого PGL pin; никакого переходного периода.
+
+Удалить:
+
+- `pgl_live_feed.py`, `pgl_display.py`, `scripts/watch_pgl_live.py`, `tests/test_watch_pgl_live.py`;
+- сетевую часть `pgl_sse.py`: `pgl_client`, `iter_sse`, `sse_url`, `PglProbe`, `probe_from_game_state`, `probe_pgl_channels`, `MAX_CONSECUTIVE_FAILURES`/`RECONNECT_SECONDS`;
+- в `discovery.py`: параметр `probe_pgl_channels`, `_CycleScan.pgl_by_match`, `_PglHit`, `_index_pgl_probes`, `_unique_pgl_hit`, `_with_pgl`, все ветки, которые их вызывают; в `wallet_host.py` — передачу `probe_pgl_channels`; в `tests/trader_discovery_fixtures.py` — параметр `probe_pgl_channels`, PGL-тесты в `test_trader_discovery.py`;
+- в `feed_selection.py`: импорт `PglLiveFeed`, ветку PGL в `_build_feed`, `pgl_delay_s` в `_PickedSource`/логе, PGL в `_collect_candidates`; `PGL_ASSUMED_DELAY_SECONDS`, `PGL_FEED_STALE_SECONDS`;
+- `SOURCE_TIE_ORDER` без PGL;
+- `[profiles.dota-pgl-map]` в `config/trading.toml`, `FeedSource.PGL → "dota-pgl-map"` в `GameProfile`, тесты на них;
+- поля `pgl_channel_id`, `pgl_match_id`, `pgl_sides_match_steam` в `_SideSource`/`DiscoveredMatch`, если после удаления привязки у них не остаётся читателей.
+
+Оставить для viewer старых архивов (`data/trader/9006723487` и подобные): `FeedSource.PGL` в enum, `pgl_feed.py` (reducer, `estimated_horn_unix` как образец), парсинг payload в `pgl_sse.py` (`SseEvent`, `apply_event`, `as_map`, `PglCorruptUpdate`), `pgl_archive.py`, `pgl_types.py`, чтение `feed_source=pgl` и PGL-полей в `match_meta` для schema v3–v7. `feed_source=pgl` в существующих файлах не переименовывать.
+
+Открытый PGL pin при рестарте — `CorruptFeedPin`/явный отказ новых входов с существующим cleanup, не fallback и не восстановление.
 
 ## 7. Порядок реализации
 
@@ -196,7 +209,7 @@ Stale: `ODDIN_FEED_STALE_SECONDS = 15.0`. Keepalive, seed, дубликат и �
 
 Проверки: `make train` публикует четыре каталога, hashes `research/`/`production/` меняются только от переобучения, LoL train не меняется; `production-noxp/model.json` — ровно 11 features в порядке `NO_XP_FEATURE_COLUMNS`; `ModelServer` с production-noxp не требует XP и отклоняет 12-feature каталог под Oddin-профиль и наоборот; первая публикация без старого live dir. Tests: `test_gbm_catalog.py`, `test_gbm_member_pool.py`, `test_model_registry.py`, `test_train_model.py`, `test_lol_train_model.py`, `test_model_server.py`, `test_trader_host_resources.py`, `test_trader_session_config.py`, `test_dota_map_config.py`.
 
-После шага 1 сразу доступен бэктест из 5.4 — он не ждёт фида.
+Завершение шага 1 — бэктест из 5.4: один прогон `research-noxp @ exec15`, paired per-map против существующего `pgl25-t10/seed0`, результат в `docs/experiments/oddin-no-xp/`. Он не ждёт фида; если no-XP модель на 15 с не лучше того, чем PGL торгуется сейчас, шаги 2–3 можно не начинать.
 
 ### Шаг 2 — Oddin modules, reducer, live feed, archive
 
@@ -206,21 +219,20 @@ Fixtures из реальных payload после удаления token/пер�
 
 Проверки: live→archive→replay parity; watcher работает. Tests: три существующих oddin test-файла + новые для reducer/archive.
 
-### Шаг 3 — discovery, проба, picker, metadata, worker
+### Шаг 3 — discovery, проба, picker, metadata, worker, удаление PGL
 
-Файлы: `oddin_discovery.py`, `discovery.py` (минимальные seams), `bindings.py`, `source_picker.py`, `feed_selection.py`, `match_meta.py`, `match_worker.py`/`wallet_host.py` (выбор модели по профилю после `select_feed`).
+Файлы: `oddin_discovery.py`, `discovery.py` (Oddin вместо PGL-привязки), `bindings.py`, `source_picker.py`, `feed_selection.py`, `match_meta.py`, `match_worker.py`/`wallet_host.py` (выбор модели по профилю после `select_feed`), `game_profile.py`, `config/trading.toml`; удаления по 6.6. Удаление PGL и добавление Oddin делать в этом же шаге: Oddin занимает те же места в `discovery`/`feed_selection`, что PGL, и один диф проще двух.
 
-Проверки: GRID 8 побеждает Oddin 15; Oddin 15 побеждает Steam 60/900; Steam 10 побеждает Oddin 15; проба без нужной карты/без `VALID_DATA` → нет кандидата; конфликт имён → нет привязки; pin побеждает ranking; PGL не кандидат; одна condition — один worker; schema v3–v8 round trip; legacy PGL pin строится как раньше; Oddin-сессия использует production-noxp и записывает его identity. Tests: `test_source_picker.py`, `test_trader_discovery.py`, `test_trader_wallet_host.py`, `test_match_meta.py`, `test_trader_match_lifecycle.py`, новые Oddin discovery tests.
+Проверки: GRID 8 побеждает Oddin 15; Oddin 15 побеждает Steam 60/900; Steam 10 побеждает Oddin 15; проба без нужной карты/без `VALID_DATA` → нет кандидата; конфликт имён → нет привязки; pin побеждает ranking; одна condition — один worker; schema v3–v8 round trip; старый `match.json` с `feed_source=pgl` читается viewer'ом, а трейдером отклоняется как `CorruptFeedPin` без входов; Oddin-сессия использует production-noxp и записывает его identity; в `src/trader` не остаётся импортов удалённых PGL-символов (basedpyright). Tests: `test_source_picker.py`, `test_trader_discovery.py`, `test_trader_wallet_host.py`, `test_match_meta.py`, `test_trader_match_lifecycle.py`, новые Oddin discovery tests.
 
 ### Шаг 4 — viewer
 
 `viewer/live_tape.py`, `viewer/types.py`: `source=oddin` через `oddin_archive`. XP-линия для Oddin — константный 0, это допустимо; Streamlit UI не переделывать. Tests: `test_live_inspect.py`.
 
-### Шаг 5 — бэктест и деплой
+### Шаг 5 — деплой
 
-1. Бэктест по 5.4: `noxp @ exec15` vs `full @ exec30`, clip $5, paired per-map. Результат — в `docs/experiments/oddin-no-xp/`. Это информация для пользователя, не автоматический гейт.
-2. Деплой на VPS **между картами** по `vps-trader` skill, live, $5. Перезапуск не прятать в make-таргеты.
-3. После ~20 торгованных Oddin-карт: buy markouts 5/15/30/60/300 из `session.jsonl`, book lead из `oddin_state.jsonl` + `core_trace.jsonl` (clean two-sided book, окно ±30 с, совместное движение bid/ask, не только mid на расширенном спреде; показывать распределение, не выбирать примеры). Сравнить с историей PGL-карт. Если короткие markouts отрицательны и книга систематически опережает — зафиксировать, что замена PGL проблему не решила; размер не увеличивать.
+1. Деплой на VPS **между картами** по `vps-trader` skill, live, $5. Перезапуск не прятать в make-таргеты.
+2. После ~20 торгованных Oddin-карт: buy markouts 5/15/30/60/300 из `session.jsonl`, book lead из `oddin_state.jsonl` + `core_trace.jsonl` (clean two-sided book, окно ±30 с, совместное движение bid/ask, не только mid на расширенном спреде; показывать распределение, не выбирать примеры). Сравнить с историей PGL-карт. Если короткие markouts отрицательны и книга систематически опережает — зафиксировать, что замена PGL проблему не решила; размер не увеличивать.
 
 ## 8. Общая проверка
 
@@ -233,7 +245,7 @@ Fixtures из реальных payload после удаления token/пер�
 
 ## 9. Передача в следующий контекст
 
-> Прочитай AGENTS.md и `betting_workspace/docs/plans/2026-09-19-oddin-replaces-pgl.md`. Реализуй шаги 1–4: вторая Dota-модель без XP из того же пайплайна (`research-noxp`/`production-noxp`), `ModelServer` по `model.json.features`, модели по имени strategy-профиля; затем Oddin feed по образцу PGL с одной пробой задержки и профилем `dota-oddin-map` clip $5. Train lag 10. Не трогай Steam/GRID и старые архивы. Не запускай live и не перезапускай VPS.
+> Прочитай AGENTS.md и `betting_workspace/docs/plans/2026-09-19-oddin-replaces-pgl.md`. Реализуй шаги 1–4: вторая Dota-модель без XP из того же пайплайна (`research-noxp`/`production-noxp`), `ModelServer` по `model.json.features`, модели по имени strategy-профиля, сразу бэктест `research-noxp @ exec15` против `pgl25-t10/seed0`; затем Oddin feed по образцу PGL с одной пробой задержки и профилем `dota-oddin-map` clip $5. Train lag 10. Не трогай Steam/GRID и старые архивы. Не запускай live и не перезапускай VPS.
 
 ### Ссылки
 
