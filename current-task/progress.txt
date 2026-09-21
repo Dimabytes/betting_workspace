@@ -1,0 +1,118 @@
+# On-chain collector feature progress
+
+Orchestrator: run US-001..US-005. VPS git pull + container start is the user's last step (SSH password). Rsync of archives/import files may be done from this machine via SSH.
+
+---
+2026-09-20 US-001: Catalog, ABI decode, and ONCHAIN_SCHEMA parquet — done.
+Added src/schema/onchain.ts (26-col OnchainFillRow + ONCHAIN_COLUMNS), src/onchain-catalog.ts
+(token->game/condition/outcome/sibling over both archive roots, conflict diagnostics,
+couldTradeDuring), src/onchain-decode.ts (OrderFilled + OrdersMatched for both V2 exchanges,
+OrdersMatched keyed by (contract, tx), taker-aggregate drop, own+mirrored rows, bigint price
+half-even at 6dp), src/onchain-writer.ts (DuckDB appender -> SNAPPY parquet, .onchain workdir,
+ORDER BY block,tx,log,contract,mirrored). src/duckdb-session.ts gained workRootName option.
+Fixtures: telonex-8rows.parquet, telonex-empty.parquet, getlogs-94039500.json.
+yarn check green (typecheck, diagnostics, oxlint, 491 tests incl. real-fixture parity).
+Commit: 6467487 in polymarket-collector.
+2026-09-20 US-001 fix pass (Grok 4.6 review) — done.
+parseRpcLog now returns Effect<RpcLog, DecodeError> via decodeRecord; fillRowsForToken returns
+Effect<rows, OnchainDecodeError> and fails listing every missing block timestamp (no bare throws).
+formatUnits deleted — amount/fee go through formatPlain(BigDecimal.make(raw, 6)); fixed-6 price
+rendering moved to schema/decimal.ts as formatFixed6; timestamp uses MICROS_PER_SECOND, not the
+USDC scale. schema/onchain.ts now holds ONCHAIN_SPEC (name -> {sql, duck}) which generates
+ONCHAIN_COLUMNS, ONCHAIN_TABLE_SQL, ONCHAIN_BIND_TYPES — one source, Record-satisfies enforces
+field completeness. Decoder's in-memory sort removed; writer COPY ORDER BY owns file order.
+yarn check green (492 tests). Commit: a6a7ce4 in polymarket-collector.
+US-001 review (Grok 4.6): 4 findings; implementer applied all. passes: true.
+2026-09-20 US-002 (RPC client, two endpoints, UTC block bounds) — done.
+src/onchain-rpc.ts: makeEndpoint (CU token bucket, Semaphore ceiling, Retry-After pause,
+quota kill-switch, 60s timeout), typed error union, envelope parsed on every status,
+getLogs/getBlock/chainId/blockTimestamp, fetchLogsRange halving, V2_MIN_BLOCK=94154038
+(eth_getCode binary search on polygon-bor public RPC). src/onchain-days.ts: OnchainRpc
+pool over two EndpointHandles (least-inFlight dispatch, failover incl. range-too-wide,
+ledger isCommitted gate, bounded passes), firstBlockAtOrAfter (±200k window, first->=
+predicate), resolveDay (chain-id + finalized-head + control-hash agreement, pending
+reasons, unsupported-period + straddle clamp). src/onchain-ledger.ts: US-003 seam +
+memory layer. src/onchain-config.ts: OnchainSettings loader. Tests: fake HttpClient +
+recorded RPC fixtures; 30 new tests (400 split, 429 pause/migrate, quota-dead, invalid
+payloads, CU pacing, concurrency cap, finalized-only, disagreements, committed skip,
+unsupported/straddle). yarn check green (522 tests). passes: true.
+Commit: d230388 in polymarket-collector.
+2026-09-20 US-002 fix pass (Grok 4.6 review) — done.
+OnchainRpc.run now returns Effect<A, RpcError> — the committed-range Option left the
+transport layer: unlessCommitted(ledger, range, effect) lives next to OnchainLedger and
+gates whatever effect the planner wraps (a whole fetchLogsRange walk, so halved
+sub-spans never mint ledger keys). markCommitted dropped its ignored receipt arg;
+RpcTask.range deleted. Dispatch unrolled to one pass loop over the two endpoints:
+least-inFlight ready pick, failover incl. range-too-wide, re-passes only for
+transport/429, all-paused sleeps till earliest pauseUntil, deterministic errors stop
+unless a paused sibling never got its attempt. prefer deleted. New test pins the
+paused-sibling-after-quota-death path. yarn check green (523 tests).
+Commit: 3e0f892 in polymarket-collector.
+US-002 review (Grok 4.6): 2 findings; implementer applied both. passes: true.
+2026-09-21 US-003 (Planner, durable ledger, and day publication) — done.
+src/schema/onchain.ts: OnchainFillRowLine JSON codec (bigint-safe decimal strings),
+ONCHAIN_DECODER_VERSION=1 in versions.ts, schema/onchain-manifest.ts channel manifest.
+src/onchain-catalog.ts: conflict claim windows; contradictory/asymmetric pairs excluded
+from entries and conservatively could-trade unless proven impossible.
+src/onchain-ledger.ts: durable JSONL ledger (torn-tail drop, write+sync, commits scoped
+by date+range+fingerprint+decoderVersion, empty ranges commit), catalog snapshot store
+(fingerprint-content-addressed payload), unlessCommitted gate.
+src/onchain-config.ts: ONCHAIN_START_DATE (UtcDate + bounds validation),
+ARCHIVE_ROOT_DOTA/LOL, ONCHAIN_STATE_DIR, ONCHAIN_CHUNK_BLOCKS, DUCKDB_MEMORY_LIMIT.
+src/onchain-plan.ts: listUnfinishedDays (never today, both-manifest completeness,
+per-chunk token coverage unioned across fingerprints, blocked on could-trade
+conflicts — diagnostic only, no RPC). src/onchain-validate.ts: DuckDB session under
+.onchain, exact column/type tree, per-token + window + unique key + ordering checks,
+sha256+bytes+min/max ts. src/onchain-publish.ts: per-token stage→validate→rename into
+parquet/onchain_fills/asset_id=*/<date>.parquet, exclusions (conflict/not_tradeable/
+not_covered), manifest written last, stale staging swept. src/onchain-day.ts:
+scanChunk (halving fetchLogsRange, memoized block ts, per-entry canonical artifacts),
+collectOnchainDay (resolve→coverage→concurrency-4 unlessCommitted scans→markCommitted→
+dota-then-lol publish with already-covering-manifest skip→staging cleanup after both
+manifests), runOnchainPass (one snapshot per pass, per-day outcome isolation).
+Tests: 42 new incl. crash/restart suite (pre-commit failure, post-append commit
+failure, between-games crash, new-token rescan byte-identical, hole/no-cursor,
+pending, unsupported isolation). yarn check green (565 tests).
+Commit: 675a368 in polymarket-collector. passes: true.
+2026-09-21 US-003 fix pass (Grok 4.6 review) — done, 2 findings applied.
+1) onchain-validate.ts: sort-order check compared a "|"-joined string key, so a
+correctly sorted file with tx_index 9 then 10 in one block ("9" > "1"
+lexicographically) failed validation after a good COPY. Replaced with a real
+component-wise tuple compare (onchainOrderLess: numbers numerically,
+contract_address lexicographically, mirrored as 0/1). Tests: publishGameDay with
+two rows same block tx 9→10 publishes; direct comparator unit test both
+directions.
+2) onchain-day.ts: scanChunk wrote a canonical artifact for EVERY catalog entry
+(closed markets included — dead [] files under .onchain/chunks). It now takes the
+day's publishable entries (couldTrade-filtered, siblings included for mirrored
+fills) — artifact set = publish set. Closed-market artifact absence asserted in
+the between-games crash test.
+yarn check green (567 tests). passes: true stays.
+Commit: 4ebca5b in polymarket-collector.
+US-003 review (Grok 4.6): 2 findings; implementer applied both. passes: true.
+2026-09-21 US-004 — done, passes: true. Composed on-chain process
+(src/onchain-app.ts + onchain-main.ts): layout init → stateDir → .onchain.lock →
+stale-work sweep → pool+state → disk gate (stop skips without marking coverage,
+deduped notice per tick) → runOnchainPass → report {today, lastFullDay, lagDays,
+remainingDays, uncoveredTokens, outcomes, fills, per-endpoint
+requests/bytesIn/usedCu/retries/inFlight/quotaDead/paused} → log+Telegram,
+5-minute cadence or ONCHAIN_RUN_ONCE. Endpoint counters added to onchain-rpc;
+config gained CU/concurrency/monthly-CU per side, disk thresholds, runOnce,
+OnchainDuckDbLive. Import CLI (onchain-import.ts + onchain-import-main.ts):
+inventory walks asset_id=*/<date>.parquet with sha256+schema probe+row stats;
+accept verifies staged hash+physical schema, only a ready on-chain manifest is
+full_day proof, empty files are legacy_empty_unverified, never overwrites
+different bytes, dry-run copies nothing and skips the lock; BootstrapReport
+carries onchainStartDate + per-token gaps. compose.yaml fifth service `onchain`;
+.env.example + docker-compose.md updated. yarn check green (579 tests).
+Live day 2026-09-20 published locally with the real two-account pairing
+(A=ALCHEMY_POL_ENDPOINT, B=ALCHEMY_POL_ENDPOINT_RESERVE): V2 deployed mid-day →
+~8.3k-block suffix = 1 chunk; free-tier 10-block getLogs cap → ~920 halved calls;
+386 parquet files + both manifests; fills dota 2204 / lol 18844; 6m40s wall;
+a 3732 req / 115,687 CU, b 14 req / 798 CU. Reserve app initially lacked
+MATIC_MAINNET — operator enabled it; public-RPC probing abandoned (non-range
+errors mask RangeTooWide). PyArrow check on live files: schema.equals
+(ONCHAIN_SCHEMA) all pass, validate_target row counts match. Import dry-run over
+real Mac trees: 84,620 entries, 32,916 legacy_imported, 51,704 empty_unverified,
+0 rejected/copies; 31,092 older 20-column-schema files skipped at inventory —
+operator decision needed, check not loosened. Report: agent-replies/US-004-impl.md.
