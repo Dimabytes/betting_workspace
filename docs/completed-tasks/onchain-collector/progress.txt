@@ -149,3 +149,10 @@ build, .env ONCHAIN_RPC_URL_A/B, accept dry-run then real as UID 10001,
 ONCHAIN_START_DATE, up -d onchain — runbook in agent-replies/US-005-impl.md.
 passes: true.
 US-005 review (Grok 4.6): NO COMMENTS. Mac-side complete. Operator: push + VPS pull/import/up.
+2026-09-21 US-005 Phase B + Mac sync — done, feature closed.
+VPS: build archive-dota; accept dry-run 84,620/0 rejected; accept --start-date
+2026-09-20 copied 84,620; ONCHAIN_START_DATE=2026-09-20; up -d onchain only.
+Pass published 2026-09-20 committedChunks=1/1 fills 2204/18844. Manifests ready
+dota 200/200 lol 186/186. Mac: installed=200 replaced=0 conflicts=0
+hash_mismatch=0 rejected=0; onchain_fills max=2026-09-20. 31k 20-col still
+Mac-only. Archived to docs/completed-tasks/onchain-collector/.

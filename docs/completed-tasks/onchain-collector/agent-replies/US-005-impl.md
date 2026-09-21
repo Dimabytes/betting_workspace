@@ -1,6 +1,6 @@
 # US-005 impl — VPS enable and delete the Python on-chain collector
 
-Status: Mac-side done, Phase A (agent rsync) done. Phase B is operator-only (VPS docker / .env / SSH password).
+Status: done. Mac-side cutover, Phase A rsync, Phase B VPS enable, and Mac sync of the first ready day all landed.
 
 Commit: esports-trader `ecd2a570` — `feat: [US-005] - VPS enable and delete the Python on-chain collector` (16 files, all pre-commit hooks green: ruff, ruff-format, basedpyright).
 
@@ -36,7 +36,7 @@ Deviation worth knowing: whole-project basedpyright (`pass_filenames:false`) fai
 
 ```sh
 git pull
-docker compose build archive        # refreshes polymarket-collector:latest; runs yarn check+build inside
+docker compose build archive-dota   # refreshes polymarket-collector:latest; runs yarn check+build inside
 
 # Edit .env — copy VALUES BY HAND from esports-trader/.env on the Mac (never commit/echo):
 #   ONCHAIN_RPC_URL_A = <ALCHEMY_POL_ENDPOINT>
@@ -69,6 +69,23 @@ docker compose logs -f onchain      # pass report JSON every 5 min
 ```
 
 Import runs as UID 10001 via the image `USER`; `accept` holds `.onchain.lock` on the state dir — it must finish before `up -d onchain` or the second writer LockErrors.
+
+## Phase B evidence (VPS `sun`, 2026-09-21)
+
+- `docker compose build archive-dota` → `polymarket-collector:latest` (US-004 `0a4b00b`, cached). Live/paper not restarted.
+- `.env`: `ONCHAIN_RPC_URL_A`/`_B` already set (gitignored, never echoed). `ONCHAIN_START_DATE` left unset until after import.
+- Dry-run accept: 84,620 entries, 0 rejected / 0 conflict; dota 19,318 inventoried / 12,060 skipped; lol 65,302 / 19,032 skipped; gaps 1332. Report `onchainStartDate=2026-09-21` / `run_date`.
+- Real accept `--start-date 2026-09-20`: 84,620 copied (dota ~1.2 GiB + lol ~2.9 GiB), 0 rejected / 0 conflict, lock released.
+- `.env` `ONCHAIN_START_DATE=2026-09-20`. `docker compose up -d onchain` only. First pass: `published` 2026-09-20, `committedChunks=1/1`, `remainingDays=0`, fills dota 2204 / lol 18844. No `LockError`. Daemon RSS after publish ~1.1 GiB, then idle.
+- Manifests both `status=ready`: dota files=200 covered=200; lol files=186 covered=186.
+
+## Mac sync (operator)
+
+```
+onchain: manifests=1 ready_days=2026-09-20..2026-09-20 installed=200 replaced=0 kept=0 conflicts=0 hash_mismatch=0 rejected=0
+book_snapshot_full: assets=14808 files=30904 min=2025-10-14 max=2026-09-19
+onchain_fills: assets=15172 files=31578 min=2025-10-14 max=2026-09-20
+```
 
 ## Post-publish verification
 
