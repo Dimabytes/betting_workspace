@@ -116,3 +116,36 @@ errors mask RangeTooWide). PyArrow check on live files: schema.equals
 real Mac trees: 84,620 entries, 32,916 legacy_imported, 51,704 empty_unverified,
 0 rejected/copies; 31,092 older 20-column-schema files skipped at inventory —
 operator decision needed, check not loosened. Report: agent-replies/US-004-impl.md.
+US-004 review (Grok 4.6): NO COMMENTS. passes: true. Commit 0a4b00b.
+2026-09-21 US-005 (VPS enable + delete Python on-chain collector) — Mac side done.
+esports-trader commit ecd2a570 (16 files, hooks green). telonex_onchain.py split:
+surviving helpers moved verbatim to src/shared/utils/telonex_capture.py
+(asset_channel_dir, FatalDownloadError, ValidationResult, validate_target,
+write_arrow_table, download_url, retry_delay); 5 consumers re-imported;
+telonex_onchain.py, sync_onchain_fills.py, parity_onchain_rpc.py and their tests
+deleted; Makefile sync-onchain/parity-onchain-rpc targets + phony removed.
+rsync_pull gained run_rsync_status (run_rsync delegates). sync_collector_parquet
+now pulls books with --exclude=onchain_fills/ and delivers onchain_fills from
+ready manifests/onchain/<d>.json: manifest rsync via run_rsync_status (rc!=0 ->
+warn+skip), msgspec decode (unknown keys ignored), status=="ready" && date<today
+filter, path regex + token/date check -> rejected, sha256 -> kept/install/
+replace(date>=--onchain-start-date)/conflict, --files-from pull into a
+TemporaryDirectory under dest, per-file sha256 re-verify then os.replace,
+hash_mismatch leaves local bytes. New CLI --onchain-start-date; per-game
+onchain stats line; CHANNELS now books+onchain_fills. 45 targeted tests green;
+45-test shard ran (test_sync_collector_parquet + telonex book/tape/map_build).
+Learnings: pre-commit basedpyright is whole-project (pass_filenames:false), so
+the parallel feature's untracked feed_schedules files broke `git commit` in the
+main worktree — committed from a detached `git worktree` (HEAD+staged diff,
+.venv + ../prediction-market-backtesting + ../poly-maker symlinked into /tmp,
+UV_NO_SYNC=1) then `git update-ref refs/heads/main <sha>`; hooks ran green on
+the exact commit tree, parallel worktree untouched. staging=sync uses no
+shared.* imports (viewer spawns it bare). Phase A done: inventories dota
+19,318 / lol 65,302 = 84,620 verified files, skipped 12,060+19,032=31,092
+20-col legacy (decision (a): excluded, stay Mac-only); rsynced to
+sun:/var/lib/polymarket-onchain-state/import-staging/{dota,lol} + inventories
+to import/, chown 10001:10001. Phase B (operator): git pull + docker compose
+build, .env ONCHAIN_RPC_URL_A/B, accept dry-run then real as UID 10001,
+ONCHAIN_START_DATE, up -d onchain — runbook in agent-replies/US-005-impl.md.
+passes: true.
+US-005 review (Grok 4.6): NO COMMENTS. Mac-side complete. Operator: push + VPS pull/import/up.
