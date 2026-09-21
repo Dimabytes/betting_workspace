@@ -1,6 +1,6 @@
 ---
 name: vps-trader
-description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, four collectors). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, Steam, books, halt, dust, or quoting. Do not restart unless asked.
+description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, Steam, books, halt, dust, or quoting. Do not restart unless asked.
 ---
 
 # VPS trader
@@ -18,7 +18,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Live trader | `/root/work/esports-trader` service `live` (`WalletHost`, `--mode live`). Container `esports-trader-live-1`, host `data/trader_live` |
 | Paper trader | same compose, service `paper` (`--mode paper`). Container `esports-trader-paper-1`, host `data/trader_paper` |
 | Pre-rollout tape | host `./data/live_paper` is the leftover pre-rollout tape. Read-only history; `--live` omits it. Do not delete |
-| Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol` |
+| Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain` |
 | Match archives (in-container) | `data/trader/<match_id>/` inside each trader |
 | Host state | `data/trader_live/`, `data/trader_paper/`, plus the leftover pre-rollout `data/live_paper` |
 | Wallet sqlite | in-container `data/trader/wallet/live.db` (real money). `paper.db` is paper mode, not the Polymarket live funder |
@@ -27,6 +27,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | LoL model | `data/lol/models/production/` |
 | Size / risk | `config/trading.toml` `[profiles.dota-map]` / `[profiles.lol-map]`, `[risk]` |
 | Collector archives | `/var/lib/polymarket-dota-archive` → `/archive/dota`, `/var/lib/polymarket-lol-archive` → `/archive/lol` |
+| On-chain state | `/var/lib/polymarket-onchain-state` (ledger, import, `.onchain.lock`) |
 
 `src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. Do not `--build` this checkout: there is no `.dockerignore`, so host `.env` can bake into the image.
 
@@ -131,7 +132,7 @@ Do not run `make test` / pytest while a map is live. Use `PYTEST_XDIST_AUTO_NUM_
 
 ## Collector
 
-Separate compose. Four services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`. `POLYMARKET_TAG_ID` is required (compose pins `"102366"` / `"65"`). Discovery reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting.
+Separate compose. Five services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain`. `POLYMARKET_TAG_ID` is required on collect/compact (compose pins `"102366"` / `"65"`). `onchain` has no tag — it writes `parquet/onchain_fills` and `manifests/onchain/` into both archives. Discovery for quoting still reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting. Do not `compose down`. Image refresh is `docker compose build archive-dota` (no service named `archive`).
 
 ## LoL deploy / verify / rollback (US-015 is done; kept for the rollback path)
 
