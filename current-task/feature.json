@@ -135,7 +135,7 @@
         "Run on the VPS: `onchain` enabled, one production-like completed day published, Mac sync receives it from the ready manifest"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "designReference": []
     }
   ]
