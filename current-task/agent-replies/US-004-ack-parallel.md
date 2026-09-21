@@ -1,0 +1,1 @@
+US-004 acknowledged: staying scoped to polymarket-collector onchain compose/import/process; no resets, cleans, checkouts, or edits of the parallel feature's files (incl. betting_workspace/docs/archive-linking-and-feed-replay/); esports-trader gets only a read-only PyArrow check of my own scratch parquet; commit will include only US-004 collector files.

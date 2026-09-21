@@ -51,7 +51,7 @@
       "title": "Catalog, ABI decode, and ONCHAIN_SCHEMA parquet",
       "description": "As a developer, I need sidecar-driven token maps and Telonex-compatible decoded rows on disk so later RPC work has a stable write path.",
       "changes": [
-        "Add a catalog module that reads `metadata/markets/<condition_id>.json` from both archive roots and maps token → game/condition/outcome index/sibling; IDs stay strings; missing observation timestamps conservatively include the market",
+        "Add a catalog module that reads `metadata/markets/<condition_id>.json` from both archive roots and maps token \u2192 game/condition/outcome index/sibling; IDs stay strings; missing observation timestamps conservatively include the market",
         "Decode OrderFilled and OrdersMatched for CTF Exchange `0xE111180000d2663C0091e4f400237545B87B996B` and Neg Risk `0xe2222d279d744050d28e00520010520000310F59`; emit own and mirrored sibling rows; drop the taker-aggregate fill against the actual exchange address; price is 6 decimal half-even; amount/fee are decimal strings; ABI integers are bigint",
         "Write DuckDB Parquet with the 26 ONCHAIN_SCHEMA columns in Telonex order and physical types: INT64 `block_number`/`block_timestamp_us`, INT32 `transaction_index`/`log_index`/`chain_id`, UINT8 `outcome_id`, BOOLEAN `mirrored`, remaining STRING",
         "Copy the needed recorded Telonex/RPC fixtures from esports-trader into collector tests; document any decode-field mismatch with Python before renaming fields to hide it",
@@ -61,7 +61,7 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -79,7 +79,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -97,7 +97,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -116,7 +116,7 @@
         "Run the collector locally and verify the live Alchemy day plus import dry-run"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "designReference": []
     },
     {
@@ -124,7 +124,7 @@
       "title": "VPS enable and delete the Python on-chain collector",
       "description": "As a trader, I need VPS-published full days delivered to the Mac, then the Python downloader gone.",
       "changes": [
-        "Bootstrap on VPS: rsync inventory and closed parquet Mac → import staging with resume; do not overwrite conflicting files without hash compare; run import as UID 10001; enable compose `onchain`; set ONCHAIN_START_DATE from the import report",
+        "Bootstrap on VPS: rsync inventory and closed parquet Mac \u2192 import staging with resume; do not overwrite conflicting files without hash compare; run import as UID 10001; enable compose `onchain`; set ONCHAIN_START_DATE from the import report",
         "Update `scripts/sync_collector_parquet.py` to copy `onchain_fills` from ready on-chain manifests, report coverage, and replace a legacy file with a new full_day after ONCHAIN_START_DATE; `--ignore-existing` alone is not the on-chain policy; incomplete current UTC day stays excluded",
         "Delete `scripts/parity_onchain_rpc.py`, `scripts/sync_onchain_fills.py`, `tests/test_parity_onchain_rpc.py`, `tests/test_sync_onchain_fills.py` after moving required fixtures into the collector, and Makefile targets `parity-onchain-rpc` / `sync-onchain` plus help/phony",
         "Split `src/shared/utils/telonex_onchain.py`: move path/HTTP/parquet helpers still used by LoL book fetch, `map_build_cache.py`, `lol/replay.py`, `backtest/telonex_local.py`, and `shared/utils/telonex_tape.py`; delete the download-only on-chain collector. Keep onchain_fills readers, backtest availability checks, and the symlink bridge",
