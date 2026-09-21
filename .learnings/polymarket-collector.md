@@ -11,8 +11,8 @@
 
 ## Compose
 
-One binary, four services. Only `archive-dota` has `build: .`; all four share
-`image: polymarket-collector:latest`.
+One binary, five services. Only `archive-dota` has `build: .`; the others share
+`image: polymarket-collector:latest`. There is no service named `archive`.
 
 | Service | Role | Host bind | `POLYMARKET_TAG_ID` |
 | --- | --- | --- | --- |
@@ -20,15 +20,20 @@ One binary, four services. Only `archive-dota` has `build: .`; all four share
 | `compact-dota` | compact | `/var/lib/polymarket-dota-archive` | `"102366"` |
 | `archive-lol` | collect | `/var/lib/polymarket-lol-archive` | `"65"` |
 | `compact-lol` | compact | `/var/lib/polymarket-lol-archive` | `"65"` |
+| `onchain` | fills | both archives + `/var/lib/polymarket-onchain-state` | none |
 
-`POLYMARKET_TAG_ID` is required (no default). Empty/whitespace is rejected. Compose
-pins the tag per service; do not set the tag only in `.env`. Compose also pins
+`POLYMARKET_TAG_ID` is required on collect/compact (no default). Empty/whitespace is rejected. Compose
+pins the tag per those services; do not set the tag only in `.env`. Compose also pins
 `COMPACTION_HOUR_UTC` (Dota 3, LoL 9) and `DUCKDB_MEMORY_LIMIT` (`1024MB`) on the two
 compact services; the memory limit is DuckDB `memory_limit` and is what keeps the
 LoL day compaction under about 2 GB RSS on the 16 GB VPS. In-container both
 roots are still `ARCHIVE_ROOT=/data`. Traders mount those host roots read-only at
 `/archive/dota` and `/archive/lol`. Compact is offline parquet; it does not affect
-quoting.
+quoting. `onchain` has no tag: it reads both games' `metadata/markets/*.json` and
+writes `parquet/onchain_fills` plus `manifests/onchain/<date>.json`. Import
+`accept` holds `.onchain.lock` — it must finish before `up -d onchain`. Build
+refreshes the image via `docker compose build archive-dota`. `ONCHAIN_RPC_URL_*`
+and `ONCHAIN_START_DATE` stay in `.env` (never commit or echo the URLs).
 
 ## What it produces
 
