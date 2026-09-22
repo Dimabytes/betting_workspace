@@ -55,9 +55,12 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --game lol
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --match 8959222564
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --live
+python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --rebate
 ```
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
+
+`--rebate` answers "сколько ребейта накопилось" directly: it finds the newest paid `MAKER_REBATE` in Polymarket activity (payout lands ~00:45 UTC daily) and sums the maker-fill rebate estimate in `session.jsonl` since that timestamp — live, legacy, and still-open maps included, paper excluded. It is also printed automatically at the end of `--today` as `rebate_accrued`. Never ask the user "since when" — the window is the last payout.
 
 `--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`, and a file written in the last 15 minutes. A restart or a feed that ends without a final leaves a session with no `session_end` forever. `--today` labels such a dead session `ORPHAN`, not `LIVE`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a Steam/GRID `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
 
@@ -78,6 +81,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
 | Halt / 429 / Steam 400 / Telegram | `docker compose logs --since 30m live` / `paper` |
 | Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
+| Rebate accrued since last payout | `summarize.py --rebate` (or `rebate_accrued` in `--today`) |
 
 ## PnL rules (strong)
 

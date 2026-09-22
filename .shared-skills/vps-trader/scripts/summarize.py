@@ -518,6 +518,87 @@ def fold_polymarket_day(activity: list, positions: list, day) -> dict:
     }
 
 
+def accrued_rebate_since(cut_unix: float) -> dict:
+    """Session-tape maker-rebate estimate for fills at or after cut_unix.
+
+    Live and legacy tapes only (paper fills are simulated). Still-open maps are
+    included because the scan reads session.jsonl directly.
+    """
+    per_game: Counter[str] = Counter()
+    n_fills = 0
+    n_matches = 0
+    for tree, archive in match_dirs():
+        if tree == "paper":
+            continue
+        meta = load_json(archive / "match.json") or {}
+        game = game_from_meta(meta)
+        match_sum = 0.0
+        for rec in iter_jsonl(archive / "session.jsonl"):
+            if rec.get("kind") not in {"fill", "late_fill"}:
+                continue
+            stamp = parse_utc(rec.get("ts_utc"))
+            if stamp is None or stamp.timestamp() < cut_unix:
+                continue
+            match_sum += maker_rebate(
+                float(rec.get("price") or 0.0),
+                float(rec.get("size") or 0.0),
+                bool(rec.get("is_maker")),
+            )
+            n_fills += 1
+        if match_sum:
+            per_game[game] += match_sum
+            n_matches += 1
+    return {
+        "total": sum(per_game.values()),
+        "per_game": per_game,
+        "fills": n_fills,
+        "matches": n_matches,
+    }
+
+
+def last_rebate_payout(activity: list) -> float | None:
+    """Unix ts of the newest paid MAKER_REBATE row, or None."""
+    stamps = []
+    for row in activity:
+        if str(row.get("type") or "") != "MAKER_REBATE":
+            continue
+        try:
+            stamps.append(float(row.get("timestamp") or 0.0))
+        except (TypeError, ValueError):
+            continue
+    return max(stamps) if stamps else None
+
+
+def print_rebate_accrued(activity: list) -> None:
+    """Print accrued maker rebate since the last paid MAKER_REBATE."""
+    payout = last_rebate_payout(activity)
+    if payout is None:
+        print("rebate_accrued n/a  no MAKER_REBATE row in fetched activity")
+        return
+    accrued = accrued_rebate_since(payout)
+    since = datetime.fromtimestamp(payout, timezone.utc).astimezone(BERLIN)
+    games = " ".join(f"{game}={value:+.2f}" for game, value in sorted(accrued["per_game"].items()))
+    print(
+        f"rebate_accrued  since_payout={since:%m-%d %H:%M %Z}  "
+        f"total={accrued['total']:+.2f}  {games}  "
+        f"fills={accrued['fills']} matches={accrued['matches']}"
+    )
+    print("rebate_accrued is the session-tape estimate from maker fills, not the paid number.")
+
+
+def cmd_rebate() -> None:
+    funder = read_funder()
+    if funder is None:
+        print("rebate_accrued n/a  no funder in live.db")
+        return
+    try:
+        activity = fetch_activity(funder)
+    except (OSError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+        print(f"rebate_accrued n/a  {type(exc).__name__}")
+        return
+    print_rebate_accrued(activity)
+
+
 def fetch_json(url: str) -> object:
     """GET JSON from Polymarket data-api."""
     request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -557,7 +638,8 @@ def print_polymarket_today(day) -> None:
         print("polymarket_today n/a  no funder in live.db")
         return
     try:
-        folded = fold_polymarket_day(fetch_activity(funder), fetch_positions(funder), day)
+        activity = fetch_activity(funder)
+        folded = fold_polymarket_day(activity, fetch_positions(funder), day)
     except (OSError, urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
         print(f"polymarket_today n/a  {type(exc).__name__}")
         return
@@ -570,6 +652,7 @@ def print_polymarket_today(day) -> None:
         f"n_redeem={folded['n_redeem']} n_rebate={folded['n_rebate']} n_open={folded['n_open']}"
     )
     print("day number is polymarket_today pnl (cash+open). leftover BUY is not a loss if REDEEM paid.")
+    print_rebate_accrued(activity)
 
 
 def check_game_default() -> None:
@@ -626,6 +709,14 @@ def check_fold() -> None:
         raise SystemExit(f"fold check failed cash={cash} pnl={pnl}")
 
 
+def check_rebate_cut() -> None:
+    """A cut in the future must accrue nothing."""
+    future = datetime.now(timezone.utc).timestamp() + 3600.0
+    accrued = accrued_rebate_since(future)
+    if accrued["fills"] != 0 or accrued["total"] != 0.0:
+        raise SystemExit("future rebate cut must accrue nothing")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--today", action="store_true", help="Berlin calendar day")
@@ -640,10 +731,16 @@ def main() -> None:
     parser.add_argument("--game", choices=("dota", "lol"), help="filter match.json game")
     parser.add_argument("--match", help="one Steam match id")
     parser.add_argument("--wallet", action="store_true", help="sqlite inventory snapshot")
+    parser.add_argument(
+        "--rebate",
+        action="store_true",
+        help="maker rebate accrued since the last paid MAKER_REBATE",
+    )
     parser.add_argument("--self-check", action="store_true", help="assert redeem is in the day fold")
     args = parser.parse_args()
     if args.self_check:
         check_fold()
+        check_rebate_cut()
         check_game_default()
         print("fold ok")
         return
@@ -652,6 +749,9 @@ def main() -> None:
         return
     if args.wallet:
         cmd_wallet()
+        return
+    if args.rebate:
+        cmd_rebate()
         return
     cmd_list(today=args.today, live_only=args.live, game=args.game)
 
