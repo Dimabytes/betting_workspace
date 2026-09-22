@@ -1,0 +1,46 @@
+---
+description: Herdr Devin orchestration — watchers, Bypass, keep implementer for review
+alwaysApply: true
+---
+
+# Herdr + Devin orchestration
+
+Before any `herdr *`: `test "${HERDR_ENV:-}" = 1`. Never run bare `herdr` (TUI). Never close panes/tabs you did not create. Never close `fj-*` / `current-task` agents.
+
+## Always set a background watcher
+
+Whenever a Herdr Devin is doing a step, start a **background** poll (do not only "remember to check later"). Wait on a **file on disk** (size > N, then stable), not `agent_status` (Devin Herdr often lies idle/done on alternate screen).
+
+Watcher must also:
+
+- Confirm footer still says `(bypass permissions on)`. If a permission/allow-edit dialog appears without bypass: treat as blocked, kill that pane, start a new one with bypass.
+- Poke only if the **same screen** is unchanged for a long time (real hang). Do not interrupt mid-tool-call / mid-thinking.
+- After `herdr agent prompt`, immediately `herdr agent send-keys <name> space space enter`. If the prompt is not in `❭`, Enter again. Queued "Press Enter to send" → extra Enter.
+
+Prompt the agent to write the full answer to a file (`docs/archive-linking-and-feed-replay/agent-replies/…` or `plans/…`) and return **only the path** in chat.
+
+## Bypass — never `/new`
+
+Start every Devin as a **new pane** with:
+
+```bash
+herdr agent start <name> --kind devin --pane <id> -- --model swe-2-max --permission-mode bypass
+```
+
+Verify **before** the first prompt: argv includes `--permission-mode bypass` **and** the visible footer is `(bypass permissions on)`.
+
+Do **not** `/new` on an existing Devin. `/new` resets to accept-edits and will hang on file-change approval.
+
+When a Devin is finished **and no longer needed**, `herdr pane close` it and create a fresh pane. Do not reuse a spent session.
+
+## Keep the implementer for review
+
+Do **not** close the implementer pane after the commit. Review (Grok 4.6 built-in subagent) comments go to the **same** implementer, no `/new`. Close that pane only after review + fix (or a written skip). Planner panes may be closed as soon as `plans/<step>.md` is stable on disk.
+
+## This archive-linking task
+
+Scratchpad: `docs/archive-linking-and-feed-replay/` (not `current-task/` — that is the on-chain collector). Cycle: plan → implement → review → fix. Spec steps 2, **3A**, **3B**. Train + backtests only **after 3A and 3B**: seed 0 × 4 shards Dota then LoL (warm cache), then seeds 1–2. Do not `SEEDS=3` in one shot.
+
+Do not touch: `current-task/`, `../polymarket-collector`, esports-trader onchain (`telonex_onchain.py`, `sync_onchain_fills.py`, `parity_onchain_rpc.py`, `sync_collector_parquet.py`), `../poly-maker`. If git shows dirty files you did not write, leave them.
+
+Layout: wide pane → split right; narrow/tall → down; `--cwd` esports-trader `--no-focus`. Names: `[a-z][a-z0-9_-]{0,31}`.

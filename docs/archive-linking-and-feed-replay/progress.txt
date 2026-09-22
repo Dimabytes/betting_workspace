@@ -1,0 +1,191 @@
+# Archive linking and feed replay — progress
+
+Spec: /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/docs/superpowers/specs/2026-09-20-archive-linking-and-feed-replay-design.md
+Code: /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader
+This folder is the task scratchpad. Do not use betting_workspace/current-task (different feature).
+No feature.json. Cycle: plan -> implement -> review -> fix. One step at a time.
+
+Plans: docs/archive-linking-and-feed-replay/plans/<step>.md
+Agent replies: docs/archive-linking-and-feed-replay/agent-replies/
+
+## Status
+- Step 0: done 2026-09-20 (commit 7aba8bd8)
+- Step 1: done 2026-09-20 (commits 45801270, f0f47128, 4516a4c2)
+- Step 2: done 2026-09-21 (commit de273edd; report agent-replies/step-2-impl.md)
+- Step 3A: pending
+- Step 3B: pending
+
+---
+2026-09-20 — orchestrator started steps 2/3A/3B. Current-task left untouched.
+2026-09-21 — step 2 implemented and committed (de273edd): s03 merges admitted archives
+into match_links with audit; s04/s05/s05a/s05b consume the OR-admission worklist;
+s06 publishes the catalog timing contract (spawn/horn/pauses/ended_at/winner +
+archive provenance); consumers read catalog-owned timing; s07 reports the funnel.
+Data flow: 210 admitted archives -> 114 attached, 0 archive-created links, catalog
+kept 3147 rows (107 archive-horn). Report: agent-replies/step-2-impl.md.
+2026-09-21 — step 2 plan audit. Found + fixed one real defect (0e40b87c):
+index.parquet stores steam_match_id as strings; opt_int rejected them all ->
+0 new_link. After opt_str+digits fix: 113 attach, 93 new_link, 2 conflicts,
+2 no_steam_no_link. archive-index rerun: 210 admitted, map audit live
+(universe_game_number 180/210 non-null), no new refusals. Full data flow
+rerun: 95 OpenDota + 93 STRATZ fetches succeeded; catalog rebuilt 3237 rows
+(196 archive-horn, 97 archive-only spawn=null). Catalog preservation: all
+1710 split / 1152 train / 558 validation ids present, zero losses; 15
+fallback-only losses were never in any dataset artifact. Winner conflict
+grid-3006421-m2 (archive=radiant vs stratz=dire) dropped visibly. Market
+cache rebuilt fresh matches horn+second+pauses exactly. Audit:
+agent-replies/step-2-plan-audit.md.
+2026-09-21 — step 2 review fixes committed (0d1ae767). All 3 blockers +
+3 should-fixes + 2 nits from agent-replies/step-2-review.md: horn
+consistency moved to candidate load (audit rejected rows, zero rejected
+on real data — funnel identical), parse_steam_match_id shared by s03 and
+live_archives, check_condition_attach collapsed to Rejection|None,
+resolve_new_slot returns narrowed NewLinkSpec (no asserts), one
+admitted_link_mask shared by worklist/catalog/report, s06+s07 now print
+the same first-failure drop counts, stale OPENDOTA_LINKS_PATH test
+fixture repointed to MATCH_LINKS_PATH. Merge/catalog/funnel rerun:
+identical output (113 attach / 93 new / 4968 links / 3237 catalog).
+Report: agent-replies/step-2-review-fix.md.
+2026-09-21 — train-backtest task started (this session). Step-2 verified on main: de273edd feat + 0e40b87c fix + 0d1ae767 refactor; tree clean. Running: make market-data.
+2026-09-21 — make market-data: exit 0. built 262 matches (12 workers), skipped=2975 already cached.
+2026-09-21 — step 3A implemented in esports-trader: GameFeatureRow +
+game_features.parquet emitted by prepare_dataset; new backtest/feed_schedules.py
+resolves per-match plans (admitted archive+valid persisted schedule ->
+schedule, none -> seeded grid_v1, invalid/incomplete/stale -> explicit
+exclusion, never silent fallback); signals.py adds MatchSignals feed_*
+tapes + build_schedule_match_signals (persisted tick arrival order, exact
+game_second feature join, causal market anchors <= received_ns, batched
+predictions per model dir, missing rows -> DatasetReadinessError);
+strategy _clock_at reads observed game_second/paused/terminal; per-match
+entry freshness (oddin vs grid); results carry signal_mode/model_name;
+manifest gains schedule-map sha + extraction/admission rules versions +
+signal_source=auto; telonex source tree prefers bound archive dirs;
+--match-id on an excluded match and --lag-seconds/--cadence-mean-interval
+on any schedule match are rejected. Tests: 24 new in test_feed_schedules.py
+plus clock/dataset cases; targeted groups 357 pass; ruff + basedpyright
+clean on touched files. Full suite: 2289 pass, 4 failures are the
+pre-existing seed0 golden drift in test_follow300_replay.py (identical at
+clean HEAD; local market data was rebuilt this session). Commit: 199705d4 (main).
+Report: agent-replies/step-3a-impl.md.
+2026-09-21 — step 3A review-fix in esports-trader: MatchFeedPlan is now a
+real union (SchedulePlan carries a required ScheduleBinding; GridV1Plan is
+just match_id + model_dir; FeedMode and the nullable binding are gone);
+build_schedule_match_signals takes Mapping[int, SchedulePlan] + the shared
+MidSeries map and anchors via lookup_reference_mid (MarketAnchorTape /
+anchor_at / market_anchor_tape deleted); the observed feed clock moved off
+MatchSignals onto DotaMakerConfig.observed_clock (ObservedClockTape,
+length-checked in __post_init__) and build_strategy_configs reads the plan
+binding; Step-3A orchestration left run.py: load_game_feature_rows ->
+signals.py (lol frame now filtered to schedule ids too), resolve_feed_plans
+/ reject_schedule_flags / schedule_archive_dirs -> feed_schedules.py,
+read_run_archive_headers -> live_archives.py, signal_provenance[_map] ->
+results.py; ArchiveJoinInput is now the DotaArchiveJoin | LolArchiveJoin
+union and RunSelection.archive_join is always populated; both resolvers
+share _finish_candidates and identity mismatches exclude with
+schedule_identity_mismatch instead of raising; SnapshotFeatures split out
+of StateFeatures so GameFeatureRow composes the same block. Tests: 364
+targeted pass (incl. new lol identity-mismatch and observed-clock wiring
+cases); ruff check + ruff format + basedpyright clean. Commit: 21274237
+(main). Report: agent-replies/step-3a-review-fix.md.
+2026-09-22 — step 3B in esports-trader: ordinary backtest launch cleanup
+and mixed-model reporting done. --policy/--live-since and the whole
+live-archive signal path are gone from ordinary runs: parser now offers
+--match-id | --validation | --since-match, resolve_feed_plans runs on
+every launch (exclusions drop the match, never fall back to grid;
+--match-id on an excluded match fails with the reason), and
+reject_schedule_flags now also refuses --validation-dataset on schedule
+plans. SignalProvenance/MakerMatchResult carry feed_source; only
+signal_mode schedule|grid_v1 remains. build_order_latency is network-only
+(archive parity removed); build_archive_kernels/build_run_kernels and
+read_run_archive_headers are deleted; live_archives.py keeps only
+inspector helpers (indexes, match.json resolve, session equity).
+create_telonex_source_tree takes explicit schedule_archives only and
+skips the strip when a bound archive lacks core_trace.jsonl. Manifest:
+signal_source=auto, schedule_map_sha256 (model_dir excluded so model
+rebuilds keep schedule identity), feed_schedule_rules_version,
+admission_rules_version, archive_exclusions, model_sha256_by_dir,
+game_features_sha256 when a SchedulePlan exists, since_match when used.
+ArmSummary gains signal_groups/model_groups and the terminal report
+gains a SIGNALS section with exclusion reason counts. compare_backtests
+EXPECTED_MANIFEST_DIFFS updated; Makefile help mentions --since-match.
+Tests: since-match selectors (dota gates + lol horn ordering), parse
+rules, manifest feed-map keys, resolve_feed_plans match-id refusal and
+mixed cohort, provenance naming, source-tree core_trace guard, SIGNALS
+report, mixed-model manifest; test_live_archives slimmed to remaining
+helpers + codec-based kernel msgspec test. 329+ targeted tests pass;
+ruff check/format and basedpyright clean; --help verified.
+test_follow300_replay seed0 golden drift reproduces identically at
+clean HEAD (pre-existing, confirmed via stash). Commit: 85eccfc8 (main).
+Report: agent-replies/step-3b-impl.md.
+
+2026-09-22 — step 3B review fixes in esports-trader: Grok 4.6 review
+addressed. Both blockers done: test_backtest.py 1223→975 and
+test_feed_schedules.py 1108→794 lines by extracting
+tests/test_since_match.py (531 lines: since-match CLI parse, dota/lol
+selectors incl. new out-of-order catalog fixture, load_run_selection
+probe-pin tests, reject_schedule_flags schedule-vs-grid-v1 cases, feed
+plan exclusions, manifest feed-map tests, provenance) and
+tests/feed_schedule_fixtures.py (210 lines: schedule/tick/index-row/
+catalog/layout/plan/model-dir builders shared by both modules).
+Dota --since-match now loads sources once via probe+pin
+(replace(probe, selected_ids, coverage=None)), same shape as LoL.
+Shared _has_replay_days/_dota_replayable between validation buckets
+and the since selector; cohort sorted explicitly by
+(start_time, match_id). feed_source is Literal-typed end to end:
+grid_v1 results carry feed_source="" (unbound) instead of a mode
+spelling, ScheduleBinding/_ArchiveRow narrow to grid|oddin at index
+parse; MakerMatchResult.signal_group is the single derived report
+label so summarize_arm only counts. plans[context.match_id] replaces
+the silent .get default in build_kernels (renamed from
+build_current_kernels) and build_strategy_configs. _signal_rows reads
+required arm/manifest keys directly (no .get/isinstance/cast); three
+postprocess manifest fixtures gained archive_exclusions:{}.
+--limit help text updated; wrong manifest-test docstring fixed.
+test_extraction_oracle's in-process replay passes a real GridV1Plan.
+237 targeted tests pass; ruff check/format and basedpyright clean;
+pre-commit hooks pass. test_follow300_replay seed0 golden drift
+(fills 5 != 6) reproduces identically — pre-existing, replay runs
+end-to-end through plans[match_id]. Commit: 25734ed0 (main).
+Report: agent-replies/step-3b-review-fix.md.
+2026-09-21 — train-backtest session 2 (this session). market-data rerun: exit 0
+(queued=175 built, skipped=3062 cached; total cache covers 3237 catalog rows).
+make prepare FAILED exit 2: `validation candidates missing playback` — 24
+archive-admitted matches (all grid feed_source, horn_source=archive, Sept 1-14,
+validation window) have STRATZ playbackData=null at both match and player level.
+Verified vs live STRATZ API: still null (lobbyType=PRACTICE — replay never
+parsed, unfixable today). Identity confirmed: stratz start/winner agree with
+catalog horn/radiant_win. These matches can never emit exact-second
+validation/game_features rows; even if split-admitted they would be feed-plan
+exclusions. The missing_playback gate is zero-tolerance by design and predates
+archive admission; brief forbids product-code edits, so Dota prepare/train/
+backtests are blocked pending a product decision (s06 keep_complete drop for
+no-playback validation-window rows, or prepare drop-with-warning like
+market-caches cap). Also logged: `prepare missing train market caches (50)`
+— under MAX_TRAIN_HARD_MISSES=160, warning only. Continuing with LoL pipeline.
+2026-09-21 — train-backtest session 2 continued: LoL pipeline + both seed runs.
+scripts/fetch_lol_item_tables.py run first (missing ddragon table for patch
+16.18 killed first lol-prepare attempt): exit 0, wrote 31 tables incl
+src/lol/ddragon_items/16.18.1.json (new untracked file). make lol-prepare:
+run1 exit 2 (no item table for 16.18.819.1060 at ~5500/5565), run2 exit 0 —
+5565 maps, 3825 accepted (rejections: thin_telonex_trades 1142, missing_prior
+399, missing_books 141, zero_labeled_rows 39, livestats_invariant_violation 9,
+aborted_feed 4, no_spawn_frame 4, window_details_mismatch 1, zero_usable_rows
+1), train 2139 / validation 1686, map_build_cache_miss 5565. make lol-train:
+exit 0 — research published (k=10 ens trees 29-37 mean 33; 2139 matches /
+1,120,284 rows train, 1686 / 892,006 validation; archived 20260919T112924Z),
+production published (33-33 mean 33; 3825 matches / 2,012,290 rows; archived
+20260919T112946Z). Backtests: `SEEDS=1 SHARDS=4 run_seeds.sh dota
+archive-s2-20260921` exit 1 — all 4 shards FileNotFoundError on
+game_features.parquet at build_run_manifest (prepare never emitted it; feed
+resolution itself worked: 12 archive exclusions, schedule plans bound on the
+stale split). `SEEDS=1 SHARDS=4 run_seeds.sh lol archive-s2-20260921` exit 1 —
+all 4 shards DatasetReadinessError "no feature row at game_second" (matches
+116792888905448381@1394, 116792888905448382@2311, 117030752644841644@2297,
+116793933806066957@1991). Root cause measured: LoL feature source for schedule
+replay is validation.parquet = rows only at market-ok seconds (verified
+missing == non-ok market_status exactly); archive schedules tick every feed
+second incl. market gaps and pre-0 ticks -> 161/209 schedule-bound matches
+have >=1 non-stale tick without a feature row (46 clean, 2 stale-only).
+SEED_LIST="1 2" runs for both games also executed: exit 1 each, identical
+deterministic failures on all 8+8 shards. Report:
+agent-replies/train-backtest.md.
