@@ -240,6 +240,47 @@ def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
     return True
 
 
+def restart_block(second: float, pos_yes: float, pos_no: float) -> str | None:
+    """Why a live restart is unsafe, or None. 480 and 5 mirror
+    BUY_CUTOFF_SECOND / MIN_ORDER_SIZE in esports-trader
+    src/shared/constants/strategy.py (stdlib-only, no import)."""
+    if pos_yes >= 5.0 or pos_no >= 5.0:
+        return "position"
+    if second < 480.0:
+        return "in_window"
+    return None
+
+
+def cmd_restart_check() -> None:
+    """Print restart_check verdict; exit 1 when any open live map blocks."""
+    blocked: list[str] = []
+    for tree, archive in match_dirs():
+        if tree != "live":
+            continue
+        meta = load_json(archive / "match.json") or {}
+        sess = summarize_session(archive)
+        if not is_open_session(tree, archive, sess, meta):
+            continue
+        last = sess["last_signal"]
+        if last is None:
+            blocked.append(f"no_signal {archive.name}")
+            continue
+        second = float(last.get("second") or 0.0)
+        pos_yes = float(last.get("pos_yes") or 0.0)
+        pos_no = float(last.get("pos_no") or 0.0)
+        reason = restart_block(second, pos_yes, pos_no)
+        if reason is not None:
+            blocked.append(
+                f"{reason} {archive.name} second={second:g} pos_yes={pos_yes:g} pos_no={pos_no:g}"
+            )
+    if not blocked:
+        print("restart_check SAFE")
+        return
+    for line in blocked:
+        print(f"restart_check UNSAFE {line}")
+    raise SystemExit(1)
+
+
 def fmt_money(value: float | None) -> str:
     if value is None:
         return "n/a"
@@ -717,6 +758,18 @@ def check_rebate_cut() -> None:
         raise SystemExit("future rebate cut must accrue nothing")
 
 
+def check_restart_block() -> None:
+    """Fail if the restart gate drifts from the strategy constants."""
+    if restart_block(100.0, 0.0, 0.0) != "in_window":
+        raise SystemExit("flat map at second 100 must be in_window")
+    if restart_block(480.0, 0.0, 0.0) is not None:
+        raise SystemExit("flat map at second 480 must be safe")
+    if restart_block(600.0, 10.0, 0.0) != "position":
+        raise SystemExit("10 shares at second 600 must be position")
+    if restart_block(600.0, 0.5, 0.0) is not None:
+        raise SystemExit("dust below min size must be safe")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--today", action="store_true", help="Berlin calendar day")
@@ -736,12 +789,18 @@ def main() -> None:
         action="store_true",
         help="maker rebate accrued since the last paid MAKER_REBATE",
     )
+    parser.add_argument(
+        "--restart-check",
+        action="store_true",
+        help="restart_check verdict; exit 1 when an open live map blocks a restart",
+    )
     parser.add_argument("--self-check", action="store_true", help="assert redeem is in the day fold")
     args = parser.parse_args()
     if args.self_check:
         check_fold()
         check_rebate_cut()
         check_game_default()
+        check_restart_block()
         print("fold ok")
         return
     if args.match:
@@ -752,6 +811,9 @@ def main() -> None:
         return
     if args.rebate:
         cmd_rebate()
+        return
+    if args.restart_check:
+        cmd_restart_check()
         return
     cmd_list(today=args.today, live_only=args.live, game=args.game)
 

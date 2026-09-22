@@ -1,6 +1,6 @@
 ---
 name: vps-trader
-description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, Steam, books, halt, dust, or quoting. Do not restart unless asked.
+description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, rebate accrued since the last payout, why we are not selling, whether a restart is safe, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, Steam, books, halt, dust, or quoting. Do not restart unless asked.
 ---
 
 # VPS trader
@@ -56,6 +56,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --match 8959222564
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --live
 python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --rebate
+python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --restart-check
 ```
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
@@ -106,7 +107,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
 ## Common false alarms
 
-- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=540), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all.
+- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=480), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all.
 - **Bought but not selling / quoting stopped with inventory.** `entry_block` is buy-side only — it never explains a missing SELL. Do not histogram anything; replay the core:
 
   ```bash
@@ -123,7 +124,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
 ## Restart (only when asked)
 
-Check `--live` (and logs) first. If a match is live, say so before restarting: restart detaches that market. Never `compose down`.
+Run `summarize.py --restart-check` first. `restart_check SAFE` → restart is allowed. `restart_check UNSAFE ...` → quote the line and stop: a live map holding ≥5 shares (`position`) or still inside the buy window at `second < 480` (`in_window`) blocks a restart. `--live` alone is not the gate — a live map past 480 with a flat book is SAFE. Never `compose down`.
 
 Bind-mounted code/model: `restart` the process that loaded it. An `.env` change (modes, keys) needs `up -d --force-recreate live paper`, because `restart` does not re-interpolate the environment.
 
