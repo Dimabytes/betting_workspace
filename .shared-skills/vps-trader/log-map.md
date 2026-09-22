@@ -117,7 +117,7 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 | entry_block | Meaning |
 |---|---|
 | `none` | Entry allowed |
-| `cutoff` | `second >= 540`, no new buys |
+| `cutoff` | `second >= 480`, no new buys |
 | `min_delta` | `abs(fair - market) < 0.01` |
 | `nw_velocity` | 30s net-worth move above 350. Dota and LoL. |
 | `missing_nw` | No net-worth for the velocity gate. Dota and LoL. |

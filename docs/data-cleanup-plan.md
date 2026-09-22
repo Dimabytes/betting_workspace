@@ -1,5 +1,19 @@
 # План чистки `data/` в esports-trader
 
+## Статус
+
+- Фаза A (код): в `main` — A1 `8a96ac6d` + `fecf0e53`, A2 `6eba7f42`, A3/A4 `4896643b`.
+- Фаза B (Mac): локальная сторона, с VPS не проверить — см. у исполнителя фазы B.
+- Фаза C (VPS): **выполнена 2026-09-22**. `compress`-сервис поднят и жуёт бэклог
+  `trader_live`/`trader_paper` (dry-run: 795+11 кандидатов, 0 конфликтов; пробный
+  пакет — gz побайтово равен, читатели работают). `data/live_paper` разово:
+  7.7G → 1.4G (162 gz, `gzip -t` чисто, `session.jsonl` не тронут).
+  `/var/lib/polymarket-onchain-state/import-staging/` удалён (4.2G; перед
+  удалением сверено: 84 620 staged = 84 620 `copied` в bootstrap-report 1:1,
+  сэмпл 30 файлов sha256 staging == archive == report). `import/` оставлен.
+- Осталось: после первого `sync_trader.py` на Mac проверить, что `.gz`
+  докачиваются и `.jsonl` дедупятся шагом A4.
+
 Дата: 2026-09-21. Репо: `/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader`.
 `data/` = 289G. Цель после всех фаз: ~185–190G (пол — это `book_snapshot_full`, 159G платных сырых стаканов Telonex; его не трогаем).
 
