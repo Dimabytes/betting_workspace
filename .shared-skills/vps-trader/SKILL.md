@@ -70,6 +70,8 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 | Match PnL the user saw in Telegram | docker logs / `session finished` line. Formula: `net = realized + imv + rebate` |
 | Engine cash at Steam final | `session.jsonl` last `session_end`, or `match.json` `final.pnl` |
 | Still quoting / leftover shares (live) | last `fill.position_after` and last `quote` in `session.jsonl` |
+| Why no SELL while long, stuck order, exit slot | `core_state.py <match_id>` — the `VERDICT:` line. `session.jsonl` cannot answer this |
+| Exit state per feed tick | `session.jsonl` `signal.exit_state` + `pos_yes` / `pos_no` |
 | Orders proven gone | `<match>/execution_cleanup.json` exists |
 | Steam snapshots | `<match>/state.jsonl`. Do not dump it. Sample tail only if feed/pause/game_state is the bug |
 | LoL GRID snapshots | `<match>/grid_state.jsonl` |
@@ -93,13 +95,22 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 2. Confirm the container is up and logs are still appending.
 3. Last `signal.reason`: `model` means the window is open. `pre_horn` / `paused` / `missing_book` / `outside_window` are usually not daemon crashes.
 4. Last `quote.decision`: `normal` vs `reduce_only`.
-5. Fills: BUY then SELL is the s2-join clip. `entry_block=position_open` after a fill means the next clip waits until flat. That is strategy, not a hang.
-6. `missing_book` / `one_sided_book` with a visible Polymarket book in the UI can still be our MDS. Check recent logs for WS/halt before calling it an outage.
-7. Steam HTTP 400 on `GetRealtimeStats` is Valve-side for that `server_steam_id`, not a bad key. Neighboring games in the same second can return 200. LoL has no Steam.
+5. Long with no resting SELL: run `core_state.py <match_id>`. Do not wait it out and do not sell by hand before the verdict line says WEDGED.
+6. Fills: BUY then SELL is the s2-join clip. `entry_block=position_open` after a fill means the next clip waits until flat. That is strategy, not a hang.
+7. `missing_book` / `one_sided_book` with a visible Polymarket book in the UI can still be our MDS. Check recent logs for WS/halt before calling it an outage.
+8. Steam HTTP 400 on `GetRealtimeStats` is Valve-side for that `server_steam_id`, not a bad key. Neighboring games in the same second can return 200. LoL has no Steam.
 
 ## Common false alarms
 
 - **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=540), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all.
+- **Bought but not selling / quoting stopped with inventory.** `entry_block` is buy-side only — it never explains a missing SELL. Do not histogram anything; replay the core:
+
+  ```bash
+  cd /root/work/esports-trader
+  PYTHONPATH=src uv run python /root/work/betting_workspace/.shared-skills/vps-trader/scripts/core_state.py <match_id>
+  ```
+
+  It leads with `VERDICT: OK` or `VERDICT: WEDGED`, and exits 1 when wedged. `--all --quiet` sweeps the recent live matches. A SELL outside `status=live` for more than 30s holds the exit slot for the rest of the map through `sell_occupied`. Faster first pass over every match at once: the wedge sweep in `log-map.md`, plus `docker compose logs live | grep -E 'orphaned|unproven|unmapped'`.
 - **Stopped quoting after one clip.** Round-trip then dust below `min_order_size` (usually 5 shares) is forgotten on purpose. Check leftover sizes on `session finished`.
 - **Telegram start but no finish.** Finish fires after Steam `game_state==6` and cleanup. A 400-zombie / no-snapshot death goes through backoff, not `session finished`. LoL GRID finish is pinned-map `status == finished`.
 - **Halt leftover.** Wallet-wide. New matches will not size in until restart or the halt clears. Do not restart just to "see if it helps" unless asked.
