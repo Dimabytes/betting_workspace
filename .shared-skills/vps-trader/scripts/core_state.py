@@ -11,9 +11,9 @@ so it moves with the code it reads. This wrapper only resolves VPS paths.
 
     cd /root/work/esports-trader
     PYTHONPATH=src uv run python \\
-      /root/work/betting_workspace/.agents/skills/vps-trader/scripts/core_state.py <match_id>
+      /root/work/betting_workspace/.shared-skills/vps-trader/scripts/core_state.py <match_id>
     PYTHONPATH=src uv run python \\
-      /root/work/betting_workspace/.agents/skills/vps-trader/scripts/core_state.py --all --quiet
+      /root/work/betting_workspace/.shared-skills/vps-trader/scripts/core_state.py --all --quiet
 
 Exit code is 1 when any match is wedged, so it greps and cron-checks cleanly.
 """

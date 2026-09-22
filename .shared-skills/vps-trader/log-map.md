@@ -28,7 +28,13 @@ Skip the `wallet/` directory when listing matches.
 
 **fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won. PaperGateway fills are simulated.
 
-**tick_size_change.** Col**Blind spots.** `quote` rows are only written on a real place/cancel — "no rows" means either no targets or every target skipped inside the core. `entry_block` labels the BUY side only; it never says why a SELL is absent. For "bought but not selling" or "quoting stopped", replay the core state instead of guessing:
+**tick_size_change.** Collector tick strings.
+
+**trading_error.** `phase` + `error_type` only. Never exception text.
+
+**session_end.** `terminal_reason`, leftover `positions` by token id, `net_cash`, `inventory_value`, `equity`. Null cash means trading never started or values were not finite.
+
+**Blind spots.** `quote` rows are only written on a real place/cancel — "no rows" means either no targets or every target skipped inside the core. `entry_block` labels the BUY side only; it never says why a SELL is absent. For "bought but not selling" or "quoting stopped", replay the core state instead of guessing:
 
 ```bash
 cd /root/work/esports-trader
@@ -42,7 +48,7 @@ Wedged-exit signature: a SELL outside `status=live` for more than 30s. `sell_occ
 
 Read the `digests` line, not a mismatch count: each state group is compared against what the live core recorded. `orders=OK inventory=OK` means the printed fields are the recorded ones byte for byte. A `DIFF` group is a struct the code changed after the trace was written — `mid_spike=DIFF` on pre-`28fd65f8` traces is that, and it does not touch the rest.
 
-The trace is monotonic-clock based, so order ages are internal to that trader process. `written=...` on the `trace` line is the wall-clock age of the file. `CoreTrace` buffers and never fsyncs, so a live match's tail lags by a few rows.
+The trace is monotonic-clock based, so order ages are internal to that trader process. A stuck order's `age` is how long it has been outside `live`, not how long ago it was placed. `written=...` on the `trace` line is the wall-clock age of the file. `CoreTrace` buffers and never fsyncs, so a live match's tail lags by a few rows.
 
 **Wedge sweep from the logs, no replay.** The trader resends a cancel every cycle, so a pinned `cancel=` with `place=0` and a nonzero position is the same wedge, visible across every match at once:
 
@@ -66,8 +72,6 @@ Over the 12h that contained the 2026-09-22 wedge it printed one line and no fals
 - `trader core cancel unproven id=cNN side=... age_s=...` — the watchdog: this order waited past 30s for a cancel the venue never proved. Also goes to Telegram as `trader cancel unproven`.
 - `trader core cancel ack unmapped venue=...` — a proven cancel named a venue id this core never mapped.
 - `trader core order undispatched id=cNN reason=...` — a place that never reached the venue, rejected at the seam.
-
-ix traces still show it). Cheap corroboration without a replay: `docker compose logs live | grep requote` — `cancel=N` pinned nonzero with `place=0` and nonzero `pos_*` is the same wedge. `digest_mismatch>0` after a code change is expected; the state dump stays valid.
 
 Telegram / docker (prefix stays `live-paper`; first identity line is `GAME · live|paper · kind`):
 
