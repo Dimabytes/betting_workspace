@@ -1,0 +1,3 @@
+total,game_time,rfc460,livestats_wall,delta_blue,delta_red,grid_received,grid_second,grid_minus_livestats_s,grid_second_minus_game_time,occurred_at_minus_rfc460,side_match,signal_p_at_grid,signal_second_at_grid,signal_p_near_rfc460,mid_-30,mid_-5,mid_0,mid_4,mid_5,mid_8,mid_10,mid_30
+1,177.013,2026-09-19T15:18:57.571Z,1789831137.571,0,1,1789831148.741935,179,11.170934915542603,1.9869999885559082,-0.5710000991821289,True,0.715,179,0.66,0.705,0.655,0.66,0.705,0.705,0.715,0.715,0.715
+2,525.022,2026-09-19T15:24:45.580Z,1789831485.58,1,0,1789831497.280504,528,11.700504064559937,2.9780001640319824,4.420000076293945,True,0.675,528,0.73,0.685,0.69,,,,,,

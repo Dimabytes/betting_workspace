@@ -1,0 +1,35 @@
+target: lol-fxw7-los-2026-08-29 map_number=1
+grid ticks=167 boards=165 livestats frames=2401
+livestats pauses: [(4.075000047683716, 32.03499984741211)]
+
+-- boards (first 15 + around pause) --
+recv=1788026762.5 occurred=1788026710.3 clock=8 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.3 recv_minus_occurred=+52.2
+recv=1788026774.6 occurred=1788026772.3 clock=70 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.3 recv_minus_occurred=+2.3
+recv=1788026781.8 occurred=1788026778.9 clock=76 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.9 recv_minus_occurred=+2.9
+recv=1788026792.9 occurred=1788026790.6 clock=88 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.6 recv_minus_occurred=+2.3
+recv=1788026802.8 occurred=1788026800.4 clock=98 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.4 recv_minus_occurred=+2.4
+recv=1788026807.9 occurred=1788026804.8 clock=102 ticking=True status=live frame.delay=0 publishDelay=3 horn_est=1788026702.8 recv_minus_occurred=+3.1
+recv=1788026807.9 occurred=1788026805.2 clock=103 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.2 recv_minus_occurred=+2.7
+recv=1788026808.0 occurred=1788026805.7 clock=103 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.7 recv_minus_occurred=+2.3
+recv=1788026810.9 occurred=1788026808.5 clock=106 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.5 recv_minus_occurred=+2.4
+recv=1788026817.9 occurred=1788026815.7 clock=113 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.7 recv_minus_occurred=+2.2
+recv=1788026818.0 occurred=1788026815.7 clock=113 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.7 recv_minus_occurred=+2.3
+recv=1788026821.2 occurred=1788026817.9 clock=115 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.9 recv_minus_occurred=+3.2
+recv=1788026827.0 occurred=1788026824.5 clock=122 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.5 recv_minus_occurred=+2.5
+recv=1788026831.0 occurred=1788026828.4 clock=126 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.4 recv_minus_occurred=+2.6
+recv=1788026833.9 occurred=1788026831.3 clock=129 ticking=True status=live frame.delay=0 publishDelay=2 horn_est=1788026702.3 recv_minus_occurred=+2.6
+scoreboard received - occurred_at: median 2.79 p10 1.89 p90 3.42
+
+-- per-tick: label offset and content age (feature-matched) --
+second   0-100 n=  4 label_offset med +33.7 content_age med +53.7 p10 +17.2 p90 +103.3
+second 100-200 n= 26 label_offset med +14.6 content_age med +18.8 p10 +15.7 p90 +21.7
+second 200-300 n= 13 label_offset med +18.4 content_age med +22.8 p10 +19.6 p90 +29.1
+second 300-400 n= 23 label_offset med +25.4 content_age med +29.6 p10 +14.8 p90 +35.8
+second 400-500 n= 30 label_offset med +37.4 content_age med +41.5 p10 +29.1 p90 +45.7
+second 500-600 n= 27 label_offset med +33.4 content_age med +38.1 p10 +22.2 p90 +41.5
+second 600-700 n= 25 label_offset med +30.4 content_age med +34.5 p10 +25.3 p90 +53.9
+second 700-800 n= 19 label_offset med +32.4 content_age med +36.5 p10 +32.6 p90 +65.3
+
+table tick inter-arrival: median 2.0 p10 0.1 p90 11.4 max 28.5 (n=166)
+table feed_delay values: [8]
+labeled second range: 53..768

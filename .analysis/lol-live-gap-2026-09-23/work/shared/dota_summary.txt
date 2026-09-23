@@ -1,0 +1,443 @@
+8946860406  [legacy]  game=dota  Team Liquid vs Aurora Gaming  map 2  radiant  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-15T13:31:26.752843Z
+8946872708  [legacy]  game=dota  Team Yandex vs Iron Wing  map 2  radiant  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-15T13:31:26.682679Z
+8946858055  [legacy]  game=dota  Nigma Galaxy  vs Team Spirit  map 1  radiant  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-15T13:31:26.682394Z
+8947050343  [legacy]  game=dota  Team Spirit vs Nigma Galaxy   map 2  dire  mode=?  fills=2  realized=-0.5418 imv=+0.0000 rebate=+0.0151 net=-0.5267  cleanup  joined=2026-08-15T14:28:29.552755Z
+8947983249  [legacy]  game=dota  Vici Gaming vs Team Falcons  map 1  dire  mode=?  fills=2  realized=-0.0556 imv=+0.0000 rebate=+0.0078 net=-0.0478  cleanup  joined=2026-08-16T02:01:04.152821Z
+8948026518  [legacy]  game=dota  BoomBoys vs Aurora Gaming  map 1  radiant  mode=?  fills=4  realized=-0.6094 imv=+0.0099 rebate=+0.0688 net=-0.5307  cleanup  joined=2026-08-16T03:01:07.163902Z
+8948040486  [legacy]  game=dota  Team Falcons vs Vici Gaming  map 2  radiant  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T03:19:07.922332Z
+8948094346  [legacy]  game=dota  Team Spirit vs Team Resilience  map 1  radiant  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T04:33:11.649908Z
+8948094765  [legacy]  game=dota  Aurora Gaming vs BoomBoys  map 2  dire  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T04:31:11.797493Z
+8948151326  [legacy]  game=dota  Team Resilience vs Team Spirit  map 2  radiant  mode=?  fills=2  realized=+0.5264 imv=+0.0000 rebate=+0.0473 net=+0.5737  cleanup  joined=2026-08-16T05:32:14.539422Z
+8948155771  [legacy]  game=dota  GamerLegion vs Iron Wing  map 1  dire  mode=?  fills=4  realized=+0.6827 imv=+0.0000 rebate=+0.0258 net=+0.7085  cleanup  joined=2026-08-16T05:47:15.435873Z
+8948235815  [legacy]  game=dota  Team Resilience vs Team Spirit  map 3  dire  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T06:51:18.863831Z
+8948244379  [legacy]  game=dota  GamerLegion vs Iron Wing  map 2  dire  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T06:58:19.105461Z
+8948311007  [legacy]  game=dota  LGD Gaming vs Team Yandex  map 1  radiant  mode=?  fills=4  realized=-0.0029 imv=+0.0099 rebate=+0.0735 net=+0.0805  cleanup  joined=2026-08-16T08:09:22.482863Z
+8948420293  [legacy]  game=dota  Team Yandex vs LGD Gaming  map 2  radiant  mode=?  fills=2  realized=+0.3126 imv=+0.0000 rebate=+0.0390 net=+0.3516  cleanup  joined=2026-08-16T09:14:24.996471Z
+8948533452  [legacy]  game=dota  LGD Gaming vs Team Yandex  map 3  dire  mode=?  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-16T10:25:28.526017Z
+8955197224  [legacy]  game=dota  Team Spirit vs Iron Wing  map 1  radiant  mode=live  fills=2  realized=+0.6552 imv=n/a rebate=+0.0278 net=n/a  cleanup  joined=2026-08-20T02:37:33.415090Z
+8955247801  [legacy]  game=dota  Iron Wing vs Team Spirit  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-20T04:14:06.415353Z
+8955383956  [legacy]  game=dota  TEAM VISION vs BoomBoys  map 2  dire  mode=live  fills=8  realized=-0.5307 imv=+0.0000 rebate=+0.1321 net=-0.3986  cleanup  joined=2026-08-20T07:46:14.350735Z
+8955549026  [legacy]  game=dota  Team Yandex vs Team Liquid  map 1  radiant  mode=live  fills=5  realized=+5.5705 imv=+0.0000 rebate=+0.2787 net=+5.8492  cleanup  joined=2026-08-20T10:30:46.235295Z
+8955653541  [legacy]  game=dota  Team Liquid vs Team Yandex  map 2  dire  mode=live  fills=7  realized=-0.2230 imv=+0.0000 rebate=+0.3632 net=+0.1402  cleanup  joined=2026-08-20T11:58:01.525511Z
+8955796155  [legacy]  game=dota  Team Falcons vs Nigma Galaxy   map 1  ORPHAN  mode=live  fills=9  realized=n/a imv=n/a rebate=+0.5908 net=n/a  no-cleanup  joined=2026-08-20T13:24:01.902172Z
+8955934230  [legacy]  game=dota  Nigma Galaxy  vs Team Falcons  map 2  radiant  mode=live  fills=8  realized=+1.0052 imv=+0.0000 rebate=+0.6907 net=+1.6959  cleanup  joined=2026-08-20T14:39:51.784123Z
+8956096810  [legacy]  game=dota  Team Falcons vs Nigma Galaxy   map 3  dire  mode=live  fills=6  realized=+18.5000 imv=+0.0000 rebate=+0.3964 net=+18.8964  cleanup  joined=2026-08-20T16:06:51.766800Z
+8956780728  [legacy]  game=dota  BoomBoys vs Iron Wing  map 1  dire  mode=live  fills=3  realized=+3.0303 imv=+0.0088 rebate=+0.0750 net=+3.1140  cleanup  joined=2026-08-21T02:11:22.948334Z
+8956821666  [legacy]  game=dota  BoomBoys vs Iron Wing  map 2  radiant  mode=live  fills=11  realized=+8.4052 imv=+0.0000 rebate=+0.5774 net=+8.9826  cleanup  joined=2026-08-21T03:23:22.909256Z
+8956877335  [legacy]  game=dota  BoomBoys vs Iron Wing  map 3  radiant  mode=live  fills=7  realized=+0.4616 imv=+0.0000 rebate=+0.4604 net=+0.9220  cleanup  joined=2026-08-21T04:42:28.106583Z
+8956943534  [legacy]  game=dota  Team Liquid vs Team Falcons  map 1  dire  mode=live  fills=2  realized=+8.2362 imv=+0.0000 rebate=+0.1328 net=+8.3690  cleanup  joined=2026-08-21T06:18:23.064205Z
+8957013760  [legacy]  game=dota  Team Falcons vs Team Liquid  map 2  dire  mode=live  fills=3  realized=+0.5802 imv=+0.0091 rebate=+0.1511 net=+0.7403  cleanup  joined=2026-08-21T07:47:16.424634Z
+8957086928  [legacy]  game=dota  Team Falcons vs Team Liquid  map 3  dire  mode=live  fills=8  realized=+1.0984 imv=+0.0000 rebate=+0.7867 net=+1.8850  cleanup  joined=2026-08-21T08:54:17.456770Z
+8957180942  [legacy]  game=dota  TEAM VISION vs Team Spirit  map 1  radiant  mode=live  fills=4  realized=+13.4181 imv=+0.0000 rebate=+0.4502 net=+13.8683  cleanup  joined=2026-08-21T10:21:17.261262Z
+8957272720  [legacy]  game=dota  Team Spirit vs TEAM VISION  map 2  radiant  mode=live  fills=5  realized=+8.5309 imv=+0.0000 rebate=+0.9079 net=+9.4389  cleanup  joined=2026-08-21T11:36:44.241985Z
+8957364447  [legacy]  game=dota  Team Spirit vs TEAM VISION  map 3  ORPHAN  mode=live  fills=6  realized=+1.9839 imv=+0.0000 rebate=+0.3219 net=+2.3058  no-cleanup  joined=2026-08-21T12:35:44.853223Z
+8957527957  [legacy]  game=dota  Team Yandex vs Nigma Galaxy   map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-21T14:50:45.810861Z
+8957749452  [legacy]  game=dota  Nigma Galaxy  vs Team Yandex  map 2  dire  mode=live  fills=4  realized=+2.7026 imv=+0.0000 rebate=+0.8748 net=+3.5774  cleanup  joined=2026-08-21T16:11:58.394381Z
+8957890399  [legacy]  game=dota  Nigma Galaxy  vs Team Yandex  map 3  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-21T17:28:24.684934Z
+8958478716  [legacy]  game=dota  Team Liquid vs Team Spirit  map 1  dire  mode=live  fills=9  realized=-6.0672 imv=+0.0000 rebate=+0.9028 net=-5.1645  cleanup  joined=2026-08-22T02:14:08.186209Z
+8958538533  [legacy]  game=dota  Team Spirit vs Team Liquid  map 2  radiant  mode=live  fills=11  realized=+5.9434 imv=+0.0000 rebate=+3.0968 net=+9.0401  cleanup  joined=2026-08-22T03:38:08.695332Z
+8958607830  [legacy]  game=dota  BoomBoys vs Nigma Galaxy   map 1  radiant  mode=live  fills=11  realized=-5.0454 imv=+0.0000 rebate=+5.9841 net=+0.9387  cleanup  joined=2026-08-22T05:04:08.273708Z
+8958667855  [legacy]  game=dota  Nigma Galaxy  vs BoomBoys  map 2  radiant  mode=live  fills=11  realized=+103.7508 imv=+0.0000 rebate=+3.8440 net=+107.5948  cleanup  joined=2026-08-22T06:13:08.340124Z
+8958734008  [legacy]  game=dota  BoomBoys vs Nigma Galaxy   map 3  radiant  mode=live  fills=11  realized=-30.5806 imv=+0.0000 rebate=+5.5839 net=-24.9967  cleanup  joined=2026-08-22T07:19:25.532328Z
+8958842370  [legacy]  game=dota  Team Yandex vs TEAM VISION  map 1  dire  mode=live  fills=6  realized=+36.9620 imv=+0.0000 rebate=+5.2328 net=+42.1948  cleanup  joined=2026-08-22T08:48:25.658279Z
+8958950792  [legacy]  game=dota  TEAM VISION vs Team Yandex  map 2  dire  mode=live  fills=9  realized=+37.7164 imv=+0.0000 rebate=+4.4122 net=+42.1286  cleanup  joined=2026-08-22T10:13:25.819919Z
+8959067169  [legacy]  game=dota  TEAM VISION vs Team Yandex  map 3  radiant  mode=live  fills=6  realized=+93.2871 imv=+0.0000 rebate=+2.2802 net=+95.5673  cleanup  joined=2026-08-22T11:31:04.194802Z
+8959222564  [legacy]  game=dota  BoomBoys vs Team Spirit  map 1  dire  mode=live  fills=2  realized=+0.0000 imv=+0.0000 rebate=+2.6648 net=+2.6648  cleanup  joined=2026-08-22T13:09:15.434208Z
+8959362208  [legacy]  game=dota  Team Spirit vs BoomBoys  map 2  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-22T14:20:15.550016Z
+8960365292  [legacy]  game=dota  Team Yandex vs Team Spirit  map 1  dire  mode=live  fills=12  realized=+45.1225 imv=+0.0000 rebate=+3.8338 net=+48.9563  cleanup  joined=2026-08-23T02:12:28.953927Z
+8960411225  [legacy]  game=dota  Team Spirit vs Team Yandex  map 2  radiant  mode=live  fills=6  realized=-110.4465 imv=+0.0000 rebate=+10.1081 net=-100.3384  cleanup  joined=2026-08-23T03:21:29.241185Z
+8960577698  [legacy]  game=dota  Team Spirit vs TEAM VISION  map 1  radiant  mode=live  fills=12  realized=+46.8292 imv=+0.0000 rebate=+7.1669 net=+53.9961  cleanup  joined=2026-08-23T06:17:29.938279Z
+8960655084  [legacy]  game=dota  TEAM VISION vs Team Spirit  map 2  radiant  mode=live  fills=11  realized=+138.8296 imv=+0.0000 rebate=+8.6828 net=+147.5124  cleanup  joined=2026-08-23T07:37:29.621510Z
+8960762254  [legacy]  game=dota  Team Spirit vs TEAM VISION  map 3  radiant  mode=live  fills=10  realized=+30.4625 imv=+0.0000 rebate=+8.3433 net=+38.8058  cleanup  joined=2026-08-23T09:15:29.602496Z
+8960882635  [legacy]  game=dota  TEAM VISION vs Team Spirit  map 4  radiant  mode=live  fills=7  realized=+57.0913 imv=+0.0000 rebate=+7.2609 net=+64.3523  cleanup  joined=2026-08-23T10:51:34.467090Z
+8960991322  [legacy]  game=dota  TEAM VISION vs Team Spirit  map 5  dire  mode=live  fills=19  realized=-78.2898 imv=+0.0000 rebate=+8.9377 net=-69.3521  cleanup  joined=2026-08-23T12:10:18.433165Z
+8962372120  [legacy]  game=dota  Nemiga Gaming vs Inner Circle x Insanity  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-24T07:17:25.831132Z
+8962458373  [legacy]  game=dota  Nemiga Gaming vs Inner Circle x Insanity  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-24T08:28:26.498290Z
+8962592819  [legacy]  game=dota  Team Lynx vs Klim Sani4  map 1  ORPHAN  mode=live  fills=2  realized=n/a imv=n/a rebate=+0.2091 net=n/a  no-cleanup  joined=2026-08-24T10:20:27.588273Z
+8962736746  [legacy]  game=dota  Klim Sani4 vs Team Lynx  map 2  radiant  mode=paper  fills=2  realized=+8.6422 imv=+0.0000 rebate=+0.2403 net=+8.8825  cleanup  joined=2026-08-24T11:35:31.944813Z
+8962964580  [legacy]  game=dota  Summer Bear vs Syntax  map 1  radiant  mode=paper  fills=1  realized=-100.0000 imv=+35.0000 rebate=+0.7350 net=-64.2650  cleanup  joined=2026-08-24T13:27:45.514220Z
+8963071441  [legacy]  game=dota  Syntax vs Summer Bear  map 2  dire  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-24T14:15:32.265818Z
+8963352581  [legacy]  game=dota  RE ARISE vs Team Lynx  map 1  dire  mode=paper  fills=2  realized=-31.4281 imv=+0.0000 rebate=+0.8783 net=-30.5498  cleanup  joined=2026-08-24T16:24:32.662647Z
+8963508714  [legacy]  game=dota  Team Lynx vs RE ARISE  map 2  radiant  mode=paper  fills=3  realized=-149.9999 imv=+27.7777 rebate=+1.6200 net=-120.6022  cleanup  joined=2026-08-24T17:38:32.645712Z
+8963649188  [legacy]  game=dota  DYNASTY vs FTS  map 1  radiant  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-24T19:15:32.678861Z
+8963790789  [legacy]  game=dota  FTS vs DYNASTY  map 2  dire  mode=paper  fills=4  realized=+23.0846 imv=+0.0000 rebate=+1.6716 net=+24.7562  cleanup  joined=2026-08-24T20:21:32.449513Z
+8964414486  [legacy]  game=dota  Team Syntax vs Klim Sani4  map 1  dire  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-25T07:34:41.245039Z
+8964399842  [legacy]  game=dota  Nemiga Gaming vs PuckChamp  map 1  dire  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-25T07:23:40.892046Z
+8964480771  [legacy]  game=dota  Nemiga Gaming vs PuckChamp  map 2  ORPHAN  mode=paper  fills=2  realized=n/a imv=n/a rebate=+0.8461 net=n/a  no-cleanup  joined=2026-08-25T08:33:41.104048Z
+8964616524  [legacy]  game=dota  Summer Bear vs Klim Sani4  map 1  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-25T10:21:05.283898Z
+8964657335  [legacy]  game=dota  FTS vs PuckChamp  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-25T10:53:35.448228Z
+8964699895  [legacy]  game=dota  Summer Bear vs Klim Sani4  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-25T11:14:45.061320Z
+8964837315  [legacy]  game=dota  PuckChamp vs FTS  map 2  ORPHAN  mode=live  fills=3  realized=+0.0000 imv=+0.0000 rebate=+0.1440 net=+0.1440  no-cleanup  joined=2026-08-25T12:35:29.794908Z
+8965097316  [legacy]  game=dota  FTS vs Inner Circle x Insanity  map 2  dire  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-25T15:24:08.324541Z
+8965291873  [legacy]  game=dota  Team Synapse vs Inner Circle x Insanity  map 1  dire  mode=live  fills=2  realized=+2.2500 imv=+0.0000 rebate=+0.0426 net=+2.2926  cleanup  joined=2026-08-25T16:21:54.246214Z
+8964938940  [legacy]  game=dota  RE ARISE vs Team Spirit Academy  map 1  dire  mode=live  fills=2  realized=-0.4800 imv=+0.0000 rebate=+0.0224 net=-0.4576  cleanup  joined=2026-08-25T16:21:54.213277Z
+8965420200  [legacy]  game=dota  Team Synapse vs Inner Circle x Insanity  map 2  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-25T17:21:47.167801Z
+8965420577  [legacy]  game=dota  Team Spirit Academy vs RE ARISE  map 2  dire  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-25T17:35:18.987850Z
+8965596084  [legacy]  game=dota  Team Synapse vs DYNASTY  map 1  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-25T19:22:47.383097Z
+8965544741  [legacy]  game=dota  Team Spirit Academy vs RE ARISE  map 3  dire  mode=live  fills=2  realized=+0.8743 imv=+0.0000 rebate=+0.0387 net=+0.9130  cleanup  joined=2026-08-25T18:43:06.196378Z
+8965722554  [legacy]  game=dota  Team Spirit Academy vs Summer Bear  map 1  radiant  mode=live  fills=6  realized=+10.1776 imv=+0.0000 rebate=+0.7930 net=+10.9706  cleanup  joined=2026-08-25T20:30:30.695054Z
+8965757562  [legacy]  game=dota  Team Synapse vs DYNASTY  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-25T20:52:28.696722Z
+8965811702  [legacy]  game=dota  Summer Bear vs Team Spirit Academy  map 2  dire  mode=live  fills=2  realized=-0.1897 imv=+0.0000 rebate=+0.0344 net=-0.1552  cleanup  joined=2026-08-25T21:34:29.176537Z
+8969774562  [legacy]  game=dota  Syntax vs Team Lynx  map 1  dire  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-28T07:47:15.911782Z
+8969831754  [legacy]  game=dota  Team Lynx vs Syntax  map 2  radiant  mode=live  fills=1  realized=-49.9968 imv=+51.9498 rebate=+0.0150 net=+1.9680  cleanup  joined=2026-08-28T08:05:07.829706Z
+8969963179  [legacy]  game=dota  Team Spirit Academy vs Team Lynx  map 1  dire  mode=live  fills=3  realized=+2.3436 imv=+0.0000 rebate=+0.2645 net=+2.6081  cleanup  joined=2026-08-28T10:24:03.369553Z
+8969978865  [legacy]  game=dota  Summer Bear vs RE ARISE  map 1  radiant  mode=live  fills=2  realized=-4.4303 imv=+0.0000 rebate=+0.1744 net=-4.2559  cleanup  joined=2026-08-28T10:23:49.748856Z
+8970089224  [legacy]  game=dota  RE ARISE vs Summer Bear  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-28T11:39:53.957851Z
+8970083447  [legacy]  game=dota  Team Lynx vs Team Spirit Academy  map 2  dire  mode=live  fills=3  realized=+4.5447 imv=+0.0000 rebate=+0.1062 net=+4.6509  cleanup  joined=2026-08-28T11:34:11.003202Z
+8970207176  [legacy]  game=dota  Summer Bear vs RE ARISE  map 3  dire  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-28T12:51:54.151010Z
+8970207482  [legacy]  game=dota  Team Lynx vs Team Spirit Academy  map 3  radiant  mode=live  fills=12  realized=-0.1724 imv=+0.0000 rebate=+0.6138 net=+0.4414  cleanup  joined=2026-08-28T12:57:25.085919Z
+8970338180  [legacy]  game=dota  Team Synapse vs Nemiga Gaming  map 1  dire  mode=live  fills=4  realized=+9.8945 imv=+0.0000 rebate=+0.3220 net=+10.2165  cleanup  joined=2026-08-28T14:07:57.560137Z
+8970352005  [legacy]  game=dota  DYNASTY vs Inner Circle x Insanity  map 1  radiant  mode=live  fills=5  realized=-9.9765 imv=+0.0000 rebate=+0.3470 net=-9.6295  cleanup  joined=2026-08-28T14:09:19.690775Z
+8970470057  [legacy]  game=dota  Team Synapse vs Nemiga Gaming  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-28T15:27:37.820468Z
+8970485789  [legacy]  game=dota  DYNASTY vs Inner Circle x Insanity  map 2  dire  mode=live  fills=2  realized=-3.2939 imv=+0.0000 rebate=+0.1358 net=-3.1581  cleanup  joined=2026-08-28T15:13:11.451497Z
+8970655100  [legacy]  game=dota  DYNASTY vs Inner Circle x Insanity  map 3  done  mode=live  fills=0  realized=+0.0000 imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-28T16:42:19.169591Z
+8970575970  [legacy]  game=dota  Nemiga Gaming vs Team Synapse  map 3  dire  mode=live  fills=5  realized=+14.3000 imv=+0.0000 rebate=+0.2797 net=+14.5797  cleanup  joined=2026-08-28T16:00:56.957991Z
+8970730748  [legacy]  game=dota  Team Synapse vs FTS  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  no-cleanup  joined=2026-08-28T17:23:39.386741Z
+8970886632  [legacy]  game=dota  DYNASTY vs PuckChamp  map 2  radiant  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-28T18:49:48.911375Z
+8970880309  [legacy]  game=dota  Team Synapse vs FTS  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-28T18:49:01.928645Z
+8971007454  [legacy]  game=dota  RE ARISE vs Klim Sani4  map 1  dire  mode=live  fills=2  realized=-11.6261 imv=+0.0000 rebate=+0.3534 net=-11.2727  cleanup  joined=2026-08-28T20:10:24.598586Z
+8971016820  [legacy]  game=dota  Nemiga Gaming vs FTS  map 1  dire  mode=live  fills=3  realized=+0.6019 imv=+0.0000 rebate=+0.1082 net=+0.7101  cleanup  joined=2026-08-28T20:15:57.134553Z
+8971111987  [legacy]  game=dota  Klim Sani4 vs RE ARISE  map 2  radiant  mode=live  fills=2  realized=+1.4800 imv=+0.0000 rebate=+0.0146 net=+1.4946  cleanup  joined=2026-08-28T21:23:32.112170Z
+8971115054  [legacy]  game=dota  Nemiga Gaming vs FTS  map 2  dire  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-28T22:26:36.287293Z
+8971364249  [legacy]  game=dota  DIREBORN vs Satan666  map 1  radiant  mode=live  fills=6  realized=-2.3800 imv=+3.0845 rebate=+0.0087 net=+0.7132  cleanup  joined=2026-08-29T02:20:59.870145Z
+8971445706  [legacy]  game=dota  Cresent vs Nexus Gaming  map 2  radiant  mode=live  fills=3  realized=-18.5500 imv=+0.0000 rebate=+0.2355 net=-18.3145  cleanup  joined=2026-08-29T03:41:24.362212Z
+8971501630  [legacy]  game=dota  Nexus Gaming vs Cresent  map 3  dire  mode=live  fills=3  realized=-6.7305 imv=+0.0000 rebate=+0.3585 net=-6.3720  cleanup  joined=2026-08-29T04:49:53.430155Z
+8971519375  [legacy]  game=dota  Team Nemesis vs Team 6seven  map 1  radiant  mode=live  fills=8  realized=-8.6610 imv=+0.0000 rebate=+0.2102 net=-8.4508  cleanup  joined=2026-08-29T05:12:59.579825Z
+8971572181  [legacy]  game=dota  Cloud Rising vs Novus Gaming  map 1  radiant  mode=live  fills=1  realized=-1.6400 imv=+1.9890 rebate=+0.0022 net=+0.3512  cleanup  joined=2026-08-29T06:06:22.011304Z
+8971586781  [legacy]  game=dota  Team 6seven vs Team Nemesis  map 2  radiant  mode=live  fills=5  realized=+3.7203 imv=+0.0000 rebate=+0.2366 net=+3.9569  cleanup  joined=2026-08-29T06:12:30.183682Z
+8971643612  [legacy]  game=dota  Cloud Rising vs Novus Gaming  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T07:03:58.036126Z
+8971707762  [legacy]  game=dota  The goal of all life is death vs Yakult Brothers  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T07:56:52.837639Z
+8971718311  [legacy]  game=dota  Summer Bear vs Natus Vincere  map 1  dire  mode=live  fills=2  realized=+2.8735 imv=+0.0000 rebate=+0.0805 net=+2.9540  cleanup  joined=2026-08-29T08:12:56.621744Z
+8971760457  [legacy]  game=dota  The goal of all life is death vs Yakult Brothers  map 2  dire  mode=live  fills=1  realized=-14.4000 imv=+14.9175 rebate=+0.0043 net=+0.5218  cleanup  joined=2026-08-29T08:34:10.587088Z
+8971753986  [legacy]  game=dota  Ice Cream Men vs Team Kinetix  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T08:36:56.426406Z
+8971849697  [legacy]  game=dota  Ice Cream Men vs Team Kinetix  map 2  radiant  mode=live  fills=5  realized=+0.8756 imv=+0.0000 rebate=+0.4936 net=+1.3692  cleanup  joined=2026-08-29T09:41:59.857699Z
+grid-3000387-m1  [legacy]  game=dota  Team Resilience vs Animals Incoming  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T10:02:53.394268Z
+grid-3000387-m2  [legacy]  game=dota  Animals Incoming vs Team Resilience  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T10:33:13.013755Z
+8971891627  [legacy]  game=dota  DYNASTY vs Nemiga Gaming  map 1  radiant  mode=live  fills=2  realized=+0.1739 imv=+0.0000 rebate=+0.0572 net=+0.2310  cleanup  joined=2026-08-29T10:17:14.311565Z
+8971965482  [legacy]  game=dota  Execration vs Trailer Park Boys  map 1  radiant  mode=live  fills=2  realized=-0.3346 imv=+0.0000 rebate=+0.0172 net=-0.3174  cleanup  joined=2026-08-29T11:14:08.327146Z
+8971988345  [legacy]  game=dota  Team Lynx vs Summer Bear  map 1  radiant  mode=live  fills=4  realized=-0.9310 imv=+0.0000 rebate=+0.0380 net=-0.8931  cleanup  joined=2026-08-29T11:21:58.222896Z
+8971964803  [legacy]  game=dota  MOUZ vs Yellow Submarine  map 1  radiant  mode=live  fills=9  realized=-4.4294 imv=+0.0000 rebate=+0.5019 net=-3.9275  cleanup  joined=2026-08-29T11:12:33.385467Z
+8972087667  [legacy]  game=dota  Execration vs Trailer Park Boys  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T12:18:19.701438Z
+8972103119  [legacy]  game=dota  Team Lynx vs Summer Bear  map 2  radiant  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-29T12:29:31.105561Z
+8972115962  [legacy]  game=dota  Yellow Submarine vs MOUZ  map 2  dire  mode=live  fills=9  realized=n/a imv=n/a rebate=+0.7635 net=n/a  cleanup  joined=2026-08-29T12:34:21.195831Z
+8972177716  [legacy]  game=dota  Syntax vs Team Spirit Academy  map 1  dire  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-29T13:45:15.333760Z
+8972298342  [legacy]  game=dota  Syntax vs Team Spirit Academy  map 2  dire  mode=live  fills=1  realized=n/a imv=n/a rebate=+0.0150 net=n/a  cleanup  joined=2026-08-29T14:09:15.860679Z
+8972289868  [legacy]  game=dota  Team Lynx vs HULIGANI  map 1  dire  mode=live  fills=9  realized=n/a imv=n/a rebate=+1.1904 net=n/a  cleanup  joined=2026-08-29T14:13:54.323976Z
+8972502454  [legacy]  game=dota  HULIGANI vs Team Lynx  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-29T15:49:53.047847Z
+8972548143  [legacy]  game=dota  Team Synapse vs PuckChamp  map 1  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-29T16:16:39.123109Z
+8972611918  [legacy]  game=dota  Team Lynx vs HULIGANI  map 3  radiant  mode=live  fills=4  realized=n/a imv=n/a rebate=+0.7330 net=n/a  cleanup  joined=2026-08-29T16:48:21.150321Z
+8972715075  [legacy]  game=dota  PuckChamp vs Team Synapse  map 2  radiant  mode=live  fills=5  realized=n/a imv=n/a rebate=+0.2178 net=n/a  cleanup  joined=2026-08-29T17:39:43.097800Z
+8972773416  [legacy]  game=dota  Pipsqueak + 4 vs Level UP esports  map 1  dire  mode=live  fills=6  realized=n/a imv=n/a rebate=+0.5927 net=n/a  cleanup  joined=2026-08-29T18:16:08.042020Z
+8972886577  [legacy]  game=dota  Team Synapse vs PuckChamp  map 3  radiant  mode=live  fills=3  realized=n/a imv=n/a rebate=+0.2100 net=n/a  cleanup  joined=2026-08-29T19:19:58.240248Z
+8973010298  [legacy]  game=dota  Klim Sani4 vs Team Spirit Academy  map 1  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-29T20:39:50.316247Z
+8973011673  [legacy]  game=dota  Pipsqueak + 4 vs Level UP esports  map 3  done  mode=live  fills=4  realized=+0.0000 imv=+0.0000 rebate=+0.2902 net=+0.2902  no-cleanup  joined=2026-08-29T20:31:31.966165Z
+8973088430  [legacy]  game=dota  Klim Sani4 vs Team Spirit Academy  map 2  radiant  mode=live  fills=3  realized=+3.5808 imv=+0.0000 rebate=+0.0393 net=+3.6200  cleanup  joined=2026-08-29T21:26:49.356231Z
+8973337131  [legacy]  game=dota  Ice Cream Men vs Execration  map 1  dire  mode=live  fills=3  realized=-2.1429 imv=+0.0000 rebate=+0.2310 net=-1.9119  cleanup  joined=2026-08-30T02:13:32.988878Z
+8973405568  [legacy]  game=dota  Execration vs Ice Cream Men  map 2  dire  mode=live  fills=3  realized=+2.3256 imv=+0.0000 rebate=+0.4296 net=+2.7552  cleanup  joined=2026-08-30T03:18:39.684070Z
+8973462028  [legacy]  game=dota  Execration vs Ice Cream Men  map 3  radiant  mode=live  fills=8  realized=+2.6547 imv=+0.0000 rebate=+0.4693 net=+3.1241  cleanup  joined=2026-08-30T04:28:56.021512Z
+8973502629  [legacy]  game=dota  Cloud Rising vs Yakult Brothers  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T05:11:19.807797Z
+8973568453  [legacy]  game=dota  Cloud Rising vs Yakult Brothers  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T06:11:34.338418Z
+8973613420  [legacy]  game=dota  Yakult Brothers vs Cloud Rising  map 3  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T07:24:02.524589Z
+8973731201  [legacy]  game=dota  Yakult Brothers vs Team Resilience  map 1  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-30T09:11:59.534473Z
+8973707438  [legacy]  game=dota  Level UP esports vs Team Lynx  map 1  radiant  mode=live  fills=8  realized=-5.2951 imv=+0.0000 rebate=+0.6636 net=-4.6315  cleanup  joined=2026-08-30T08:14:23.428092Z
+8973763061  [legacy]  game=dota  Execration vs Team Nemesis  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T08:48:38.083634Z
+grid-3000389-m1  [legacy]  game=dota  Crescent vs Team Resilience  map 1  dire  mode=live  fills=4  realized=-4.9182 imv=+0.0000 rebate=+0.6659 net=-4.2523  cleanup  joined=2026-08-30T08:25:59.657252Z
+8973825431  [legacy]  game=dota  Team Resilience vs Yakult Brothers  map 2  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-30T10:07:39.341841Z
+8973859403  [legacy]  game=dota  Team Lynx vs Level UP esports  map 2  radiant  mode=live  fills=2  realized=+0.0000 imv=+0.0000 rebate=+0.3750 net=+0.3750  cleanup  joined=2026-08-30T09:54:16.285385Z
+8973791975  [legacy]  game=dota  Team Synapse vs Inner Circle x Insanity  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T09:28:36.815562Z
+8973896494  [legacy]  game=dota  Yakult Brothers vs Team Resilience  map 3  radiant  mode=live  fills=5  realized=+17.1756 imv=+0.0000 rebate=+0.4652 net=+17.6408  cleanup  joined=2026-08-30T10:21:47.980954Z
+8973884000  [legacy]  game=dota  Team Nemesis vs Execration  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T10:10:52.595227Z
+8973944033  [legacy]  game=dota  Team Lynx vs Level UP esports  map 3  dire  mode=live  fills=3  realized=+3.9500 imv=+0.0000 rebate=+0.3738 net=+4.3238  cleanup  joined=2026-08-30T10:49:27.663581Z
+8974053011  [legacy]  game=dota  MOUZ vs Natus Vincere  map 1  dire  mode=live  fills=2  realized=+1.1364 imv=+0.0000 rebate=+0.0834 net=+1.2198  cleanup  joined=2026-08-30T12:01:03.762653Z
+8974185539  [legacy]  game=dota  MOUZ vs Natus Vincere  map 2  ORPHAN  mode=live  fills=5  realized=n/a imv=n/a rebate=+0.2642 net=n/a  no-cleanup  joined=2026-08-30T13:07:13.355212Z
+8974217041  [legacy]  game=dota  4ikibamboni vs Team Lynx  map 1  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-08-30T13:31:07.959944Z
+8974185539  [live]  game=dota  MOUZ vs Natus Vincere  map 2  dire  mode=live  fills=0  realized=-0.7692 imv=+0.0000 rebate=+0.0000 net=-0.7692  cleanup  joined=2026-08-30T13:50:37.443592Z
+8974217041  [live]  game=dota  4ikibamboni vs Team Lynx  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T13:50:37.355125Z
+8974647733  [live]  game=dota  _PowerRangers vs Level UP esports  map 1  dire  mode=live  fills=5  realized=+2.5246 imv=+0.0000 rebate=+0.1704 net=+2.6950  cleanup  joined=2026-08-30T17:08:00.367670Z
+8974786650  [live]  game=dota  _PowerRangers vs Level UP esports  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T18:10:35.576533Z
+8974985429  [live]  game=dota  DYNASTY vs Klim Sani4  map 1  dire  mode=live  fills=6  realized=+12.3519 imv=+0.0000 rebate=+0.7380 net=+13.0899  cleanup  joined=2026-08-30T20:19:44.919287Z
+8975110449  [live]  game=dota  Klim Sani4 vs DYNASTY  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T21:53:11.924925Z
+8975647643  [live]  game=dota  Zero Tenacity vs PuckChamp  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T09:21:13.808951Z
+8975732660  [live]  game=dota  Zero Tenacity vs PuckChamp  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T10:32:23.079592Z
+8975871235  [live]  game=dota  Team Synapse vs Team Lynx  map 1  dire  mode=live  fills=4  realized=-7.5409 imv=+0.0000 rebate=+0.6289 net=-6.9120  cleanup  joined=2026-08-31T12:25:29.905726Z
+8976012755  [live]  game=dota  Team Lynx vs Team Synapse  map 2  dire  mode=live  fills=6  realized=+13.5346 imv=+0.0000 rebate=+0.4810 net=+14.0156  cleanup  joined=2026-08-31T13:40:19.551124Z
+8976166971  [live]  game=dota  Team Synapse vs Team Lynx  map 3  radiant  mode=live  fills=3  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T15:07:52.381553Z
+8976300473  [live]  game=dota  4ikibamboni vs Inner Circle x Insanity  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T16:23:12.540862Z
+8976441468  [live]  game=dota  Inner Circle x Insanity vs 4ikibamboni  map 2  radiant  mode=live  fills=2  realized=+20.1625 imv=+0.0000 rebate=+0.2109 net=+20.3734  cleanup  joined=2026-08-31T17:41:49.295145Z
+8976511215  [live]  game=dota  Inner Circle x Insanity vs 4ikibamboni  map 3  radiant  mode=live  fills=8  realized=-0.0429 imv=+0.0000 rebate=+0.2495 net=+0.2067  cleanup  joined=2026-08-31T18:28:38.257306Z
+8976665322  [live]  game=dota  Pipsqueak + 4 vs Team Spirit Academy  map 1  dire  mode=live  fills=10  realized=-14.1894 imv=+0.0000 rebate=+1.8479 net=-12.3415  cleanup  joined=2026-08-31T20:23:46.413482Z
+8976751962  [live]  game=dota  Team Spirit Academy vs Pipsqueak + 4  map 2  dire  mode=live  fills=7  realized=-3.8948 imv=+0.0000 rebate=+0.9110 net=-2.9838  cleanup  joined=2026-08-31T21:39:01.316956Z
+8976806033  [live]  game=dota  Team Spirit Academy vs Pipsqueak + 4  map 3  dire  mode=live  fills=3  realized=-2.7646 imv=+0.0000 rebate=+0.8489 net=-1.9157  cleanup  joined=2026-08-31T22:52:35.306784Z
+8977252978  [live]  game=dota  PuckChamp vs Klim Sani4  map 1  dire  mode=live  fills=5  realized=+26.9600 imv=+0.0000 rebate=+0.3918 net=+27.3518  cleanup  joined=2026-09-01T09:17:04.064320Z
+8977325814  [live]  game=dota  Klim Sani4 vs PuckChamp  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T11:02:26.087957Z
+grid-2996002-m1  [live]  game=dota  Inner Circle x Insanity vs Team Lynx  map 1  radiant  mode=live  fills=2  realized=+7.5369 imv=+0.0000 rebate=+0.3100 net=+7.8469  cleanup  joined=2026-09-01T12:23:44.065246Z
+grid-2996002-m2  [live]  game=dota  Inner Circle x Insanity vs Team Lynx  map 2  done  mode=live  fills=7  realized=-4.6794 imv=+0.0000 rebate=+1.6582 net=-3.0212  no-cleanup  joined=2026-09-01T13:52:13.571702Z
+grid-2996003-m2  [live]  game=dota  Team Synapse vs Level UP esports  map 2  radiant  mode=live  fills=3  realized=+4.3336 imv=+0.0000 rebate=+0.0497 net=+4.3833  cleanup  joined=2026-09-01T16:36:42.840140Z
+grid-2996003-m3  [live]  game=dota  Team Synapse vs Level UP esports  map 3  radiant  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-01T17:46:55.477846Z
+grid-2996004-m1  [live]  game=dota  Zero Tenacity vs Team Spirit Academy  map 1  dire  mode=live  fills=4  realized=+14.3768 imv=+0.0000 rebate=+0.9098 net=+15.2866  cleanup  joined=2026-09-01T19:08:40.524675Z
+grid-2996004-m2  [live]  game=dota  Zero Tenacity vs Team Spirit Academy  map 2  radiant  mode=live  fills=8  realized=+18.8541 imv=+0.0000 rebate=+1.9826 net=+20.8367  cleanup  joined=2026-09-01T20:13:37.465923Z
+grid-2996004-m3  [live]  game=dota  Zero Tenacity vs Team Spirit Academy  map 3  radiant  mode=live  fills=5  realized=+86.9386 imv=+0.0000 rebate=+0.6655 net=+87.6041  cleanup  joined=2026-09-01T21:03:24.557317Z
+grid-3002520-m1  [live]  game=dota  Yangon Galacticos vs InterActive Philippines  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T06:54:26.589531Z
+grid-3002520-m2  [live]  game=dota  InterActive Philippines vs Yangon Galacticos  map 2  dire  mode=live  fills=7  realized=+11.8704 imv=+0.0000 rebate=+1.1639 net=+13.0343  cleanup  joined=2026-09-02T08:25:49.222535Z
+grid-2996005-m2  [live]  game=dota  Inner Circle x Insanity vs _PowerRangers  map 2  dire  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-02T11:17:56.173353Z
+grid-2996005-m3  [live]  game=dota  _PowerRangers vs Inner Circle x Insanity  map 3  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T12:19:40.693681Z
+grid-2996006-m1  [live]  game=dota  DYNASTY vs PuckChamp  map 1  radiant  mode=live  fills=8  realized=-15.4906 imv=+0.0000 rebate=+1.5864 net=-13.9042  cleanup  joined=2026-09-02T13:54:58.702930Z
+grid-2996006-m2  [live]  game=dota  PuckChamp vs DYNASTY  map 2  dire  mode=live  fills=4  realized=+2.1024 imv=+0.0000 rebate=+0.2329 net=+2.3353  cleanup  joined=2026-09-02T14:55:02.288304Z
+grid-2996007-m1  [live]  game=dota  Team Synapse vs 4ikibamboni  map 1  radiant  mode=live  fills=4  realized=-0.6061 imv=+0.0000 rebate=+0.0432 net=-0.5628  cleanup  joined=2026-09-02T15:58:10.165147Z
+grid-2996007-m2  [live]  game=dota  Team Synapse vs 4ikibamboni  map 2  radiant  mode=live  fills=4  realized=+2.2503 imv=+0.0000 rebate=+0.4241 net=+2.6743  cleanup  joined=2026-09-02T17:20:21.798981Z
+grid-3002523-m1  [live]  game=dota  Yangon Galacticos vs Team Nemesis  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T06:31:18.386962Z
+grid-3002523-m2  [live]  game=dota  Yangon Galacticos vs Team Nemesis  map 2  radiant  mode=live  fills=3  realized=+10.8142 imv=+0.0000 rebate=+0.4347 net=+11.2489  cleanup  joined=2026-09-03T07:36:23.468557Z
+grid-3002523-m3  [live]  game=dota  Yangon Galacticos vs Team Nemesis  map 3  ORPHAN  mode=live  fills=8  realized=n/a imv=n/a rebate=+1.5460 net=n/a  no-cleanup  joined=2026-09-03T09:03:19.807466Z
+grid-2996009-m1  [live]  game=dota  Zero Tenacity vs Klim Sani4  map 1  dire  mode=live  fills=2  realized=-2.6722 imv=+0.0000 rebate=+0.8648 net=-1.8074  cleanup  joined=2026-09-03T09:17:27.109909Z
+grid-2996009-m2  [live]  game=dota  Klim Sani4 vs Zero Tenacity  map 2  radiant  mode=live  fills=2  realized=-0.0318 imv=+0.0000 rebate=+0.0037 net=-0.0281  cleanup  joined=2026-09-03T10:26:04.223927Z
+grid-2996010-m1  [live]  game=dota  PuckChamp vs Team Spirit Academy  map 1  dire  mode=live  fills=6  realized=+23.8026 imv=+0.0000 rebate=+1.2464 net=+25.0490  cleanup  joined=2026-09-03T12:12:09.476796Z
+grid-2996010-m2  [live]  game=dota  PuckChamp vs Team Spirit Academy  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T13:11:09.769983Z
+grid-2996011-m1  [live]  game=dota  Pipsqueak + 4 vs DYNASTY  map 1  radiant  mode=live  fills=2  realized=+0.7000 imv=+0.0000 rebate=+0.0316 net=+0.7316  cleanup  joined=2026-09-03T15:16:07.568674Z
+grid-2996011-m2  [live]  game=dota  DYNASTY vs Pipsqueak + 4  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T16:09:12.365476Z
+grid-2996011-m3  [live]  game=dota  Pipsqueak + 4 vs DYNASTY  map 3  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T17:23:30.119498Z
+grid-2996013-m1  [live]  game=dota  Zero Tenacity vs Pipsqueak + 4  map 1  dire  mode=live  fills=5  realized=+20.7895 imv=+0.0000 rebate=+0.9404 net=+21.7298  cleanup  joined=2026-09-04T09:18:07.341998Z
+grid-2996013-m2  [live]  game=dota  Pipsqueak + 4 vs Zero Tenacity  map 2  radiant  mode=live  fills=11  realized=+55.0190 imv=+0.0000 rebate=+2.7844 net=+57.8034  cleanup  joined=2026-09-04T10:19:24.528193Z
+grid-2996014-m1  [live]  game=dota  Klim Sani4 vs Team Spirit Academy  map 1  radiant  mode=live  fills=4  realized=-35.3563 imv=+0.0000 rebate=+1.4289 net=-33.9274  cleanup  joined=2026-09-04T12:16:44.106095Z
+grid-2996014-m2  [live]  game=dota  Klim Sani4 vs Team Spirit Academy  map 2  radiant  mode=live  fills=9  realized=+12.4422 imv=+0.0100 rebate=+1.6103 net=+14.0624  cleanup  joined=2026-09-04T13:09:46.634937Z
+grid-2996015-m1  [live]  game=dota  _PowerRangers vs Team Synapse  map 1  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-04T16:02:01.398181Z
+grid-2996015-m2  [live]  game=dota  Team Synapse vs _PowerRangers  map 2  dire  mode=live  fills=6  realized=-62.0694 imv=+0.0000 rebate=+1.2507 net=-60.8187  cleanup  joined=2026-09-04T16:26:02.839488Z
+grid-2996016-m1  [live]  game=dota  Inner Circle x Insanity vs Level UP esports  map 1  dire  mode=live  fills=2  realized=-1.3790 imv=+0.0000 rebate=+0.0703 net=-1.3087  cleanup  joined=2026-09-04T18:19:40.868642Z
+grid-2996016-m2  [live]  game=dota  Inner Circle x Insanity vs Level UP esports  map 2  dire  mode=live  fills=3  realized=+15.9577 imv=+0.0000 rebate=+1.3637 net=+17.3214  cleanup  joined=2026-09-04T19:40:43.906174Z
+grid-3004577-m2  [live]  game=dota  Team Nemesis vs Carstensz Esports  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-05T07:36:16.664431Z
+grid-2996017-m1  [live]  game=dota  Team Lynx vs _PowerRangers  map 1  radiant  mode=live  fills=18  realized=+29.8074 imv=+0.0000 rebate=+4.1378 net=+33.9452  cleanup  joined=2026-09-05T09:17:05.999192Z
+grid-2996017-m2  [live]  game=dota  _PowerRangers vs Team Lynx  map 2  dire  mode=live  fills=5  realized=-27.3636 imv=+0.0000 rebate=+2.2278 net=-25.1358  cleanup  joined=2026-09-05T10:32:36.475999Z
+grid-2996018-m1  [live]  game=dota  Pipsqueak + 4 vs PuckChamp  map 1  radiant  mode=live  fills=4  realized=-4.6800 imv=+0.0000 rebate=+0.4949 net=-4.1851  cleanup  joined=2026-09-05T12:24:30.715646Z
+grid-2996018-m2  [live]  game=dota  PuckChamp vs Pipsqueak + 4  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-05T13:32:03.636553Z
+grid-2996020-m1  [live]  game=dota  DYNASTY vs Team Spirit Academy  map 1  dire  mode=live  fills=10  realized=+22.6900 imv=+0.0000 rebate=+2.4797 net=+25.1697  cleanup  joined=2026-09-05T18:19:56.915832Z
+grid-2996020-m2  [live]  game=dota  DYNASTY vs Team Spirit Academy  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-05T19:46:11.211969Z
+grid-2996020-m3  [live]  game=dota  DYNASTY vs Team Spirit Academy  map 3  ORPHAN  mode=live  fills=8  realized=n/a imv=n/a rebate=+3.3271 net=n/a  no-cleanup  joined=2026-09-05T21:01:58.135964Z
+grid-3002533-m1  [live]  game=dota  Team Nemesis vs D Family  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T09:14:37.564041Z
+grid-2996021-m1  [live]  game=dota  Pipsqueak + 4 vs Klim Sani4  map 1  radiant  mode=live  fills=9  realized=-20.6299 imv=+0.0000 rebate=+1.0668 net=-19.5631  cleanup  joined=2026-09-06T09:17:28.254895Z
+grid-3002533-m2  [live]  game=dota  D Family vs Team Nemesis  map 2  dire  mode=live  fills=9  realized=-90.0009 imv=+99.0375 rebate=+0.1140 net=+9.1506  cleanup  joined=2026-09-06T09:58:36.335892Z
+grid-2996021-m2  [live]  game=dota  Klim Sani4 vs Pipsqueak + 4  map 2  radiant  mode=live  fills=4  realized=-1.0804 imv=+0.0000 rebate=+0.1358 net=-0.9446  cleanup  joined=2026-09-06T10:29:50.765681Z
+grid-2996021-m3  [live]  game=dota  Klim Sani4 vs Pipsqueak + 4  map 3  dire  mode=live  fills=4  realized=+2.3204 imv=+0.0000 rebate=+0.6904 net=+3.0108  cleanup  joined=2026-09-06T11:29:05.034278Z
+grid-2996023-m1  [live]  game=dota  DYNASTY vs Zero Tenacity  map 1  dire  mode=live  fills=6  realized=+17.4391 imv=+0.0124 rebate=+1.3894 net=+18.8409  cleanup  joined=2026-09-06T12:51:08.673541Z
+grid-2996023-m2  [live]  game=dota  Zero Tenacity vs DYNASTY  map 2  radiant  mode=live  fills=8  realized=-36.9076 imv=+0.0000 rebate=+2.6998 net=-34.2078  cleanup  joined=2026-09-06T14:01:44.926379Z
+grid-3004460-m1  [live]  game=dota  4ikibamboni vs Level UP esports  map 1  radiant  mode=live  fills=6  realized=+2.3329 imv=+0.0000 rebate=+0.2378 net=+2.5707  cleanup  joined=2026-09-06T15:16:12.344716Z
+grid-3004460-m2  [live]  game=dota  4ikibamboni vs Level UP esports  map 2  radiant  mode=live  fills=13  realized=+4.5182 imv=+0.0193 rebate=+4.5944 net=+9.1319  cleanup  joined=2026-09-06T16:43:08.982485Z
+grid-2996008-m1  [live]  game=dota  Team Lynx vs Level UP esports  map 1  dire  mode=live  fills=2  realized=-0.1042 imv=+0.0000 rebate=+0.0377 net=-0.0665  cleanup  joined=2026-09-06T18:16:47.006800Z
+grid-2996008-m2  [live]  game=dota  Team Lynx vs Level UP esports  map 2  radiant  mode=live  fills=8  realized=+9.8360 imv=+0.0161 rebate=+1.9384 net=+11.7905  cleanup  joined=2026-09-06T19:12:28.713641Z
+grid-2996008-m3  [live]  game=dota  Team Lynx vs Level UP esports  map 3  radiant  mode=live  fills=4  realized=+25.3667 imv=+0.0000 rebate=+1.8489 net=+27.2156  cleanup  joined=2026-09-06T20:36:00.562934Z
+grid-3004579-m1  [live]  game=dota  Carstensz Esports vs InterActive Philippines  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T06:23:52.334623Z
+grid-3004579-m2  [live]  game=dota  Carstensz Esports vs InterActive Philippines  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T07:39:46.422797Z
+grid-3004578-m1  [live]  game=dota  Carstensz Esports vs Yangon Galacticos  map 1  dire  mode=live  fills=4  realized=+3.6319 imv=+0.0000 rebate=+0.1695 net=+3.8014  cleanup  joined=2026-09-07T09:12:27.711078Z
+grid-2996026-m1  [live]  game=dota  _PowerRangers vs Natus Vincere  map 1  dire  mode=live  fills=6  realized=+2.4199 imv=+0.0100 rebate=+0.2542 net=+2.6840  cleanup  joined=2026-09-07T09:16:27.274863Z
+grid-3004578-m2  [live]  game=dota  Carstensz Esports vs Yangon Galacticos  map 2  dire  mode=live  fills=2  realized=+0.8000 imv=+0.0000 rebate=+0.0539 net=+0.8539  cleanup  joined=2026-09-07T10:08:32.443388Z
+grid-2996026-m2  [live]  game=dota  _PowerRangers vs Natus Vincere  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T10:24:17.628724Z
+grid-2996027-m1  [live]  game=dota  Klim Sani4 vs HULIGANI  map 1  radiant  mode=live  fills=2  realized=+0.8109 imv=+0.0000 rebate=+0.0473 net=+0.8582  cleanup  joined=2026-09-07T12:14:04.600892Z
+grid-2996027-m2  [live]  game=dota  HULIGANI vs Klim Sani4  map 2  dire  mode=live  fills=4  realized=-5.4595 imv=+0.0000 rebate=+0.1064 net=-5.3531  cleanup  joined=2026-09-07T13:17:41.746316Z
+grid-2996028-m2  [live]  game=dota  Team Synapse vs MOUZ  map 2  dire  mode=live  fills=4  realized=+2.6148 imv=+0.0000 rebate=+0.0846 net=+2.6994  cleanup  joined=2026-09-07T17:02:27.644809Z
+grid-2996028-m3  [live]  game=dota  Team Synapse vs MOUZ  map 3  dire  mode=live  fills=9  realized=+26.4323 imv=+0.0000 rebate=+0.6978 net=+27.1301  cleanup  joined=2026-09-07T18:06:38.245798Z
+grid-2996029-m1  [live]  game=dota  GamerLegion vs Pipsqueak + 4  map 1  radiant  mode=live  fills=7  realized=+5.2834 imv=+0.0000 rebate=+0.6785 net=+5.9619  cleanup  joined=2026-09-07T19:34:09.403421Z
+grid-3003763-m1  [live]  game=dota  D Family vs InterActive Philippines  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T03:19:36.574395Z
+grid-3004582-m1  [live]  game=dota  Team Nemesis vs Team Kinetix  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T09:19:56.272786Z
+grid-2996030-m1  [live]  game=dota  _PowerRangers vs HULIGANI  map 1  dire  mode=live  fills=7  realized=-8.2863 imv=+0.0000 rebate=+0.6617 net=-7.6246  cleanup  joined=2026-09-08T09:17:15.630816Z
+grid-3004582-m2  [live]  game=dota  Team Kinetix vs Team Nemesis  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T10:31:53.681456Z
+grid-2996030-m2  [live]  game=dota  HULIGANI vs _PowerRangers  map 2  dire  mode=live  fills=3  realized=-3.0049 imv=+0.0000 rebate=+0.3233 net=-2.6816  cleanup  joined=2026-09-08T10:40:24.070317Z
+grid-2996031-m1  [live]  game=dota  Pipsqueak + 4 vs Team Synapse  map 1  radiant  mode=live  fills=7  realized=+12.8235 imv=+0.0000 rebate=+0.9187 net=+13.7422  cleanup  joined=2026-09-08T12:51:27.383225Z
+grid-2996031-m2  [live]  game=dota  Team Synapse vs Pipsqueak + 4  map 2  radiant  mode=live  fills=12  realized=+25.9439 imv=+0.0000 rebate=+2.2398 net=+28.1838  cleanup  joined=2026-09-08T14:06:12.326393Z
+grid-2996031-m3  [live]  game=dota  Team Synapse vs Pipsqueak + 4  map 3  radiant  mode=live  fills=4  realized=+15.5764 imv=+0.0000 rebate=+0.7790 net=+16.3555  cleanup  joined=2026-09-08T15:34:24.199549Z
+grid-2996032-m1  [live]  game=dota  Klim Sani4 vs Natus Vincere  map 1  dire  mode=live  fills=15  realized=+54.6942 imv=+0.0000 rebate=+2.2343 net=+56.9285  cleanup  joined=2026-09-08T16:49:17.583786Z
+grid-2996032-m2  [live]  game=dota  Klim Sani4 vs Natus Vincere  map 2  radiant  mode=live  fills=8  realized=-0.9735 imv=+0.0000 rebate=+0.7409 net=-0.2326  cleanup  joined=2026-09-08T18:15:41.346975Z
+grid-2996033-m1  [live]  game=dota  MOUZ vs GamerLegion  map 1  dire  mode=live  fills=5  realized=+8.2770 imv=+0.0000 rebate=+0.5504 net=+8.8274  cleanup  joined=2026-09-08T20:46:55.836816Z
+grid-2996033-m2  [live]  game=dota  GamerLegion vs MOUZ  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T22:49:37.122758Z
+grid-2996033-m3  [live]  game=dota  MOUZ vs GamerLegion  map 3  dire  mode=live  fills=28  realized=-72.9066 imv=+0.0000 rebate=+5.1622 net=-67.7444  cleanup  joined=2026-09-08T23:41:09.357835Z
+grid-2996035-m1  [live]  game=dota  MOUZ vs HULIGANI  map 1  dire  mode=live  fills=25  realized=+3.4905 imv=+0.0000 rebate=+2.6654 net=+6.1559  cleanup  joined=2026-09-09T12:16:50.798677Z
+grid-2996035-m2  [live]  game=dota  HULIGANI vs MOUZ  map 2  dire  mode=live  fills=23  realized=+116.0453 imv=+0.0000 rebate=+2.0927 net=+118.1380  cleanup  joined=2026-09-09T13:17:05.679085Z
+grid-2996035-m3  [live]  game=dota  MOUZ vs HULIGANI  map 3  radiant  mode=live  fills=13  realized=+22.2530 imv=+0.0000 rebate=+3.3101 net=+25.5631  cleanup  joined=2026-09-09T14:05:58.637843Z
+grid-2996036-m1  [live]  game=dota  Team Synapse vs Klim Sani4  map 1  radiant  mode=live  fills=12  realized=+8.5550 imv=+0.0000 rebate=+2.8849 net=+11.4398  cleanup  joined=2026-09-09T17:37:34.534591Z
+grid-2996036-m2  [live]  game=dota  Team Synapse vs Klim Sani4  map 2  dire  mode=live  fills=6  realized=-0.0070 imv=+0.0000 rebate=+0.4500 net=+0.4430  cleanup  joined=2026-09-09T18:47:41.471757Z
+grid-2996036-m3  [live]  game=dota  Team Synapse vs Klim Sani4  map 3  dire  mode=live  fills=13  realized=+57.0907 imv=+0.0000 rebate=+1.4867 net=+58.5775  cleanup  joined=2026-09-09T19:52:32.699025Z
+grid-2996037-m1  [live]  game=dota  MOUZ vs Klim Sani4  map 1  dire  mode=live  fills=6  realized=+5.4808 imv=+0.0000 rebate=+1.4841 net=+6.9649  cleanup  joined=2026-09-09T21:02:34.027686Z
+grid-2996037-m2  [live]  game=dota  MOUZ vs Klim Sani4  map 2  radiant  mode=live  fills=17  realized=-12.2572 imv=+0.0000 rebate=+3.3696 net=-8.8877  cleanup  joined=2026-09-09T22:18:37.776029Z
+grid-2996037-m3  [live]  game=dota  MOUZ vs Klim Sani4  map 3  dire  mode=live  fills=11  realized=-16.0144 imv=+0.0000 rebate=+2.6532 net=-13.3612  cleanup  joined=2026-09-09T23:35:35.722109Z
+grid-3006423-m1  [live]  game=dota  GamerLegion vs Klim Sani4  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-10T12:55:00.417115Z
+grid-3006423-m2  [live]  game=dota  GamerLegion vs Klim Sani4  map 2  dire  mode=live  fills=13  realized=-82.3447 imv=+0.0000 rebate=+3.4269 net=-78.9178  cleanup  joined=2026-09-10T14:05:37.000511Z
+grid-3006669-m1  [live]  game=dota  Natus Vincere vs Klim Sani4  map 1  radiant  mode=live  fills=7  realized=-40.8240 imv=+0.0000 rebate=+1.9659 net=-38.8581  cleanup  joined=2026-09-10T16:18:35.369095Z
+grid-3006669-m2  [live]  game=dota  Natus Vincere vs Klim Sani4  map 2  radiant  mode=live  fills=17  realized=-22.2112 imv=+0.0000 rebate=+4.0865 net=-18.1246  cleanup  joined=2026-09-10T17:43:02.217431Z
+grid-3006669-m3  [live]  game=dota  Natus Vincere vs Klim Sani4  map 3  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-10T18:39:11.020761Z
+grid-3004583-m1  [live]  game=dota  InterActive Philippines vs Team Nemesis  map 1  dire  mode=live  fills=4  realized=+7.2479 imv=+0.0000 rebate=+0.3449 net=+7.5928  cleanup  joined=2026-09-11T03:24:44.547221Z
+grid-3004583-m2  [live]  game=dota  Team Nemesis vs InterActive Philippines  map 2  dire  mode=live  fills=8  realized=-2.3884 imv=+0.0000 rebate=+0.1762 net=-2.2122  cleanup  joined=2026-09-11T04:41:50.420098Z
+grid-3004583-m3  [live]  game=dota  InterActive Philippines vs Team Nemesis  map 3  dire  mode=live  fills=5  realized=-4.3981 imv=+0.0000 rebate=+0.4798 net=-3.9183  cleanup  joined=2026-09-11T05:53:28.188470Z
+grid-3005971-m1  [live]  game=dota  Team Nemesis vs InterActive Philippines  map 1  radiant  mode=live  fills=6  realized=+1.1868 imv=+0.0000 rebate=+0.0488 net=+1.2356  cleanup  joined=2026-09-12T02:18:10.287089Z
+grid-3005971-m2  [live]  game=dota  InterActive Philippines vs Team Nemesis  map 2  dire  mode=live  fills=7  realized=-2.2753 imv=+0.0000 rebate=+0.0997 net=-2.1756  cleanup  joined=2026-09-12T03:31:19.037066Z
+grid-3002542-m1  [live]  game=dota  Team Kinetix vs D family  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-12T06:33:20.816776Z
+grid-3002542-m2  [live]  game=dota  Team Kinetix vs D family  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-12T07:45:12.501119Z
+grid-3003938-m1  [live]  game=dota  Execration vs Yangon Galacticos  map 1  radiant  mode=live  fills=1  realized=-4.9980 imv=+5.9203 rebate=+0.0060 net=+0.9282  cleanup  joined=2026-09-12T08:12:11.301987Z
+grid-3003935-m1  [live]  game=dota  Natus Vincere vs Zero Tenacity  map 1  radiant  mode=live  fills=3  realized=-0.0694 imv=+0.0000 rebate=+0.0430 net=-0.0264  cleanup  joined=2026-09-12T08:18:55.520471Z
+grid-3003938-m2  [live]  game=dota  Yangon Galacticos vs Execration  map 2  radiant  mode=live  fills=4  realized=-0.1232 imv=+0.0000 rebate=+0.0382 net=-0.0850  cleanup  joined=2026-09-12T09:09:43.858745Z
+grid-3003935-m2  [live]  game=dota  Zero Tenacity vs Natus Vincere  map 2  dire  mode=live  fills=5  realized=+0.1845 imv=+0.0000 rebate=+0.0337 net=+0.2182  cleanup  joined=2026-09-12T09:32:12.730265Z
+grid-3003938-m3  [live]  game=dota  Yangon Galacticos vs Execration  map 3  ORPHAN  mode=live  fills=4  realized=n/a imv=n/a rebate=+0.0424 net=n/a  no-cleanup  joined=2026-09-12T10:09:50.580936Z
+grid-3005966-m1  [live]  game=dota   Pipsqueak+4 vs GamerLegion  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-12T11:18:24.477680Z
+grid-3005973-m1  [live]  game=dota  Xipto Esports vs Team Bored  map 1  dire  mode=live  fills=4  realized=-19.5477 imv=+0.0000 rebate=+0.4597 net=-19.0880  cleanup  joined=2026-09-12T11:21:24.741958Z
+grid-3005966-m2  [live]  game=dota  GamerLegion vs  Pipsqueak+4  map 2  dire  mode=live  fills=15  realized=+5.7514 imv=+0.0000 rebate=+1.3780 net=+7.1294  cleanup  joined=2026-09-12T12:24:22.169116Z
+grid-3005973-m2  [live]  game=dota  Xipto Esports vs Team Bored  map 2  dire  mode=live  fills=10  realized=+6.1053 imv=+0.0000 rebate=+0.5917 net=+6.6970  cleanup  joined=2026-09-12T12:47:51.885629Z
+grid-3005967-m1  [live]  game=dota  Dawn Bulls vs MOUZ  map 1  ORPHAN  mode=live  fills=5  realized=n/a imv=n/a rebate=+0.3366 net=n/a  no-cleanup  joined=2026-09-12T14:18:59.474664Z
+grid-3005967-m2  [live]  game=dota  Dawn Bulls vs MOUZ  map 2  radiant  mode=live  fills=5  realized=+1.8363 imv=+0.0000 rebate=+0.3599 net=+2.1962  cleanup  joined=2026-09-12T15:40:15.318974Z
+grid-3005968-m1  [live]  game=dota  Klim Sani4 vs HULIGANI  map 1  radiant  mode=live  fills=5  realized=+2.3075 imv=+0.0000 rebate=+0.1660 net=+2.4735  cleanup  joined=2026-09-12T17:09:33.876752Z
+grid-3005968-m2  [live]  game=dota  Klim Sani4 vs HULIGANI  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-12T18:10:51.630018Z
+grid-3005974-m1  [live]  game=dota  Team Nemesis vs Direborn  map 1  dire  mode=live  fills=3  realized=-1.5245 imv=+0.0000 rebate=+0.1512 net=-1.3733  cleanup  joined=2026-09-13T02:13:24.542199Z
+grid-3005912-m1  [live]  game=dota  Team Kinetix vs Carstensz  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T03:17:59.681747Z
+grid-3005974-m2  [live]  game=dota  Direborn vs Team Nemesis  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T03:32:49.085283Z
+grid-3005974-m3  [live]  game=dota  Direborn vs Team Nemesis  map 3  dire  mode=live  fills=2  realized=-0.4075 imv=+0.0000 rebate=+0.1245 net=-0.2830  cleanup  joined=2026-09-13T04:49:29.860763Z
+grid-3005912-m2  [live]  game=dota  Carstensz vs Team Kinetix  map 2  dire  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-13T05:59:16.435995Z
+grid-3005975-m1  [live]  game=dota  Execration vs Team Bored  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T05:56:30.094284Z
+grid-3005975-m2  [live]  game=dota  Execration vs Team Bored  map 2  radiant  mode=live  fills=13  realized=+20.0836 imv=+0.0000 rebate=+1.5115 net=+21.5951  cleanup  joined=2026-09-13T07:47:09.144069Z
+grid-3005969-m1  [live]  game=dota   Pipsqueak+4 vs Natus Vincere  map 1  dire  mode=live  fills=3  realized=+1.3080 imv=+0.0000 rebate=+0.1302 net=+1.4382  cleanup  joined=2026-09-13T08:15:31.048185Z
+grid-3005975-m3  [live]  game=dota  Execration vs Team Bored  map 3  dire  mode=live  fills=15  realized=+7.9153 imv=+0.0000 rebate=+1.5168 net=+9.4321  cleanup  joined=2026-09-13T08:52:18.844670Z
+grid-3005969-m2  [live]  game=dota  Natus Vincere vs  Pipsqueak+4  map 2  radiant  mode=live  fills=6  realized=+6.1382 imv=+0.0000 rebate=+0.2990 net=+6.4372  cleanup  joined=2026-09-13T09:16:37.430178Z
+grid-3006421-m1  [live]  game=dota  ЯЧЁ123 vs Carstensz  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T09:20:10.126933Z
+grid-3005976-m1  [live]  game=dota  Team Nemesis vs Team Bored  map 1  radiant  mode=live  fills=7  realized=-0.7763 imv=+0.0000 rebate=+0.3751 net=-0.4012  cleanup  joined=2026-09-13T10:26:56.679100Z
+grid-3005970-m1  [live]  game=dota  Klim Sani4 vs Dawn Bulls  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T11:11:18.420589Z
+grid-3006421-m2  [live]  game=dota  ЯЧЁ123 vs Carstensz  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T10:34:00.266023Z
+grid-3005976-m2  [live]  game=dota  Team Nemesis vs Team Bored  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T11:46:23.542138Z
+grid-3005970-m2  [live]  game=dota  Dawn Bulls vs Klim Sani4  map 2  radiant  mode=live  fills=5  realized=+9.7102 imv=+0.0000 rebate=+0.6612 net=+10.3714  cleanup  joined=2026-09-13T12:22:32.026259Z
+grid-3007239-m1  [live]  game=dota  Kalmychata vs Spirit Academy  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T18:18:06.618084Z
+grid-3007239-m2  [live]  game=dota  Kalmychata vs Spirit Academy  map 2  radiant  mode=live  fills=6  realized=+5.0005 imv=+0.0000 rebate=+0.5149 net=+5.5154  cleanup  joined=2026-09-13T19:44:45.271461Z
+grid-3002920-m1  [live]  game=dota  Yangon Galacticos vs Team Nemesis  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T03:16:02.838926Z
+grid-3002920-m2  [live]  game=dota  Yangon Galacticos vs Team Nemesis  map 2  dire  mode=live  fills=6  realized=+1.1151 imv=+0.0000 rebate=+0.1702 net=+1.2853  cleanup  joined=2026-09-14T04:30:12.501049Z
+grid-3007240-m1  [live]  game=dota  Zero Tenacity vs Team Lynx  map 1  dire  mode=live  fills=2  realized=+0.0000 imv=+0.0000 rebate=+0.1845 net=+0.1845  cleanup  joined=2026-09-14T09:13:27.775183Z
+grid-3002922-m1  [live]  game=dota  Yangon Galacticos vs InterActive Philippines  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T09:11:31.624471Z
+grid-3007240-m2  [live]  game=dota  Zero Tenacity vs Team Lynx  map 2  radiant  mode=live  fills=5  realized=+6.5059 imv=+0.0000 rebate=+0.3814 net=+6.8873  cleanup  joined=2026-09-14T10:22:05.749119Z
+grid-3002922-m2  [live]  game=dota  InterActive Philippines vs Yangon Galacticos  map 2  dire  mode=live  fills=5  realized=+2.3431 imv=+0.0000 rebate=+0.2722 net=+2.6153  cleanup  joined=2026-09-14T10:24:43.577466Z
+grid-3002922-m3  [live]  game=dota  InterActive Philippines vs Yangon Galacticos  map 3  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T11:27:44.917880Z
+grid-3007240-m3  [live]  game=dota  Zero Tenacity vs Team Lynx  map 3  radiant  mode=live  fills=2  realized=+0.0200 imv=+0.0000 rebate=+0.0037 net=+0.0237  cleanup  joined=2026-09-14T11:27:50.935476Z
+grid-3007921-m1  [live]  game=dota  BALU vs Nemiga Gaming  map 1  dire  mode=live  fills=11  realized=+12.8122 imv=+0.0000 rebate=+0.3865 net=+13.1986  cleanup  joined=2026-09-14T12:34:23.079281Z
+grid-3007921-m2  [live]  game=dota  Nemiga Gaming vs BALU  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T13:22:37.180133Z
+grid-3007922-m1  [live]  game=dota  Inner Circle vs Two Move  map 1  dire  mode=live  fills=7  realized=+0.3471 imv=+0.0000 rebate=+0.1385 net=+0.4856  cleanup  joined=2026-09-14T15:22:05.297336Z
+grid-3007922-m2  [live]  game=dota  Inner Circle vs Two Move  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T16:30:28.765515Z
+grid-3007243-m1  [live]  game=dota  uralan vs Spirit Academy  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T18:21:19.105244Z
+grid-3007243-m2  [live]  game=dota  uralan vs Spirit Academy  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T19:28:25.275768Z
+grid-3007245-m1  [live]  game=dota  Team Synapse vs PuckChamp  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T12:20:15.927533Z
+grid-3007245-m2  [live]  game=dota  Team Synapse vs PuckChamp  map 2  radiant  mode=live  fills=2  realized=+2.6579 imv=+0.0000 rebate=+0.0815 net=+2.7394  cleanup  joined=2026-09-15T13:19:42.912770Z
+grid-3007246-m1  [live]  game=dota  Zero Tenacity vs Nemiga Gaming  map 1  dire  mode=live  fills=10  realized=+1.7850 imv=+0.0000 rebate=+0.6612 net=+2.4462  cleanup  joined=2026-09-15T15:20:08.487437Z
+grid-3007246-m2  [live]  game=dota  Nemiga Gaming vs Zero Tenacity  map 2  dire  mode=live  fills=20  realized=-2.6462 imv=+0.0000 rebate=+1.4383 net=-1.2079  cleanup  joined=2026-09-15T16:46:06.713214Z
+grid-3007246-m3  [live]  game=dota  Nemiga Gaming vs Zero Tenacity  map 3  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-09-15T18:02:54.825322Z
+grid-3007247-m1  [live]  game=dota  Yellow Submarine vs uralan  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T19:34:47.960164Z
+grid-3007247-m2  [live]  game=dota  uralan vs Yellow Submarine  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T20:55:17.641660Z
+grid-3002924-m1  [live]  game=dota  Direborn vs Team Nemesis  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T06:21:38.183341Z
+grid-3002924-m2  [live]  game=dota  Team Nemesis vs Direborn  map 2  dire  mode=live  fills=9  realized=+13.8607 imv=+0.0000 rebate=+0.5535 net=+14.4142  cleanup  joined=2026-09-16T07:36:39.827279Z
+grid-3002924-m3  [live]  game=dota  Team Nemesis vs Direborn  map 3  radiant  mode=live  fills=6  realized=+6.4033 imv=+0.0000 rebate=+0.8793 net=+7.2826  cleanup  joined=2026-09-16T08:56:26.284965Z
+grid-3007987-m1  [live]  game=dota  BALU vs Team Synapse  map 1  dire  mode=live  fills=5  realized=+0.6881 imv=+0.0000 rebate=+0.1125 net=+0.8006  cleanup  joined=2026-09-16T09:19:28.336030Z
+grid-3002924-m4  [live]  game=dota  Direborn vs Team Nemesis  map 4  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T10:08:11.962882Z
+grid-3007987-m2  [live]  game=dota  Team Synapse vs BALU  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T10:11:38.265326Z
+grid-3007249-m1  [live]  game=dota  Zero Tenacity vs PuckChamp  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T12:16:44.985341Z
+grid-3007249-m2  [live]  game=dota  PuckChamp vs Zero Tenacity  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T13:42:43.618150Z
+grid-3007249-m3  [live]  game=dota  Zero Tenacity vs PuckChamp  map 3  radiant  mode=live  fills=6  realized=+6.2143 imv=+0.0000 rebate=+0.3915 net=+6.6058  cleanup  joined=2026-09-16T14:48:18.842090Z
+grid-3007250-m1  [live]  game=dota  Inner Circle vs uralan  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T15:48:09.969830Z
+grid-3007250-m2  [live]  game=dota  uralan vs Inner Circle  map 2  radiant  mode=live  fills=9  realized=-2.4108 imv=+0.0000 rebate=+0.7106 net=-1.7002  cleanup  joined=2026-09-16T17:08:05.622914Z
+grid-3007250-m3  [live]  game=dota  Inner Circle vs uralan  map 3  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-16T18:28:28.540101Z
+grid-3007988-m1  [live]  game=dota  Yellow Submarine vs Two Move  map 1  radiant  mode=live  fills=24  realized=+65.0734 imv=+0.0000 rebate=+1.5709 net=+66.6443  cleanup  joined=2026-09-16T19:42:24.209361Z
+grid-3007988-m2  [live]  game=dota  Yellow Submarine vs Two Move  map 2  dire  mode=live  fills=2  realized=+2.8569 imv=+0.0000 rebate=+0.3268 net=+3.1837  cleanup  joined=2026-09-16T20:30:59.094931Z
+grid-3007988-m3  [live]  game=dota  Yellow Submarine vs Two Move  map 3  radiant  mode=live  fills=14  realized=+10.6581 imv=+0.0000 rebate=+1.2353 net=+11.8934  cleanup  joined=2026-09-16T21:30:17.772592Z
+grid-3007990-m1  [live]  game=dota  Spirit Academy vs Two Move  map 1  dire  mode=live  fills=11  realized=-23.9907 imv=+0.0000 rebate=+1.3994 net=-22.5913  cleanup  joined=2026-09-17T12:26:57.206650Z
+grid-3007990-m2  [live]  game=dota  Two Move vs Spirit Academy  map 2  radiant  mode=live  fills=11  realized=-0.4698 imv=+0.0000 rebate=+0.8558 net=+0.3860  cleanup  joined=2026-09-17T13:41:19.997852Z
+grid-3007254-m1  [live]  game=dota  Team Lynx vs Nemiga Gaming  map 1  dire  mode=live  fills=11  realized=+0.1940 imv=+0.0000 rebate=+1.2038 net=+1.3978  cleanup  joined=2026-09-17T15:12:41.963558Z
+grid-3007254-m2  [live]  game=dota  Nemiga Gaming vs Team Lynx  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-17T16:15:46.775193Z
+grid-3007254-m3  [live]  game=dota  Nemiga Gaming vs Team Lynx  map 3  dire  mode=live  fills=11  realized=-19.8978 imv=+0.0000 rebate=+0.7370 net=-19.1608  cleanup  joined=2026-09-17T18:04:39.180103Z
+grid-3007267-m1  [live]  game=dota  uralan vs Kalmychata  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-17T19:53:58.887987Z
+grid-3007267-m2  [live]  game=dota  Kalmychata vs uralan  map 2  radiant  mode=live  fills=4  realized=+13.5309 imv=+0.0000 rebate=+0.5075 net=+14.0384  cleanup  joined=2026-09-17T21:27:42.940160Z
+grid-3007267-m3  [live]  game=dota  uralan vs Kalmychata  map 3  dire  mode=live  fills=11  realized=+0.6325 imv=+0.0000 rebate=+0.4969 net=+1.1294  cleanup  joined=2026-09-17T22:33:43.672431Z
+grid-3007261-m1  [live]  game=dota  Team Lynx vs Team Synapse  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T09:22:59.392364Z
+grid-3007261-m2  [live]  game=dota  Team Synapse vs Team Lynx  map 2  radiant  mode=live  fills=2  realized=+1.5188 imv=+0.0000 rebate=+0.1821 net=+1.7009  cleanup  joined=2026-09-18T10:42:28.020707Z
+grid-3007262-m1  [live]  game=dota  Yellow Submarine vs Spirit Academy  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T12:16:38.894687Z
+grid-3007262-m2  [live]  game=dota  Yellow Submarine vs Spirit Academy  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T13:26:14.489373Z
+grid-3007263-m1  [live]  game=dota  Inner Circle vs Kalmychata  map 1  radiant  mode=live  fills=4  realized=+1.9196 imv=+0.0000 rebate=+0.3815 net=+2.3011  cleanup  joined=2026-09-18T15:21:09.542305Z
+grid-3007263-m2  [live]  game=dota  Kalmychata vs Inner Circle  map 2  dire  mode=live  fills=16  realized=+44.3518 imv=+0.0000 rebate=+1.9945 net=+46.3463  cleanup  joined=2026-09-18T16:41:45.648966Z
+grid-3009247-m1  [live]  game=dota  uralan vs Two Move  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T18:14:09.707034Z
+grid-3009247-m2  [live]  game=dota  uralan vs Two Move  map 2  dire  mode=live  fills=16  realized=-95.9615 imv=+0.0000 rebate=+1.2711 net=-94.6904  cleanup  joined=2026-09-18T18:57:32.055176Z
+grid-3007265-m1  [live]  game=dota  Team Synapse vs Nemiga Gaming  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T09:42:04.091454Z
+grid-3007265-m2  [live]  game=dota  Nemiga Gaming vs Team Synapse  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T10:44:30.159299Z
+grid-3007265-m3  [live]  game=dota  Nemiga Gaming vs Team Synapse  map 3  dire  mode=live  fills=4  realized=+34.6077 imv=+0.0000 rebate=+0.6284 net=+35.2361  cleanup  joined=2026-09-19T12:13:01.264007Z
+grid-3007266-m1  [live]  game=dota  Inner Circle vs Spirit Academy  map 1  radiant  mode=live  fills=2  realized=-1.3184 imv=+0.0000 rebate=+0.1194 net=-1.1990  cleanup  joined=2026-09-19T13:38:48.614901Z
+grid-3007266-m2  [live]  game=dota  Inner Circle vs Spirit Academy  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T15:12:19.364467Z
+grid-3007266-m3  [live]  game=dota  Inner Circle vs Spirit Academy  map 3  dire  mode=live  fills=5  realized=n/a imv=n/a rebate=+1.3093 net=n/a  cleanup  joined=2026-09-19T16:27:11.709249Z
+grid-3008839-m1  [live]  game=dota  Kalmychata vs Yellow Submarine  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T18:14:15.743268Z
+grid-3008839-m2  [live]  game=dota  Yellow Submarine vs Kalmychata  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T19:15:40.943855Z
+grid-3009714-m1  [live]  game=dota  BALU vs Team Lynx  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T20:08:39.869944Z
+9007118998.pgl-detached  [live]  game=dota  MOUZ vs Team Yandex  map 2  ORPHAN  mode=live  fills=5  realized=n/a imv=n/a rebate=+0.1227 net=n/a  no-cleanup  joined=2026-09-19T20:48:13.058677Z
+grid-3009714-m2  [live]  game=dota  Team Lynx vs BALU  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T21:02:24.987069Z
+9007118998  [live]  game=dota  MOUZ vs Team Yandex  map 2  radiant  mode=live  fills=0  realized=-5.3793 imv=+0.0000 rebate=+0.0000 net=-5.3793  cleanup  joined=2026-09-19T21:19:43.344317Z
+9007208887  [live]  game=dota  MOUZ vs Team Yandex  map 3  done  mode=live  fills=4  realized=-1.2448 imv=+0.0000 rebate=+0.1162 net=-1.1286  cleanup  joined=2026-09-19T21:45:13.654280Z
+9007618656  [live]  game=dota  Conventus Stellarum vs Xtreme Gaming  map 1  radiant  mode=live  fills=4  realized=-0.8725 imv=+0.0000 rebate=+0.0680 net=-0.8045  cleanup  joined=2026-09-20T07:04:13.176052Z
+9007618767  [live]  game=dota  Team Cobra vs PlayTime  map 1  dire  mode=live  fills=4  realized=+0.1514 imv=+0.0000 rebate=+0.0753 net=+0.2267  cleanup  joined=2026-09-20T07:02:19.331839Z
+9007720090  [live]  game=dota  PlayTime vs Team Cobra  map 2  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-09-20T08:39:49.944699Z
+9007700576  [live]  game=dota  Xtreme Gaming vs Conventus Stellarum  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T08:21:55.577521Z
+grid-3007236-m1  [live]  game=dota  Yellow Submarine vs Inner Circle  map 1  radiant  mode=live  fills=3  realized=-0.8823 imv=+0.0000 rebate=+0.2903 net=-0.5920  cleanup  joined=2026-09-20T09:10:48.961609Z
+9007800408  [live]  game=dota  Team Cobra vs PlayTime  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T09:46:30.877879Z
+grid-3007236-m2  [live]  game=dota  Inner Circle vs Yellow Submarine  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T10:09:23.788595Z
+9007784381  [live]  game=dota  Xtreme Gaming vs Conventus Stellarum  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T09:35:21.790562Z
+9007918871  [live]  game=dota  LGD Gaming vs GamerLegion  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T11:18:32.353745Z
+grid-3007237-m1  [live]  game=dota  PuckChamp vs Team Lynx  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T12:15:53.442166Z
+9008041645  [live]  game=dota  GamerLegion vs LGD Gaming  map 2  done  mode=live  fills=6  realized=-1.1903 imv=+0.0000 rebate=+0.0911 net=-1.0992  cleanup  joined=2026-09-20T12:31:38.016557Z
+grid-3007237-m2  [live]  game=dota  Team Lynx vs PuckChamp  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T13:40:36.663198Z
+9008125103  [live]  game=dota  Yakult Brothers vs  Pipsqueak+4  map 1  radiant  mode=live  fills=12  realized=-1.7334 imv=+0.0000 rebate=+0.3210 net=-1.4124  cleanup  joined=2026-09-20T13:18:08.596058Z
+9008160103  [live]  game=dota  Aurora vs Natus Vincere  map 1  dire  mode=live  fills=8  realized=-0.1639 imv=+0.0000 rebate=+0.1883 net=+0.0244  cleanup  joined=2026-09-20T13:39:09.244350Z
+grid-3007237-m3  [live]  game=dota  Team Lynx vs PuckChamp  map 3  radiant  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-20T15:19:48.941744Z
+9008297395  [live]  game=dota  Aurora vs Natus Vincere  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T14:51:07.461073Z
+9008292090  [live]  game=dota   Pipsqueak+4 vs Yakult Brothers  map 2  radiant  mode=live  fills=3  realized=+0.4862 imv=+0.0000 rebate=+0.0725 net=+0.5587  cleanup  joined=2026-09-20T14:48:42.843467Z
+grid-3010154-m1  [live]  game=dota  BALU vs PuckChamp  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T16:01:51.780136Z
+9008413867  [live]  game=dota  Team Nemesis vs Team Yandex  map 1  dire  mode=live  fills=4  realized=+1.4651 imv=+0.0000 rebate=+0.0280 net=+1.4931  cleanup  joined=2026-09-20T15:53:44.322144Z
+9008510292  [live]  game=dota  Team Nemesis vs Team Yandex  map 2  done  mode=live  fills=4  realized=+3.1776 imv=+0.0099 rebate=+0.0266 net=+3.2141  cleanup  joined=2026-09-20T16:46:50.125512Z
+grid-3010154-m2  [live]  game=dota  BALU vs PuckChamp  map 2  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T17:09:07.485918Z
+9008436237  [live]  game=dota   Pipsqueak+4 vs Yakult Brothers  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T16:07:34.991289Z
+grid-3007986-m1  [live]  game=dota  Kalmychata vs Two Move  map 1  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T18:34:58.770744Z
+grid-3007986-m2  [live]  game=dota  Kalmychata vs Two Move  map 2  radiant  mode=live  fills=2  realized=-4.2855 imv=+0.0000 rebate=+0.2812 net=-4.0043  cleanup  joined=2026-09-20T19:46:30.113092Z
+grid-3007986-m3  [live]  game=dota  Kalmychata vs Two Move  map 3  radiant  mode=live  fills=9  realized=-17.9450 imv=+0.0000 rebate=+0.6657 net=-17.2794  cleanup  joined=2026-09-20T20:49:12.549073Z
+9009267022  [live]  game=dota  Aurora vs Team Cobra  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T07:01:54.342690Z
+9009267070  [live]  game=dota  GamerLegion vs  Pipsqueak+4  map 1  dire  mode=live  fills=9  realized=-1.1826 imv=+0.0000 rebate=+0.1709 net=-1.0117  cleanup  joined=2026-09-21T07:01:36.657823Z
+9009315261  [live]  game=dota  Team Cobra vs Aurora  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T08:07:19.146854Z
+9009316435  [live]  game=dota  GamerLegion vs  Pipsqueak+4  map 2  radiant  mode=live  fills=3  realized=+0.6076 imv=+0.0000 rebate=+0.0640 net=+0.6716  cleanup  joined=2026-09-21T08:10:48.773613Z
+grid-3007273-m1  [live]  game=dota  Kalmychata vs Nemiga Gaming  map 1  radiant  mode=live  fills=4  realized=+1.8187 imv=+0.0000 rebate=+0.2112 net=+2.0299  cleanup  joined=2026-09-21T09:18:42.536543Z
+9009369303  [live]  game=dota   Pipsqueak+4 vs GamerLegion  map 3  done  mode=live  fills=6  realized=+0.0832 imv=+0.0000 rebate=+0.1138 net=+0.1970  cleanup  joined=2026-09-21T09:15:20.860935Z
+9009368871  [live]  game=dota  Conventus Stellarum vs 1win  map 1  dire  mode=live  fills=8  realized=+1.4295 imv=+0.0000 rebate=+0.2179 net=+1.6474  cleanup  joined=2026-09-21T09:21:33.622387Z
+9009436210  [live]  game=dota  1win vs Conventus Stellarum  map 2  ORPHAN  mode=live  fills=2  realized=n/a imv=n/a rebate=+0.0284 net=n/a  no-cleanup  joined=2026-09-21T10:29:07.054740Z
+grid-3007273-m2  [live]  game=dota  Kalmychata vs Nemiga Gaming  map 2  radiant  mode=live  fills=10  realized=+14.4917 imv=+0.0000 rebate=+0.7780 net=+15.2697  cleanup  joined=2026-09-21T10:28:52.520002Z
+9009429875  [live]  game=dota  MOUZ vs Team Nemesis  map 1  dire  mode=live  fills=3  realized=-0.2324 imv=+0.0000 rebate=+0.0867 net=-0.1457  cleanup  joined=2026-09-21T10:25:38.478958Z
+9009517003  [live]  game=dota  Team Nemesis vs MOUZ  map 2  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-09-21T11:43:23.750077Z
+grid-3007274-m1  [live]  game=dota  Zero Tenacity vs Two Move  map 1  dire  mode=live  fills=4  realized=-1.4600 imv=+0.0000 rebate=+0.1751 net=-1.2849  cleanup  joined=2026-09-21T12:14:39.056677Z
+9009540955  [live]  game=dota  Conventus Stellarum vs 1win  map 3  done  mode=live  fills=13  realized=+8.5599 imv=+0.0000 rebate=+0.7848 net=+9.3447  cleanup  joined=2026-09-21T12:05:10.151870Z
+9009607812  [live]  game=dota  PlayTime vs Yakult Brothers  map 1  dire  mode=live  fills=14  realized=+20.3835 imv=+0.0000 rebate=+1.2108 net=+21.5943  cleanup  joined=2026-09-21T12:57:11.354085Z
+grid-3007274-m2  [live]  game=dota  Zero Tenacity vs Two Move  map 2  dire  mode=live  fills=3  realized=+0.0000 imv=+0.0000 rebate=+0.2700 net=+0.2700  cleanup  joined=2026-09-21T13:26:44.858066Z
+9009679500  [live]  game=dota  Xtreme Gaming vs LGD Gaming  map 1  radiant  mode=live  fills=16  realized=+7.4408 imv=+0.0000 rebate=+1.1024 net=+8.5432  cleanup  joined=2026-09-21T13:40:43.933254Z
+9009747865  [live]  game=dota  Yakult Brothers vs PlayTime  map 2  done  mode=live  fills=5  realized=-1.2918 imv=+0.0000 rebate=+0.3343 net=-0.9575  cleanup  joined=2026-09-21T14:17:51.556662Z
+grid-3007275-m1  [live]  game=dota  Team Synapse vs Spirit Academy  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:20:42.203467Z
+9009814362  [live]  game=dota  LGD Gaming vs Xtreme Gaming  map 2  done  mode=live  fills=7  realized=-4.8416 imv=+0.0000 rebate=+0.5608 net=-4.2808  cleanup  joined=2026-09-21T15:00:01.758873Z
+9009924057  [live]  game=dota  Team Yandex vs Natus Vincere  map 1  radiant  mode=live  fills=13  realized=+2.5019 imv=+0.0000 rebate=+0.9559 net=+3.4578  cleanup  joined=2026-09-21T16:08:21.227581Z
+grid-3007275-m2  [live]  game=dota  Team Synapse vs Spirit Academy  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T16:15:56.464862Z
+9010014985  [live]  game=dota  Natus Vincere vs Team Yandex  map 2  done  mode=live  fills=6  realized=+5.7296 imv=+0.0000 rebate=+0.2622 net=+5.9918  cleanup  joined=2026-09-21T17:04:49.108107Z
+grid-3007276-m1  [live]  game=dota  Team Lynx vs Yellow Submarine  map 1  radiant  mode=live  fills=3  realized=+6.0300 imv=+0.0000 rebate=+0.3701 net=+6.4001  cleanup  joined=2026-09-21T18:14:15.294115Z
+grid-3007276-m2  [live]  game=dota  Yellow Submarine vs Team Lynx  map 2  radiant  mode=live  fills=18  realized=+0.9059 imv=+0.0000 rebate=+2.6218 net=+3.5278  cleanup  joined=2026-09-21T19:53:15.909954Z
+grid-3007276-m3  [live]  game=dota  Yellow Submarine vs Team Lynx  map 3  radiant  mode=live  fills=19  realized=+40.8712 imv=+0.0000 rebate=+2.7446 net=+43.6158  cleanup  joined=2026-09-21T21:17:26.269689Z
+9010695310  [live]  game=dota  Conventus Stellarum vs Yakult Brothers  map 1  radiant  mode=live  fills=12  realized=+8.9122 imv=+0.0000 rebate=+1.5953 net=+10.5075  cleanup  joined=2026-09-22T07:05:28.837050Z
+9010695250  [live]  game=dota  GamerLegion vs Team Nemesis  map 1  dire  mode=live  fills=8  realized=-15.0830 imv=+0.0000 rebate=+0.8635 net=-14.2195  cleanup  joined=2026-09-22T07:02:56.145275Z
+9010740459  [live]  game=dota  Yakult Brothers vs Conventus Stellarum  map 2  done  mode=live  fills=16  realized=+9.9340 imv=+0.0000 rebate=+1.1747 net=+11.1087  cleanup  joined=2026-09-22T08:06:14.424143Z
+9010744805  [live]  game=dota  Team Nemesis vs GamerLegion  map 2  dire  mode=live  fills=6  realized=-4.7504 imv=+0.0000 rebate=+1.7900 net=-2.9604  cleanup  joined=2026-09-22T08:09:57.999378Z
+9010797995  [live]  game=dota  GamerLegion vs Team Nemesis  map 3  done  mode=live  fills=10  realized=+6.4702 imv=+0.0000 rebate=+1.6759 net=+8.1461  cleanup  joined=2026-09-22T09:20:04.974670Z
+9010793762  [live]  game=dota   Pipsqueak+4 vs Team Cobra  map 1  radiant  mode=live  fills=8  realized=+19.0852 imv=+0.0000 rebate=+0.9878 net=+20.0730  cleanup  joined=2026-09-22T09:17:28.829230Z
+grid-3008657-m1  [live]  game=dota  Zero Tenacity vs Team Lynx  map 1  radiant  mode=live  fills=15  realized=-5.2200 imv=+0.0000 rebate=+1.3318 net=-3.8882  cleanup  joined=2026-09-22T09:28:42.227373Z
+9010847796  [live]  game=dota  Natus Vincere vs 1win  map 1  dire  mode=live  fills=8  realized=+120.7548 imv=+0.0000 rebate=+1.1707 net=+121.9255  cleanup  joined=2026-09-22T10:21:31.620438Z
+grid-3008657-m2  [live]  game=dota  Zero Tenacity vs Team Lynx  map 2  dire  mode=live  fills=3  realized=+1.5430 imv=+0.0000 rebate=+0.2835 net=+1.8265  cleanup  joined=2026-09-22T10:46:54.469836Z
+9010850705  [live]  game=dota  Team Cobra vs  Pipsqueak+4  map 2  radiant  mode=live  fills=7  realized=+43.1853 imv=+0.0000 rebate=+0.6595 net=+43.8448  cleanup  joined=2026-09-22T10:21:01.216593Z
+9010913001  [live]  game=dota  1win vs Natus Vincere  map 2  dire  mode=live  fills=9  realized=+28.0183 imv=+0.0000 rebate=+1.9618 net=+29.9801  cleanup  joined=2026-09-22T11:22:57.583489Z
+9010940591  [live]  game=dota  Team Cobra vs  Pipsqueak+4  map 3  done  mode=live  fills=11  realized=+18.9194 imv=+0.0000 rebate=+1.2085 net=+20.1279  cleanup  joined=2026-09-22T11:46:51.003034Z
+grid-3008657-m3  [live]  game=dota  Zero Tenacity vs Team Lynx  map 3  dire  mode=live  fills=5  realized=+3.6767 imv=+0.0000 rebate=+0.5513 net=+4.2280  cleanup  joined=2026-09-22T12:07:43.370364Z
+9010993339  [live]  game=dota  1win vs Natus Vincere  map 3  done  mode=live  fills=16  realized=+35.7198 imv=+0.0000 rebate=+2.3352 net=+38.0550  cleanup  joined=2026-09-22T12:30:32.024704Z
+grid-3008658-m1  [live]  game=dota  Nemiga Gaming vs Spirit Academy  map 1  radiant  mode=live  fills=15  realized=+10.6064 imv=+0.0000 rebate=+0.6375 net=+11.2439  cleanup  joined=2026-09-22T13:25:02.172397Z
+9011102813  [live]  game=dota  Aurora vs LGD Gaming  map 1  radiant  mode=live  fills=17  realized=-7.8655 imv=+0.0000 rebate=+3.1189 net=-4.7466  cleanup  joined=2026-09-22T13:43:30.649094Z
+9011229961  [live]  game=dota  LGD Gaming vs Aurora  map 2  ORPHAN  mode=live  fills=20  realized=n/a imv=n/a rebate=+4.9806 net=n/a  no-cleanup  joined=2026-09-22T14:56:17.450152Z
+grid-3008658-m2  [live]  game=dota  Nemiga Gaming vs Spirit Academy  map 2  radiant  mode=live  fills=15  realized=-2.6611 imv=+0.0000 rebate=+0.9930 net=-1.6681  cleanup  joined=2026-09-22T14:29:17.636374Z
+grid-3008659-m1  [live]  game=dota  Yellow Submarine vs Two Move  map 1  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T16:00:24.753780Z
+grid-3008659-m2  [live]  game=dota  Yellow Submarine vs Two Move  map 2  radiant  mode=live  fills=8  realized=+4.3708 imv=+0.0000 rebate=+0.4774 net=+4.8482  cleanup  joined=2026-09-22T16:56:21.064273Z
+grid-3008660-m1  [live]  game=dota  Kalmychata vs Team Synapse  map 1  radiant  mode=live  fills=19  realized=+32.7858 imv=+0.0000 rebate=+2.3571 net=+35.1428  cleanup  joined=2026-09-22T18:20:55.960718Z
+grid-3008660-m2  [live]  game=dota  Team Synapse vs Kalmychata  map 2  radiant  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T19:26:35.550482Z
+grid-3008660-m3  [live]  game=dota  Kalmychata vs Team Synapse  map 3  dire  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T20:37:44.044430Z
+9012123019  [live]  game=dota   Pipsqueak+4 vs 1win  map 1  dire  mode=live  fills=6  realized=-20.2751 imv=+0.0000 rebate=+1.4539 net=-18.8212  cleanup  joined=2026-09-23T07:03:37.028754Z
+9012167647  [live]  game=dota   Pipsqueak+4 vs 1win  map 2  done  mode=live  fills=14  realized=-8.8276 imv=+0.0000 rebate=+3.7661 net=-5.0615  cleanup  joined=2026-09-23T08:07:16.229224Z
+9012243731  [live]  game=dota  Conventus Stellarum vs Team Nemesis  map 1  radiant  mode=live  fills=9  realized=-15.2351 imv=+0.0000 rebate=+2.0791 net=-13.1559  cleanup  joined=2026-09-23T09:46:03.050346Z
+9012316577  [live]  game=dota  Team Nemesis vs Conventus Stellarum  map 2  LIVE  mode=live  fills=22  realized=n/a imv=n/a rebate=+4.0253 net=n/a  no-cleanup  joined=2026-09-23T11:05:12.677608Z

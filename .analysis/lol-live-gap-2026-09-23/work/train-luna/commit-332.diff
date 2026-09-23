@@ -1,0 +1,36 @@
+commit 332e1c1780668b8f5fd9c9f8f24f00d70a7a424e
+Author: Dmitrii Stovpets <dimabytes@gmail.com>
+Date:   Sat Sep 19 12:04:41 2026 +0200
+
+    Join LoL prepare current mid at as-of 0, not source lag.
+    
+    The live quote already sits on the GRID clock; lagging the training mid by 10s made second 0 read T+10 instead of the spawn print.
+    
+    Co-authored-by: Cursor <cursoragent@cursor.com>
+
+diff --git a/src/lol/05_prepare_dataset.py b/src/lol/05_prepare_dataset.py
+index cd1473aa..5f59685f 100644
+--- a/src/lol/05_prepare_dataset.py
++++ b/src/lol/05_prepare_dataset.py
+@@ -293,11 +293,7 @@ def join_market_rows(
+     rows: list[LolDatasetRow] = []
+     skipped = 0
+     for slot in livestats.grid_rows:
+-        current = finite_mid(
+-            lookup_market_p_after(
+-                radiant_book, dire_book, slot.state_wall_us, LOL_SOURCE_LAG_SECONDS
+-            )
+-        )
++        current = finite_mid(lookup_market_p_after(radiant_book, dire_book, slot.state_wall_us, 0))
+         if current is None:
+             skipped += 1
+             continue
+@@ -308,7 +304,7 @@ def join_market_rows(
+                     radiant_book,
+                     dire_book,
+                     slot.state_wall_us,
+-                    LOL_SOURCE_LAG_SECONDS + LOL_TARGET_HORIZON_SECONDS,
++                    LOL_TARGET_HORIZON_SECONDS,
+                 )
+             )
+         rows.append(build_dataset_row(livestats, link, slot, radiant_win, prior, current, label))

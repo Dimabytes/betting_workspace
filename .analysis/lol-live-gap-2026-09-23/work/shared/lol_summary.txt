@@ -1,0 +1,317 @@
+grid-2966909-m1  [paper]  game=lol  Team Heretics vs Movistar KOI  map 1  done  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T13:59:41.506615Z
+grid-2966909-m2  [paper]  game=lol  Team Heretics vs Movistar KOI  map 2  done  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T14:52:09.037783Z
+grid-2966910-m1  [paper]  game=lol  GIANTX vs Fnatic  map 1  done  mode=paper  fills=2  realized=-1.9180 imv=+0.0000 rebate=+0.0866 net=-1.8314  cleanup  joined=2026-08-30T15:49:34.960598Z
+grid-2973269-m1  [paper]  game=lol  Pain Gaming vs Vivo Keyd Stars  map 1  done  mode=paper  fills=2  realized=-5.5386 imv=+0.0000 rebate=+0.1100 net=-5.4286  cleanup  joined=2026-08-30T16:11:16.404598Z
+grid-2966910-m2  [paper]  game=lol  GIANTX vs Fnatic  map 2  done  mode=paper  fills=4  realized=-3.9642 imv=+0.0000 rebate=+0.2954 net=-3.6688  cleanup  joined=2026-08-30T16:42:37.048996Z
+grid-2973269-m2  [paper]  game=lol  Vivo Keyd Stars vs Pain Gaming  map 2  done  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T17:05:44.046096Z
+grid-2966910-m3  [paper]  game=lol  Fnatic vs GIANTX  map 3  done  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T17:34:58.848823Z
+grid-2973269-m3  [paper]  game=lol  Pain Gaming vs Vivo Keyd Stars  map 3  done  mode=paper  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-30T18:01:02.751796Z
+grid-2964616-m1  [paper]  game=lol  Shopify Rebellion vs Cloud9 Kia  map 1  done  mode=paper  fills=2  realized=+9.8488 imv=+0.0000 rebate=+0.2218 net=+10.0706  cleanup  joined=2026-08-30T21:57:25.115486Z
+grid-2964616-m2  [paper]  game=lol  Shopify Rebellion vs Cloud9 Kia  map 2  done  mode=paper  fills=4  realized=-3.9685 imv=+0.0000 rebate=+0.5463 net=-3.4222  cleanup  joined=2026-08-30T22:44:11.487291Z
+grid-2964616-m3  [paper]  game=lol  Shopify Rebellion vs Cloud9 Kia  map 3  done  mode=paper  fills=2  realized=+3.8460 imv=+0.0000 rebate=+0.2524 net=+4.0984  cleanup  joined=2026-08-30T23:43:37.970855Z
+grid-2971821-m1  [live]  game=lol  Arctic Pandas vs Verdant  map 1  ORPHAN  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-31T16:06:27.043667Z
+grid-2971821-m2  [live]  game=lol  Verdant vs Arctic Pandas  map 2  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-31T17:09:34.232864Z
+grid-2971822-m2  [live]  game=lol  Deer Gaming vs Ruddy Corporation  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T18:57:30.610207Z
+grid-2974335-m1  [live]  game=lol  RMD Gaming vs INTZ  map 1  done  mode=live  fills=2  realized=+0.1000 imv=+0.0000 rebate=+0.0306 net=+0.1306  cleanup  joined=2026-08-31T20:04:47.157146Z
+grid-2974335-m2  [live]  game=lol  INTZ vs RMD Gaming  map 2  done  mode=live  fills=3  realized=-0.8451 imv=+0.0000 rebate=+0.0895 net=-0.7556  cleanup  joined=2026-08-31T20:51:34.126119Z
+grid-2974335-m3  [live]  game=lol  INTZ vs RMD Gaming  map 3  done  mode=live  fills=2  realized=-2.0000 imv=+0.0000 rebate=+0.1764 net=-1.8236  cleanup  joined=2026-08-31T21:43:28.384128Z
+grid-2974335-m4  [live]  game=lol  RMD Gaming vs INTZ  map 4  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-31T22:34:31.753523Z
+grid-2967260-m1  [live]  game=lol  3V TEAM vs Fuego  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-08-31T23:13:13.888247Z
+grid-2974335-m5  [live]  game=lol  RMD Gaming vs INTZ  map 5  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-08-31T23:25:37.876584Z
+grid-2967260-m2  [live]  game=lol  3V TEAM vs Fuego  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T00:08:02.567235Z
+grid-2967260-m3  [live]  game=lol  3V TEAM vs Fuego  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T00:53:11.720781Z
+grid-2987017-m1  [live]  game=lol  Gen.G Esports vs KT Rolster  map 1  done  mode=live  fills=2  realized=-2.1624 imv=+0.0000 rebate=+0.0845 net=-2.0779  cleanup  joined=2026-09-01T08:11:31.834467Z
+grid-2987017-m2  [live]  game=lol  Gen.G Esports vs KT Rolster  map 2  done  mode=live  fills=4  realized=+0.7564 imv=+0.0000 rebate=+0.1196 net=+0.8760  cleanup  joined=2026-09-01T09:13:24.429576Z
+grid-2987017-m3  [live]  game=lol  Gen.G Esports vs KT Rolster  map 3  done  mode=live  fills=2  realized=-2.5976 imv=+0.0000 rebate=+0.1823 net=-2.4153  cleanup  joined=2026-09-01T10:09:07.233185Z
+grid-2991209-m2  [live]  game=lol  CITA Kaizen vs EXILE esports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T15:11:24.893478Z
+grid-2978288-m1  [live]  game=lol  Kaufland Hangry Knights vs Unicorns Of Love Sexy Edition  map 1  done  mode=live  fills=13  realized=+3.4892 imv=+0.0000 rebate=+0.6487 net=+4.1379  cleanup  joined=2026-09-01T15:06:04.782186Z
+grid-2994622-m1  [live]  game=lol  Dark Passage vs PCIFIC Esports  map 1  done  mode=live  fills=5  realized=+33.1438 imv=+0.0000 rebate=+0.3734 net=+33.5172  cleanup  joined=2026-09-01T15:38:51.557018Z
+grid-2972362-m2  [live]  game=lol  Barça eSports vs UCAM Esports Club  map 2  done  mode=live  fills=4  realized=+1.6200 imv=+0.0000 rebate=+0.0259 net=+1.6459  cleanup  joined=2026-09-01T16:03:29.942497Z
+grid-2978288-m2  [live]  game=lol  Kaufland Hangry Knights vs Unicorns Of Love Sexy Edition  map 2  done  mode=live  fills=4  realized=-19.3122 imv=+0.0000 rebate=+0.4881 net=-18.8241  cleanup  joined=2026-09-01T16:06:45.497058Z
+grid-2996948-m1  [live]  game=lol  Karmine Corp Blue vs TLN Pirates  map 1  done  mode=live  fills=8  realized=-7.2708 imv=+0.0000 rebate=+0.2351 net=-7.0357  cleanup  joined=2026-09-01T16:08:25.604527Z
+grid-2991210-m1  [live]  game=lol  BRUTE vs UP2U Meavedron  map 1  done  mode=live  fills=4  realized=-2.3216 imv=+0.0000 rebate=+0.0961 net=-2.2256  cleanup  joined=2026-09-01T16:09:49.323543Z
+grid-2994622-m2  [live]  game=lol  PCIFIC Esports vs Dark Passage  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T16:35:23.259860Z
+grid-2965523-m1  [live]  game=lol  Senshi eSports vs Frites Esports Club  map 1  done  mode=live  fills=3  realized=+1.3038 imv=+0.0000 rebate=+0.0296 net=+1.3334  cleanup  joined=2026-09-01T16:25:24.040603Z
+grid-2972362-m3  [live]  game=lol  Barça eSports vs UCAM Esports Club  map 3  done  mode=live  fills=9  realized=+13.7259 imv=+0.0000 rebate=+0.5107 net=+14.2366  cleanup  joined=2026-09-01T16:51:01.883323Z
+grid-2978288-m3  [live]  game=lol  Unicorns Of Love Sexy Edition vs Kaufland Hangry Knights  map 3  done  mode=live  fills=9  realized=-0.1297 imv=+0.0000 rebate=+0.0953 net=-0.0344  cleanup  joined=2026-09-01T17:00:17.184755Z
+grid-2996948-m2  [live]  game=lol  Karmine Corp Blue vs TLN Pirates  map 2  done  mode=live  fills=14  realized=-8.9431 imv=+0.0000 rebate=+0.9867 net=-7.9564  cleanup  joined=2026-09-01T17:08:52.349324Z
+grid-2991210-m2  [live]  game=lol  BRUTE vs UP2U Meavedron  map 2  done  mode=live  fills=8  realized=+21.1376 imv=+0.0000 rebate=+0.3637 net=+21.5013  cleanup  joined=2026-09-01T17:10:58.183837Z
+grid-2984640-m1  [live]  game=lol  LODIS vs BOMBA Team  map 1  done  mode=live  fills=4  realized=-18.8402 imv=+0.0000 rebate=+0.1777 net=-18.6625  cleanup  joined=2026-09-01T17:18:48.611467Z
+grid-2965523-m2  [live]  game=lol  Frites Esports Club vs Senshi eSports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T17:44:48.450130Z
+grid-2991210-m3  [live]  game=lol  BRUTE vs UP2U Meavedron  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T18:06:47.359159Z
+grid-2996948-m3  [live]  game=lol  Karmine Corp Blue vs TLN Pirates  map 3  done  mode=live  fills=15  realized=-28.0461 imv=+0.0000 rebate=+2.2630 net=-25.7831  cleanup  joined=2026-09-01T18:02:45.733213Z
+grid-2984640-m2  [live]  game=lol  LODIS vs BOMBA Team  map 2  done  mode=live  fills=4  realized=-24.3856 imv=+0.0000 rebate=+0.6923 net=-23.6933  cleanup  joined=2026-09-01T18:09:45.647758Z
+grid-2965524-m1  [live]  game=lol  mCon esports vs The Bandits  map 1  done  mode=live  fills=5  realized=-2.8590 imv=+0.0000 rebate=+0.1646 net=-2.6944  cleanup  joined=2026-09-01T18:17:40.119413Z
+grid-2965523-m3  [live]  game=lol  Frites Esports Club vs Senshi eSports  map 3  done  mode=live  fills=3  realized=-12.0982 imv=+0.0000 rebate=+0.3585 net=-11.7397  cleanup  joined=2026-09-01T18:35:48.583451Z
+grid-2996948-m4  [live]  game=lol  TLN Pirates vs Karmine Corp Blue  map 4  done  mode=live  fills=13  realized=+4.0135 imv=+0.0000 rebate=+1.6016 net=+5.6151  cleanup  joined=2026-09-01T18:57:58.381831Z
+grid-2984640-m3  [live]  game=lol  LODIS vs BOMBA Team  map 3  done  mode=live  fills=3  realized=-10.0446 imv=+0.0000 rebate=+0.7055 net=-9.3391  cleanup  joined=2026-09-01T19:07:01.713926Z
+grid-2965524-m2  [live]  game=lol  The Bandits vs mCon esports  map 2  done  mode=live  fills=3  realized=-0.4688 imv=+0.0000 rebate=+0.0473 net=-0.4216  cleanup  joined=2026-09-01T19:19:11.788098Z
+grid-2996948-m5  [live]  game=lol  Karmine Corp Blue vs TLN Pirates  map 5  done  mode=live  fills=15  realized=-38.3222 imv=+0.0000 rebate=+1.3977 net=-36.9245  cleanup  joined=2026-09-01T19:50:12.407008Z
+grid-2965524-m3  [live]  game=lol  mCon esports vs The Bandits  map 3  done  mode=live  fills=8  realized=+1.2038 imv=+0.0000 rebate=+0.0917 net=+1.2955  cleanup  joined=2026-09-01T20:17:53.106632Z
+grid-2967261-m2  [live]  game=lol  Golden Lions vs Maze Gaming  map 2  done  mode=live  fills=2  realized=+1.7000 imv=+0.0000 rebate=+0.0295 net=+1.7295  cleanup  joined=2026-09-01T21:06:40.538637Z
+grid-2967261-m4  [live]  game=lol  Golden Lions vs Maze Gaming  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-01T22:47:50.585712Z
+grid-2987018-m1  [live]  game=lol  T1 vs Hanwha Life Esports  map 1  done  mode=live  fills=4  realized=+9.2352 imv=+0.0000 rebate=+1.0420 net=+10.2772  cleanup  joined=2026-09-02T08:11:28.216502Z
+grid-2987018-m2  [live]  game=lol  T1 vs Hanwha Life Esports  map 2  done  mode=live  fills=8  realized=+2.3991 imv=+0.0000 rebate=+1.6706 net=+4.0697  cleanup  joined=2026-09-02T09:05:18.974871Z
+grid-2987018-m4  [live]  game=lol  T1 vs Hanwha Life Esports  map 4  ORPHAN  mode=live  fills=11  realized=n/a imv=n/a rebate=+1.9085 net=n/a  cleanup  joined=2026-09-02T10:48:14.009470Z
+grid-2987018-m5  [live]  game=lol  T1 vs Hanwha Life Esports  map 5  done  mode=live  fills=8  realized=+12.4560 imv=+0.0000 rebate=+1.0179 net=+13.4739  cleanup  joined=2026-09-02T11:38:50.155675Z
+grid-2998724-m1  [live]  game=lol  Team Phantasma vs WLGaming  map 1  done  mode=live  fills=5  realized=-2.5053 imv=+0.0000 rebate=+1.0043 net=-1.5010  cleanup  joined=2026-09-02T13:17:08.983373Z
+grid-2998724-m2  [live]  game=lol  WLGaming vs Team Phantasma  map 2  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-02T14:15:29.721576Z
+grid-2972363-m1  [live]  game=lol  Movistar KOI Fénix vs UCAM Esports Club  map 1  done  mode=live  fills=22  realized=-5.3368 imv=+0.0000 rebate=+1.3129 net=-4.0240  cleanup  joined=2026-09-02T15:13:34.184466Z
+grid-2998724-m3  [live]  game=lol  WLGaming vs Team Phantasma  map 3  done  mode=live  fills=8  realized=-37.1141 imv=+0.0000 rebate=+1.5945 net=-35.5196  cleanup  joined=2026-09-02T15:20:48.918380Z
+grid-2996949-m1  [live]  game=lol  TLN Pirates vs Galions  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:08:53.491087Z
+grid-2971823-m1  [live]  game=lol  Bulldog Esports vs Deer Gaming  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:09:55.613058Z
+grid-2991212-m1  [live]  game=lol  Onion Team vs UP2U Meavedron  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:14:01.149830Z
+grid-2998724-m4  [live]  game=lol  Team Phantasma vs WLGaming  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:12:52.667206Z
+grid-2972363-m2  [live]  game=lol  Movistar KOI Fénix vs UCAM Esports Club  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:13:24.310363Z
+grid-2977835-m1  [live]  game=lol  TITANS vs Zena Esports  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T16:16:18.945202Z
+grid-2991212-m2  [live]  game=lol  Onion Team vs UP2U Meavedron  map 2  done  mode=live  fills=3  realized=-8.5716 imv=+0.0000 rebate=+0.4719 net=-8.0997  cleanup  joined=2026-09-02T17:03:13.017053Z
+grid-2971823-m2  [live]  game=lol  Deer Gaming vs Bulldog Esports  map 2  done  mode=live  fills=9  realized=-1.5315 imv=+0.0000 rebate=+0.1766 net=-1.3549  cleanup  joined=2026-09-02T17:05:31.627319Z
+grid-2972363-m3  [live]  game=lol  Movistar KOI Fénix vs UCAM Esports Club  map 3  done  mode=live  fills=2  realized=+0.5581 imv=+0.0000 rebate=+0.0399 net=+0.5980  cleanup  joined=2026-09-02T17:02:52.994176Z
+grid-2996949-m2  [live]  game=lol  Galions vs TLN Pirates  map 2  done  mode=live  fills=8  realized=-41.4495 imv=+0.0000 rebate=+1.0458 net=-40.4036  cleanup  joined=2026-09-02T17:00:32.419370Z
+grid-2977835-m2  [live]  game=lol  Zena Esports vs TITANS  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T17:15:32.135492Z
+grid-2991212-m3  [live]  game=lol  UP2U Meavedron vs Onion Team  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-02T17:49:14.777051Z
+grid-2972363-m4  [live]  game=lol  Movistar KOI Fénix vs UCAM Esports Club  map 4  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-02T17:57:39.980436Z
+grid-2971824-m1  [live]  game=lol  Verdant vs DMG Esports  map 1  done  mode=live  fills=2  realized=-2.8232 imv=+0.0000 rebate=+0.0806 net=-2.7426  cleanup  joined=2026-09-02T18:07:24.518203Z
+grid-2971823-m3  [live]  game=lol  Bulldog Esports vs Deer Gaming  map 3  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-02T17:59:35.752169Z
+grid-2996949-m3  [live]  game=lol  Galions vs TLN Pirates  map 3  done  mode=?  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-02T17:59:44.969324Z
+grid-2977835-m3  [live]  game=lol  Zena Esports vs TITANS  map 3  done  mode=live  fills=3  realized=-4.5660 imv=+0.0146 rebate=+0.1179 net=-4.4336  cleanup  joined=2026-09-02T18:03:51.389175Z
+grid-2996949-m4  [live]  game=lol  TLN Pirates vs Galions  map 4  done  mode=live  fills=8  realized=-0.6273 imv=+0.0000 rebate=+0.2745 net=-0.3529  cleanup  joined=2026-09-02T18:50:19.795537Z
+grid-2971824-m2  [live]  game=lol  DMG Esports vs Verdant  map 2  done  mode=live  fills=3  realized=-2.6874 imv=+0.0000 rebate=+0.0818 net=-2.6056  cleanup  joined=2026-09-02T18:55:27.490132Z
+grid-2974337-m1  [live]  game=lol  Vivo Keyd Stars Academy vs Estral Esports  map 1  done  mode=live  fills=2  realized=-0.0059 imv=+0.0000 rebate=+0.0268 net=+0.0209  cleanup  joined=2026-09-02T20:05:09.196143Z
+grid-2974337-m2  [live]  game=lol  Estral Esports vs Vivo Keyd Stars Academy  map 2  done  mode=live  fills=5  realized=-2.3992 imv=+0.0000 rebate=+0.0904 net=-2.3088  cleanup  joined=2026-09-02T20:52:45.112273Z
+grid-2974337-m3  [live]  game=lol  Estral Esports vs Vivo Keyd Stars Academy  map 3  done  mode=live  fills=5  realized=+2.5298 imv=+0.0000 rebate=+0.0626 net=+2.5924  cleanup  joined=2026-09-02T21:42:45.552551Z
+grid-2987019-m1  [live]  game=lol  BNK FearX vs Dplus KIA  map 1  done  mode=live  fills=6  realized=-11.2002 imv=+0.0000 rebate=+0.5068 net=-10.6934  cleanup  joined=2026-09-03T08:08:15.532316Z
+grid-2987019-m2  [paper]  game=lol  BNK FearX vs Dplus KIA  map 2  ORPHAN  mode=paper  fills=2  realized=n/a imv=n/a rebate=+0.0000 net=n/a  no-cleanup  joined=2026-09-03T09:15:37.464926Z
+grid-2987019-m2  [live]  game=lol  BNK FearX vs Dplus KIA  map 2  done  mode=live  fills=4  realized=+0.6000 imv=+0.0000 rebate=+0.0749 net=+0.6749  cleanup  joined=2026-09-03T09:15:06.721955Z
+grid-2987019-m3  [live]  game=lol  Dplus KIA vs BNK FearX  map 3  done  mode=live  fills=4  realized=+2.0012 imv=+0.0000 rebate=+0.1010 net=+2.1022  cleanup  joined=2026-09-03T10:17:33.071212Z
+grid-2987019-m4  [live]  game=lol  BNK FearX vs Dplus KIA  map 4  done  mode=live  fills=11  realized=+0.1659 imv=+0.0000 rebate=+0.2630 net=+0.4289  cleanup  joined=2026-09-03T11:12:01.210610Z
+grid-2987019-m5  [live]  game=lol  Dplus KIA vs BNK FearX  map 5  done  mode=live  fills=6  realized=+0.6549 imv=+0.0000 rebate=+0.1595 net=+0.8144  cleanup  joined=2026-09-03T12:00:07.921278Z
+grid-2991213-m1  [live]  game=lol  NightBirds vs BRUTE  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T14:16:00.582619Z
+grid-2991213-m2  [live]  game=lol  NightBirds vs BRUTE  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T14:51:27.831720Z
+grid-2984645-m1  [live]  game=lol  Barcząca Esports vs Docisk  map 1  done  mode=live  fills=3  realized=-0.9796 imv=+0.0000 rebate=+0.0473 net=-0.9323  cleanup  joined=2026-09-03T15:11:02.472911Z
+grid-2984645-m2  [live]  game=lol  Docisk vs Barcząca Esports  map 2  done  mode=live  fills=4  realized=-0.0967 imv=+0.0000 rebate=+0.0805 net=-0.0162  cleanup  joined=2026-09-03T16:09:16.653256Z
+grid-2991214-m1  [live]  game=lol  EXILE esports vs eSuba  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T15:55:34.474854Z
+grid-2977837-m1  [live]  game=lol  Colossal Gaming vs HMBLE  map 1  done  mode=live  fills=6  realized=+0.4344 imv=+1.0659 rebate=+0.0391 net=+1.5394  cleanup  joined=2026-09-03T16:09:19.053008Z
+grid-2965525-m1  [live]  game=lol  Senshi eSports vs Myth eSports  map 1  done  mode=live  fills=3  realized=-1.7911 imv=+0.0000 rebate=+0.0813 net=-1.7098  cleanup  joined=2026-09-03T16:13:02.182589Z
+grid-2991214-m2  [live]  game=lol  EXILE esports vs eSuba  map 2  done  mode=live  fills=2  realized=-0.6500 imv=+0.0000 rebate=+0.0159 net=-0.6341  cleanup  joined=2026-09-03T16:57:15.758483Z
+grid-2965525-m2  [live]  game=lol  Myth eSports vs Senshi eSports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T17:01:20.149219Z
+grid-2977837-m2  [live]  game=lol  Colossal Gaming vs HMBLE  map 2  done  mode=live  fills=2  realized=-0.1000 imv=+0.0000 rebate=+0.0253 net=-0.0747  cleanup  joined=2026-09-03T17:00:13.245238Z
+grid-2991214-m3  [live]  game=lol  eSuba vs EXILE esports  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T17:42:38.276737Z
+grid-2965526-m1  [live]  game=lol  ZennIT vs The Bandits  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T18:02:49.067178Z
+grid-2977837-m3  [live]  game=lol  Colossal Gaming vs HMBLE  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T17:53:24.521301Z
+grid-2968611-m1  [live]  game=lol  Dominion Goblins vs Dream Esports  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T18:14:46.546810Z
+grid-2965526-m2  [live]  game=lol  ZennIT vs The Bandits  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T18:53:43.529960Z
+grid-2968611-m2  [live]  game=lol  Dominion Goblins vs Dream Esports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T19:18:38.786588Z
+grid-2965526-m3  [live]  game=lol  The Bandits vs ZennIT  map 3  done  mode=live  fills=9  realized=+0.4168 imv=+1.8864 rebate=+0.0764 net=+2.3796  cleanup  joined=2026-09-03T19:44:13.757356Z
+grid-2968611-m3  [live]  game=lol  Dream Esports vs Dominion Goblins  map 3  done  mode=live  fills=2  realized=+0.4450 imv=+0.0000 rebate=+0.0182 net=+0.4632  cleanup  joined=2026-09-03T20:30:55.904559Z
+grid-2975625-m1  [live]  game=lol  Maryville University vs Contingent Esports  map 1  done  mode=live  fills=3  realized=+0.0000 imv=+0.0000 rebate=+0.0390 net=+0.0390  cleanup  joined=2026-09-03T21:15:55.739121Z
+grid-2968611-m4  [live]  game=lol  Dream Esports vs Dominion Goblins  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-03T21:29:45.155951Z
+grid-2975625-m2  [live]  game=lol  Contingent Esports vs Maryville University  map 2  done  mode=live  fills=4  realized=+0.9363 imv=+0.0000 rebate=+0.0800 net=+1.0163  cleanup  joined=2026-09-03T22:07:48.307533Z
+grid-2975625-m3  [live]  game=lol  Contingent Esports vs Maryville University  map 3  done  mode=live  fills=4  realized=-0.3946 imv=+0.0122 rebate=+0.0501 net=-0.3324  cleanup  joined=2026-09-03T22:59:42.570849Z
+grid-2975625-m4  [live]  game=lol  Contingent Esports vs Maryville University  map 4  done  mode=live  fills=4  realized=+1.5115 imv=+0.0000 rebate=+0.0707 net=+1.5822  cleanup  joined=2026-09-03T23:47:04.552301Z
+grid-2975625-m5  [live]  game=lol  Contingent Esports vs Maryville University  map 5  done  mode=live  fills=3  realized=-0.2762 imv=+0.0000 rebate=+0.0645 net=-0.2117  cleanup  joined=2026-09-04T00:36:32.686233Z
+grid-2987020-m1  [live]  game=lol  KT Rolster vs Dplus KIA  map 1  done  mode=live  fills=7  realized=-1.9208 imv=+0.0000 rebate=+0.2342 net=-1.6866  cleanup  joined=2026-09-04T08:08:10.660521Z
+grid-2987020-m2  [live]  game=lol  Dplus KIA vs KT Rolster  map 2  done  mode=live  fills=7  realized=+0.2038 imv=+0.0000 rebate=+0.1281 net=+0.3319  cleanup  joined=2026-09-04T09:02:33.667957Z
+grid-2987020-m3  [live]  game=lol  KT Rolster vs Dplus KIA  map 3  done  mode=live  fills=9  realized=-1.3999 imv=+0.0000 rebate=+0.2600 net=-1.1399  cleanup  joined=2026-09-04T10:07:46.328666Z
+grid-2987020-m4  [live]  game=lol  Dplus KIA vs KT Rolster  map 4  done  mode=live  fills=9  realized=+1.3261 imv=+0.0000 rebate=+0.2778 net=+1.6039  cleanup  joined=2026-09-04T10:58:18.157931Z
+grid-2984646-m1  [live]  game=lol  LODIS vs Docisk  map 1  done  mode=live  fills=2  realized=-4.2154 imv=+0.0000 rebate=+0.0543 net=-4.1611  cleanup  joined=2026-09-04T15:09:19.020819Z
+grid-2991216-m1  [live]  game=lol  Bohemian Guardians vs eSuba  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-04T15:11:16.753941Z
+grid-2984646-m2  [live]  game=lol  LODIS vs Docisk  map 2  done  mode=live  fills=4  realized=-0.7827 imv=+0.0000 rebate=+0.0909 net=-0.6918  cleanup  joined=2026-09-04T16:03:31.406824Z
+grid-2991216-m2  [live]  game=lol  Bohemian Guardians vs eSuba  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-04T16:22:56.132448Z
+grid-2991216-m3  [live]  game=lol  eSuba vs Bohemian Guardians  map 3  done  mode=live  fills=4  realized=-3.2594 imv=+2.8523 rebate=+0.0640 net=-0.3432  cleanup  joined=2026-09-04T17:14:41.971843Z
+grid-2976630-m1  [live]  game=lol  L Guide Gaming vs New Meta  map 1  done  mode=live  fills=5  realized=-0.1422 imv=+0.0603 rebate=+0.1605 net=+0.0786  cleanup  joined=2026-09-05T05:19:10.132444Z
+grid-2976630-m2  [live]  game=lol  New Meta vs L Guide Gaming  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-05T06:26:27.037279Z
+grid-2976630-m3  [live]  game=lol  New Meta vs L Guide Gaming  map 3  done  mode=live  fills=2  realized=+0.0000 imv=+0.0000 rebate=+0.0294 net=+0.0294  cleanup  joined=2026-09-05T07:30:37.377038Z
+grid-2987021-m1  [live]  game=lol  Hanwha Life Esports vs Gen.G Esports  map 1  done  mode=live  fills=2  realized=+0.0000 imv=+0.0000 rebate=+0.0765 net=+0.0765  cleanup  joined=2026-09-05T08:08:34.064503Z
+grid-2987021-m2  [live]  game=lol  Gen.G Esports vs Hanwha Life Esports  map 2  done  mode=live  fills=11  realized=+4.8789 imv=+0.0000 rebate=+0.3922 net=+5.2711  cleanup  joined=2026-09-05T09:11:42.772502Z
+grid-2987021-m3  [live]  game=lol  Hanwha Life Esports vs Gen.G Esports  map 3  done  mode=live  fills=11  realized=-1.8171 imv=+0.0000 rebate=+0.3447 net=-1.4725  cleanup  joined=2026-09-05T10:19:47.046070Z
+grid-3002597-m1  [live]  game=lol  G2 Esports vs Team Vitality  map 1  done  mode=live  fills=3  realized=-0.0062 imv=+0.0000 rebate=+0.0257 net=+0.0195  cleanup  joined=2026-09-05T10:20:16.768732Z
+grid-2987021-m4  [live]  game=lol  Gen.G Esports vs Hanwha Life Esports  map 4  ORPHAN  mode=live  fills=6  realized=n/a imv=n/a rebate=+0.1509 net=n/a  no-cleanup  joined=2026-09-05T11:13:13.000073Z
+grid-3002597-m2  [live]  game=lol  G2 Esports vs Team Vitality  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-05T11:23:46.869541Z
+grid-3002597-m3  [live]  game=lol  G2 Esports vs Team Vitality  map 3  done  mode=live  fills=2  realized=+0.2942 imv=+0.0000 rebate=+0.0472 net=+0.3414  cleanup  joined=2026-09-05T12:19:36.848053Z
+grid-3002598-m1  [live]  game=lol  Karmine Corp vs GIANTX  map 1  done  mode=live  fills=4  realized=+0.4185 imv=+0.0000 rebate=+0.0372 net=+0.4557  cleanup  joined=2026-09-05T13:24:32.429134Z
+grid-3002598-m2  [live]  game=lol  Karmine Corp vs GIANTX  map 2  done  mode=live  fills=4  realized=-1.2530 imv=+0.0000 rebate=+0.0455 net=-1.2075  cleanup  joined=2026-09-05T14:26:20.912518Z
+grid-3002598-m3  [live]  game=lol  GIANTX vs Karmine Corp  map 3  done  mode=live  fills=2  realized=+0.2703 imv=+0.0000 rebate=+0.0950 net=+0.3653  cleanup  joined=2026-09-05T15:25:46.062075Z
+grid-3002598-m4  [live]  game=lol  Karmine Corp vs GIANTX  map 4  done  mode=live  fills=4  realized=+1.4511 imv=+0.0000 rebate=+0.0341 net=+1.4852  cleanup  joined=2026-09-05T16:15:32.131941Z
+grid-2973272-m1  [live]  game=lol  Pain Gaming vs Vivo Keyd Stars  map 1  done  mode=live  fills=2  realized=-0.2666 imv=+0.0000 rebate=+0.0385 net=-0.2281  cleanup  joined=2026-09-05T16:12:57.843644Z
+grid-2973272-m2  [live]  game=lol  Vivo Keyd Stars vs Pain Gaming  map 2  done  mode=live  fills=4  realized=-5.6188 imv=+0.0000 rebate=+0.1653 net=-5.4535  cleanup  joined=2026-09-05T17:07:03.191068Z
+grid-2973272-m3  [live]  game=lol  Pain Gaming vs Vivo Keyd Stars  map 3  done  mode=live  fills=6  realized=+1.8224 imv=+0.0336 rebate=+0.1886 net=+2.0446  cleanup  joined=2026-09-05T17:56:01.860690Z
+grid-2973272-m4  [live]  game=lol  Pain Gaming vs Vivo Keyd Stars  map 4  done  mode=live  fills=12  realized=-0.8587 imv=+0.0140 rebate=+0.1136 net=-0.7311  cleanup  joined=2026-09-05T18:55:05.265709Z
+grid-2964617-m1  [live]  game=lol  Cloud9 Kia vs Sentinels  map 1  done  mode=live  fills=6  realized=+2.5918 imv=+0.0000 rebate=+0.2269 net=+2.8187  cleanup  joined=2026-09-05T20:11:52.664624Z
+grid-2964617-m2  [live]  game=lol  Cloud9 Kia vs Sentinels  map 2  done  mode=live  fills=9  realized=-0.6720 imv=+0.0000 rebate=+0.2327 net=-0.4393  cleanup  joined=2026-09-05T20:56:50.291386Z
+grid-2976631-m1  [live]  game=lol  FENNEL vs New Meta  map 1  done  mode=live  fills=7  realized=+0.6634 imv=+0.0000 rebate=+0.0408 net=+0.7042  cleanup  joined=2026-09-06T05:43:30.703948Z
+grid-2976631-m2  [live]  game=lol  FENNEL vs New Meta  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T06:39:12.696050Z
+grid-2976631-m3  [live]  game=lol  New Meta vs FENNEL  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T07:48:53.173283Z
+grid-2987004-m1  [live]  game=lol  Dplus KIA vs T1  map 1  done  mode=live  fills=10  realized=-2.3447 imv=+0.0000 rebate=+0.3216 net=-2.0231  cleanup  joined=2026-09-06T08:09:55.409647Z
+grid-2976631-m4  [live]  game=lol  FENNEL vs New Meta  map 4  done  mode=live  fills=2  realized=-3.5815 imv=+0.0000 rebate=+0.0374 net=-3.5441  cleanup  joined=2026-09-06T08:51:24.104786Z
+grid-2987004-m2  [live]  game=lol  Dplus KIA vs T1  map 2  done  mode=live  fills=9  realized=+0.8068 imv=+0.0000 rebate=+0.2424 net=+1.0493  cleanup  joined=2026-09-06T09:16:04.945745Z
+grid-2976631-m5  [live]  game=lol  New Meta vs FENNEL  map 5  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T09:52:40.329090Z
+grid-2987004-m3  [live]  game=lol  Dplus KIA vs T1  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T10:09:10.733600Z
+grid-2991217-m1  [live]  game=lol  BRUTE vs CITA Kaizen  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T10:27:50.085834Z
+grid-2991217-m2  [live]  game=lol  CITA Kaizen vs BRUTE  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T11:13:20.072687Z
+grid-2987004-m4  [live]  game=lol  Dplus KIA vs T1  map 4  done  mode=live  fills=4  realized=+2.3026 imv=+0.0000 rebate=+0.0961 net=+2.3987  cleanup  joined=2026-09-06T11:13:17.254708Z
+grid-2991218-m1  [live]  game=lol  eSuba vs UP2U Meavedron  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T12:07:35.437000Z
+grid-2991218-m2  [live]  game=lol  eSuba vs UP2U Meavedron  map 2  done  mode=live  fills=3  realized=-0.5262 imv=+0.0000 rebate=+0.0649 net=-0.4613  cleanup  joined=2026-09-06T13:11:03.589901Z
+grid-3002599-m1  [live]  game=lol  Karmine Corp vs G2 Esports  map 1  done  mode=live  fills=8  realized=+1.0716 imv=+0.0000 rebate=+0.2628 net=+1.3344  cleanup  joined=2026-09-06T15:17:41.840192Z
+grid-3002599-m2  [live]  game=lol  G2 Esports vs Karmine Corp  map 2  done  mode=live  fills=8  realized=+1.0681 imv=+0.0000 rebate=+0.1864 net=+1.2545  cleanup  joined=2026-09-06T16:17:05.031376Z
+grid-3002599-m3  [live]  game=lol  G2 Esports vs Karmine Corp  map 3  done  mode=live  fills=7  realized=+2.9342 imv=+0.0000 rebate=+0.2157 net=+3.1499  cleanup  joined=2026-09-06T17:14:24.718809Z
+grid-3002599-m4  [live]  game=lol  Karmine Corp vs G2 Esports  map 4  done  mode=live  fills=2  realized=+1.0170 imv=+0.0000 rebate=+0.0597 net=+1.0767  cleanup  joined=2026-09-06T18:05:18.200673Z
+grid-2964619-m1  [live]  game=lol  Shopify Rebellion vs FlyQuest  map 1  done  mode=live  fills=8  realized=-0.5427 imv=+0.0000 rebate=+0.1441 net=-0.3986  cleanup  joined=2026-09-06T20:07:55.222746Z
+grid-2964619-m2  [live]  game=lol  Shopify Rebellion vs FlyQuest  map 2  done  mode=live  fills=8  realized=-2.6791 imv=+0.0000 rebate=+0.1731 net=-2.5061  cleanup  joined=2026-09-06T20:58:03.667177Z
+grid-2964620-m1  [live]  game=lol  Disguised vs LYON  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T21:52:13.885924Z
+grid-2964620-m2  [live]  game=lol  LYON vs Disguised  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-06T22:34:44.050584Z
+grid-2971825-m1  [live]  game=lol  Ruddy Corporation vs Arctic Pandas  map 1  done  mode=live  fills=5  realized=-0.3311 imv=+0.0224 rebate=+0.0560 net=-0.2527  cleanup  joined=2026-09-07T16:03:42.686429Z
+grid-2971825-m2  [live]  game=lol  Arctic Pandas vs Ruddy Corporation  map 2  done  mode=live  fills=6  realized=-1.4772 imv=+0.0000 rebate=+0.3033 net=-1.1739  cleanup  joined=2026-09-07T16:58:58.266806Z
+grid-2975624-m1  [live]  game=lol  ConViction vs NRG  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T17:08:36.786400Z
+grid-2971825-m3  [live]  game=lol  Ruddy Corporation vs Arctic Pandas  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T17:52:55.395675Z
+grid-2975624-m2  [live]  game=lol  NRG vs ConViction  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T18:06:08.715797Z
+grid-2968612-m1  [live]  game=lol  Otter Side vs Bubliki  map 1  done  mode=live  fills=10  realized=+4.3472 imv=+0.0000 rebate=+0.1197 net=+4.4669  cleanup  joined=2026-09-07T18:17:13.818194Z
+grid-2975624-m3  [live]  game=lol  ConViction vs NRG  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T18:57:09.333427Z
+grid-2968612-m2  [live]  game=lol  Bubliki vs Otter Side  map 2  done  mode=live  fills=5  realized=-30.7947 imv=+0.0000 rebate=+0.5604 net=-30.2343  cleanup  joined=2026-09-07T19:09:55.077331Z
+grid-2975624-m4  [live]  game=lol  ConViction vs NRG  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T19:49:20.334936Z
+grid-2968612-m3  [live]  game=lol  Otter Side vs Bubliki  map 3  done  mode=live  fills=15  realized=-10.4086 imv=+0.0000 rebate=+0.3517 net=-10.0569  cleanup  joined=2026-09-07T20:01:02.224495Z
+grid-2968612-m4  [live]  game=lol  Otter Side vs Bubliki  map 4  done  mode=live  fills=3  realized=+3.5662 imv=+0.0000 rebate=+0.0956 net=+3.6618  cleanup  joined=2026-09-07T20:49:01.907677Z
+grid-2975624-m5  [live]  game=lol  ConViction vs NRG  map 5  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-07T20:41:24.325023Z
+grid-2967262-m1  [live]  game=lol  Zeu5 Esports vs Fuego  map 1  done  mode=live  fills=8  realized=-13.0018 imv=+0.0000 rebate=+0.4004 net=-12.6014  cleanup  joined=2026-09-07T23:09:07.687049Z
+grid-2967262-m2  [live]  game=lol  Zeu5 Esports vs Fuego  map 2  done  mode=live  fills=6  realized=-1.8368 imv=+0.0000 rebate=+0.2732 net=-1.5636  cleanup  joined=2026-09-07T23:56:41.603168Z
+grid-2967262-m3  [live]  game=lol  Zeu5 Esports vs Fuego  map 3  done  mode=live  fills=3  realized=-0.9158 imv=+0.0000 rebate=+0.1370 net=-0.7788  cleanup  joined=2026-09-08T01:07:01.072795Z
+grid-3005559-m1  [live]  game=lol  EXILE esports vs NightBirds  map 1  done  mode=live  fills=3  realized=-0.4689 imv=+0.0000 rebate=+0.0059 net=-0.4630  cleanup  joined=2026-09-08T14:18:01.242279Z
+grid-3005559-m2  [live]  game=lol  EXILE esports vs NightBirds  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T15:19:56.501972Z
+grid-3005559-m3  [live]  game=lol  EXILE esports vs NightBirds  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T15:45:14.313948Z
+grid-3004386-m1  [live]  game=lol  Lenovo Legion Honvéd vs MAGAZA  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T16:10:05.549147Z
+grid-2965527-m1  [live]  game=lol  mCon esports vs Frites Esports Club  map 1  done  mode=live  fills=6  realized=n/a imv=n/a rebate=+0.0310 net=n/a  cleanup  joined=2026-09-08T16:09:00.656444Z
+grid-3004386-m2  [live]  game=lol  Lenovo Legion Honvéd vs MAGAZA  map 2  done  mode=live  fills=17  realized=+9.7323 imv=+0.0000 rebate=+0.2633 net=+9.9956  cleanup  joined=2026-09-08T16:51:51.165608Z
+grid-2965527-m2  [live]  game=lol  Frites Esports Club vs mCon esports  map 2  done  mode=live  fills=4  realized=-0.2702 imv=+0.0000 rebate=+0.0467 net=-0.2235  cleanup  joined=2026-09-08T17:02:53.971749Z
+grid-3004386-m3  [live]  game=lol  Lenovo Legion Honvéd vs MAGAZA  map 3  done  mode=live  fills=3  realized=-0.0000 imv=+0.0000 rebate=+0.0330 net=+0.0330  cleanup  joined=2026-09-08T17:40:32.104235Z
+grid-2965527-m3  [live]  game=lol  Frites Esports Club vs mCon esports  map 3  done  mode=live  fills=6  realized=-0.6540 imv=+0.0000 rebate=+0.0372 net=-0.6168  cleanup  joined=2026-09-08T17:55:24.726441Z
+grid-3004386-m4  [live]  game=lol  MAGAZA vs Lenovo Legion Honvéd  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-08T18:22:35.034620Z
+grid-2968613-m1  [live]  game=lol  White Dragons vs Dominion Goblins  map 1  done  mode=live  fills=2  realized=+0.7500 imv=+0.0000 rebate=+0.0109 net=+0.7610  cleanup  joined=2026-09-08T18:21:52.170938Z
+grid-2968613-m2  [live]  game=lol  White Dragons vs Dominion Goblins  map 2  done  mode=live  fills=5  realized=+1.0523 imv=+0.0000 rebate=+0.0277 net=+1.0800  cleanup  joined=2026-09-08T19:10:33.035675Z
+grid-2968613-m3  [live]  game=lol  White Dragons vs Dominion Goblins  map 3  done  mode=live  fills=5  realized=-0.3397 imv=+0.0000 rebate=+0.0289 net=-0.3108  cleanup  joined=2026-09-08T19:56:54.656612Z
+grid-3005560-m1  [live]  game=lol  CITA Kaizen vs Meavedron  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-09T14:16:27.984356Z
+grid-3005560-m2  [live]  game=lol  CITA Kaizen vs Meavedron  map 2  done  mode=live  fills=6  realized=+0.9973 imv=+0.0000 rebate=+0.0407 net=+1.0380  cleanup  joined=2026-09-09T15:09:13.264194Z
+grid-3005560-m3  [live]  game=lol  CITA Kaizen vs Meavedron  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-09T15:59:11.225088Z
+grid-2975627-m1  [live]  game=lol  NRG Esports vs Maryville University  map 1  done  mode=live  fills=6  realized=+0.5224 imv=+0.0000 rebate=+0.0961 net=+0.6185  cleanup  joined=2026-09-09T21:08:31.101709Z
+grid-2975627-m2  [live]  game=lol  NRG Esports vs Maryville University  map 2  done  mode=live  fills=4  realized=+0.4667 imv=+0.0000 rebate=+0.1060 net=+0.5727  cleanup  joined=2026-09-09T22:07:33.331431Z
+grid-2975627-m3  [live]  game=lol  NRG Esports vs Maryville University  map 3  done  mode=live  fills=21  realized=-5.2738 imv=+0.0000 rebate=+2.0624 net=-3.2115  cleanup  joined=2026-09-09T22:58:36.071189Z
+grid-2975627-m4  [live]  game=lol  NRG Esports vs Maryville University  map 4  done  mode=live  fills=12  realized=-31.3527 imv=+0.0000 rebate=+1.3089 net=-30.0438  cleanup  joined=2026-09-09T23:50:09.667344Z
+grid-2965528-m1  [live]  game=lol  Senshi Esports Club vs The Bandits  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-10T16:08:05.691535Z
+grid-3004388-m1  [live]  game=lol  MAGAZA vs The Secret Club Esport  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-10T16:08:01.693568Z
+grid-2965528-m2  [live]  game=lol  Senshi Esports Club vs The Bandits  map 2  done  mode=live  fills=13  realized=+16.8183 imv=+0.0000 rebate=+0.4662 net=+17.2845  cleanup  joined=2026-09-10T16:57:59.883497Z
+grid-3004388-m2  [live]  game=lol  The Secret Club Esport vs MAGAZA  map 2  done  mode=live  fills=5  realized=-16.2151 imv=+0.0000 rebate=+0.4958 net=-15.7193  cleanup  joined=2026-09-10T17:01:37.856787Z
+grid-2965528-m3  [live]  game=lol  Senshi Esports Club vs The Bandits  map 3  done  mode=live  fills=13  realized=-66.0736 imv=+0.0000 rebate=+0.3974 net=-65.6763  cleanup  joined=2026-09-10T17:47:13.190273Z
+grid-3004388-m3  [live]  game=lol  MAGAZA vs The Secret Club Esport  map 3  done  mode=live  fills=11  realized=n/a imv=n/a rebate=+0.7561 net=n/a  cleanup  joined=2026-09-10T17:46:52.755534Z
+grid-2999024-m1  [live]  game=lol  Bubliki vs Dominion Goblins  map 1  done  mode=live  fills=12  realized=+2.9208 imv=+0.0000 rebate=+0.1334 net=+3.0542  cleanup  joined=2026-09-10T18:16:29.661881Z
+grid-3004388-m4  [live]  game=lol  The Secret Club Esport vs MAGAZA  map 4  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-10T18:30:47.850631Z
+grid-2999024-m2  [live]  game=lol  Dominion Goblins vs Bubliki  map 2  done  mode=live  fills=4  realized=+0.5620 imv=+0.0000 rebate=+0.0145 net=+0.5765  cleanup  joined=2026-09-10T19:06:30.531222Z
+grid-3004388-m5  [live]  game=lol  The Secret Club Esport vs MAGAZA  map 5  done  mode=live  fills=19  realized=+3.9611 imv=+0.0000 rebate=+0.4237 net=+4.3847  cleanup  joined=2026-09-10T19:22:45.768553Z
+grid-2999024-m3  [live]  game=lol  Bubliki vs Dominion Goblins  map 3  done  mode=live  fills=7  realized=-0.9366 imv=+0.0000 rebate=+0.1528 net=-0.7838  cleanup  joined=2026-09-10T19:52:49.935877Z
+grid-2999024-m4  [live]  game=lol  Dominion Goblins vs Bubliki  map 4  done  mode=live  fills=5  realized=+0.3979 imv=+0.0000 rebate=+0.0778 net=+0.4757  cleanup  joined=2026-09-10T21:01:24.830624Z
+grid-2975628-m1  [live]  game=lol  Winthrop University vs Maryville University  map 1  done  mode=live  fills=5  realized=+0.7826 imv=+0.0000 rebate=+0.2758 net=+1.0584  cleanup  joined=2026-09-10T21:08:07.896678Z
+grid-2999024-m5  [live]  game=lol  Bubliki vs Dominion Goblins  map 5  done  mode=live  fills=6  realized=+0.0671 imv=+0.0000 rebate=+0.0641 net=+0.1312  cleanup  joined=2026-09-10T21:47:08.568499Z
+grid-2975628-m2  [live]  game=lol  Winthrop University vs Maryville University  map 2  done  mode=live  fills=2  realized=+0.1524 imv=+0.0000 rebate=+0.0272 net=+0.1796  cleanup  joined=2026-09-10T22:00:39.966552Z
+grid-2975628-m3  [live]  game=lol  Winthrop University vs Maryville University  map 3  done  mode=live  fills=30  realized=-5.0576 imv=+0.0000 rebate=+0.8790 net=-4.1786  cleanup  joined=2026-09-10T22:48:42.468055Z
+grid-2975628-m4  [live]  game=lol  Winthrop University vs Maryville University  map 4  done  mode=live  fills=7  realized=+1.7059 imv=+0.0000 rebate=+0.2552 net=+1.9611  cleanup  joined=2026-09-10T23:41:59.480942Z
+grid-2975628-m5  [live]  game=lol  Winthrop University vs Maryville University  map 5  done  mode=live  fills=12  realized=-4.9460 imv=+0.0000 rebate=+0.3127 net=-4.6333  cleanup  joined=2026-09-11T00:33:03.271038Z
+grid-3002600-m1  [live]  game=lol  GIANTX vs Natus Vincere  map 1  done  mode=live  fills=6  realized=+1.3422 imv=+0.0000 rebate=+0.1610 net=+1.5031  cleanup  joined=2026-09-11T15:11:39.732035Z
+grid-3002600-m2  [live]  game=lol  GIANTX vs Natus Vincere  map 2  done  mode=live  fills=17  realized=-0.3574 imv=+0.0000 rebate=+0.7207 net=+0.3633  cleanup  joined=2026-09-11T15:57:27.527666Z
+grid-3002600-m3  [live]  game=lol  Natus Vincere vs GIANTX  map 3  done  mode=live  fills=13  realized=+1.2699 imv=+0.0000 rebate=+0.5998 net=+1.8697  cleanup  joined=2026-09-11T16:54:17.534870Z
+grid-3002600-m4  [live]  game=lol  GIANTX vs Natus Vincere  map 4  done  mode=live  fills=11  realized=-1.1065 imv=+0.0000 rebate=+0.4146 net=-0.6919  cleanup  joined=2026-09-11T17:53:44.784047Z
+grid-3002600-m5  [live]  game=lol  Natus Vincere vs GIANTX  map 5  done  mode=live  fills=7  realized=-0.1186 imv=+0.0000 rebate=+0.1892 net=+0.0706  cleanup  joined=2026-09-11T18:53:01.152585Z
+grid-2975629-m1  [live]  game=lol  Cupid Esports vs Maryville University  map 1  done  mode=live  fills=11  realized=+7.0696 imv=+0.0000 rebate=+0.1735 net=+7.2431  cleanup  joined=2026-09-11T21:05:14.943524Z
+grid-2975629-m2  [live]  game=lol  Cupid Esports vs Maryville University  map 2  done  mode=live  fills=18  realized=+2.6045 imv=+0.0000 rebate=+0.3584 net=+2.9629  cleanup  joined=2026-09-11T22:03:35.538622Z
+grid-2975629-m3  [live]  game=lol  Cupid Esports vs Maryville University  map 3  done  mode=live  fills=9  realized=+5.9950 imv=+0.0000 rebate=+0.2758 net=+6.2708  cleanup  joined=2026-09-11T23:01:00.168074Z
+grid-2987005-m1  [live]  game=lol  Hanwha Life Esports vs T1  map 1  done  mode=live  fills=15  realized=+1.9408 imv=+0.0000 rebate=+0.3027 net=+2.2435  cleanup  joined=2026-09-12T05:21:34.546304Z
+grid-2987005-m2  [live]  game=lol  T1 vs Hanwha Life Esports  map 2  done  mode=live  fills=21  realized=+0.8786 imv=+0.0000 rebate=+0.3700 net=+1.2486  cleanup  joined=2026-09-12T06:33:58.239178Z
+grid-2987005-m3  [live]  game=lol  Hanwha Life Esports vs T1  map 3  done  mode=live  fills=10  realized=-0.3349 imv=+0.0000 rebate=+0.1268 net=-0.2081  cleanup  joined=2026-09-12T07:28:05.758624Z
+grid-2987005-m4  [live]  game=lol  T1 vs Hanwha Life Esports  map 4  done  mode=live  fills=5  realized=+1.7331 imv=+0.0000 rebate=+0.0748 net=+1.8079  cleanup  joined=2026-09-12T08:21:40.242218Z
+grid-3002601-m1  [live]  game=lol  Team Vitality vs Movistar KOI  map 1  done  mode=live  fills=15  realized=-2.9959 imv=+0.0000 rebate=+0.9269 net=-2.0690  cleanup  joined=2026-09-12T15:07:37.882371Z
+grid-3002601-m2  [live]  game=lol  Movistar KOI vs Team Vitality  map 2  done  mode=live  fills=11  realized=+3.9210 imv=+0.0000 rebate=+1.0983 net=+5.0193  cleanup  joined=2026-09-12T16:05:08.537903Z
+grid-2973273-m1  [live]  game=lol  FURIA Esports vs LOS  map 1  done  mode=live  fills=0  realized=n/a imv=n/a rebate=+0.0000 net=n/a  cleanup  joined=2026-09-12T16:12:48.891863Z
+grid-2973273-m2  [live]  game=lol  LOS vs FURIA Esports  map 2  done  mode=live  fills=14  realized=-7.6080 imv=+0.0000 rebate=+0.6951 net=-6.9129  cleanup  joined=2026-09-12T17:10:18.212745Z
+grid-3002601-m3  [live]  game=lol  Team Vitality vs Movistar KOI  map 3  done  mode=live  fills=16  realized=-22.8543 imv=+0.0000 rebate=+1.2443 net=-21.6100  cleanup  joined=2026-09-12T17:05:04.933066Z
+grid-2973273-m3  [live]  game=lol  LOS vs FURIA Esports  map 3  done  mode=live  fills=11  realized=-7.0878 imv=+0.0000 rebate=+1.1027 net=-5.9851  cleanup  joined=2026-09-12T17:57:06.303780Z
+grid-3002601-m4  [live]  game=lol  Team Vitality vs Movistar KOI  map 4  done  mode=live  fills=15  realized=-28.2192 imv=+0.0000 rebate=+0.9497 net=-27.2696  cleanup  joined=2026-09-12T18:01:10.346301Z
+grid-2973273-m4  [live]  game=lol  FURIA Esports vs LOS  map 4  done  mode=live  fills=5  realized=+7.4918 imv=+0.0000 rebate=+0.3368 net=+7.8286  cleanup  joined=2026-09-12T18:45:41.746200Z
+grid-3002601-m5  [live]  game=lol  Movistar KOI vs Team Vitality  map 5  done  mode=live  fills=28  realized=+2.9621 imv=+0.0000 rebate=+3.3226 net=+6.2847  cleanup  joined=2026-09-12T18:48:47.668484Z
+grid-2980509-m1  [live]  game=lol  Shopify Rebellion vs Cloud9  map 1  done  mode=live  fills=13  realized=-0.2503 imv=+0.0000 rebate=+0.4476 net=+0.1973  cleanup  joined=2026-09-12T20:11:37.703447Z
+grid-2980509-m2  [live]  game=lol  Cloud9 vs Shopify Rebellion  map 2  done  mode=live  fills=13  realized=-5.2504 imv=+0.0000 rebate=+0.7901 net=-4.4603  cleanup  joined=2026-09-12T21:04:57.414589Z
+grid-2980509-m3  [live]  game=lol  Cloud9 vs Shopify Rebellion  map 3  done  mode=live  fills=18  realized=+4.0894 imv=+0.0000 rebate=+0.2715 net=+4.3609  cleanup  joined=2026-09-12T21:52:16.519690Z
+grid-2987006-m1  [live]  game=lol  Gen.G vs Hanwha Life Esports  map 1  done  mode=live  fills=6  realized=+1.2978 imv=+0.0000 rebate=+0.9034 net=+2.2012  cleanup  joined=2026-09-13T05:30:22.768538Z
+grid-2987006-m2  [live]  game=lol  Hanwha Life Esports vs Gen.G  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T06:34:14.741520Z
+grid-2987006-m3  [live]  game=lol  Hanwha Life Esports vs Gen.G  map 3  done  mode=live  fills=2  realized=-1.5000 imv=+0.0000 rebate=+0.1819 net=-1.3181  cleanup  joined=2026-09-13T07:29:38.189530Z
+grid-2987006-m4  [live]  game=lol  Gen.G vs Hanwha Life Esports  map 4  done  mode=live  fills=12  realized=+2.6517 imv=+0.0000 rebate=+1.8467 net=+4.4984  cleanup  joined=2026-09-13T08:19:23.259004Z
+grid-3005562-m1  [live]  game=lol  BRUTE vs Meavedron  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T11:16:31.212636Z
+grid-3005562-m2  [live]  game=lol  BRUTE vs Meavedron  map 2  done  mode=live  fills=15  realized=-17.7329 imv=+0.0000 rebate=+0.4044 net=-17.3285  cleanup  joined=2026-09-13T12:14:29.654633Z
+grid-3005562-m3  [live]  game=lol  BRUTE vs Meavedron  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T13:13:00.435143Z
+grid-2973274-m1  [live]  game=lol  paiN Gaming vs LOUD  map 1  done  mode=live  fills=2  realized=+3.8178 imv=+0.0000 rebate=+0.1976 net=+4.0154  cleanup  joined=2026-09-13T16:11:51.381282Z
+grid-2973274-m2  [live]  game=lol  paiN Gaming vs LOUD  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T16:59:53.328379Z
+grid-2973274-m3  [live]  game=lol  LOUD vs paiN Gaming  map 3  done  mode=live  fills=6  realized=+6.9110 imv=+0.0000 rebate=+0.2664 net=+7.1774  cleanup  joined=2026-09-13T17:54:05.854664Z
+grid-2968614-m1  [live]  game=lol  White Dragons vs The Otter Side  map 1  done  mode=live  fills=7  realized=-7.1022 imv=+0.0000 rebate=+0.3348 net=-6.7674  cleanup  joined=2026-09-13T18:13:55.579852Z
+grid-2973274-m4  [live]  game=lol  LOUD vs paiN Gaming  map 4  done  mode=live  fills=11  realized=-4.4359 imv=+0.0000 rebate=+0.4647 net=-3.9711  cleanup  joined=2026-09-13T18:46:24.719223Z
+grid-2968614-m2  [live]  game=lol  The Otter Side vs White Dragons  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T19:25:34.706702Z
+grid-3000371-m1  [live]  game=lol  FlyQuest vs Sentinels  map 1  done  mode=live  fills=7  realized=-7.7014 imv=+0.0000 rebate=+0.5936 net=-7.1078  cleanup  joined=2026-09-13T20:13:32.720558Z
+grid-2968614-m3  [live]  game=lol  The Otter Side vs White Dragons  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-13T20:35:37.741818Z
+grid-3000371-m2  [live]  game=lol  FlyQuest vs Sentinels  map 2  done  mode=live  fills=13  realized=+12.8019 imv=+0.0000 rebate=+1.1801 net=+13.9820  cleanup  joined=2026-09-13T21:07:01.691755Z
+grid-3000371-m3  [live]  game=lol  FlyQuest vs Sentinels  map 3  done  mode=live  fills=9  realized=-14.1743 imv=+0.0000 rebate=+0.8543 net=-13.3200  cleanup  joined=2026-09-13T22:00:16.361598Z
+grid-3005563-m1  [live]  game=lol  EXILE esports vs eSuba  map 1  done  mode=live  fills=4  realized=+0.7317 imv=+0.0000 rebate=+0.0577 net=+0.7894  cleanup  joined=2026-09-14T14:30:47.580593Z
+grid-3005563-m2  [live]  game=lol  eSuba vs EXILE esports  map 2  done  mode=live  fills=20  realized=-5.1110 imv=+0.0000 rebate=+2.0135 net=-3.0975  cleanup  joined=2026-09-14T15:20:17.589115Z
+grid-3005563-m3  [live]  game=lol  EXILE esports vs eSuba  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-14T16:16:23.793020Z
+grid-3005563-m4  [live]  game=lol  eSuba vs EXILE esports  map 4  done  mode=live  fills=4  realized=+2.4231 imv=+0.0000 rebate=+0.0884 net=+2.5115  cleanup  joined=2026-09-14T17:00:45.628840Z
+grid-3005569-m1  [live]  game=lol  CITA Kaizen vs NightBirds  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T14:54:37.325194Z
+grid-3005569-m2  [live]  game=lol  CITA Kaizen vs NightBirds  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T15:49:52.035011Z
+grid-2965529-m1  [live]  game=lol  Senshi Esports Club vs mCon esports  map 1  done  mode=live  fills=23  realized=+8.2246 imv=+0.0000 rebate=+1.1523 net=+9.3768  cleanup  joined=2026-09-15T16:21:58.137154Z
+grid-3005569-m3  [live]  game=lol  CITA Kaizen vs NightBirds  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T16:35:28.140427Z
+grid-2965529-m2  [live]  game=lol  Senshi Esports Club vs mCon esports  map 2  done  mode=live  fills=23  realized=-20.0173 imv=+0.0645 rebate=+1.8662 net=-18.0867  cleanup  joined=2026-09-15T17:17:38.732204Z
+grid-2965529-m3  [live]  game=lol  Senshi Esports Club vs mCon esports  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-15T18:03:56.558322Z
+grid-3005570-m1  [live]  game=lol  eSuba vs Meavedron  map 1  done  mode=live  fills=10  realized=-6.5974 imv=+0.0000 rebate=+0.4638 net=-6.1336  cleanup  joined=2026-09-16T14:30:11.050863Z
+grid-3005570-m2  [live]  game=lol  eSuba vs Meavedron  map 2  done  mode=live  fills=13  realized=-13.5712 imv=+0.0000 rebate=+0.8252 net=-12.7460  cleanup  joined=2026-09-16T15:06:59.882447Z
+grid-3005570-m3  [live]  game=lol  eSuba vs Meavedron  map 3  done  mode=live  fills=8  realized=-2.0750 imv=+0.0000 rebate=+0.1332 net=-1.9418  cleanup  joined=2026-09-16T15:51:09.409281Z
+grid-3005570-m4  [live]  game=lol  eSuba vs Meavedron  map 4  done  mode=live  fills=5  realized=-2.7221 imv=+0.0000 rebate=+0.1219 net=-2.6002  cleanup  joined=2026-09-16T16:53:30.490617Z
+grid-2965530-m1  [live]  game=lol  Frites Esports Club vs Senshi Esports Club  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-17T16:06:17.060373Z
+grid-2965530-m2  [live]  game=lol  Senshi Esports Club vs Frites Esports Club  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-17T16:58:02.549559Z
+grid-2965530-m3  [live]  game=lol  Senshi Esports Club vs Frites Esports Club  map 3  done  mode=live  fills=2  realized=+0.1197 imv=+0.0000 rebate=+0.0057 net=+0.1254  cleanup  joined=2026-09-17T17:48:21.810372Z
+grid-3002602-m1  [live]  game=lol  Movistar KOI vs Natus Vincere  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T15:18:05.971240Z
+grid-3002602-m2  [live]  game=lol  Movistar KOI vs Natus Vincere  map 2  done  mode=live  fills=5  realized=-0.2438 imv=+0.0000 rebate=+0.0797 net=-0.1641  cleanup  joined=2026-09-18T16:24:22.714151Z
+grid-3002602-m3  [live]  game=lol  Movistar KOI vs Natus Vincere  map 3  done  mode=live  fills=12  realized=+0.2216 imv=+0.0000 rebate=+0.3267 net=+0.5483  cleanup  joined=2026-09-18T17:16:15.743949Z
+grid-3002602-m4  [live]  game=lol  Movistar KOI vs Natus Vincere  map 4  done  mode=live  fills=4  realized=+0.2405 imv=+0.0000 rebate=+0.0827 net=+0.3232  cleanup  joined=2026-09-18T18:12:24.767144Z
+grid-3000375-m1  [live]  game=lol  Shopify Rebellion vs Sentinels  map 1  done  mode=live  fills=4  realized=+4.0549 imv=+0.0000 rebate=+0.0447 net=+4.0996  cleanup  joined=2026-09-18T20:11:19.598040Z
+grid-3000375-m2  [live]  game=lol  Sentinels vs Shopify Rebellion  map 2  done  mode=live  fills=6  realized=+1.0166 imv=+0.0000 rebate=+0.0712 net=+1.0878  cleanup  joined=2026-09-18T20:56:41.302884Z
+grid-3000375-m3  [live]  game=lol  Sentinels vs Shopify Rebellion  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-18T21:44:30.359626Z
+grid-3000375-m4  [live]  game=lol  Shopify Rebellion vs Sentinels  map 4  done  mode=live  fills=4  realized=+2.6331 imv=+0.0000 rebate=+0.0919 net=+2.7250  cleanup  joined=2026-09-18T22:30:51.915800Z
+grid-3000375-m5  [live]  game=lol  Shopify Rebellion vs Sentinels  map 5  done  mode=live  fills=2  realized=-0.1492 imv=+0.0000 rebate=+0.0251 net=-0.1241  cleanup  joined=2026-09-18T23:20:46.807661Z
+grid-3002603-m1  [live]  game=lol  Karmine Corp vs Movistar KOI  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T15:15:12.428643Z
+grid-3002603-m2  [live]  game=lol  Movistar KOI vs Karmine Corp  map 2  done  mode=live  fills=2  realized=n/a imv=n/a rebate=+0.0219 net=n/a  cleanup  joined=2026-09-19T16:21:08.847510Z
+grid-3002603-m3  [live]  game=lol  Movistar KOI vs Karmine Corp  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T17:17:22.710902Z
+grid-3000372-m1  [live]  game=lol  LYON vs Cloud9  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-19T20:09:48.301589Z
+grid-3000372-m2  [live]  game=lol  Cloud9 vs LYON  map 2  done  mode=live  fills=4  realized=+1.0049 imv=+0.0000 rebate=+0.1242 net=+1.1291  cleanup  joined=2026-09-19T21:09:10.794147Z
+grid-3000372-m3  [live]  game=lol  LYON vs Cloud9  map 3  done  mode=live  fills=3  realized=-0.4030 imv=+0.0000 rebate=+0.0291 net=-0.3739  cleanup  joined=2026-09-19T22:09:56.673651Z
+grid-3000372-m4  [live]  game=lol  Cloud9 vs LYON  map 4  done  mode=live  fills=2  realized=-0.8820 imv=+0.0000 rebate=+0.0256 net=-0.8564  cleanup  joined=2026-09-19T23:14:59.329258Z
+grid-3005572-m1  [live]  game=lol  eSuba vs NightBirds  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T11:50:21.133874Z
+grid-3005572-m2  [live]  game=lol  eSuba vs NightBirds  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T12:40:38.452220Z
+grid-3005572-m3  [live]  game=lol  NightBirds vs eSuba  map 3  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-20T13:24:44.047288Z
+grid-3002604-m1  [live]  game=lol  G2 Esports vs Movistar KOI  map 1  done  mode=live  fills=6  realized=+1.1821 imv=+0.0000 rebate=+0.0907 net=+1.2728  cleanup  joined=2026-09-20T15:14:10.217214Z
+grid-3002604-m2  [live]  game=lol  G2 Esports vs Movistar KOI  map 2  done  mode=live  fills=6  realized=+0.9622 imv=+0.0000 rebate=+0.0594 net=+1.0216  cleanup  joined=2026-09-20T16:18:07.612153Z
+grid-3002604-m3  [live]  game=lol  G2 Esports vs Movistar KOI  map 3  done  mode=live  fills=5  realized=+2.0711 imv=+0.0000 rebate=+0.0454 net=+2.1165  cleanup  joined=2026-09-20T17:13:30.326264Z
+grid-3008206-m1  [live]  game=lol  Unicorns Of Love Sexy Edition vs The Otter Side  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:05:07.365117Z
+grid-3008208-m1  [live]  game=lol  Bubliki vs Barça eSports  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:04:30.921715Z
+grid-3008205-m1  [live]  game=lol  Skillcamp Esport vs Arctic Pandas  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:03:36.804122Z
+grid-3008206-m2  [live]  game=lol  Unicorns Of Love Sexy Edition vs The Otter Side  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:50:13.015633Z
+grid-3008205-m2  [live]  game=lol  Skillcamp Esport vs Arctic Pandas  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:55:09.020055Z
+grid-3008208-m2  [live]  game=lol  Bubliki vs Barça eSports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T15:55:53.095844Z
+grid-3008208-m3  [live]  game=lol  Barça eSports vs Bubliki  map 3  done  mode=live  fills=5  realized=-2.0713 imv=+0.0000 rebate=+0.2179 net=-1.8534  cleanup  joined=2026-09-21T16:54:27.508238Z
+grid-3008205-m3  [live]  game=lol  Skillcamp Esport vs Arctic Pandas  map 3  done  mode=live  fills=3  realized=-3.1887 imv=+0.0000 rebate=+0.1245 net=-3.0642  cleanup  joined=2026-09-21T16:46:51.204221Z
+grid-3008211-m1  [live]  game=lol  UCAM Esports Club vs mCon esports  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T16:55:06.758567Z
+grid-3008211-m2  [live]  game=lol  UCAM Esports Club vs mCon esports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T17:43:03.873581Z
+grid-3008209-m1  [live]  game=lol  Pyramid IV Esports vs Lodis  map 1  done  mode=live  fills=2  realized=+1.0000 imv=+0.0000 rebate=+0.0552 net=+1.0552  cleanup  joined=2026-09-21T17:40:23.621159Z
+grid-3008209-m2  [live]  game=lol  Lodis vs Pyramid IV Esports  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-21T18:38:56.904005Z
+grid-3008214-m1  [live]  game=lol  CITA Kaizen vs Unicorns Of Love Sexy Edition  map 1  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T15:04:50.067802Z
+grid-3008213-m1  [live]  game=lol  Lodis vs Skillcamp Esport  map 1  done  mode=live  fills=5  realized=-0.9495 imv=+0.0000 rebate=+0.0950 net=-0.8545  cleanup  joined=2026-09-22T15:14:46.132419Z
+grid-3008214-m2  [live]  game=lol  Unicorns Of Love Sexy Edition vs CITA Kaizen  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T15:51:50.674673Z
+grid-3008213-m2  [live]  game=lol  Lodis vs Skillcamp Esport  map 2  done  mode=live  fills=3  realized=-1.8305 imv=+0.0000 rebate=+0.1807 net=-1.6498  cleanup  joined=2026-09-22T16:06:29.896515Z
+grid-3008219-m1  [live]  game=lol  mCon esports vs Verdant  map 1  done  mode=live  fills=4  realized=-0.4818 imv=+0.0000 rebate=+0.1034 net=-0.3784  cleanup  joined=2026-09-22T16:46:08.991184Z
+grid-3008213-m3  [live]  game=lol  Skillcamp Esport vs Lodis  map 3  done  mode=live  fills=2  realized=+4.7817 imv=+0.0000 rebate=+0.1609 net=+4.9426  cleanup  joined=2026-09-22T17:23:39.095647Z
+grid-3008219-m2  [live]  game=lol  mCon esports vs Verdant  map 2  done  mode=live  fills=0  realized=+0.0000 imv=+0.0000 rebate=+0.0000 net=+0.0000  cleanup  joined=2026-09-22T17:54:43.481967Z
+grid-3008217-m1  [live]  game=lol  Arctic Pandas vs Pyramid IV Esports  map 1  done  mode=live  fills=11  realized=-0.0476 imv=+0.0000 rebate=+0.5433 net=+0.4957  cleanup  joined=2026-09-22T18:22:16.744769Z
+grid-3008217-m2  [live]  game=lol  Arctic Pandas vs Pyramid IV Esports  map 2  done  mode=live  fills=5  realized=-8.9794 imv=+0.0000 rebate=+0.3493 net=-8.6301  cleanup  joined=2026-09-22T19:38:16.815796Z
+grid-3008217-m3  [live]  game=lol  Pyramid IV Esports vs Arctic Pandas  map 3  done  mode=live  fills=4  realized=-0.9277 imv=+0.0000 rebate=+0.3259 net=-0.6018  cleanup  joined=2026-09-22T20:26:10.806045Z

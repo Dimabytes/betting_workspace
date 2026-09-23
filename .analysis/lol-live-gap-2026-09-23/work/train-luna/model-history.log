@@ -1,0 +1,12 @@
+648af926 2026-09-21 13:36:09 +0200 dota + lol models + fixes dota lol backtests
+934c3e07 2026-09-21 10:28:03 +0200 upd lol models
+c9fb5cd2 2026-09-19 13:31:30 +0200 Retrain LoL research and production on contemporaneous mid after the T+10 prepare fix.
+e205f390 2026-09-15 23:41:58 +0200 lol: retrain research and production on the rebuilt dataset
+b81fb4c5 2026-09-12 12:13:18 +0200 Publish the sub90 K=10 research and production models for both games
+d2e4e250 2026-09-12 10:47:37 +0200 Train LoL research and production as default_boot K=10 ensembles
+50078e92 2026-09-04 22:24:56 +0200 Drop thin Telonex LoL maps from prepare, republish models, and point LIVE at tape10.
+a2d22802 2026-08-31 14:15:03 +0200 Accept reconstructed LoL Stage 05 maps and retrain research and production.
+9e9b270c 2026-08-30 16:29:53 +0200 Retrain LoL research and production on the 20-minute GRID dataset.
+13402bfb 2026-08-30 13:28:34 +0200 Retrain LoL research and production on GRID net-worth datasets.
+19ac67d1 2026-08-28 22:22:19 +0200 Retrain LoL on the Dota 12-feature set, lag 10, and 0..540/899 windows.
+21d430c3 2026-08-28 08:46:29 +0200 track LoL models in git like Dota
