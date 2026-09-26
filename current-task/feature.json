@@ -1,0 +1,139 @@
+{
+  "project": "esports-trader",
+  "relatedSources": [
+    "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md",
+    "../esports-trader/docs/experiments/README.md",
+    "../esports-trader/src/backtest/run.py",
+    "../esports-trader/src/backtest/selection.py",
+    "../esports-trader/src/backtest/lol_inputs.py",
+    "../esports-trader/src/strategy/quoting.py",
+    "../esports-trader/src/shared/utils/series_format.py",
+    "../esports-trader/scripts/run_seeds.sh",
+    "../esports-trader/scripts/compare_backtests.py",
+    ".analysis/series-market-2026-09-25/work/orchestrator/verify_signal.py"
+  ],
+  "Functional Requirements Summary": [
+    "FR-1: Чистые функции в src/strategy/series_link.py считают W, наклон B, q0 с хорна и ΔŜ серии из predicted_delta модели карты",
+    "FR-2: Токен серии — токен команды, которая на этой карте radiant (Dota) или blue (LoL); сторона определяется по имени на каждой карте",
+    "FR-3: Ветка сигнала задаётся флагом бэктеста --series-branch line|line_x_c. Коэффициенты c — четыре числа из исследования, JSON рядом с моделью",
+    "FR-4: --market series гоняет книгу серии на нерешающих картах BO3 (карты 1–2) и BO5 (карты 1–4) для Dota и LoL. --market по умолчанию map",
+    "FR-5: Окно серии — от хорна до конца карты плюс 15 минут. После конца карты только SELL на лучшем ask. Остаток на конце окна оценивается по лучшему bid",
+    "FR-6: Отчёт docs/experiments/series-market.md по 3 seed на ветку: критерий успеха, выбор ветки по картам с 2026-08-01, сумма PnL серии и LIVE карты на тех же match id"
+  ],
+  "Resolved Questions": [
+    "Ветку в бэктесте переключает --series-branch line|line_x_c. Константы ветки в series_link.py в этом срезе нет: live ещё нет.",
+    "c не пересчитываем. В JSON пишем числа из verify_signal.py (подбор на картах с хорном до 2026-08-01, включая ML train): Dota 1.49 / 1.07 / 0.76 / 0.49, LoL 1.04 / 1.42 / 0.84 / 0.49. Корзины 0–120, 120–240, 240–360, 360–480 с. Хук в train_model и promote в этот срез не входит.",
+    "q0 только с хорна (±30 с, спред обеих котировок ≤ 5c). Отказ при ошибке подбора > 3c, цене карты или серии вне (0.05, 0.95) или B < 0.05 — серию на этой карте не торгуем. Mid Game N+1 в бэктест не берём.",
+    "compare_backtests.py сравнивает две ветки одной игры. Отдельно в отчёте: три пункта критерия успеха и сумма net PnL серии с rebate и net PnL LIVE-прогона карты на общих match id.",
+    "Срез кончается отчётом эксперимента. Live-сессия, discovery, лимиты, профили trading.toml и выкатка в эти шаги не входят."
+  ],
+  "Non-Goals (Out of Scope for V1)": [
+    "Live-сессия серии, discovery, привязка, архив <id>-series, лимиты риска, профили dota-series и lol-series, paper, выкатка",
+    "Правка LIVE-каталога и promote_backtest.py",
+    "BO2 и решающие карты",
+    "Пересчёт q каждую секунду, член разрыва, таблица β по счёту и минуте, отдельная модель серии, поправка c для рынка карты",
+    "Подбор c и вызов из train_model",
+    "Запасной q0 с книги Game N+1",
+    "Правило live «устаревший фид не снимает SELL серии»"
+  ],
+  "description": "Рынок серии на нерешающих картах — бэктест Dota и LoL и отчёт эксперимента, без live",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Сигнал серии и выборка Dota",
+      "description": "Как разработчик, я хочу формулы связи карта → серия, готовые коэффициенты c и когорту нерешающих карт Dota, чтобы прогон мог перевести прогноз карты в дельту серии.",
+      "changes": [
+        "Добавить src/strategy/series_link.py: W(a, b; q, n) рекурсией до n побед, B = W(a+1, b; q0) − W(a, b+1; q0)",
+        "Контроль B: BO3 0-0 = 2q(1−q), 1-0 = 1−q, 0-1 = q, 1-1 = 1; BO5 0-0 = 6q²(1−q)²",
+        "Подбор q0 по котировкам карты и серии у хорна. Отказ, если ошибка > 3c, цена карты или серии вне (0.05, 0.95), либо B < 0.05",
+        "ΔŜ ветки line = B × Δp̂. ΔŜ ветки line_x_c = B × c(корзина) × Δp̂. Корзина по игровым секундам: 0–120, 120–240, 240–360, 360–480",
+        "Ориентация: индекс токена серии команды с тем же именем, что radiant (Dota) или blue (LoL) на этой карте. Индекс карты на серию не копируется",
+        "Канонический src/strategy/series_c.json: Dota 1.49, 1.07, 0.76, 0.49 и LoL 1.04, 1.42, 0.84, 0.49 в порядке корзин. load_series_c(model_dir) читает series_c.json из каталога модели",
+        "Скопировать файл игры в data/new_model/research/series_c.json и data/lol/models/research/series_c.json",
+        "Новый отбор validation map_winner Dota: BO3 карты 1–2 и BO5 карты 1–4, series_winner того же event_id, локальная книга серии обязательна",
+        "Счёт (a, b) — победы текущих radiant и dire на прошлых картах серии из GRID series_state. Токен серии выбирается series_link по имени radiant этой карты",
+        "В покрытии прогона серии есть счётчик without_series_book. Фикстура: Dota BO3 карта 2, счёт только из прошлых карт",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "ticket": "",
+      "designReference": [
+        "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Выборка LoL и прогон серии Dota",
+      "description": "Как разработчик, я хочу когорту серии LoL и режим --market series для Dota, чтобы заявки Dota стояли на книге серии, а модель по-прежнему смотрела на mid карты.",
+      "changes": [
+        "Рынок серии LoL — единственный включённый match_winner того же event_id. Два включённых match_winner на событие — ошибка отбора",
+        "Счёт LoL (a, b) по прошлым играм того же esports_match_id в links.parquet. Финальные team_*_game_wins для счёта не используются",
+        "Токен серии LoL выбирается series_link по имени blue-исхода этой карты. События проходят select_backtest_event_ids. Сдвиг сигнала остаётся LOL_SOURCE_LAG_SECONDS",
+        "В покрытии серии LoL есть счётчик without_series_book. Фикстура: LoL карта 2 со сменой сторон, счёт только из прошлых карт",
+        "В src/backtest/run.py флаги --market {map,series} (default map) и --series-branch {line,line_x_c}. Ветка обязательна при series и запрещена при map",
+        "Сборка серии — новый модуль под src/backtest/, run.py только разбирает флаги и вызывает его. Каталог Dota пишется в data/backtests/dota_maker/<run>",
+        "predict_model_deltas на строках карты, признак — mid карты. series_link переводит predicted_delta в ΔŜ выбранной ветки. c читается через load_series_c",
+        "q0 один раз с пары котировок, ближайшей к хорну в пределах ±30 с, спред каждой ≤ 5c. Отказ подбора — карта без сделок серии",
+        "RawDeltaSignal серии: predicted_delta = ΔŜ, anchor_p = as-of mid серии не старше 5 с. Кэш mid серии лежит в папке прогона. fair_radiant = clip(book_p + delta)",
+        "Ступень $100, 3 ступени, как у карты в LIVE-каталоге. Summary серии Dota содержит without_series_book и число блокировок min_delta, wide_spread и anchor",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "ticket": "",
+      "designReference": [
+        "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Прогон серии LoL и выход после конца карты",
+      "description": "Как разработчик, я хочу тот же прогон для LoL и общее правило выхода, чтобы позиция серии жила 15 минут после конца карты и продавалась maker SELL-ом.",
+      "changes": [
+        "--market series --game lol берёт выборку серии LoL, книгу match_winner и c из каталога LoL-модели. Каталог пишется в data/backtests/lol_maker/<run>",
+        "Сигнал карты сдвигается на LOL_SOURCE_LAG_SECONDS, затем series_link даёт ΔŜ. Якорь — mid серии, возраст ≤ 5 с, кэш в папке прогона",
+        "Отказ q0 на хорне оставляет карту без сделок серии. Summary LoL содержит without_series_book и блокировки min_delta, wide_spread, anchor",
+        "Окно прогона серии обеих игр: от хорна до конца карты плюс 15 минут. Конец окна и game_end_ns берутся по карте",
+        "Флаг политики серии в strategy/quoting.py: после game_ended план снимает BUY и держит SELL на лучшем ask, SELL идёт за книгой. Прогон серии включает этот флаг",
+        "Остаток на конце окна оценивается по лучшему bid. Закрытия по исходу серии нет",
+        "Add or update automated tests",
+        "Tests pass",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "ticket": "",
+      "designReference": [
+        "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Прогнать бэктесты и написать отчёт",
+      "description": "Как владелец, я хочу четыре каталога по 3 seed и отчёт, чтобы решить, прошла ли серия критерий, до любых правок live.",
+      "changes": [
+        "По одному каталогу за раз, scripts/run_seeds.sh (3 seed × 4 шарда): dota series-line --market series --series-branch line; dota series-line-x-c --series-branch line_x_c; то же для lol",
+        "У каждого каталога есть seed0, seed1 и seed2",
+        "scripts/compare_backtests.py попарно между ветками одной игры, с разрезом по времени",
+        "docs/experiments/series-market.md по правилам docs/experiments/README.md: на игру и ветку — net PnL с rebate, BUY-филы и markout 300 с, PnL на акцию, худшая карта, CVaR 5%, блокировки min_delta / wide_spread / anchor",
+        "В том же отчёте сумма net PnL серии с rebate и net PnL LIVE карты на общих match id, отдельно по игре и ветке",
+        "Ветка-победитель — та, у которой больше net PnL с rebate на картах с хорном с 2026-08-01",
+        "Критерий по игре записан явно: средний по 3 seed net PnL с rebate > 0; markout BUY-филов серии через 300 с ≥ +1c; худшая карта не хуже −$154 (Dota) и −$180 (LoL)",
+        "Строка эксперимента добавлена в таблицу docs/experiments/README.md",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "ticket": "",
+      "designReference": [
+        "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md",
+        "../esports-trader/docs/experiments/README.md"
+      ]
+    }
+  ]
+}

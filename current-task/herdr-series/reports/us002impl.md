@@ -1,0 +1,36 @@
+# US-002 — LoL cohort and Dota series replay
+Status: FINAL
+
+Implemented `current-task/plans/US-002.md` in `esports-trader` on `main`. Backtest-only: no live trading, promotion, discovery, or `trading.toml` changes. `feature.json` `passes` untouched.
+
+## Commits
+
+- `861c142db7aaf80f02932945495aca7cb501b281` — `feat: US-002 - Выборка LoL и прогон серии Dota` (18 files, +2682/−149).
+- `185fdf2a` — `fix: US-002 review - сборка серии в series_run и отказ по картам` (6 files, +333/−304): moved the series assembly dataclasses out of `run.py` into `series_run.assemble_series_replay` returning `SeriesAssembly`; `resolve_terminal_bids` now returns `None` and missing books/marks refuse per-map (`q0_no_series_book`, `q0_no_horn_quotes`, `q0_no_terminal_mark` fault rows) instead of aborting the shard. Not pushed.
+
+## What was built
+
+- `--market {map,series}` + `--series-branch {line,line_x_c}` in `run.py`. Series requires the branch; `--market series --game lol` errors ("LoL series runner lands in US-003"). Manifest gains `market`, `series_branch`, `series_c_sha256`, `series_c` (c loaded once via `load_series_c(model_dir)`).
+- `src/backtest/series_run.py` — series assembly module: `load_dota_series_inputs` (universe + `index_series_markets_by_event` + Gamma + GRID scores), `resolve_dota_series_cohort` (validation → full-cohort `select_series_validation_matches`; explicit ids → per-map `resolve_series_market`, required ids raise on drop gate), `assemble_series_replay` — the single orchestration entry called once from `run.py`: `build_series_context` (market swap keeping map timing; `clock_end = game_ended_at + SETTLEMENT_BUFFER`, not series close), `load_series_books` (both series legs over the map window + map-radiant token horn sliver; missing legs/slivers refuse per-map as `no_series_book`/`no_horn_quotes`), `fit_series_q0` (per-map `find_horn_quotes` + `fit_horn_q0`; refused → status), `build_terminal_marks` (refuses `no_terminal_mark` per map), `build_series_mids`, `build_decision_seconds` (`received_ns` for schedule ticks, `state_ts_us` for grid-v1), `to_series_signals` (as-of normalized series pair mid as anchor; `slope`/`c`-bucket delta via `calculate_series_delta`; missing anchors drop in lockstep and are counted), series mids/terminal/counters parquet read/write + `merge_series_caches`, `series_summary_block`, `series_load_lookups` for warm-cache/merge paths, `parse_series_branch` (typed CLI branch parse).
+- `src/backtest/series_inputs.py` — `SeriesMarket.radiant_won_series`, `index_series_markets_by_event`, and the LoL side: `select_lol_series_matches`, `resolve_lol_series_market`, `lol_prior_score` — eligible `game_winner` audit rows bind to exactly one included `match_winner` per event, prior-map links give the running score, blue/red side is resolved per map against Gamma `outcome_names`, duplicate included contracts raise, series book days gated like Dota.
+- `src/shared/utils/grid_series_state.py` — `SeriesGameScore.radiant_won_series` from the explicit `seriesState.teams[].won` flag (fallback: last finished game's winner only when `seriesState.finished`; never fabricated mid-series).
+- `src/backtest/marks.py` — `TerminalBids` + `resolve_terminal_bids`: each leg's as-of bid at `clock_end`, falling back to its last two-sided mid inside the window; token-index order; never a fabricated 0.
+- Postprocess/wallet/results — `terminal_marks` threaded through `enrich_fills` (new `terminal_bid` markout source between mid and settlement), `calculate_drawdowns`, `calculate_wallet_path`, `build_reserve_events`/`calculate_reserve_path` (new `window_end` settle timing at `context.clock_end`), `build_maker_match_result(s)` (`engine_pnl` marks leftover inventory at the window-end bid for series runs). Map runs pass `terminal_marks=None` and keep binary settlement semantics.
+- `src/backtest/lol_inputs.py` — `Q0_REFUSED_STOP_REASONS` (`q0_price_bounds`, `q0_fit_error`, `q0_flat_slope`, `q0_no_horn_quotes`, `q0_no_series_book`, `q0_no_terminal_mark`) added to `NO_REPLAY_STOP_REASONS`; `_eligible_mask` exported as `lol_eligible_mask` for the LoL series selector.
+- `run.py` wiring — q0-refused maps become `terminated_early` fault rows on the series context (excluded from engine and `replayed_ids`); book-strip `schedule_archives` disabled for series (live bot never quoted the series book; map legs stay local via the eligibility gate, warm-cache warms series legs only); shard/merge/resume paths merge the three series parquets and rebuild report counters; `summary.json["series"]` carries `{branch, cohort gates, q0_refused(+by reason), anchor_dropped_decisions, strategy blocks}` for US-004.
+- Tests — new `tests/test_series_run.py` (context swap, clock_end, q0 fit/refusals, mids, marks, transform drops, CLI flags); `test_series_inputs.py` gains LoL cohort tests incl. the required BO3 map-2 side-swap fixture, duplicate-contract raise, all gate counts, `radiant_won_series`; all `terminal_marks`/`series_report` call sites updated.
+
+## Verification
+
+- Focused pytest (`series_run`, `series_inputs`, `series_link`, `lol_backtest`, `backtest_postprocess`, `backtest_validation`, `report_capital`, `grid_starts`, `backtest`, `backtest_maker`, `since_match`) → **386 passed, 2 failed**. Both failures are pre-existing at HEAD: `test_since_match.py` fixtures lack the `ok_quote_fraction` column `lol_eligible_mask` now requires (unrelated LoL since-match fixtures; verified failing before this change). Full suite → **2494 passed, 11 failed**; the extra 9 are the pre-existing trading-clip config tests (`test_dota_map_config`, `test_trader_session_config`) broken at HEAD by the trading-clip raise — outside US-002 scope.
+- `basedpyright` → **0 errors, 0 warnings, 0 notes**. `ruff check` + `ruff format --check` over `src/` + `tests/` → **clean**.
+- CLI: `backtest --help` shows both flags; `--market series` without `--series-branch` and `--game lol --market series` both error as specified.
+- Real-data: `load_dota_series_inputs` loads 74492 universe / 3186 series-by-event / 73984 Gamma / 5377 GRID rows; a 200-map validation slice resolves **78 series markets** with `SeriesCoverage(validation_matches=717, map_eligible=625, not_series_map=201, without_series_score=46, orientation_failed=0, without_series_book=0, eligible=378)`; side-swap orientation exercised on real data (match 8837957019 → `radiant_token_index=1`); `radiant_won_series` splits 2795/2582 over all GRID scores.
+- Semantic review pass over `series_run.py` + `run.py` diff: shard-scoped lookup keys, fitted-book subsetting, empty-signal transform → `empty_signal_tape` fault rows, resume/merge parquet unions, warm-cache book selection all verified against their callers.
+
+## Known gaps / out of scope
+
+- LoL series runner, post-map 15-minute window, SELL-after-end policy — US-003 (`build_decision_seconds` documents the LoL lag subtraction as not built).
+- Seed runs, shard catalogs, warm-cache runs, comparisons, experiment report — US-004.
+- Full `make test` — not run (suite must not run during a live map); the trading-config expectation failures seen earlier are pre-existing at HEAD and in the forbidden trading-config area.
+- `feature.json` `passes` — not set, per instructions.
