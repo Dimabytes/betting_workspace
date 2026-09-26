@@ -1,0 +1,137 @@
+LOL OVERALL CURRENT RESEARCH ON CURRENT LABELED 0..540 ROWS
+{'rows': 892006, 'maps': 1686, 'no_move_mae_c': 9.956559148705276, 'model_mae_c': 9.730822592092032, 'gain_c': 0.22573655661324424, 'directional_markout_c': 1.6200862998679382, 'direction_accuracy_nonflat': 0.5716095990467407, 'flat_label_pct': 2.1536850648986667}
+LOL ARCHIVED 20260915 RESEARCH ON THE SAME CURRENT ROWS/LABELS
+{'rows': 892006, 'maps': 1686, 'no_move_mae_c': 9.956559148705276, 'model_mae_c': 9.75024337497115, 'gain_c': 0.20631577373412713, 'directional_markout_c': 1.7573987170489884, 'direction_accuracy_nonflat': 0.5759668650714085, 'flat_label_pct': 2.1536850648986667}
+LOL ARCHIVED 20260919 POST-332 RESEARCH ON THE SAME CURRENT ROWS/LABELS
+{'rows': 892006, 'maps': 1686, 'no_move_mae_c': 9.956559148705276, 'model_mae_c': 9.73100045167923, 'gain_c': 0.22555869702604622, 'directional_markout_c': 1.61879572558929, 'direction_accuracy_nonflat': 0.5715981416025527, 'flat_label_pct': 2.1536850648986667}
+LOL PER MONTH
+  month   rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+2026-06  92547   176       9.613273     9.384320 0.228953               1.497628                    0.573517        2.010870
+2026-07 235707   446       9.652738     9.517007 0.135731               1.203558                    0.554790        2.600686
+2026-08 379106   719       9.905524     9.674922 0.230602               1.625439                    0.572393        2.024764
+2026-09 184646   345      10.621240    10.292210 0.329031               2.202186                    0.590369        1.919348
+LOL PER LEAGUE (canonical aliases from live whitelist)
+                        league_norm   rows  maps  no_move_mae_c  model_mae_c    gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+                     Arabian League    541     1       4.376155     3.847957  0.528198               3.634935                    0.783525        3.512015
+                              CBLOL  30376    57      11.155336    10.729821  0.425516               2.110235                    0.600637        1.748091
+                Circuito Desafiante  30841    59       7.921848     7.632085  0.289763               1.703191                    0.594815        2.827405
+                                EBL   6762    13      12.747138    12.435376  0.311762               4.710285                    0.610353        1.434487
+                       EMEA Masters  39845    78       9.207430     9.096100  0.111330               0.764840                    0.555601        1.801983
+                  Esports World Cup  25866    48      10.072514     9.805281  0.267233               2.174192                    0.572082        2.841568
+                                HLL   1598     3      12.604819    11.559097  1.045721               6.515332                    0.736675        1.376721
+                   Hitpoint Masters  18822    37      10.409120    10.251103  0.158016               2.298637                    0.562755        1.030709
+                          KeSPA Cup  25890    48      10.823366    10.807823  0.015543               0.729492                    0.533489        2.367710
+                                LCK  84372   156      10.978782    10.739256  0.239527               1.357017                    0.581604        2.005405
+             LCK Challengers League  29490    58      10.327213    10.076733  0.250480               1.665836                    0.557083        1.566633
+                                LCP  44124    83      10.598126    10.458932  0.139193               2.022246                    0.554288        1.833469
+                                LCS  34363    64       8.660239     8.532416  0.127823               1.056642                    0.564317        2.380467
+                                LEC  69565   129       9.820802     9.638199  0.182603               1.463748                    0.567202        2.233882
+                                LES  39694    77       8.881987     8.535597  0.346390               2.658676                    0.611753        2.038091
+                                LFL  38346    72       8.945222     8.882765  0.062457              -0.018529                    0.534960        3.064205
+                                LIT   4665     9       7.074202     6.391677  0.682524               2.291972                    0.586289        1.500536
+                                LJL   4138     8       8.869647     9.186704 -0.317057               0.655776                    0.487261        1.353311
+                                LPL 117630   218      10.135820     9.853644  0.282176               1.659513                    0.579474        2.155913
+                              LPLOL  16463    32      10.332351     9.813082  0.519269               2.612944                    0.610527        2.946000
+                                LRN  16574    32       8.413560     8.138862  0.274699               1.665799                    0.580383        2.009171
+                                LRS   7316    14      10.445394    10.050898  0.394496               2.959472                    0.622306        1.708584
+            Mid-Season Invitational  31866    59       9.605760     9.496343  0.109417               0.195709                    0.525310        3.103621
+                               NACL  42935    81      10.015568     9.757259  0.258308               2.389295                    0.587310        2.245254
+                                NLC  17847    34      11.027610    10.468261  0.559349               3.530714                    0.610322        1.417605
+          Prime League 1st Division  53110   101       9.547782     9.423173  0.124609               1.288418                    0.540143        2.579552
+                       Rift Legends  16464    32      10.629889    10.784807 -0.154918               0.410077                    0.520666        1.542760
+                    Road Of Legends  19133    37      12.214843    12.006241  0.208603               2.204009                    0.581331        1.228244
+                                TCL  19164    38       8.956971     8.745886  0.211086               1.438212                    0.575293        2.003757
+World Star Challengers Invitational   4206     8      10.159772     8.730066  1.429706               5.221588                    0.757976        0.879696
+LOL PER LIVE/NO-LIVE FEED
+no_live_feed   rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+       False 744886  1410       9.913577     9.697732 0.215844               1.612049                    0.570946        2.176575
+        True 147120   276      10.174184     9.898362 0.275822               1.660781                    0.574964        2.037792
+LOL PER EXACT LIVE WHITELIST STATUS
+                feed_class   rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+not_whitelisted_or_unknown 242360   462       9.559669     9.360392 0.199278               1.552229                    0.563652        2.247070
+     whitelisted_live_feed 502526   948      10.084260     9.860426 0.223834               1.640899                    0.574460        2.142576
+  whitelisted_no_live_feed 147120   276      10.174184     9.898362 0.275822               1.660781                    0.574964        2.037792
+LOL PER GAME SECOND BUCKET
+game_second_bucket  rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+              0-59 97465  1685       7.862888     7.846379 0.016510               0.425916                    0.520449        3.488432
+           120-179 98404  1681      10.062421     9.784933 0.277488               2.340102                    0.584575        2.114751
+           180-239 98969  1681       9.978095     9.628995 0.349100               2.224112                    0.590278        2.056199
+           240-299 99142  1682       9.901843     9.645075 0.256769               1.879352                    0.581901        2.048577
+           300-359 99150  1684       9.824339     9.562032 0.262307               1.957914                    0.577135        1.698437
+           360-419 99593  1684       9.938696     9.680167 0.258529               1.672272                    0.578850        2.030263
+           420-479 99583  1685      11.051606    10.847425 0.204181               1.112974                    0.567458        1.729211
+           480-539 99644  1685      11.619579    11.338285 0.281294               1.375313                    0.584649        1.633816
+           540-599  1662  1662      11.434988    11.091264 0.343724               1.862244                    0.601347        1.744886
+            60-119 98394  1681       9.291978     9.172583 0.119395               1.577889                    0.556886        2.621095
+LOL PER ABS(PREDICTED EDGE) BUCKET
+abs_pred_bucket   rows  maps  no_move_mae_c  model_mae_c    gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+          <0.5c 177506  1677       9.274528     9.276830 -0.002302               0.081981                    0.503823        2.674276
+         0.5-1c 176646  1683       9.526648     9.496095  0.030553               0.806400                    0.537169        2.204409
+           1-2c 240657  1686       9.936759     9.815748  0.121011               1.496269                    0.569895        2.216017
+           2-5c 256524  1669      10.558594    10.093627  0.464967               2.938568                    0.624714        1.792815
+           >=5c  40673   878      11.120361     9.940889  1.179472               4.283587                    0.688647        1.568608
+LOL DATASET MAP/ROW/SPLIT / OVERLAP CHECKS
+{'split_rows': 3825, 'split_unique_match': 3825, 'split_unique_event': 1832, 'split_split_counts': {'train': 2139, 'validation': 1686}, 'train_dataset_maps': 2139, 'train_dataset_rows': 1120284, 'validation_dataset_maps_with_labeled_0_540': 1686, 'validation_dataset_rows_with_labeled_0_540': 892006, 'map_overlap': 0, 'event_overlap': 0, 'split_duplicate_match_id': 0, 'split_match_with_multiple_events': 0, 'split_event_with_multiple_split_labels': 0, 'links_duplicate_esports_game_id': 0, 'links_duplicate_condition_id': 0, 'links_duplicate_event_game': 0, 'val_match_missing_link': 0}
+LIVE BACKTEST MAP/VALIDATION OVERLAP
+{'results_rows': 945, 'result_maps': 945, 'validation_maps': 1686, 'result_maps_in_validation': 945, 'result_maps_not_in_validation': 0, 'result_model_names': {'research': 945}}
+LIVE BACKTEST MAPS EVALUATED AGAIN ON CURRENT VALIDATION LABELS
+{'rows': 500903, 'maps': 945, 'no_move_mae_c': 10.07220270192033, 'model_mae_c': 9.846781366397513, 'gain_c': 0.22542133552281804, 'directional_markout_c': 1.6469812518591425, 'direction_accuracy_nonflat': 0.5748713335414027, 'flat_label_pct': 2.1325486171973416}
+LIVE BACKTEST SUBSET PER LEAGUE
+            league_norm  rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+                  CBLOL 30376    57      11.155336    10.729821 0.425516               2.110235                    0.600637        1.748091
+                    EBL  6762    13      12.747138    12.435376 0.311762               4.710285                    0.610353        1.434487
+           EMEA Masters 39845    78       9.207430     9.096100 0.111330               0.764840                    0.555601        1.801983
+      Esports World Cup 25866    48      10.072514     9.805281 0.267233               2.174192                    0.572082        2.841568
+       Hitpoint Masters 18822    37      10.409120    10.251103 0.158016               2.298637                    0.562755        1.030709
+              KeSPA Cup 25890    48      10.823366    10.807823 0.015543               0.729492                    0.533489        2.367710
+                    LCK 82749   153      10.923338    10.673895 0.249443               1.388267                    0.584223        1.942017
+                    LCS 34363    64       8.660239     8.532416 0.127823               1.056642                    0.564317        2.380467
+                    LEC 69565   129       9.820802     9.638199 0.182603               1.463748                    0.567202        2.233882
+                    LES 39694    77       8.881987     8.535597 0.346390               2.658676                    0.611753        2.038091
+                  LPLOL 16463    32      10.332351     9.813082 0.519269               2.612944                    0.610527        2.946000
+                    LRN 16574    32       8.413560     8.138862 0.274699               1.665799                    0.580383        2.009171
+Mid-Season Invitational 31866    59       9.605760     9.496343 0.109417               0.195709                    0.525310        3.103621
+                   NACL 42935    81      10.015568     9.757259 0.258308               2.389295                    0.587310        2.245254
+        Road Of Legends 19133    37      12.214843    12.006241 0.208603               2.204009                    0.581331        1.228244
+split chronological ranges (unix seconds)
+            maps  events  first_start  last_start  first_event_start  last_event_start
+split                                                                                 
+train       2139    1077   1760430067  1780516702         1760430067        1780503568
+validation  1686     755   1780585966  1789859688         1780585966        1789848576
+by split event-start boundaries
+                   min         max
+split                             
+train       1760430067  1780503568
+validation  1780585966  1789848576
+LOL LABEL STATS
+train {'maps': 2139, 'rows': 1120284, 'flat_pct': 2.1043771043771047, 'mean_delta_c': 0.07406251450525052, 'median_delta_c': 0.0, 'std_delta_c': 12.670972203916431, 'p01_p05_p25_p75_p95_p99_c': [-31.5, -21.000000000000004, -7.500000000000001, 7.9999999999999964, 20.999999999999996, 31.000000000000007], 'abs_delta_lt_1c_pct': 6.280639552113572, 'abs_delta_ge_10c_pct': 39.14516319076235}
+train second row counts {'0': 2008, '1': 2015, '60': 2037, '480': 2083, '539': 2084, '540': 2088, 'maps': 2139, 'min_max_rows_per_map': [1, 541], 'map_rows_quantiles': {'0.0': 1.0, '0.01': 294.8, '0.1': 490.0, '0.5': 541.0, '0.9': 541.0, '0.99': 541.0, '1.0': 541.0}, 'maps_under_100_rows': 3, 'maps_under_300_rows': 22}
+validation {'maps': 1686, 'rows': 892006, 'flat_pct': 2.1536850648986667, 'mean_delta_c': 0.5129817512438257, 'median_delta_c': 0.5000000000000004, 'std_delta_c': 12.956505317496136, 'p01_p05_p25_p75_p95_p99_c': [-32.0, -21.0, -7.499999999999996, 8.499999999999996, 21.999999999999996, 32.99999999999999], 'abs_delta_lt_1c_pct': 5.735163216390921, 'abs_delta_ge_10c_pct': 39.83101010531319}
+validation second row counts {'0': 1547, '1': 1546, '60': 1622, '480': 1660, '539': 1662, '540': 1662, 'maps': 1686, 'min_max_rows_per_map': [52, 541], 'map_rows_quantiles': {'0.0': 52.0, '0.01': 357.0, '0.1': 510.0, '0.5': 541.0, '0.9': 541.0, '0.99': 541.0, '1.0': 541.0}, 'maps_under_100_rows': 1, 'maps_under_300_rows': 12}
+LOL 0..540 LABEL PRESENCE BY SECOND BUCKET
+training {0: {'rows': 124192, 'labeled': 122518, 'maps': 2137, 'unlabeled': 1674, 'label_pct': 98.65208709095594}, 60: {'rows': 124258, 'labeled': 122898, 'maps': 2134, 'unlabeled': 1360, 'label_pct': 98.90550306620098}, 120: {'rows': 125141, 'labeled': 123655, 'maps': 2139, 'unlabeled': 1486, 'label_pct': 98.8125394554942}, 180: {'rows': 125798, 'labeled': 124448, 'maps': 2138, 'unlabeled': 1350, 'label_pct': 98.92685098332247}, 240: {'rows': 125836, 'labeled': 124645, 'maps': 2137, 'unlabeled': 1191, 'label_pct': 99.0535299914174}, 300: {'rows': 126416, 'labeled': 124900, 'maps': 2137, 'unlabeled': 1516, 'label_pct': 98.8007847107961}, 360: {'rows': 126672, 'labeled': 125139, 'maps': 2135, 'unlabeled': 1533, 'label_pct': 98.7897877984085}, 420: {'rows': 126534, 'labeled': 124858, 'maps': 2136, 'unlabeled': 1676, 'label_pct': 98.67545481846777}, 480: {'rows': 126793, 'labeled': 125135, 'maps': 2135, 'unlabeled': 1658, 'label_pct': 98.69235683357914}, 540: {'rows': 2117, 'labeled': 2088, 'maps': 2117, 'unlabeled': 29, 'label_pct': 98.63013698630137}}
+validation {0: {'rows': 98277, 'labeled': 97465, 'maps': 1685, 'unlabeled': 812, 'label_pct': 99.17376395290862}, 60: {'rows': 98998, 'labeled': 98394, 'maps': 1681, 'unlabeled': 604, 'label_pct': 99.38988666437706}, 120: {'rows': 99105, 'labeled': 98404, 'maps': 1681, 'unlabeled': 701, 'label_pct': 99.2926693910499}, 180: {'rows': 99585, 'labeled': 98969, 'maps': 1681, 'unlabeled': 616, 'label_pct': 99.38143294672892}, 240: {'rows': 99847, 'labeled': 99142, 'maps': 1682, 'unlabeled': 705, 'label_pct': 99.29391969713663}, 300: {'rows': 100014, 'labeled': 99150, 'maps': 1684, 'unlabeled': 864, 'label_pct': 99.13612094306798}, 360: {'rows': 100431, 'labeled': 99593, 'maps': 1685, 'unlabeled': 838, 'label_pct': 99.16559628003306}, 420: {'rows': 100386, 'labeled': 99583, 'maps': 1686, 'unlabeled': 803, 'label_pct': 99.20008766162613}, 480: {'rows': 100426, 'labeled': 99644, 'maps': 1686, 'unlabeled': 782, 'label_pct': 99.22131718877581}, 540: {'rows': 1676, 'labeled': 1662, 'maps': 1676, 'unlabeled': 14, 'label_pct': 99.16467780429595}}
+LOL VALIDATION MODEL-WINDOW ROWS WHOSE T+300 WALL TIME EXCEEDS MAP END
+{np.False_: {'rows': 898745, 'labeled': 892006, 'maps': 1686, 'label_pct': 99.25017663519687}}
+LOL LINK LEAGUE JOIN
+{'linked_rows': 5565, 'league_null_rows': 124, 'league_top': {'LPL': 564, 'LCK': 400, 'LEC': 314, 'EMEA Masters': 266, 'Prime League 1st Division': 243, 'NACL': 224, 'LCK Challengers League': 219, 'LCP': 210, 'LFL': 197, 'Road Of Legends': 188, 'LES': 182, 'TCL': 169, 'Hitpoint Masters': 158, 'CBLOL': 148, 'LCS': 148, 'Circuito Desafiante': 133, 'unknown': 124, 'LPLOL': 119, 'NLC': 113, 'LIT': 111, 'Rift Legends': 111, 'EBL': 105, 'Arabian League': 98, 'LJL': 88, 'LCP Regular Season': 70}}
+LOL AUDIT PAUSE COUNTS BY SPLIT
+            maps  paused_maps  pause_count  pause_seconds  accepted
+split                                                              
+none        1740          976         2391  202512.947003         0
+train       2139          599         1166   90848.752005      2139
+validation  1686          567         1112   85486.257002      1686
+LOL METRICS BY AUDIT PAUSE STATUS
+pause_status   rows  maps  no_move_mae_c  model_mae_c   gain_c  directional_markout_c  direction_accuracy_nonflat  flat_label_pct
+       False 596163  1119      10.084648     9.836024 0.248624               1.621746                    0.573856        2.079633
+        True 295843   567       9.698442     9.518828 0.179615               1.616742                    0.567073        2.302911
+MODEL METADATA
+current {'name': '20260921T095801Z', 'train_matches': 2139, 'validation_matches': 1686, 'source_lag_seconds': 10, 'ensemble_arm': 'default_sub90', 'ensemble_k': 10, 'member_trees': [35, 31, 29, 34, 34, 37, 30, 33, 35, 35], 'metrics': {'dir_300_cents': 1.6200862998679382, 'future_300_n': 892006, 'mae_gain_300_cents': 0.225736556613243, 'mae_gain_300_ci_high_cents': 0.28302778800536116, 'mae_gain_300_ci_low_cents': 0.17143998530973417, 'model_bias_300_cents': -0.39247376315929683, 'model_mae_300_cents': 9.730822592092034, 'no_move_mae_300_cents': 9.956559148705276, 'rows': 892006, 'trees': 33}, 'train_dataset_sha256': '1a9e48c3d813e016262a49487db14e78e691d336284101ef9488e50e3c8bf702', 'validation_dataset_sha256': '9e8e66c2339576862c7137814785174028396b34ca7eac2116d2cd2ae6640f0c'}
+old {'name': '20260915T210420Z', 'train_matches': 1934, 'validation_matches': 1588, 'source_lag_seconds': 10, 'ensemble_arm': 'default_sub90', 'ensemble_k': 10, 'member_trees': [25, 29, 28, 26, 25, 33, 27, 29, 26, 27], 'metrics': {'dir_300_cents': 1.4330625303934243, 'future_300_n': 843110, 'mae_gain_300_cents': 0.15397530091606215, 'mae_gain_300_ci_high_cents': 0.20126769518624418, 'mae_gain_300_ci_low_cents': 0.10322628901417129, 'model_bias_300_cents': -0.22985319516982372, 'model_mae_300_cents': 9.868139073246265, 'no_move_mae_300_cents': 10.022114374162328, 'rows': 843110, 'trees': 28}, 'train_dataset_sha256': '26af39d65ada857ec888496be0982a3aedd980d7cb9274572920928084cd098b', 'validation_dataset_sha256': '4ce386cd3ff503852cf2f67d398aa50a2479f02047703bdf55d2e81c4ae8ea35'}
+DOTA RESEARCH ON VALIDATION PARQUET
+Dota canonical -60..599/market_status=ok {'rows': 374555, 'maps': 598, 'no_move_mae_c': 8.117603823203535, 'model_mae_c': 7.895408028890413, 'gain_c': 0.22219579431312178, 'directional_markout_c': 1.6758169027245668, 'direction_accuracy_nonflat': 0.5812797374897457, 'flat_label_pct': 2.3641387780165797}
+Dota common 0..540/market_status=ok {'rows': 312756, 'maps': 598, 'no_move_mae_c': 8.188220529742035, 'model_mae_c': 7.944065505420402, 'gain_c': 0.2441550243216344, 'directional_markout_c': 1.7982849249894488, 'direction_accuracy_nonflat': 0.5849847236851574, 'flat_label_pct': 2.2554323498190283}
+Dota second distinct values sampled [np.int64(-50), np.int64(-49), np.int64(-48), np.int64(-47), np.int64(-46), np.int64(-45), np.int64(-44), np.int64(-43), np.int64(-42), np.int64(-41), np.int64(-40), np.int64(-39), np.int64(-38), np.int64(-37), np.int64(-36), np.int64(-35), np.int64(-34), np.int64(-33), np.int64(-32), np.int64(-31)] ... unique_count 650
+Dota map row distribution {'count': 598.0, 'mean': 626.3461538461538, 'std': 42.06558144892637, 'min': 219.0, '25%': 623.0, '50%': 643.0, '75%': 650.0, 'max': 650.0}
+Dota training selected observations {'rows': 11063, 'maps': 1152, 'rows_per_map': {'count': 1152.0, 'mean': 9.60329861111111, 'std': 1.1284595288035386, 'min': 1.0, '25%': 10.0, '50%': 10.0, '75%': 10.0, 'max': 11.0}, 'distinct_seconds': [-60, 0, 60, 120, 180, 240, 300, 360, 420, 480, 540]}
+Dota model metadata {'ensemble_arm': 'default_sub90', 'ensemble_k': 10, 'ensemble_sampling': 'sub90', 'features': ['second', 'radiant_nw_adv', 'radiant_nw', 'dire_nw', 'radiant_xp_adv', 'deaths_radiant', 'deaths_dire', 'top1_nw_adv', 'radiant_top1_nw_ratio', 'dire_top1_nw_ratio', 'market_radiant_prior', 'market_p_radiant'], 'member_trees': [45, 57, 45, 38, 41, 50, 55, 49, 47, 59], 'members': ['member_00.txt', 'member_01.txt', 'member_02.txt', 'member_03.txt', 'member_04.txt', 'member_05.txt', 'member_06.txt', 'member_07.txt', 'member_08.txt', 'member_09.txt'], 'metrics': {'dir_300_cents': 1.6758169027245664, 'future_300_n': 374555, 'mae_gain_300_cents': 0.22219579431312086, 'mae_gain_300_ci_high_cents': 0.3151060774902417, 'mae_gain_300_ci_low_cents': 0.13035133933093745, 'model_bias_300_cents': -0.0244465695459105, 'model_mae_300_cents': 7.895408028890413, 'no_move_mae_300_cents': 8.117603823203535, 'rows': 379894, 'trees': 49}, 'name': '20260921T085651Z', 'source_lag_seconds': 10, 'train_dataset_sha256': '811c33c149d7afd7415a664e768fa688333afa7b5a8dd577b29d7199675dd9a8', 'train_matches': 1152, 'trained_at': '2026-09-21T08:56:51Z', 'validation_dataset_sha256': 'b8fd727900657ca3083dd1df496689218d381d28fd536745b966f846b7d764bc'}

@@ -1,0 +1,605 @@
+{
+  "live_maps_since_2026_08_31": 579,
+  "outputs": [
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/period_summary.json",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/per_map.json",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/per_map.csv",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/fill_markouts.csv",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/league_lol_since_2026-08-31.csv",
+    "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/live-luna/league_lol_since_2026-09-18.csv"
+  ],
+  "periods": {
+    "since_2026-08-31": {
+      "dota": {
+        "buy_notional_all_maps": 32848.914026,
+        "buy_notional_on_known_net_maps": 31129.830615,
+        "buy_quote_order_notional_median": 59.995,
+        "buy_quote_order_notional_p90": 100.0008,
+        "calibration_300s": {
+          "directional_accuracy": 0.5881009110571167,
+          "mean_predicted_delta": 0.0034432799911874486,
+          "mean_realized_move_300s": -0.004678660069371188,
+          "model_rows_without_300s_pair": 54844,
+          "paired_n": 254759,
+          "pearson_r": 0.047834692413446636,
+          "positive_prediction_share": 0.5025847958266441,
+          "quartile_bins": [
+            {
+              "mean_abs_error": 0.11640063208292833,
+              "mean_predicted_delta": -0.022850263548225346,
+              "mean_realized_move_300s": -0.013642382803273921,
+              "n": 63690,
+              "predicted_max": -0.015973263906551655,
+              "predicted_min": -0.06207721731634125
+            },
+            {
+              "mean_abs_error": 0.08983477699316714,
+              "mean_predicted_delta": -0.009985716546565165,
+              "mean_realized_move_300s": -0.0073189930136520805,
+              "n": 63690,
+              "predicted_max": 0.0003987056770966835,
+              "predicted_min": -0.01597224604554659
+            },
+            {
+              "mean_abs_error": 0.09657361042539223,
+              "mean_predicted_delta": 0.012555285186401031,
+              "mean_realized_move_300s": 0.002303487053238657,
+              "n": 63689,
+              "predicted_max": 0.02271394029960916,
+              "predicted_min": 0.0003987056770966835
+            },
+            {
+              "mean_abs_error": 0.12280441591895686,
+              "mean_predicted_delta": 0.0340539579412064,
+              "mean_realized_move_300s": -5.664188674256574e-05,
+              "n": 63690,
+              "predicted_max": 0.08771274071905033,
+              "predicted_min": 0.02271411803859591
+            }
+          ]
+        },
+        "fill_outcome_map_counts": {
+          "no": 68,
+          "no,yes": 16,
+          "yes": 105
+        },
+        "fills": 1457,
+        "first_entry_second_median": 176.0,
+        "first_entry_second_p90": 405.0,
+        "map_hold_duration_median_s": 115.18985147044748,
+        "map_hold_duration_p90_s": 451.5187346474602,
+        "maps": 281,
+        "maps_with_fills": 189,
+        "maps_with_known_net": 267,
+        "maps_with_matched_buy_sell": 188,
+        "markouts": {
+          "BUY_10s": {
+            "mean_raw_mid_minus_fill_cents": 0.10064674426038758,
+            "mean_signed_cents": 0.10064674426038758,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 618
+          },
+          "BUY_300s": {
+            "mean_raw_mid_minus_fill_cents": 2.9213173136369703,
+            "mean_signed_cents": 2.9213173136369703,
+            "median_signed_cents": 3.0000000000000027,
+            "n": 645
+          },
+          "BUY_30s": {
+            "mean_raw_mid_minus_fill_cents": 0.3749573879234105,
+            "mean_signed_cents": 0.3749573879234105,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 593
+          },
+          "BUY_60s": {
+            "mean_raw_mid_minus_fill_cents": 0.40941758874808254,
+            "mean_signed_cents": 0.40941758874808254,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 653
+          },
+          "SELL_10s": {
+            "mean_raw_mid_minus_fill_cents": 0.4729410021613705,
+            "mean_signed_cents": -0.4729410021613705,
+            "median_signed_cents": -5.580666240234677e-06,
+            "n": 534
+          },
+          "SELL_300s": {
+            "mean_raw_mid_minus_fill_cents": -0.3253918284332969,
+            "mean_signed_cents": 0.3253918284332969,
+            "median_signed_cents": -0.20000000000000018,
+            "n": 573
+          },
+          "SELL_30s": {
+            "mean_raw_mid_minus_fill_cents": 0.728737325653049,
+            "mean_signed_cents": -0.728737325653049,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 562
+          },
+          "SELL_60s": {
+            "mean_raw_mid_minus_fill_cents": 0.5659466543415281,
+            "mean_signed_cents": -0.5659466543415281,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 555
+          }
+        },
+        "net_known_maps": 763.8063826560002,
+        "net_per_buy_notional_known_maps": 0.024536156078149615,
+        "reason_shares": {
+          "missing_book": 0.0024148557613180403,
+          "paused": 0.0016344969665325396,
+          "stale": 0.0030590064755591628
+        },
+        "signal_gap_gt10_s": 14696,
+        "signal_gap_gt5_s": 33315,
+        "signal_gap_median_s": 1.0,
+        "signal_gap_p90_s": 8.0,
+        "unrecognized_fill_tokens": 0
+      },
+      "feed_source_breakdown": {
+        "dota/grid": {
+          "buy_markout_30s_mean_signed_cents": -0.11040049807034538,
+          "buy_markout_30s_n": 375,
+          "buy_notional_known_net_maps": 24818.967556,
+          "buy_quote_order_notional_median": 59.9974,
+          "fills": 1106,
+          "maps": 230,
+          "maps_with_fills": 149,
+          "maps_with_known_net": 221,
+          "net_known_maps": 514.0909134589999,
+          "net_per_buy_notional_known_maps": 0.0207136301016163,
+          "signal_gap_median_s": 4.0,
+          "signal_gap_p90_s": 14.0
+        },
+        "dota/oddin": {
+          "buy_markout_30s_mean_signed_cents": 1.2098620083255136,
+          "buy_markout_30s_n": 218,
+          "buy_notional_known_net_maps": 6310.863059,
+          "buy_quote_order_notional_median": 19.996799999999997,
+          "fills": 351,
+          "maps": 51,
+          "maps_with_fills": 40,
+          "maps_with_known_net": 46,
+          "net_known_maps": 249.7154691970003,
+          "net_per_buy_notional_known_maps": 0.039569147177243524,
+          "signal_gap_median_s": 1.0,
+          "signal_gap_p90_s": 1.0
+        },
+        "lol/grid": {
+          "buy_markout_30s_mean_signed_cents": -0.7943259174618774,
+          "buy_markout_30s_n": 652,
+          "buy_notional_known_net_maps": 12688.144359,
+          "buy_quote_order_notional_median": 10.0028,
+          "fills": 1492,
+          "maps": 298,
+          "maps_with_fills": 207,
+          "maps_with_known_net": 291,
+          "net_known_maps": -439.0544338865,
+          "net_per_buy_notional_known_maps": -0.03460351817128155,
+          "signal_gap_median_s": 3.0,
+          "signal_gap_p90_s": 12.0
+        }
+      },
+      "lol": {
+        "buy_notional_all_maps": 13145.484462,
+        "buy_notional_on_known_net_maps": 12688.144359,
+        "buy_quote_order_notional_median": 10.0028,
+        "buy_quote_order_notional_p90": 30.0025,
+        "calibration_300s": {
+          "directional_accuracy": 0.5603930837168802,
+          "mean_predicted_delta": 0.0016856330719992865,
+          "mean_realized_move_300s": -0.0016408787926894797,
+          "model_rows_without_300s_pair": 38757,
+          "paired_n": 80390,
+          "pearson_r": 0.02322546335584759,
+          "positive_prediction_share": 0.4976862793879836,
+          "quartile_bins": [
+            {
+              "mean_abs_error": 0.1302989608635543,
+              "mean_predicted_delta": -0.0326934991670383,
+              "mean_realized_move_300s": -0.004451286210149812,
+              "n": 20098,
+              "predicted_max": -0.0162833803869539,
+              "predicted_min": -0.17161665421234162
+            },
+            {
+              "mean_abs_error": 0.09884903289426838,
+              "mean_predicted_delta": -0.008969783178740018,
+              "mean_realized_move_300s": 0.0026194998826489886,
+              "n": 20097,
+              "predicted_max": -0.00032958048080433677,
+              "predicted_min": -0.0162833803869539
+            },
+            {
+              "mean_abs_error": 0.09901651373161377,
+              "mean_predicted_delta": 0.0097758545854176,
+              "mean_realized_move_300s": -0.006177626985062253,
+              "n": 20097,
+              "predicted_max": 0.01920052121584581,
+              "predicted_min": -0.0003294269323728116
+            },
+            {
+              "mean_abs_error": 0.13658985395600845,
+              "mean_predicted_delta": 0.03862983241402921,
+              "mean_realized_move_300s": 0.001445884390709674,
+              "n": 20098,
+              "predicted_max": 0.12993205428432208,
+              "predicted_min": 0.01920052121584581
+            }
+          ]
+        },
+        "fill_outcome_map_counts": {
+          "no": 69,
+          "no,yes": 34,
+          "yes": 104
+        },
+        "fills": 1492,
+        "first_entry_second_median": 190.0,
+        "first_entry_second_p90": 401.0,
+        "map_hold_duration_median_s": 81.50955455835253,
+        "map_hold_duration_p90_s": 260.60690818858563,
+        "maps": 298,
+        "maps_with_fills": 207,
+        "maps_with_known_net": 291,
+        "maps_with_matched_buy_sell": 207,
+        "markouts": {
+          "BUY_10s": {
+            "mean_raw_mid_minus_fill_cents": -1.0830390845146585,
+            "mean_signed_cents": -1.0830390845146585,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 678
+          },
+          "BUY_300s": {
+            "mean_raw_mid_minus_fill_cents": -1.9080216825443248,
+            "mean_signed_cents": -1.9080216825443248,
+            "median_signed_cents": 0.0,
+            "n": 667
+          },
+          "BUY_30s": {
+            "mean_raw_mid_minus_fill_cents": -0.7943259174618774,
+            "mean_signed_cents": -0.7943259174618774,
+            "median_signed_cents": 0.0,
+            "n": 652
+          },
+          "BUY_60s": {
+            "mean_raw_mid_minus_fill_cents": -0.5324702201254763,
+            "mean_signed_cents": -0.5324702201254763,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 656
+          },
+          "SELL_10s": {
+            "mean_raw_mid_minus_fill_cents": 0.8696479353828752,
+            "mean_signed_cents": -0.8696479353828752,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 593
+          },
+          "SELL_300s": {
+            "mean_raw_mid_minus_fill_cents": -0.4199305018365272,
+            "mean_signed_cents": 0.4199305018365272,
+            "median_signed_cents": -1.5000000000000013,
+            "n": 592
+          },
+          "SELL_30s": {
+            "mean_raw_mid_minus_fill_cents": 0.922998120124277,
+            "mean_signed_cents": -0.922998120124277,
+            "median_signed_cents": -0.5000005221428794,
+            "n": 574
+          },
+          "SELL_60s": {
+            "mean_raw_mid_minus_fill_cents": 0.9819132240399217,
+            "mean_signed_cents": -0.9819132240399217,
+            "median_signed_cents": -1.0000024881466507,
+            "n": 586
+          }
+        },
+        "net_known_maps": -439.0544338865,
+        "net_per_buy_notional_known_maps": -0.03460351817128155,
+        "reason_shares": {
+          "missing_book": 0.01197065874463391,
+          "paused": 0.0024451046138407257,
+          "stale": 0.007414958942950214
+        },
+        "signal_gap_gt10_s": 12371,
+        "signal_gap_gt5_s": 31065,
+        "signal_gap_median_s": 3.0,
+        "signal_gap_p90_s": 12.0,
+        "unrecognized_fill_tokens": 0
+      }
+    },
+    "since_2026-09-18": {
+      "dota": {
+        "buy_notional_all_maps": 10161.186249,
+        "buy_notional_on_known_net_maps": 9418.616019000001,
+        "buy_quote_order_notional_median": 59.9944,
+        "buy_quote_order_notional_p90": 60.0,
+        "calibration_300s": {
+          "directional_accuracy": 0.584853049741615,
+          "mean_predicted_delta": 0.002700010226639007,
+          "mean_realized_move_300s": -0.005112376215860837,
+          "model_rows_without_300s_pair": 32396,
+          "paired_n": 200476,
+          "pearson_r": 0.0405806536921996,
+          "positive_prediction_share": 0.5018755362237873,
+          "quartile_bins": [
+            {
+              "mean_abs_error": 0.11904953891251928,
+              "mean_predicted_delta": -0.022944180782145957,
+              "mean_realized_move_300s": -0.013399743204757026,
+              "n": 50119,
+              "predicted_max": -0.016109846353520293,
+              "predicted_min": -0.053811810167559926
+            },
+            {
+              "mean_abs_error": 0.09196889787065628,
+              "mean_predicted_delta": -0.009950468345443367,
+              "mean_realized_move_300s": -0.007488387091458647,
+              "n": 50119,
+              "predicted_max": 0.0002808213490405609,
+              "predicted_min": -0.016109846353520293
+            },
+            {
+              "mean_abs_error": 0.09293797005544356,
+              "mean_predicted_delta": 0.012156448268087778,
+              "mean_realized_move_300s": 0.0027133243356254264,
+              "n": 50119,
+              "predicted_max": 0.021725368704075543,
+              "predicted_min": 0.00028132473177938655
+            },
+            {
+              "mean_abs_error": 0.1275010073175326,
+              "mean_predicted_delta": 0.03153824176605757,
+              "mean_realized_move_300s": -0.002274698902853104,
+              "n": 50119,
+              "predicted_max": 0.06525181059041907,
+              "predicted_min": 0.02172547698297267
+            }
+          ]
+        },
+        "fill_outcome_map_counts": {
+          "no": 22,
+          "no,yes": 9,
+          "yes": 32
+        },
+        "fills": 540,
+        "first_entry_second_median": 155.0,
+        "first_entry_second_p90": 366.0,
+        "map_hold_duration_median_s": 129.73295767372105,
+        "map_hold_duration_p90_s": 429.8337694102398,
+        "maps": 97,
+        "maps_with_fills": 63,
+        "maps_with_known_net": 90,
+        "maps_with_matched_buy_sell": 63,
+        "markouts": {
+          "BUY_10s": {
+            "mean_raw_mid_minus_fill_cents": 0.32281849176862976,
+            "mean_signed_cents": 0.32281849176862976,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 298
+          },
+          "BUY_300s": {
+            "mean_raw_mid_minus_fill_cents": 3.6754352198425537,
+            "mean_signed_cents": 3.6754352198425537,
+            "median_signed_cents": 4.499999999999998,
+            "n": 287
+          },
+          "BUY_30s": {
+            "mean_raw_mid_minus_fill_cents": 0.8494601001144141,
+            "mean_signed_cents": 0.8494601001144141,
+            "median_signed_cents": 0.9999997330714216,
+            "n": 278
+          },
+          "BUY_60s": {
+            "mean_raw_mid_minus_fill_cents": 1.2192704981533964,
+            "mean_signed_cents": 1.2192704981533964,
+            "median_signed_cents": 1.4999958318795108,
+            "n": 288
+          },
+          "SELL_10s": {
+            "mean_raw_mid_minus_fill_cents": 0.606683553461519,
+            "mean_signed_cents": -0.606683553461519,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 202
+          },
+          "SELL_300s": {
+            "mean_raw_mid_minus_fill_cents": -0.4753653989767567,
+            "mean_signed_cents": 0.4753653989767567,
+            "median_signed_cents": -0.20000000000000018,
+            "n": 205
+          },
+          "SELL_30s": {
+            "mean_raw_mid_minus_fill_cents": 1.1645411733796074,
+            "mean_signed_cents": -1.1645411733796074,
+            "median_signed_cents": -1.0000000000000009,
+            "n": 196
+          },
+          "SELL_60s": {
+            "mean_raw_mid_minus_fill_cents": 1.3783255795390241,
+            "mean_signed_cents": -1.3783255795390241,
+            "median_signed_cents": -1.0000000000000009,
+            "n": 203
+          }
+        },
+        "net_known_maps": 324.7018723470004,
+        "net_per_buy_notional_known_maps": 0.03447447817088894,
+        "reason_shares": {
+          "missing_book": 0.0016548629647591933,
+          "paused": 0.0005294080625515988,
+          "stale": 0.00039613050834280466
+        },
+        "signal_gap_gt10_s": 2956,
+        "signal_gap_gt5_s": 6914,
+        "signal_gap_median_s": 1.0,
+        "signal_gap_p90_s": 2.0,
+        "unrecognized_fill_tokens": 0
+      },
+      "feed_source_breakdown": {
+        "dota/grid": {
+          "buy_markout_30s_mean_signed_cents": -0.4600001663859139,
+          "buy_markout_30s_n": 60,
+          "buy_notional_known_net_maps": 3107.75296,
+          "buy_quote_order_notional_median": 59.997099999999996,
+          "fills": 189,
+          "maps": 46,
+          "maps_with_fills": 23,
+          "maps_with_known_net": 44,
+          "net_known_maps": 74.98640315000013,
+          "net_per_buy_notional_known_maps": 0.024128817224262297,
+          "signal_gap_median_s": 4.0,
+          "signal_gap_p90_s": 14.0
+        },
+        "dota/oddin": {
+          "buy_markout_30s_mean_signed_cents": 1.2098620083255136,
+          "buy_markout_30s_n": 218,
+          "buy_notional_known_net_maps": 6310.863059,
+          "buy_quote_order_notional_median": 19.996799999999997,
+          "fills": 351,
+          "maps": 51,
+          "maps_with_fills": 40,
+          "maps_with_known_net": 46,
+          "net_known_maps": 249.7154691970003,
+          "net_per_buy_notional_known_maps": 0.039569147177243524,
+          "signal_gap_median_s": 1.0,
+          "signal_gap_p90_s": 1.0
+        },
+        "lol/grid": {
+          "buy_markout_30s_mean_signed_cents": -0.8633928745715442,
+          "buy_markout_30s_n": 56,
+          "buy_notional_known_net_maps": 681.025167,
+          "buy_quote_order_notional_median": 4.998500000000001,
+          "fills": 109,
+          "maps": 44,
+          "maps_with_fills": 24,
+          "maps_with_known_net": 43,
+          "net_known_maps": -0.9857670000000183,
+          "net_per_buy_notional_known_maps": -0.0014474751415464479,
+          "signal_gap_median_s": 3.0,
+          "signal_gap_p90_s": 12.0
+        }
+      },
+      "lol": {
+        "buy_notional_all_maps": 686.021067,
+        "buy_notional_on_known_net_maps": 681.025167,
+        "buy_quote_order_notional_median": 4.998500000000001,
+        "buy_quote_order_notional_p90": 19.999,
+        "calibration_300s": {
+          "directional_accuracy": 0.5282930631332814,
+          "mean_predicted_delta": 0.003381569769666438,
+          "mean_realized_move_300s": 0.011738542478565862,
+          "model_rows_without_300s_pair": 5827,
+          "paired_n": 12830,
+          "pearson_r": -0.12128307903683527,
+          "positive_prediction_share": 0.5635229929851909,
+          "quartile_bins": [
+            {
+              "mean_abs_error": 0.14832172093738338,
+              "mean_predicted_delta": -0.024334644746735055,
+              "mean_realized_move_300s": 0.040958229426433915,
+              "n": 3208,
+              "predicted_max": -0.012412244080395679,
+              "predicted_min": -0.07011062063860896
+            },
+            {
+              "mean_abs_error": 0.10894225729006013,
+              "mean_predicted_delta": -0.005074763050704601,
+              "mean_realized_move_300s": 0.027088556283130654,
+              "n": 3207,
+              "predicted_max": 0.005567872397861745,
+              "predicted_min": -0.012412244080395679
+            },
+            {
+              "mean_abs_error": 0.07559493866139143,
+              "mean_predicted_delta": 0.010404162001876095,
+              "mean_realized_move_300s": -0.0067054879950109135,
+              "n": 3207,
+              "predicted_max": 0.016624032137911082,
+              "predicted_min": 0.00557415478929052
+            },
+            {
+              "mean_abs_error": 0.1439472926470989,
+              "mean_predicted_delta": 0.03253107794761205,
+              "mean_realized_move_300s": -0.014388092269326682,
+              "n": 3208,
+              "predicted_max": 0.06788870910112194,
+              "predicted_min": 0.016631912799634385
+            }
+          ]
+        },
+        "fill_outcome_map_counts": {
+          "no": 10,
+          "no,yes": 1,
+          "yes": 13
+        },
+        "fills": 109,
+        "first_entry_second_median": 241.0,
+        "first_entry_second_p90": 401.0,
+        "map_hold_duration_median_s": 147.39719013378357,
+        "map_hold_duration_p90_s": 282.003,
+        "maps": 44,
+        "maps_with_fills": 24,
+        "maps_with_known_net": 43,
+        "maps_with_matched_buy_sell": 24,
+        "markouts": {
+          "BUY_10s": {
+            "mean_raw_mid_minus_fill_cents": -1.5641509433962266,
+            "mean_signed_cents": -1.5641509433962266,
+            "median_signed_cents": -0.5000000000000004,
+            "n": 53
+          },
+          "BUY_300s": {
+            "mean_raw_mid_minus_fill_cents": 2.1124999837332252,
+            "mean_signed_cents": 2.1124999837332252,
+            "median_signed_cents": 2.49999951199677,
+            "n": 60
+          },
+          "BUY_30s": {
+            "mean_raw_mid_minus_fill_cents": -0.8633928745715442,
+            "mean_signed_cents": -0.8633928745715442,
+            "median_signed_cents": 0.0,
+            "n": 56
+          },
+          "BUY_60s": {
+            "mean_raw_mid_minus_fill_cents": -0.37181819956375556,
+            "mean_signed_cents": -0.37181819956375556,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 55
+          },
+          "SELL_10s": {
+            "mean_raw_mid_minus_fill_cents": 1.3769235516650975,
+            "mean_signed_cents": -1.3769235516650975,
+            "median_signed_cents": -1.0000000000000009,
+            "n": 39
+          },
+          "SELL_300s": {
+            "mean_raw_mid_minus_fill_cents": -0.6085709115661461,
+            "mean_signed_cents": 0.6085709115661461,
+            "median_signed_cents": 0.5000000000000004,
+            "n": 35
+          },
+          "SELL_30s": {
+            "mean_raw_mid_minus_fill_cents": 1.7263162767089146,
+            "mean_signed_cents": -1.7263162767089146,
+            "median_signed_cents": -0.9500000000000008,
+            "n": 38
+          },
+          "SELL_60s": {
+            "mean_raw_mid_minus_fill_cents": 1.8526320661825983,
+            "mean_signed_cents": -1.8526320661825983,
+            "median_signed_cents": -2.500000000000002,
+            "n": 38
+          }
+        },
+        "net_known_maps": -0.9857670000000183,
+        "net_per_buy_notional_known_maps": -0.0014474751415464479,
+        "reason_shares": {
+          "missing_book": 0.0008371703641691084,
+          "paused": 0.0014127249895353705,
+          "stale": 0.0017266638760987862
+        },
+        "signal_gap_gt10_s": 1850,
+        "signal_gap_gt5_s": 4737,
+        "signal_gap_median_s": 3.0,
+        "signal_gap_p90_s": 12.0,
+        "unrecognized_fill_tokens": 0
+      }
+    }
+  }
+}

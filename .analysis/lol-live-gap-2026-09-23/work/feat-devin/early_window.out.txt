@@ -1,0 +1,46 @@
+grid-3000375-m1: ticks=301 first=3 in_window=83 sec<70=1 sec<480=72 first_model_signal=78
+grid-3000375-m2: ticks=362 first=5 in_window=89 sec<70=1 sec<480=74 first_model_signal=88
+grid-3000375-m3: ticks=433 first=77 in_window=115 sec<70=0 sec<480=92 first_model_signal=87
+grid-3000375-m4: ticks=743 first=3 in_window=203 sec<70=4 sec<480=167 first_model_signal=69
+grid-3000375-m5: ticks=339 first=3 in_window=81 sec<70=1 sec<480=69 first_model_signal=83
+grid-3000372-m1: ticks=443 first=4 in_window=89 sec<70=1 sec<480=78 first_model_signal=78
+grid-3000372-m2: ticks=488 first=2 in_window=98 sec<70=1 sec<480=80 first_model_signal=80
+grid-3000372-m3: ticks=553 first=3 in_window=106 sec<70=2 sec<480=88 first_model_signal=78
+grid-3000372-m4: ticks=315 first=3 in_window=72 sec<70=1 sec<480=51 first_model_signal=83
+grid-3008205-m1: ticks=430 first=21 in_window=98 sec<70=1 sec<480=85 first_model_signal=84
+grid-3008205-m2: ticks=339 first=3 in_window=102 sec<70=1 sec<480=84 first_model_signal=76
+grid-3008205-m3: ticks=344 first=77 in_window=81 sec<70=0 sec<480=67 first_model_signal=90
+grid-3008206-m1: ticks=298 first=3 in_window=91 sec<70=1 sec<480=74 first_model_signal=84
+grid-3008206-m2: ticks=491 first=4 in_window=117 sec<70=2 sec<480=93 first_model_signal=73
+Traceback (most recent call last):
+  File "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/lol-live-gap-2026-09-23/work/feat-devin/early_window.py", line 18, in <module>
+    meta = json.loads((d / "match.json").read_text())
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/data/trader/grid-3008206-m3/match.json'
+grid-3008206-m3: no match.json
+grid-3008208-m1: ticks=402 first=6 in_window=91 sec<70=1 sec<480=73 first_model_signal=82
+grid-3008208-m2: ticks=490 first=3 in_window=101 sec<70=2 sec<480=84 first_model_signal=74
+grid-3008208-m3: ticks=335 first=3 in_window=97 sec<70=1 sec<480=79 first_model_signal=79
+grid-3008209-m1: ticks=504 first=4 in_window=95 sec<70=2 sec<480=83 first_model_signal=75
+grid-3008209-m2: ticks=577 first=4 in_window=105 sec<70=1 sec<480=84 first_model_signal=78
+grid-3008211-m1: ticks=481 first=4 in_window=118 sec<70=2 sec<480=96 first_model_signal=93
+grid-3008211-m2: ticks=350 first=4 in_window=86 sec<70=1 sec<480=71 first_model_signal=74
+grid-3008213-m1: ticks=371 first=77 in_window=83 sec<70=0 sec<480=71 first_model_signal=90
+grid-3008213-m2: ticks=541 first=3 in_window=117 sec<70=2 sec<480=94 first_model_signal=79
+grid-3008213-m3: ticks=384 first=4 in_window=97 sec<70=2 sec<480=78 first_model_signal=80
+grid-3008214-m1: ticks=343 first=78 in_window=85 sec<70=0 sec<480=72 first_model_signal=91
+grid-3008214-m2: ticks=506 first=3 in_window=130 sec<70=1 sec<480=109 first_model_signal=83
+grid-3008217-m1: ticks=586 first=5 in_window=115 sec<70=2 sec<480=99 first_model_signal=79
+grid-3008217-m2: ticks=347 first=-1 in_window=82 sec<70=0 sec<480=67 first_model_signal=81
+grid-3008217-m3: ticks=547 first=4 in_window=95 sec<70=1 sec<480=75 first_model_signal=80
+grid-3008219-m1: ticks=565 first=-7 in_window=101 sec<70=0 sec<480=79 first_model_signal=74
+grid-3008219-m2: ticks=364 first=-3 in_window=107 sec<70=0 sec<480=91 first_model_signal=82

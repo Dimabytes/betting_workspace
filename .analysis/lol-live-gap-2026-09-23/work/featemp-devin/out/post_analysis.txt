@@ -1,0 +1,26 @@
+[yes_fair] maps=257 rows=104019 max|err|=0.000e+00 exact maps=257/257
+
+[signal reasons] n=132482
+  model                 108115  81.6%
+  missing_book           19129  14.4%
+  one_sided_book          2871   2.2%
+  stale                   1472   1.1%
+  paused                   323   0.2%
+  finished                 310   0.2%
+  missing_prior            242   0.2%
+  crossed_book              19   0.0%
+  pair_out_of_tolerance       1   0.0%
+
+[live cadence] maps=260
+  ticks/map med=94  med_gap=3.2s max_gap med=71s
+  stale share (>16s no tick): mean=0.161 med=0.136 p90=0.257
+  grid-v1 iid expected stale share ~= 0.067
+  band 0-180: live 26.7 ticks/map vs grid-v1 ~22
+  band 180-360: live 30.9 ticks/map vs grid-v1 ~30
+  band 360-540: live 39.7 ticks/map vs grid-v1 ~36
+
+[second-convention sensitivity] production model on 50k validation rows
+  second-10: cents med|d|=0.0000 p90|d|=0.0082 signflip=0.06%
+  second+2.5: cents med|d|=0.0000 p90|d|=0.0000 signflip=0.01%
+
+[radiant_fair replay] n=33069 exact=99.7157% mismatch=94 rows in 43 maps (all model=20260831T120859Z era; |err| med=0.30c max=5.49c)

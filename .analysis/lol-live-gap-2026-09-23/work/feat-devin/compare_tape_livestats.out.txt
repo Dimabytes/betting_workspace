@@ -1,0 +1,144 @@
+
+=== grid-3000375-m1  map 1  gid=115565004607949400
+  grid ticks total=301 in 0..540=83  livestats frames=6836
+  death offset grid_label - livestats_second = +2.5s (n=18 spread=2.0)
+  paired ticks: 301
+  radiant_nw      median|grid-ls|=    66.00  mean=   -59.07  p90|d|=150.00
+  dire_nw         median|grid-ls|=    65.00  mean=   -52.00  p90|d|=167.00
+  nw_adv          median|grid-ls|=    36.00  mean=    -7.07  p90|d|=105.00
+  xp_adv          median|grid-ls|=     0.00  mean=   +18.31  p90|d|=480.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    -0.01  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    14.00  mean=   -11.53  p90|d|=50.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-440 (grid = raw + this)   vs CONSUMED-corrected: median diff=-61
+  dire_nw vs RAW totalGold:     median diff=-475
+
+=== grid-3000375-m2  map 2  gid=115565004607949401
+  grid ticks total=362 in 0..540=89  livestats frames=6266
+  death offset grid_label - livestats_second = +3.1s (n=26 spread=2.1)
+  paired ticks: 362
+  radiant_nw      median|grid-ls|=    60.00  mean=    +8.73  p90|d|=105.00
+  dire_nw         median|grid-ls|=    60.00  mean=   -80.42  p90|d|=205.00
+  nw_adv          median|grid-ls|=   105.00  mean=   +89.15  p90|d|=135.00
+  xp_adv          median|grid-ls|=   380.00  mean=   +26.07  p90|d|=780.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=     5.00  mean=    -2.55  p90|d|=25.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-365 (grid = raw + this)   vs CONSUMED-corrected: median diff=+40
+  dire_nw vs RAW totalGold:     median diff=-430
+
+=== grid-3000375-m3  map 3  gid=115565004607949402
+  grid ticks total=433 in 0..540=115  livestats frames=7166
+  death offset grid_label - livestats_second = +2.4s (n=18 spread=1.8)
+  paired ticks: 433
+  radiant_nw      median|grid-ls|=    19.00  mean=    -0.22  p90|d|=135.00
+  dire_nw         median|grid-ls|=    45.00  mean=   +56.69  p90|d|=104.00
+  nw_adv          median|grid-ls|=    60.00  mean=   -56.90  p90|d|=165.00
+  xp_adv          median|grid-ls|=     0.00  mean=   +80.70  p90|d|=480.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.03  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    27.00  mean=   -16.37  p90|d|=95.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-360 (grid = raw + this)   vs CONSUMED-corrected: median diff=+0
+  dire_nw vs RAW totalGold:     median diff=-410
+
+=== grid-3000375-m4  map 4  gid=115565004607949403
+  grid ticks total=743 in 0..540=203  livestats frames=8011
+  death offset grid_label - livestats_second = +2.5s (n=29 spread=3.1)
+  paired ticks: 743
+  radiant_nw      median|grid-ls|=    50.00  mean=   +44.39  p90|d|=100.00
+  dire_nw         median|grid-ls|=    50.00  mean=    +4.51  p90|d|=100.00
+  nw_adv          median|grid-ls|=    50.00  mean=   +39.89  p90|d|=100.00
+  xp_adv          median|grid-ls|=     0.00  mean=   -11.03  p90|d|=580.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.01  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.02  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=     0.00  mean=    +2.41  p90|d|=20.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    -0.00  p90|d|=0.00
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  radiant_nw vs RAW totalGold:  median diff=-464 (grid = raw + this)   vs CONSUMED-corrected: median diff=+50
+  dire_nw vs RAW totalGold:     median diff=-395
+
+=== grid-3000375-m5  map 5  gid=115565004607949404
+  grid ticks total=339 in 0..540=81  livestats frames=8122
+  death offset grid_label - livestats_second = +3.0s (n=12 spread=1.8)
+  paired ticks: 339
+  radiant_nw      median|grid-ls|=    50.00  mean=   +14.64  p90|d|=88.00
+  dire_nw         median|grid-ls|=    70.00  mean=   -53.00  p90|d|=135.00
+  nw_adv          median|grid-ls|=    80.00  mean=   +67.64  p90|d|=151.00
+  xp_adv          median|grid-ls|=     0.00  mean=   -18.52  p90|d|=580.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    10.00  mean=    -3.62  p90|d|=60.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    -0.00  p90|d|=0.00
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-251 (grid = raw + this)   vs CONSUMED-corrected: median diff=+35
+  dire_nw vs RAW totalGold:     median diff=-262
+
+=== grid-3000372-m1  map 1  gid=115565004607949388
+  grid ticks total=443 in 0..540=89  livestats frames=9447
+  death offset grid_label - livestats_second = +2.6s (n=25 spread=3.0)
+  paired ticks: 443
+  radiant_nw      median|grid-ls|=    50.00  mean=   -36.29  p90|d|=200.00
+  dire_nw         median|grid-ls|=    45.00  mean=    +2.60  p90|d|=105.00
+  nw_adv          median|grid-ls|=    95.00  mean=   -38.89  p90|d|=115.00
+  xp_adv          median|grid-ls|=     0.00  mean=   +43.60  p90|d|=680.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    25.00  mean=    +2.33  p90|d|=50.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    -0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-311 (grid = raw + this)   vs CONSUMED-corrected: median diff=-50
+  dire_nw vs RAW totalGold:     median diff=-315
+
+=== grid-3000372-m2  map 2  gid=115565004607949389
+  grid ticks total=488 in 0..540=98  livestats frames=10119
+  death offset grid_label - livestats_second = +2.5s (n=38 spread=6.8)
+  paired ticks: 488
+  radiant_nw      median|grid-ls|=    84.00  mean=   +54.99  p90|d|=154.00
+  dire_nw         median|grid-ls|=    43.00  mean=   -17.52  p90|d|=110.00
+  nw_adv          median|grid-ls|=    63.50  mean=   +72.51  p90|d|=170.00
+  xp_adv          median|grid-ls|=     0.00  mean=    -7.35  p90|d|=780.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.04  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    22.00  mean=   +21.90  p90|d|=71.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-230 (grid = raw + this)   vs CONSUMED-corrected: median diff=+25
+  dire_nw vs RAW totalGold:     median diff=-390
+
+=== grid-3000372-m3  map 3  gid=115565004607949390
+  grid ticks total=553 in 0..540=106  livestats frames=10102
+  death offset grid_label - livestats_second = +2.9s (n=14 spread=2.6)
+  paired ticks: 553
+  radiant_nw      median|grid-ls|=    64.50  mean=   +19.39  p90|d|=116.00
+  dire_nw         median|grid-ls|=   102.50  mean=   +76.62  p90|d|=150.00
+  nw_adv          median|grid-ls|=    43.50  mean=   -57.24  p90|d|=105.00
+  xp_adv          median|grid-ls|=     0.00  mean=    +9.43  p90|d|=780.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=     1.00  mean=   -20.90  p90|d|=55.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    -0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-360 (grid = raw + this)   vs CONSUMED-corrected: median diff=+26
+  dire_nw vs RAW totalGold:     median diff=-255
+
+=== grid-3000372-m4  map 4  gid=115565004607949391
+  grid ticks total=315 in 0..540=72  livestats frames=5502
+  death offset grid_label - livestats_second = +2.7s (n=13 spread=2.1)
+  paired ticks: 315
+  radiant_nw      median|grid-ls|=    30.00  mean=   -75.36  p90|d|=265.00
+  dire_nw         median|grid-ls|=    37.50  mean=  -142.39  p90|d|=196.00
+  nw_adv          median|grid-ls|=    44.50  mean=   +67.03  p90|d|=135.00
+  xp_adv          median|grid-ls|=   580.00  mean=  +535.56  p90|d|=1360.00
+  deaths_radiant  median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  deaths_dire     median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.00
+  top1_nw_adv     median|grid-ls|=    22.50  mean=    -6.79  p90|d|=82.00
+  radiant_ratio   median|grid-ls|=     0.00  mean=    -0.00  p90|d|=0.01
+  dire_ratio      median|grid-ls|=     0.00  mean=    +0.00  p90|d|=0.01
+  radiant_nw vs RAW totalGold:  median diff=-345 (grid = raw + this)   vs CONSUMED-corrected: median diff=+0
+  dire_nw vs RAW totalGold:     median diff=-401
