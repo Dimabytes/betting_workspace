@@ -26,31 +26,14 @@ Set `R=<run dir>` first. The script cd's the pane to `$R` (stray relative writes
 | devin    | SWE-2 Max                | `--model swe-2-max --permission-mode bypass`                                                 |
 | codex    | GPT-6 Luna max fast      | `-m gpt-6-luna -c 'model_reasoning_effort="max"' -c 'service_tier="priority"' --approve-for-me` |
 | cursor   | Grok 4.7 High            | `--model grok-4.7-high --force --trust --sandbox disabled --add-dir <code repo>`             |
-| opencode | Muse Spark 1.3 Free xhigh | `--auto` — model+variant+permissions from `$R/opencode.json` (see below)                     |
 
 codex Fast = `service_tier="priority"` (luna's fast tier; user config.toml sets `"default"`, so pin
 it with `-c`). Verify in the welcome card: `GPT-6-Luna max fast`. `--approve-for-me` routes approvals
 through the auto-review model inside the workspace-write sandbox — NOT `--dangerously-bypass-…`
 (YOLO).
 
-opencode's bypass flag is `--auto` (auto-approves everything not explicitly denied). The TUI has no
-variant flag (`--variant` dumps help; `model#variant` errors in v1). Drop this into
-`$R/opencode.json` before `agent start`; the pane cd's to `$R` so it is picked up:
-
-```json
-{
-  "agent": { "build": { "model": "opencode/muse-spark-1.3-contributor-free", "variant": "xhigh" } },
-  "permission": { "*": "allow", "question": "deny", "plan_enter": "deny", "plan_exit": "deny" }
-}
-```
-
-`"*": "allow"` is the config-level bypass (verified: runs shell without prompting); the three denies
-stop the agent opening interactive prompts (question, plan mode) that would hang an unattended pane.
-Verify in the footer: `Build auto · Muse Spark 1.3 Free · xhigh`. For one-off `opencode run`,
-`-m opencode/muse-spark-1.3-contributor-free --variant xhigh` works.
-
-- Model ids drift. Check: `cursor-agent --list-models`, `devin models list | grep -oE 'swe-2[a-z0-9-]*' | sort -u`, `codex debug models`, `opencode models opencode --verbose` (lists variants per model).
-- All four CLIs have web search, Exa and Brave; `tvly` works from the shell.
+- Model ids drift. Check: `cursor-agent --list-models`, `devin models list | grep -oE 'swe-2[a-z0-9-]*' | sort -u`, `codex debug models`.
+- All three CLIs have web search, Exa and Brave; `tvly` works from the shell.
 
 ## Which model for what
 
@@ -59,12 +42,11 @@ Verify in the footer: `Build auto · Muse Spark 1.3 Free · xhigh`. For one-off 
 | devin | web research, browser reverse engineering (signed APIs, protobuf over MQTT), Discord digging | most wrong claims came from devins, one badly wrong latency; ends its turn with a WIP report; queued prompts need Enter | 15 min – 2.5 h     |
 | grok  | protocols, endpoints, code reading, exact numbers (matched my re-check to 0.05 s)            |                                                                                                                         | 15–30 min          |
 | luna  | local data and stats, careful cohort definitions; 0 refuted claims in 6 tasks                | slow on big tapes (up to 2 h);                                                                                          | 35 min – 2 h       |
-| muse  | free tier (opencode zen), 1M ctx                                                             | untested in fleet runs                                                                                                  |                    |
 
 ## Gotchas
 
 - **Bypass is blocked by the Claude Code auto-mode classifier** ("Create Unsafe Agents") until the user says bypass is allowed in chat. Ask once, up front.
-- **devin, cursor and opencode run auto-approve** (`bypass`, `--force --trust`, `--auto` + `"*": "allow"`) — no approval gate exists between an agent and `rm -rf`. codex runs `--approve-for-me`: the reviewer model gates each command and the sandbox still confines writes. Either way, the no-destruction rule in `00-context.md` is required; do not launch without it.
+- **devin and cursor run auto-approve** (`bypass`, `--force --trust`) — no approval gate exists between an agent and `rm -rf`. codex runs `--approve-for-me`: the reviewer model gates each command and the sandbox still confines writes. Either way, the no-destruction rule in `00-context.md` is required; do not launch without it.
 - **Devin ignores** `--permission-mode smart` when the env has `DEVIN_PERMISSION_MODE=bypass`. Trust the footer, not argv: it must say `(bypass permissions on)`.
 - **Follow-ups: use** `scripts/prompt.sh`**.** Prompting a working devin queues the text; the footer shows
   `Press Enter to send queued messages now` and herdr may report `done` while it waits. The script presses Enter.
