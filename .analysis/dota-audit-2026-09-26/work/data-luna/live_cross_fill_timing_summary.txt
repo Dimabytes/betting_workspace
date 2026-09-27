@@ -1,0 +1,21 @@
+same_token_any_strict_cross
+all_within_2s fills 367 orders 294 qty 41417.058596 notional_usd 25532.0910244 queue_positive 260 queue_zero 107 queue_median 40.0 delta_s_min -1.995 delta_s_median 0.0 delta_s_max 2.0
+cross_precedes_fill fills 342 orders 280 qty 40128.639955000006 notional_usd 24753.957225699996 queue_positive 238 queue_zero 104 queue_median 37.6 delta_s_min 0.0 delta_s_median 0.0 delta_s_max 2.0
+fill_precedes_cross fills 25 orders 17 qty 1288.418641 notional_usd 778.1337987 queue_positive 22 queue_zero 3 queue_median 170.0 delta_s_min -1.995 delta_s_median -1.001 delta_s_max -0.001
+source grid_v1 (none) cross_precedes_fills 256 orders 209 qty 29774.589955 notional_usd 18778.259925699997 queue_positive 185 queue_zero 71 queue_median 42.5
+source schedule grid cross_precedes_fills 77 orders 63 qty 8430.689999999999 notional_usd 4896.7283 queue_positive 46 queue_zero 31 queue_median 30.0
+source schedule oddin cross_precedes_fills 9 orders 8 qty 1923.3600000000001 notional_usd 1078.969 queue_positive 7 queue_zero 2 queue_median 100.0
+same_order_buy_ask_below_limit_any_book
+all_within_2s fills 146 orders 82 qty 9537.02 notional_usd 5434.610500000001 queue_positive 118 queue_zero 28 queue_median 40.4 delta_s_min -1.131 delta_s_median 0.0 delta_s_max 0.316
+cross_precedes_fill fills 126 orders 81 qty 8544.669999999998 notional_usd 4891.9261 queue_positive 99 queue_zero 27 queue_median 36.6 delta_s_min 0.0 delta_s_median 0.0 delta_s_max 0.316
+fill_precedes_cross fills 20 orders 12 qty 992.3499999999999 notional_usd 542.6844 queue_positive 19 queue_zero 1 queue_median 53.5 delta_s_min -1.131 delta_s_median -0.078999998 delta_s_max -0.008
+source grid_v1 (none) cross_precedes_fills 98 orders 56 qty 5539.9 notional_usd 3259.3163 queue_positive 76 queue_zero 22 queue_median 32.25
+source schedule grid cross_precedes_fills 27 orders 24 qty 2760.87 notional_usd 1532.6108 queue_positive 22 queue_zero 5 queue_median 59.08
+source schedule oddin cross_precedes_fills 1 orders 1 qty 243.9 notional_usd 99.999 queue_positive 1 queue_zero 0 queue_median 49.3
+same_order_buy_ask_below_limit_strict_crossed_book
+all_within_2s fills 69 orders 48 qty 5868.55 notional_usd 3276.4214 queue_positive 53 queue_zero 16 queue_median 45.0 delta_s_min -0.008 delta_s_median 1e-06 delta_s_max 0.161
+cross_precedes_fill fills 68 orders 48 qty 5788.55 notional_usd 3226.8214 queue_positive 52 queue_zero 16 queue_median 43.055 delta_s_min 0.0 delta_s_median 1e-06 delta_s_max 0.161
+fill_precedes_cross fills 1 orders 1 qty 80.0 notional_usd 49.6 queue_positive 1 queue_zero 0 queue_median 170.0 delta_s_min -0.008 delta_s_median -0.008 delta_s_max -0.008
+source grid_v1 (none) cross_precedes_fills 41 orders 24 qty 2793.78 notional_usd 1599.6116 queue_positive 29 queue_zero 12 queue_median 10.0
+source schedule grid cross_precedes_fills 26 orders 23 qty 2750.87 notional_usd 1527.2108 queue_positive 22 queue_zero 4 queue_median 69.465
+source schedule oddin cross_precedes_fills 1 orders 1 qty 243.9 notional_usd 99.999 queue_positive 1 queue_zero 0 queue_median 49.3

@@ -1,0 +1,26 @@
+nice: setpriority: Operation not permitted
+TRAIN_DROP_SUMMARY
+         catalog  cache  any_current  any_label  dataset_map  current_points  label_points  shorter_600
+month                                                                                                  
+2025-10       58     53           23          6            6              52             6            0
+2025-11       89     77           77         75           74             650           510            0
+2025-12      283    217          184        167          166            1373           980            0
+2026-01      360    284          165        113          110             827           490            0
+2026-02      551    551          412        361          359            3402          2807            0
+2026-03      330    330          267        252          251            2446          2170            0
+2026-04      466    465          375        306          302            2738          2199            0
+2026-05      348    347          318        296          295            3112          2914            0
+TRAIN_REASON_COUNTS {'retained': 1563, 'no_good_current': 503, 'no_good_label': 245, 'no_cache': 161, 'states_drop': 13}
+TRAIN_BY_MONTH_REASON
+col_0    no_cache  no_good_current  no_good_label  retained  states_drop
+month                                                                   
+2025-10         5               30             17         6            0
+2025-11        12                0              2        74            1
+2025-12        66               33             17       166            1
+2026-01        76              119             52       110            3
+2026-02         0              139             51       359            2
+2026-03         0               63             15       251            1
+2026-04         1               90             69       302            4
+2026-05         1               29             22       295            1
+VALIDATION catalog 722 val_maps 717
+VAL_MONTHS {'2026-06': 75, '2026-07': 258, '2026-08': 197, '2026-09': 187}

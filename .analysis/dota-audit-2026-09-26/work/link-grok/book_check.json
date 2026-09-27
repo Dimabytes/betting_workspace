@@ -1,0 +1,23 @@
+{
+  "book_version": "v9c88adc2",
+  "catalog": 3207,
+  "with_any_ok_book": 2868,
+  "missing_book": 339,
+  "near_end": 2436,
+  "hard_flip_p_le_0.10_or_ge_0.90": 0,
+  "soft_flip_other_side_of_0.5": 24,
+  "prior_opposite_first_ingame": 13,
+  "last_p_quantiles_near_end": {
+    "win_true": {
+      "0.05": 0.845,
+      "0.5": 0.99,
+      "0.95": 0.999
+    },
+    "win_false": {
+      "0.05": 0.001,
+      "0.5": 0.01,
+      "0.95": 0.12375
+    }
+  },
+  "hard_flips": []
+}

@@ -1,0 +1,523 @@
+8:2026-09-26T12:04:13.244847787 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+10:2026-09-26T12:04:13.422826375Z 2026-09-26 12:04:13 [info     ] clock_ok                       drift_s=0.4
+14:2026-09-26T12:04:13.798651815 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"d38c3a5a-dc81-482a-af47-36dc17e44741","error_msg":"Invalid Heartbeat ID"}
+15:2026-09-26T12:04:13.807738664Z 2026-09-26 12:04:13 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'd38c3a5a-dc81-482a-af47-36dc17e44741', 'error_ms
+16:2026-09-26T12:04:13.807774648 trader heartbeat chain not started yet; dead-man halt held
+19:2026-09-26T12:04:13.862255422 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"d38c3a5a-dc81-482a-af47-36dc17e44741","error_msg":"Invalid Heartbeat ID"}
+20:2026-09-26T12:04:13.865627635 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+21:2026-09-26T12:04:13.868525843 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+22:2026-09-26T12:04:13.877681588 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+23:2026-09-26T12:04:13.878651446 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+24:2026-09-26T12:04:13.879465770 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+25:2026-09-26T12:04:13.880328107 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+26:2026-09-26T12:04:13.881246359 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+27:2026-09-26T12:04:13.883228131 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+28:2026-09-26T12:04:13.883961414 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+29:2026-09-26T12:04:13.884313313 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+30:2026-09-26T12:04:13.885557654 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+31:2026-09-26T12:04:13.886353372 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+32:2026-09-26T12:04:13.886578211 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+33:2026-09-26T12:04:13.886813503 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+34:2026-09-26T12:04:13.892027858 LoL event skipped event_id=923142 league='FLASH' reason=league_not_whitelisted
+35:2026-09-26T12:04:13.892512716 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+36:2026-09-26T12:04:13.893044537 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+37:2026-09-26T12:04:13.893906674 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+38:2026-09-26T12:04:13.894872065 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+39:2026-09-26T12:04:13.895286329 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+40:2026-09-26T12:04:13.899210612Z 2026-09-26 12:04:13 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'd38c3a5a-dc81-482a-af47-36dc17e44741', 'error_ms
+41:2026-09-26T12:04:13.899240397 trader heartbeat chain not started yet; dead-man halt held
+43:2026-09-26T12:04:32.782178827 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+44:2026-09-26T12:04:32.783307054 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+45:2026-09-26T12:04:32.784390834 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+46:2026-09-26T12:04:32.785511881 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+47:2026-09-26T12:04:32.786445154 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+48:2026-09-26T12:06:02.817335651 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+49:2026-09-26T12:06:02.820540852 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+50:2026-09-26T12:06:02.823548848 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+51:2026-09-26T12:06:02.823559764 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+52:2026-09-26T12:06:32.878154022 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+53:2026-09-26T12:06:32.880701645 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+54:2026-09-26T12:06:32.883176097 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+55:2026-09-26T12:06:32.883189778 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+56:2026-09-26T12:07:02.645374524 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+57:2026-09-26T12:07:02.647910970 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+58:2026-09-26T12:07:02.650479254 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+59:2026-09-26T12:07:02.650500727 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+60:2026-09-26T12:07:32.916325782 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+61:2026-09-26T12:07:32.919026605 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+62:2026-09-26T12:07:32.921507368 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+63:2026-09-26T12:07:32.921522020 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+64:2026-09-26T12:08:02.777412527 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+65:2026-09-26T12:08:02.780091376 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+66:2026-09-26T12:08:02.782693382 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+67:2026-09-26T12:08:02.782704459 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+68:2026-09-26T12:08:33.018952803 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+69:2026-09-26T12:08:33.021704603 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+70:2026-09-26T12:08:33.024816415 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+71:2026-09-26T12:08:33.024908043 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+72:2026-09-26T12:09:02.711679846 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+73:2026-09-26T12:09:02.711802151 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+74:2026-09-26T12:09:02.714754923 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+75:2026-09-26T12:09:02.714781284 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+76:2026-09-26T12:09:33.085349748 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+77:2026-09-26T12:09:33.089447233 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+78:2026-09-26T12:09:33.093534753 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+79:2026-09-26T12:09:33.093641914 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+80:2026-09-26T12:10:02.708217153 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+81:2026-09-26T12:10:02.710818998 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+82:2026-09-26T12:10:02.713637338 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+83:2026-09-26T12:10:02.713651860 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+84:2026-09-26T12:10:33.069930716 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+85:2026-09-26T12:10:33.072684128 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+86:2026-09-26T12:10:33.075225583 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+87:2026-09-26T12:10:33.075292523 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+88:2026-09-26T12:11:02.865276365 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+89:2026-09-26T12:11:02.867820572 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+90:2026-09-26T12:11:02.870504090 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+91:2026-09-26T12:11:02.870555879 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+92:2026-09-26T12:11:33.207431024 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+93:2026-09-26T12:11:33.210015924 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+94:2026-09-26T12:11:33.212509006 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+95:2026-09-26T12:11:33.212546842 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+96:2026-09-26T12:12:02.834060281 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+97:2026-09-26T12:12:02.836593113 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+98:2026-09-26T12:12:02.840429344 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+99:2026-09-26T12:12:02.840464067 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+100:2026-09-26T12:12:32.716404954 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+101:2026-09-26T12:12:32.719140060 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+102:2026-09-26T12:12:32.722010317 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+103:2026-09-26T12:12:32.722022226 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+104:2026-09-26T12:13:02.547571782 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+105:2026-09-26T12:13:02.550758076 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+106:2026-09-26T12:13:02.554101137 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+107:2026-09-26T12:13:02.554115068 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+108:2026-09-26T12:13:32.619788076 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+109:2026-09-26T12:13:32.619978062 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+110:2026-09-26T12:13:32.623217807 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+111:2026-09-26T12:13:32.623235874 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+112:2026-09-26T12:14:02.663222769 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+113:2026-09-26T12:14:02.666135953 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+114:2026-09-26T12:14:02.668845409 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+115:2026-09-26T12:14:02.668913812 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+116:2026-09-26T12:14:32.656740460 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+117:2026-09-26T12:14:32.659142884 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+118:2026-09-26T12:14:32.661810147 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+119:2026-09-26T12:14:32.661826923 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+120:2026-09-26T12:15:02.866220631 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+121:2026-09-26T12:15:02.868729727 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+122:2026-09-26T12:15:02.871193724 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+123:2026-09-26T12:15:02.871207584 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+124:2026-09-26T12:15:33.050140301 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+125:2026-09-26T12:15:33.055157210 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+126:2026-09-26T12:15:33.057813618 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+127:2026-09-26T12:15:33.057827980 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+128:2026-09-26T12:16:02.694179849 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+129:2026-09-26T12:16:02.700331918 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+130:2026-09-26T12:16:02.700351036 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+131:2026-09-26T12:16:02.700354071 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+132:2026-09-26T12:16:32.806498430 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+133:2026-09-26T12:16:32.811692908 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+134:2026-09-26T12:16:32.811819628 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+135:2026-09-26T12:16:32.811864836 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+136:2026-09-26T12:17:02.977108924 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+137:2026-09-26T12:17:02.979813603 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+138:2026-09-26T12:17:02.982459295 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+139:2026-09-26T12:17:02.982473646 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+140:2026-09-26T12:17:33.304071499 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+141:2026-09-26T12:17:33.306502478 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+142:2026-09-26T12:17:33.309001357 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+143:2026-09-26T12:17:33.309020777 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+144:2026-09-26T12:18:02.666625106 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+145:2026-09-26T12:18:02.670327518 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+146:2026-09-26T12:18:02.675678580 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+147:2026-09-26T12:18:02.675696356 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+148:2026-09-26T12:18:32.831794498 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+149:2026-09-26T12:18:32.834584416 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+150:2026-09-26T12:18:32.841506963 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+151:2026-09-26T12:18:32.841521996 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+152:2026-09-26T12:19:02.727623696 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+153:2026-09-26T12:19:02.730374765 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+154:2026-09-26T12:19:02.733080408 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+155:2026-09-26T12:19:02.733118435 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+156:2026-09-26T12:19:32.747801786 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+157:2026-09-26T12:19:32.750158082 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+158:2026-09-26T12:19:32.754494337 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+159:2026-09-26T12:19:32.754518774 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+160:2026-09-26T12:20:02.807377854 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+161:2026-09-26T12:20:02.810365719 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+162:2026-09-26T12:20:02.813468869 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+163:2026-09-26T12:20:02.813485224 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+164:2026-09-26T12:20:32.647726420 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+165:2026-09-26T12:20:32.648963101 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+166:2026-09-26T12:20:32.653182230 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+167:2026-09-26T12:20:32.653192386 no server_steam_id, grid_series_id, or oddin match for steam match 9016905513: condition 0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 skipped
+168:2026-09-26T12:21:03.106838338 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+169:2026-09-26T12:21:03.115951742 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+170:2026-09-26T12:21:03.121011767 oddin bind skipped: no name match for LGD Gaming vs Team Yandex
+171:2026-09-26T12:21:03.172991787 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+172:2026-09-26T12:21:03.173299970 trader skip: reason=no_usable_feed match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 record_cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36
+178:2026-09-26T12:21:10.997155229 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+180:2026-09-26T12:21:11.156193983Z 2026-09-26 12:21:11 [info     ] clock_ok                       drift_s=0.2
+184:2026-09-26T12:21:11.638485053 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"b3113ceb-e267-43ff-9048-6dba8948c8da","error_msg":"Invalid Heartbeat ID"}
+185:2026-09-26T12:21:11.648587967Z 2026-09-26 12:21:11 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'b3113ceb-e267-43ff-9048-6dba8948c8da', 'error_m
+186:2026-09-26T12:21:11.648638141 trader heartbeat chain not started yet; dead-man halt held
+189:2026-09-26T12:21:11.707813239 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"b3113ceb-e267-43ff-9048-6dba8948c8da","error_msg":"Invalid Heartbeat ID"}
+190:2026-09-26T12:21:11.716973333 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+191:2026-09-26T12:21:11.719874750 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+192:2026-09-26T12:21:11.728318997 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+193:2026-09-26T12:21:11.729249989 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+194:2026-09-26T12:21:11.730240649 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+195:2026-09-26T12:21:11.731198189 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+196:2026-09-26T12:21:11.732074098 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+197:2026-09-26T12:21:11.734144574 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+198:2026-09-26T12:21:11.734744766 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+199:2026-09-26T12:21:11.735287703 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+200:2026-09-26T12:21:11.736375811 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+201:2026-09-26T12:21:11.737119551 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+202:2026-09-26T12:21:11.737347384 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+203:2026-09-26T12:21:11.737606874 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+204:2026-09-26T12:21:11.742534489 LoL event skipped event_id=923142 league='FLASH' reason=league_not_whitelisted
+205:2026-09-26T12:21:11.743030786 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+206:2026-09-26T12:21:11.743545320 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+207:2026-09-26T12:21:11.744855902 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+208:2026-09-26T12:21:11.745075022 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+209:2026-09-26T12:21:11.745581494 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+210:2026-09-26T12:21:11.749976097Z 2026-09-26 12:21:11 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'b3113ceb-e267-43ff-9048-6dba8948c8da', 'error_m
+211:2026-09-26T12:21:11.749989427 trader heartbeat chain not started yet; dead-man halt held
+213:2026-09-26T12:21:30.412747401 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+214:2026-09-26T12:21:30.413694806 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+215:2026-09-26T12:21:30.414679940 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+216:2026-09-26T12:21:30.415635006 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+217:2026-09-26T12:21:30.416614010 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+218:2026-09-26T12:21:30.418611965 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+219:2026-09-26T12:21:30.418617655 trader skip: reason=no_usable_feed match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 record_cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36
+220:2026-09-26T12:21:52.505136212 oddin catalog scan frontier=15007 tournaments=9 open=12
+221:2026-09-26T12:22:00.608870152 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+222:2026-09-26T12:22:30.595851942 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+223:2026-09-26T12:22:30.850683239 oddin delay probe match=od:match:3232751 delay=15s
+224:2026-09-26T12:22:30.850714357 trader feed_selected: match_id=9016905513 feed_source=oddin steam_delay_s=900 grid_delay_s=None oddin_delay_s=15 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5
+235:2026-09-26T12:26:30.279102539 trader launch: match_id=9016945136 cid=0xec3e65d874584a93b80f3e20145d4267d067be9cdb5aed138b7378cd71f8c958 archive_id_kind=steam steam_match_id=9016945136 grid_series_id=None map=1
+236:2026-09-26T12:26:35.035690149 oddin delay probe match=od:match:3232520 delay=15s
+237:2026-09-26T12:26:35.035962109 trader feed_selected: match_id=9016945136 feed_source=oddin steam_delay_s=None grid_delay_s=None oddin_delay_s=15 cid=0xec3e65d874584a93b80f3e20145d4267d067be9cdb5aed138b7378cd71f8c958
+247:2026-09-26T12:27:41.265996593 trader core order undispatched id=c50 reason=canceled_mid_cycle
+249:2026-09-26T12:30:38.120049158 trader core order undispatched id=c11 reason=canceled_mid_cycle
+250:2026-09-26T12:31:30.342999237 trader server_steam_id changed match=9016945136 from=None to=90293484746489882 feed=oddin
+256:2026-09-26T12:46:29.304032166 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+258:2026-09-26T12:46:29.495672499Z 2026-09-26 12:46:29 [info     ] clock_ok                       drift_s=0.5
+262:2026-09-26T12:46:29.864668460 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"03c420ac-b751-4900-965a-27f739a72788","error_msg":"Invalid Heartbeat ID"}
+263:2026-09-26T12:46:29.871720209 trader heartbeat chain not started yet; dead-man halt held
+264:2026-09-26T12:46:29.871720209Z 2026-09-26 12:46:29 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '03c420ac-b751-4900-965a-27f739a72788', 'error_m
+267:2026-09-26T12:46:29.927617551 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+268:2026-09-26T12:46:29.930858203 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+269:2026-09-26T12:46:29.933346070 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"03c420ac-b751-4900-965a-27f739a72788","error_msg":"Invalid Heartbeat ID"}
+270:2026-09-26T12:46:29.940909170 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+271:2026-09-26T12:46:29.941781894 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+272:2026-09-26T12:46:29.942642920 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+273:2026-09-26T12:46:29.943413060 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+274:2026-09-26T12:46:29.944477444 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+275:2026-09-26T12:46:29.946776466 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+276:2026-09-26T12:46:29.947316148 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+277:2026-09-26T12:46:29.947881089 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+278:2026-09-26T12:46:29.948916659 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+279:2026-09-26T12:46:29.949742472 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+280:2026-09-26T12:46:29.950044277 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+281:2026-09-26T12:46:29.950317669 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+282:2026-09-26T12:46:29.955428906 LoL event skipped event_id=923142 league='FLASH' reason=league_not_whitelisted
+283:2026-09-26T12:46:29.956044734 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+284:2026-09-26T12:46:29.956604186 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+285:2026-09-26T12:46:29.957408788 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+286:2026-09-26T12:46:29.958201432 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+287:2026-09-26T12:46:29.958730419 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+288:2026-09-26T12:46:29.963171027Z 2026-09-26 12:46:29 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '03c420ac-b751-4900-965a-27f739a72788', 'error_m
+289:2026-09-26T12:46:29.963170996 trader heartbeat chain not started yet; dead-man halt held
+291:2026-09-26T12:46:48.561626905 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+292:2026-09-26T12:46:48.562535523 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+293:2026-09-26T12:46:48.563451723 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+294:2026-09-26T12:46:48.564372479 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+295:2026-09-26T12:46:48.565432666 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+296:2026-09-26T12:46:48.567951109 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+297:2026-09-26T12:46:48.568130550 trader skip: reason=title_blacklist match_id=9016945136 cid=0xec3e65d874584a93b80f3e20145d4267d067be9cdb5aed138b7378cd71f8c958 record_cid=0xec3e65d874584a93b80f3e20145d4267d067be9cdb5aed138b7378cd
+298:2026-09-26T12:46:48.568366054 trader feed_selected: match_id=9016905513 feed_source=oddin steam_delay_s=900 grid_delay_s=None oddin_delay_s=None cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5
+299:2026-09-26T12:47:10.948327754 oddin catalog scan frontier=15007 tournaments=9 open=12
+300:2026-09-26T12:47:18.401589779 trader match task failed match=9016905513: CorruptFeedPin("match '9016905513' binds oddin but has no match id")
+301:2026-09-26T12:48:18.671187596 trader launch: match_id=9016905513 cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5 archive_id_kind=steam steam_match_id=9016905513 grid_series_id=None map=1
+302:2026-09-26T12:48:18.671707770 trader feed_selected: match_id=9016905513 feed_source=oddin steam_delay_s=900 grid_delay_s=None oddin_delay_s=None cid=0xbcfd4baf4f913d43677ac92ad936691bd1a538001aeb5cc7a37021e36087f4c5
+313:2026-09-26T13:20:40.310553402Z 2026-09-26 13:20:40 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+314:2026-09-26T13:20:51.197177572 trader session finished
+325:2026-09-26T13:21:18.430952903 trader launch: match_id=9017026154 cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd archive_id_kind=steam steam_match_id=9017026154 grid_series_id=None map=2
+326:2026-09-26T13:21:18.669251938 oddin delay probe match=od:match:3232751 delay=16s
+327:2026-09-26T13:21:18.669525810 trader feed_selected: match_id=9017026154 feed_source=oddin steam_delay_s=None grid_delay_s=None oddin_delay_s=16 cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd
+336:2026-09-26T13:35:31.877225723 trader server_steam_id changed match=9017026154 from=None to=90293484615384078 feed=oddin
+337:2026-09-26T13:43:14.210237117 trader core order undispatched id=c4 reason=canceled_mid_cycle
+342:2026-09-26T13:44:28.291329624 trader core order undispatched id=c23 reason=canceled_mid_cycle
+343:2026-09-26T13:44:34.044291139 fill match=9017026154 second=467 side=SELL price=0.8299999670321643 size=11.526386 position_after=0.009879000000012184 token=580009863634
+352:2026-09-26T13:45:47.296307020 trader core order undispatched id=c45 reason=canceled_mid_cycle
+353:2026-09-26T13:45:49.967980665 trader core order undispatched id=c48 reason=canceled_mid_cycle
+354:2026-09-26T13:46:41.080808993 trader core order undispatched id=c59 reason=canceled_mid_cycle
+355:2026-09-26T13:48:09.229693315 oddin catalog scan frontier=15007 tournaments=9 open=12
+358:2026-09-26T14:12:24.443156472Z 2026-09-26 14:12:24 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+359:2026-09-26T14:15:08.090677172Z 2026-09-26 14:15:08 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+365:2026-09-26T14:27:57.405106856 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+367:2026-09-26T14:27:57.596557540Z 2026-09-26 14:27:57 [info     ] clock_ok                       drift_s=0.6
+371:2026-09-26T14:27:58.163369612 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"150a1df5-3f40-4c22-8c0c-ac5bf43c15f6","error_msg":"Invalid Heartbeat ID"}
+372:2026-09-26T14:27:58.167664718Z 2026-09-26 14:27:58 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '150a1df5-3f40-4c22-8c0c-ac5bf43c15f6', 'error_m
+374:2026-09-26T14:27:58.167689346 trader heartbeat chain not started yet; dead-man halt held
+380:2026-09-26T14:27:58.200916106 discovery skip reason=title_blacklist cid=0xf538f86334e210c00cb1fbea5fc594281b9f3c4ebf4290efebada4dfcb4b9d6b title='Dota 2: Daxak Team vs YBN Team (BO3) - BetBoom Streamers Battle Playoffs'
+382:2026-09-26T14:27:58.222110963 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+383:2026-09-26T14:27:58.224910228 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+384:2026-09-26T14:27:58.231579327 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"150a1df5-3f40-4c22-8c0c-ac5bf43c15f6","error_msg":"Invalid Heartbeat ID"}
+385:2026-09-26T14:27:58.234322818 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+386:2026-09-26T14:27:58.235245677 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+387:2026-09-26T14:27:58.236132832 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+388:2026-09-26T14:27:58.237101089 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+389:2026-09-26T14:27:58.237915906 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+390:2026-09-26T14:27:58.240501840 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+391:2026-09-26T14:27:58.241001532 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+392:2026-09-26T14:27:58.241580473 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+393:2026-09-26T14:27:58.242593568 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+394:2026-09-26T14:27:58.243368034 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+395:2026-09-26T14:27:58.243642087 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+396:2026-09-26T14:27:58.243943019 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+397:2026-09-26T14:27:58.250443616 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+398:2026-09-26T14:27:58.250451948 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+399:2026-09-26T14:27:58.250453911 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+400:2026-09-26T14:27:58.251170710 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+401:2026-09-26T14:27:58.251769722 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+402:2026-09-26T14:27:58.257073156Z 2026-09-26 14:27:58 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '150a1df5-3f40-4c22-8c0c-ac5bf43c15f6', 'error_m
+403:2026-09-26T14:27:58.257100488 trader heartbeat chain not started yet; dead-man halt held
+404:2026-09-26T14:27:59.626571541 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+405:2026-09-26T14:27:59.627526949 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+406:2026-09-26T14:27:59.628413244 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+407:2026-09-26T14:27:59.629259047 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+408:2026-09-26T14:27:59.630098009 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+409:2026-09-26T14:27:59.632312513 trader launch: match_id=9017026154 cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd archive_id_kind=steam steam_match_id=9017026154 grid_series_id=None map=2
+410:2026-09-26T14:27:59.632516410 trader feed_selected: match_id=9017026154 feed_source=oddin steam_delay_s=900 grid_delay_s=None oddin_delay_s=None cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd
+412:2026-09-26T14:28:03.332217348 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"150a1df5-3f40-4c22-8c0c-ac5bf43c15f6","error_msg":"Invalid Heartbeat ID"}
+413:2026-09-26T14:28:03.332428716Z 2026-09-26 14:28:03 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '150a1df5-3f40-4c22-8c0c-ac5bf43c15f6', 'error_m
+414:2026-09-26T14:28:03.332443379 trader heartbeat chain not started yet; dead-man halt held
+415:2026-09-26T14:28:29.913368218 trader match task failed match=9017026154: CorruptFeedPin("match '9017026154' binds oddin but has no match id")
+416:2026-09-26T14:28:39.142031728 oddin catalog scan frontier=15007 tournaments=9 open=12
+417:2026-09-26T14:29:29.980655158 trader launch: match_id=9017026154 cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd archive_id_kind=steam steam_match_id=9017026154 grid_series_id=None map=2
+418:2026-09-26T14:29:29.980817402 trader feed_selected: match_id=9017026154 feed_source=oddin steam_delay_s=900 grid_delay_s=None oddin_delay_s=None cid=0xaf83c178fc63ffdfcbc6497502687f67dfa9b781e01586c5990657038d702abd
+423:2026-09-26T14:29:59.729179068 trader match task failed match=9017026154: ValueError("existing start metadata for match '9017026154' binds different match/market/model fields ('market',); refusing to rebind")
+429:2026-09-26T14:40:59.238528928 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+431:2026-09-26T14:40:59.413377871Z 2026-09-26 14:40:59 [info     ] clock_ok                       drift_s=0.4
+435:2026-09-26T14:40:59.773074362 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"daf5d2e6-39ea-4c50-a227-a60d10ab96bf","error_msg":"Invalid Heartbeat ID"}
+436:2026-09-26T14:40:59.784727595Z 2026-09-26 14:40:59 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'daf5d2e6-39ea-4c50-a227-a60d10ab96bf', 'error_m
+437:2026-09-26T14:40:59.784765542 trader heartbeat chain not started yet; dead-man halt held
+444:2026-09-26T14:40:59.822235816 discovery skip reason=title_blacklist cid=0xf538f86334e210c00cb1fbea5fc594281b9f3c4ebf4290efebada4dfcb4b9d6b title='Dota 2: Daxak Team vs YBN Team (BO3) - BetBoom Streamers Battle Playoffs'
+446:2026-09-26T14:40:59.842784964 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+447:2026-09-26T14:40:59.845774855 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"daf5d2e6-39ea-4c50-a227-a60d10ab96bf","error_msg":"Invalid Heartbeat ID"}
+448:2026-09-26T14:40:59.847410947 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+449:2026-09-26T14:40:59.857114627 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+450:2026-09-26T14:40:59.858185579 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+451:2026-09-26T14:40:59.859091794 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+452:2026-09-26T14:40:59.860042044 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+453:2026-09-26T14:40:59.860922149 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+454:2026-09-26T14:40:59.873126934 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+455:2026-09-26T14:40:59.874398449 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+456:2026-09-26T14:40:59.875251853 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+457:2026-09-26T14:40:59.876927706 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+458:2026-09-26T14:40:59.878189606 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+459:2026-09-26T14:40:59.878547365 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+460:2026-09-26T14:40:59.878954788 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+461:2026-09-26T14:40:59.885159329 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+462:2026-09-26T14:40:59.885430598 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+463:2026-09-26T14:40:59.886300447 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+464:2026-09-26T14:40:59.887149506 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+465:2026-09-26T14:40:59.887787156 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+466:2026-09-26T14:40:59.893761621Z 2026-09-26 14:40:59 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'daf5d2e6-39ea-4c50-a227-a60d10ab96bf', 'error_m
+467:2026-09-26T14:40:59.893781931 trader heartbeat chain not started yet; dead-man halt held
+468:2026-09-26T14:41:01.101228285 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+469:2026-09-26T14:41:01.102421612 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+470:2026-09-26T14:41:01.103229259 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+471:2026-09-26T14:41:01.104630108 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+472:2026-09-26T14:41:01.105771196 LoL event skipped event_id=1082638 league='VCS' reason=league_not_whitelisted
+474:2026-09-26T14:41:04.976992633 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"daf5d2e6-39ea-4c50-a227-a60d10ab96bf","error_msg":"Invalid Heartbeat ID"}
+475:2026-09-26T14:41:04.977486777Z 2026-09-26 14:41:04 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'daf5d2e6-39ea-4c50-a227-a60d10ab96bf', 'error_m
+476:2026-09-26T14:41:04.977531625 trader heartbeat chain not started yet; dead-man halt held
+477:2026-09-26T14:41:39.656933281 oddin catalog scan frontier=15007 tournaments=9 open=11
+478:2026-09-26T14:44:48.279764873 trader launch: match_id=9017174132 cid=0x9e5fad0850a74dae4f0abac4876389b82a1f6e1b183896977d8361d48b971029 archive_id_kind=steam steam_match_id=9017174132 grid_series_id=None map=1
+479:2026-09-26T14:44:51.369467286 oddin delay probe match=od:match:3232750 delay=15s
+480:2026-09-26T14:44:51.369831606 trader feed_selected: match_id=9017174132 feed_source=oddin steam_delay_s=None grid_delay_s=None oddin_delay_s=15 cid=0x9e5fad0850a74dae4f0abac4876389b82a1f6e1b183896977d8361d48b971029
+489:2026-09-26T14:59:18.099150044 trader server_steam_id changed match=9017174132 from=None to=90293486565025807 feed=oddin
+495:2026-09-26T15:16:16.005594443Z 2026-09-26 15:16:16 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+496:2026-09-26T15:42:39.397415056 oddin catalog scan frontier=15007 tournaments=9 open=11
+497:2026-09-26T15:54:48.602440597 trader launch: match_id=9017299527 cid=0xc1c1b4c77bd01caf9d98eaa3ad24d56c570ebe07fee81ccfc038b42e56ad5580 archive_id_kind=steam steam_match_id=9017299527 grid_series_id=None map=2
+498:2026-09-26T15:54:54.784369321 oddin delay probe match=od:match:3232750 delay=16s
+499:2026-09-26T15:54:54.785146640 trader feed_selected: match_id=9017299527 feed_source=oddin steam_delay_s=None grid_delay_s=None oddin_delay_s=16 cid=0xc1c1b4c77bd01caf9d98eaa3ad24d56c570ebe07fee81ccfc038b42e56ad5580
+504:2026-09-26T15:54:55.026416942 trader session finished
+517:2026-09-26T15:54:59.429040154Z 2026-09-26 15:54:59 [warning  ] user_ws_reconnected_forcing_reconcile
+519:2026-09-26T15:56:48.650244260 trader launch: match_id=grid-3008225-m1 cid=0x9c0ec5507f2e254be89626d0b883e4bfbeae1befecb49f5a1176c6a905027661 archive_id_kind=grid steam_match_id=None grid_series_id=3008225 map=1
+520:2026-09-26T15:56:50.076381511 trader feed_selected: match_id=grid-3008225-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x9c0ec5507f2e254be89626d0b883e4bfbeae1befecb49f5a1176c6a905027661
+525:2026-09-26T15:58:19.020325132 trader launch: match_id=grid-3008226-m1 cid=0x0716168173ca71e82595197ce0ef741389d5f365b35d2d98624a90a738afa19a archive_id_kind=grid steam_match_id=None grid_series_id=3008226 map=1
+526:2026-09-26T15:58:20.304536760 trader feed_selected: match_id=grid-3008226-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x0716168173ca71e82595197ce0ef741389d5f365b35d2d98624a90a738afa19a
+531:2026-09-26T16:01:07.847567232Z 2026-09-26 16:01:07 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+538:2026-09-26T16:09:18.289046198 trader server_steam_id changed match=9017299527 from=None to=90293477933834259 feed=oddin
+539:2026-09-26T16:11:41.717196132 grid scoreboard probe failed series=3008228: ConnectionClosedError
+544:2026-09-26T16:16:39.966498082 grid socket closed (1/5): ConnectionClosedError
+546:2026-09-26T16:23:53.230595752Z 2026-09-26 16:23:53 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+547:2026-09-26T16:27:04.290043117 trader session finished
+558:2026-09-26T16:34:34.582966018 trader session finished
+569:2026-09-26T16:36:00.800904322 trader session finished
+580:2026-09-26T16:43:36.567741030 oddin catalog scan frontier=15007 tournaments=9 open=11
+581:2026-09-26T16:44:49.087828203 trader launch: match_id=grid-3008231-m1 cid=0xa37d3640241b49f44bbcfb40600ef80b57275c2511b2e1bb480d10c9d788f7e7 archive_id_kind=grid steam_match_id=None grid_series_id=3008231 map=1
+582:2026-09-26T16:44:50.366415449 trader feed_selected: match_id=grid-3008231-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0xa37d3640241b49f44bbcfb40600ef80b57275c2511b2e1bb480d10c9d788f7e7
+587:2026-09-26T16:46:15.126694084Z 2026-09-26 16:46:15 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+588:2026-09-26T16:49:43.792106192 [py_clob_client_v2] request error: _ssl.c:1015: The handshake operation timed out
+589:2026-09-26T16:49:43.800374409 trade_backfill failed
+590:2026-09-26T16:49:43.800405606Z Traceback (most recent call last):
+601:2026-09-26T16:49:43.800429171Z   File "/app/.venv/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 101, in handle_request
+619:2026-09-26T16:49:43.800460689Z Traceback (most recent call last):
+657:2026-09-26T16:49:43.800526197Z Traceback (most recent call last):
+678:2026-09-26T16:49:43.800560009Z     raise PolyApiException(error_msg="Request exception!")
+679:2026-09-26T16:49:43.800561552Z py_clob_client_v2.exceptions.PolyApiException: PolyApiException[status_code=None, error_message=Request exception!]
+680:2026-09-26T16:49:47.890306386Z 2026-09-26 16:49:47 [warning  ] balance_allowance_failed       err='PolyApiException[status_code=None, error_message=Request exception!]'
+681:2026-09-26T16:49:47.890341219 [py_clob_client_v2] request error: _ssl.c:1015: The handshake operation timed out
+683:2026-09-26T16:49:52.243535171Z 2026-09-26 16:49:52 [warning  ] market_ws_dropped              backoff=2.0 err='sent 1011 (internal error) keepalive ping timeout; no close frame received'
+685:2026-09-26T16:50:00.657817946 grid socket closed (1/5): ConnectionClosedError
+686:2026-09-26T16:50:20.827678536Z 2026-09-26 16:50:20 [warning  ] market_ws_dropped              backoff=4.0 err='sent 1011 (internal error) keepalive ping timeout; no close frame received'
+688:2026-09-26T16:50:32.243152041Z 2026-09-26 16:50:32 [warning  ] user_ws_dropped                err='sent 1011 (internal error) keepalive ping timeout; no close frame received'
+694:2026-09-26T16:51:16.033822617 trader launch: match_id=grid-3008229-m1 cid=0x6cb58dc3818888028bb2f9142392ddc62dbff2017f9e349d8ffadcd4fcb93fe6 archive_id_kind=grid steam_match_id=None grid_series_id=3008229 map=1
+695:2026-09-26T16:51:17.323175065 trader feed_selected: match_id=grid-3008229-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x6cb58dc3818888028bb2f9142392ddc62dbff2017f9e349d8ffadcd4fcb93fe6
+700:2026-09-26T16:52:15.329770900 trader launch: match_id=grid-3008230-m1 cid=0x2f0f8bf9cfd8f7b4ad127c3fe349dd7762a88d85a1678b7ea1faf7f73176289b archive_id_kind=grid steam_match_id=None grid_series_id=3008230 map=1
+701:2026-09-26T16:52:16.614732442 trader feed_selected: match_id=grid-3008230-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x2f0f8bf9cfd8f7b4ad127c3fe349dd7762a88d85a1678b7ea1faf7f73176289b
+706:2026-09-26T16:53:06.510187623Z 2026-09-26 16:53:06 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+710:2026-09-26T16:57:15.831612740 trader launch: match_id=grid-3008232-m1 cid=0xee753835de97870b995d04f2d2c12d13cfdf0c7b305ec29789eaf5fa0aef4cdd archive_id_kind=grid steam_match_id=None grid_series_id=3008232 map=1
+711:2026-09-26T16:57:17.098422559 trader feed_selected: match_id=grid-3008232-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0xee753835de97870b995d04f2d2c12d13cfdf0c7b305ec29789eaf5fa0aef4cdd
+719:2026-09-26T17:00:13.835712933Z 2026-09-26 17:00:13 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+723:2026-09-26T17:03:17.857563617Z 2026-09-26 17:03:17 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+724:2026-09-26T17:03:59.074133612Z 2026-09-26 17:03:59 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+725:2026-09-26T17:05:42.752817716Z 2026-09-26 17:05:42 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+726:2026-09-26T17:06:44.373065855Z 2026-09-26 17:06:44 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+727:2026-09-26T17:08:06.775392086Z 2026-09-26 17:08:06 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+728:2026-09-26T17:08:48.550173064Z 2026-09-26 17:08:48 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+729:2026-09-26T17:17:37.066258740 trader session finished
+740:2026-09-26T17:20:02.691303167Z 2026-09-26 17:20:02 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+741:2026-09-26T17:29:59.476303514Z 2026-09-26 17:29:59 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+742:2026-09-26T17:30:20.539191207Z 2026-09-26 17:30:20 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+743:2026-09-26T17:32:23.568935763Z 2026-09-26 17:32:23 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+744:2026-09-26T17:34:18.428576711 trader session finished
+755:2026-09-26T17:35:33.412352161Z 2026-09-26 17:35:33 [warning  ] book_drift_corrected           token=218391642875
+756:2026-09-26T17:37:18.378148013 trader session finished
+767:2026-09-26T17:44:33.774552593 oddin catalog scan frontier=15007 tournaments=9 open=11
+768:2026-09-26T17:48:56.741603077 [py_clob_client_v2] request error: The read operation timed out
+769:2026-09-26T17:48:56.741796627Z 2026-09-26 17:48:56 [warning  ] heartbeat_failed               consecutive=1 err='PolyApiException[status_code=None, error_message=Request exception!]'
+770:2026-09-26T17:49:03.453763375 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"6f116c2d-4198-43a2-bcd2-3c711c5fc8bd","error_msg":"Invalid Heartbeat ID"}
+771:2026-09-26T17:49:03.454147212Z 2026-09-26 17:49:03 [warning  ] heartbeat_failed               consecutive=2 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '6f116c2d-4198-43a2-bcd2-3c711c5fc8bd', 'error_m
+772:2026-09-26T17:49:08.531668087 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"6f116c2d-4198-43a2-bcd2-3c711c5fc8bd","error_msg":"Invalid Heartbeat ID"}
+773:2026-09-26T17:49:08.531873717Z 2026-09-26 17:49:08 [warning  ] heartbeat_failed               consecutive=3 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '6f116c2d-4198-43a2-bcd2-3c711c5fc8bd', 'error_m
+774:2026-09-26T17:49:08.531891805Z 2026-09-26 17:49:08 [critical ] heartbeat_down_halting         failures=3
+775:2026-09-26T17:49:08.632857751Z 2026-09-26 17:49:08 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+776:2026-09-26T17:49:08.632918902Z 2026-09-26 17:49:08 [critical ] alert                          key=blind:0xee7538 msg='LoL: Senshi Esports Club vs Bushido Wild blind (stale=False user=False hb=True halted=False)'
+777:2026-09-26T17:49:09.099475803Z 2026-09-26 17:49:09 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+778:2026-09-26T17:49:11.162563624Z 2026-09-26 17:49:11 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+779:2026-09-26T17:49:11.786323386Z 2026-09-26 17:49:11 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+780:2026-09-26T17:49:12.770517270Z 2026-09-26 17:49:12 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+781:2026-09-26T17:49:13.335260229Z 2026-09-26 17:49:13 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+782:2026-09-26T17:49:13.617193875 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"6f116c2d-4198-43a2-bcd2-3c711c5fc8bd","error_msg":"Invalid Heartbeat ID"}
+783:2026-09-26T17:49:13.617560167Z 2026-09-26 17:49:13 [warning  ] heartbeat_failed               consecutive=4 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '6f116c2d-4198-43a2-bcd2-3c711c5fc8bd', 'error_m
+784:2026-09-26T17:49:14.567661429Z 2026-09-26 17:49:14 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+785:2026-09-26T17:49:16.549464724Z 2026-09-26 17:49:16 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+786:2026-09-26T17:49:17.106791080Z 2026-09-26 17:49:17 [warning  ] market_blind                   cid=0xee7538 halted=False hb_blind=True market_stale=False user_blind=False
+789:2026-09-26T17:51:29.125905759 trader session finished
+800:2026-09-26T17:54:15.730732573 trader launch: match_id=grid-3008234-m1 cid=0x8a8cd4fd81bb519218256d76b9f07355d7b0962ac7d32390a6a3bf33c913aa92 archive_id_kind=grid steam_match_id=None grid_series_id=3008234 map=1
+801:2026-09-26T17:54:17.245580419 trader feed_selected: match_id=grid-3008234-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x8a8cd4fd81bb519218256d76b9f07355d7b0962ac7d32390a6a3bf33c913aa92
+806:2026-09-26T17:58:45.799288664 trader launch: match_id=grid-3008233-m1 cid=0x8d4520c5c812c9cfd336e5b00dfc3d193f0800cb2902a7f2b9558a51415aba6d archive_id_kind=grid steam_match_id=None grid_series_id=3008233 map=1
+807:2026-09-26T17:58:47.075919567 trader feed_selected: match_id=grid-3008233-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x8d4520c5c812c9cfd336e5b00dfc3d193f0800cb2902a7f2b9558a51415aba6d
+815:2026-09-26T18:02:53.139842377Z 2026-09-26 18:02:53 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+816:2026-09-26T18:04:15.577323440Z 2026-09-26 18:04:15 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+817:2026-09-26T18:05:21.776381841 [py_clob_client_v2] request error: The read operation timed out
+818:2026-09-26T18:05:21.780759748 trade_backfill failed
+819:2026-09-26T18:05:21.780779929Z Traceback (most recent call last):
+856:2026-09-26T18:05:21.780874762Z Traceback (most recent call last):
+863:2026-09-26T18:05:21.780886429Z   File "/app/.venv/lib/python3.13/site-packages/httpx/_client.py", line 825, in request
+894:2026-09-26T18:05:21.780941061Z Traceback (most recent call last):
+915:2026-09-26T18:05:21.780974572Z     raise PolyApiException(error_msg="Request exception!")
+916:2026-09-26T18:05:21.780976114Z py_clob_client_v2.exceptions.PolyApiException: PolyApiException[status_code=None, error_message=Request exception!]
+917:2026-09-26T18:05:23.932522400Z 2026-09-26 18:05:23 [warning  ] market_ws_dropped              backoff=2.0 err='sent 1011 (internal error) keepalive ping timeout; no close frame received'
+918:2026-09-26T18:05:25.093510238 [py_clob_client_v2] request error: _ssl.c:1015: The handshake operation timed out
+919:2026-09-26T18:05:25.093806333Z 2026-09-26 18:05:25 [warning  ] heartbeat_failed               consecutive=1 err='PolyApiException[status_code=None, error_message=Request exception!]'
+920:2026-09-26T18:05:35.096688966 [py_clob_client_v2] request error: The read operation timed out
+921:2026-09-26T18:05:35.096979132Z 2026-09-26 18:05:35 [warning  ] heartbeat_failed               consecutive=2 err='PolyApiException[status_code=None, error_message=Request exception!]'
+923:2026-09-26T18:05:40.692118319 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"c344e3f8-f9f2-4760-9f2f-e2e1cd6963ae","error_msg":"Invalid Heartbeat ID"}
+924:2026-09-26T18:05:40.692379802Z 2026-09-26 18:05:40 [warning  ] heartbeat_failed               consecutive=3 err="PolyApiException[status_code=400, error_message={'heartbeat_id': 'c344e3f8-f9f2-4760-9f2f-e2e1cd6963ae', 'error_m
+925:2026-09-26T18:05:40.692431631Z 2026-09-26 18:05:40 [critical ] heartbeat_down_halting         failures=3
+926:2026-09-26T18:05:40.793140048Z 2026-09-26 18:05:40 [warning  ] market_blind                   cid=0x8a8cd4 halted=False hb_blind=True market_stale=False user_blind=False
+927:2026-09-26T18:05:40.793166357Z 2026-09-26 18:05:40 [critical ] alert                          key=blind:0x8a8cd4 msg='LoL: Team Heretics Academy vs eSuba (BO1 blind (stale=False user=False hb=True halted=False)'
+928:2026-09-26T18:05:41.278288313Z 2026-09-26 18:05:41 [warning  ] book_drift_corrected           token=538213859533
+929:2026-09-26T18:05:41.397413606Z 2026-09-26 18:05:41 [warning  ] market_blind                   cid=0x8a8cd4 halted=False hb_blind=True market_stale=False user_blind=False
+930:2026-09-26T18:05:43.399627949Z 2026-09-26 18:05:43 [warning  ] market_blind                   cid=0x8a8cd4 halted=False hb_blind=True market_stale=False user_blind=False
+931:2026-09-26T18:05:45.401590604Z 2026-09-26 18:05:45 [warning  ] market_blind                   cid=0x8a8cd4 halted=False hb_blind=True market_stale=False user_blind=False
+935:2026-09-26T18:05:47.544480633 grid socket closed (1/5): ConnectionClosedError
+936:2026-09-26T18:05:48.343675581Z 2026-09-26 18:05:48 [warning  ] book_drift_corrected           token=739192126853
+937:2026-09-26T18:05:57.261489392 grid socket closed (1/5): ConnectionClosedError
+938:2026-09-26T18:06:11.297631307Z 2026-09-26 18:06:11 [warning  ] market_ws_dropped              backoff=8.0 err='sent 1011 (internal error) keepalive ping timeout; no close frame received'
+943:2026-09-26T18:16:22.190287783 trader launch: match_id=grid-3008237-m1 cid=0xb2c1808b127a1d5e0e73dd35b31ad7991bc184c1353eafbf2c1f4fa1a80e4dc8 archive_id_kind=grid steam_match_id=None grid_series_id=3008237 map=1
+944:2026-09-26T18:16:24.085708825 trader feed_selected: match_id=grid-3008237-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0xb2c1808b127a1d5e0e73dd35b31ad7991bc184c1353eafbf2c1f4fa1a80e4dc8
+949:2026-09-26T18:19:41.455597032Z 2026-09-26 18:19:41 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+950:2026-09-26T18:20:01.956281973Z 2026-09-26 18:20:01 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+954:2026-09-26T18:23:11.020147451 trader session finished
+968:2026-09-26T18:27:45.691352091Z 2026-09-26 18:27:45 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+969:2026-09-26T18:31:11.557702056Z 2026-09-26 18:31:11 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+970:2026-09-26T18:33:07.799932735 trader session finished
+981:2026-09-26T18:35:12.819799417Z 2026-09-26 18:35:12 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+982:2026-09-26T18:38:42.744063027Z 2026-09-26 18:38:42 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+983:2026-09-26T18:45:31.882019794 oddin catalog scan frontier=15007 tournaments=9 open=11
+984:2026-09-26T18:46:59.067058778Z 2026-09-26 18:46:59 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c91
+985:2026-09-26T18:47:43.693931644 trader session finished
+996:2026-09-26T18:49:52.231087165 trader launch: match_id=grid-3008238-m1 cid=0x665f93b6b6d21ec55e174227cd05fe0fac7487742481b2ee3f75f2888665ea54 archive_id_kind=grid steam_match_id=None grid_series_id=3008238 map=1
+997:2026-09-26T18:49:53.828935502 trader feed_selected: match_id=grid-3008238-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x665f93b6b6d21ec55e174227cd05fe0fac7487742481b2ee3f75f2888665ea54
+1002:2026-09-26T18:55:14.575496147Z 2026-09-26 18:55:14 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1006:2026-09-26T18:57:22.127257199 trader launch: match_id=grid-3008239-m1 cid=0x98ebb3c55d594a70bd09fe4c9cc3b99d34fed29da3ec99c3257932ab57c750d5 archive_id_kind=grid steam_match_id=None grid_series_id=3008239 map=1
+1007:2026-09-26T18:57:23.459758444 trader feed_selected: match_id=grid-3008239-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x98ebb3c55d594a70bd09fe4c9cc3b99d34fed29da3ec99c3257932ab57c750d5
+1015:2026-09-26T19:20:23.386673031Z 2026-09-26 19:20:23 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1017:2026-09-26T19:26:29.978262561 trader session finished
+1028:2026-09-26T19:28:36.948172804 trader session finished
+1039:2026-09-26T19:37:08.503809819Z 2026-09-26 19:37:08 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1040:2026-09-26T19:41:12.974550227Z 2026-09-26 19:41:12 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1041:2026-09-26T19:46:31.863136750 oddin catalog scan frontier=15007 tournaments=9 open=11
+1042:2026-09-26T20:02:59.812418852 trader launch: match_id=grid-3000377-m1 cid=0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78 archive_id_kind=grid steam_match_id=None grid_series_id=3000377 map=1
+1043:2026-09-26T20:03:01.129721652 trader feed_selected: match_id=grid-3000377-m1 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78
+1050:2026-09-26T20:08:58.742934464Z 2026-09-26 20:08:58 [info     ] forced_reconcile_done          open_orders=0 positions=0
+1065:2026-09-26T20:19:45.381372176 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/auth/api-key body={"error":"Could not create api key"}
+1067:2026-09-26T20:19:45.564176086Z 2026-09-26 20:19:45 [info     ] clock_ok                       drift_s=0.6
+1071:2026-09-26T20:19:45.971080222 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"5de22bc3-1846-4d56-9c13-daa0349e2441","error_msg":"Invalid Heartbeat ID"}
+1072:2026-09-26T20:19:45.971453473Z 2026-09-26 20:19:45 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '5de22bc3-1846-4d56-9c13-daa0349e2441', 'error_
+1073:2026-09-26T20:19:45.971500994 trader heartbeat chain not started yet; dead-man halt held
+1081:2026-09-26T20:19:46.033632369 LoL event skipped event_id=1020026 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1082:2026-09-26T20:19:46.037937158 LoL event skipped event_id=1055673 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1083:2026-09-26T20:19:46.052210892 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1084:2026-09-26T20:19:46.053085668 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1085:2026-09-26T20:19:46.054262249 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1086:2026-09-26T20:19:46.055059459 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1087:2026-09-26T20:19:46.057471158 LoL event skipped event_id=580834 league='Asia Masters' reason=league_not_whitelisted
+1088:2026-09-26T20:19:46.058286055 LoL event skipped event_id=757563 league='Equal eSports Cup' reason=league_not_whitelisted
+1089:2026-09-26T20:19:46.059159951 LoL event skipped event_id=757624 league='Equal eSports Cup' reason=league_not_whitelisted
+1090:2026-09-26T20:19:46.060530202 LoL event skipped event_id=767166 league='Equal eSports Cup' reason=league_not_whitelisted
+1091:2026-09-26T20:19:46.061329066 LoL event skipped event_id=779741 league='Nexus League' reason=league_not_whitelisted
+1092:2026-09-26T20:19:46.061584730 LoL event skipped event_id=779742 league='Nexus League' reason=league_not_whitelisted
+1093:2026-09-26T20:19:46.061862028 LoL event skipped event_id=779743 league='Nexus League' reason=league_not_whitelisted
+1094:2026-09-26T20:19:46.075557271 [py_clob_client_v2] request error status=400 url=https://clob.polymarket.com/v1/heartbeats body={"heartbeat_id":"5de22bc3-1846-4d56-9c13-daa0349e2441","error_msg":"Invalid Heartbeat ID"}
+1095:2026-09-26T20:19:46.078411957 LoL event skipped event_id=923143 league='FLASH' reason=league_not_whitelisted
+1096:2026-09-26T20:19:46.079238271 LoL event skipped event_id=926198 league='Rift Legends' reason=league_not_whitelisted
+1097:2026-09-26T20:19:46.080304355 LoL event skipped event_id=966934 league='Nexus League' reason=league_not_whitelisted
+1098:2026-09-26T20:19:46.081302838 LoL event skipped event_id=970922 league='Nexus League' reason=league_not_whitelisted
+1099:2026-09-26T20:19:46.081857363 LoL event skipped event_id=992719 league='VCS' reason=league_not_whitelisted
+1100:2026-09-26T20:19:46.088133970Z 2026-09-26 20:19:46 [warning  ] heartbeat_failed               consecutive=1 err="PolyApiException[status_code=400, error_message={'heartbeat_id': '5de22bc3-1846-4d56-9c13-daa0349e2441', 'error_
+1101:2026-09-26T20:19:46.088156974 trader heartbeat chain not started yet; dead-man halt held
+1102:2026-09-26T20:19:47.138993596 LoL event skipped event_id=1082277 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1103:2026-09-26T20:19:47.139771668 LoL event skipped event_id=1082279 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1104:2026-09-26T20:19:47.140676299 LoL event skipped event_id=1082280 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1105:2026-09-26T20:19:47.141684086 LoL event skipped event_id=1082283 league='World Star Challengers Invitational' reason=league_not_whitelisted
+1107:2026-09-26T20:20:04.204241001 trader launch: match_id=grid-3000377-m1 cid=0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78 archive_id_kind=grid steam_match_id=None grid_series_id=3000377 map=1
+1108:2026-09-26T20:20:04.204667021 trader feed_selected: match_id=grid-3000377-m1 feed_source=grid steam_delay_s=None grid_delay_s=None oddin_delay_s=None cid=0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78
+1119:2026-09-26T20:20:26.221963646 oddin catalog scan frontier=15007 tournaments=9 open=11
+1120:2026-09-26T20:25:12.988794324Z 2026-09-26 20:25:12 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1122:2026-09-26T20:34:04.922829494Z 2026-09-26 20:34:04 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1123:2026-09-26T20:41:36.150160567Z 2026-09-26 20:41:36 [warning  ] positions_failed               err="Client error '429 Too Many Requests' for url 'https://data-api.polymarket.com/positions?user=0x941Aa5589961e33c54365A27a3223c9
+1124:2026-09-26T20:44:21.383129470Z 2026-09-26 20:44:21 [critical ] task_died_restarting           err=exited task=quote:0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78
+1125:2026-09-26T20:44:21.383159455Z 2026-09-26 20:44:21 [critical ] alert                          key=task_died msg='quote:0x56aea8ef26a21aae146ac9ab6bd7c363d7fc7056081e2fc935e0bd7093a40e78 died: None'
+1126:2026-09-26T20:44:21.636793358 trader session finished
+1138:2026-09-26T20:56:04.610250286 trader launch: match_id=grid-3000377-m2 cid=0x718d0d9ca32b8d8fd3764f5eb5d63294b4ca77600b5835d0a21e1c7b1055d99c archive_id_kind=grid steam_match_id=None grid_series_id=3000377 map=2
+1139:2026-09-26T20:56:06.047560227 trader feed_selected: match_id=grid-3000377-m2 feed_source=grid steam_delay_s=None grid_delay_s=8 oddin_delay_s=None cid=0x718d0d9ca32b8d8fd3764f5eb5d63294b4ca77600b5835d0a21e1c7b1055d99c

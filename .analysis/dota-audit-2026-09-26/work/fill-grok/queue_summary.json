@@ -1,0 +1,745 @@
+{
+  "fills": 9863,
+  "tokens": 1226,
+  "missing_book_tokens": 0,
+  "cadence": {
+    "telonex": {
+      "gaps": 49001136,
+      "zero_gaps": 9061284,
+      "median_s": 0.005,
+      "p10_s": 0.005,
+      "p90_s": 0.065,
+      "mean_s": 0.03869744268786352
+    },
+    "collector": {
+      "gaps": 48692541,
+      "zero_gaps": 0,
+      "median_s": 0.005,
+      "p10_s": 0.005,
+      "p90_s": 0.035,
+      "mean_s": 0.02649522574844503
+    },
+    "gap": {
+      "gaps": 0,
+      "zero_gaps": 0,
+      "median_s": null,
+      "p10_s": null,
+      "p90_s": null,
+      "mean_s": null
+    }
+  },
+  "token_median_of_medians": {
+    "telonex": 0.005,
+    "collector": 0.005
+  },
+  "seed_meta": {
+    "0": {
+      "engine": 2848.5854130500015,
+      "live_s": 206154,
+      "quoted_s_by_level": {
+        "-1": 158264.29726770733,
+        "0": 52150.0696589489,
+        "1": 67049.10115609011,
+        "2": 66761.3378813143
+      },
+      "n_accept_without_ack": 1201
+    },
+    "1": {
+      "engine": 3338.761735910002,
+      "live_s": 210388,
+      "quoted_s_by_level": {
+        "-1": 162492.77446554072,
+        "0": 52551.74782866201,
+        "1": 68429.96845541285,
+        "2": 67192.64065984446
+      },
+      "n_accept_without_ack": 1188
+    },
+    "2": {
+      "engine": 3320.887749060001,
+      "live_s": 205983,
+      "quoted_s_by_level": {
+        "-1": 156360.90597491566,
+        "0": 54202.21012358289,
+        "1": 67131.03557265463,
+        "2": 68113.79972103657
+      },
+      "n_accept_without_ack": 1180
+    }
+  },
+  "pnl_valid": {
+    "0|grid_v1": {
+      "cash": -12415.5525,
+      "settle": 12014.067,
+      "rebate": 196.9776,
+      "pnl": -401.4855
+    },
+    "0|schedule": {
+      "cash": -1640.1517,
+      "settle": 2161.3834,
+      "rebate": 29.6989,
+      "pnl": 521.2317
+    },
+    "1|grid_v1": {
+      "cash": -12277.5885,
+      "settle": 11796.1508,
+      "rebate": 201.9035,
+      "pnl": -481.4376
+    },
+    "1|schedule": {
+      "cash": -1640.1517,
+      "settle": 2161.3834,
+      "rebate": 29.6989,
+      "pnl": 521.2317
+    },
+    "2|grid_v1": {
+      "cash": -11742.1682,
+      "settle": 10705.8184,
+      "rebate": 200.1432,
+      "pnl": -1036.3498
+    },
+    "2|schedule": {
+      "cash": -1640.1517,
+      "settle": 2161.3834,
+      "rebate": 29.6989,
+      "pnl": 521.2317
+    }
+  },
+  "pnl_valid_plus_improve": {
+    "0|grid_v1": {
+      "cash": -12378.1525,
+      "settle": 12014.067,
+      "rebate": 198.1379,
+      "pnl": -364.0855
+    },
+    "0|schedule": {
+      "cash": -1641.6517,
+      "settle": 2161.3834,
+      "rebate": 29.809,
+      "pnl": 519.7317
+    },
+    "1|grid_v1": {
+      "cash": -12346.1845,
+      "settle": 11897.3508,
+      "rebate": 203.0127,
+      "pnl": -448.8336
+    },
+    "1|schedule": {
+      "cash": -1641.6517,
+      "settle": 2161.3834,
+      "rebate": 29.809,
+      "pnl": 519.7317
+    },
+    "2|grid_v1": {
+      "cash": -11743.5606,
+      "settle": 10705.8184,
+      "rebate": 200.3815,
+      "pnl": -1037.7422
+    },
+    "2|schedule": {
+      "cash": -1641.6517,
+      "settle": 2161.3834,
+      "rebate": 29.809,
+      "pnl": 519.7317
+    }
+  },
+  "mis_side": {
+    "fills": 9863,
+    "missed_fills": 1196,
+    "phantom_fills": 461,
+    "both_fills": 20,
+    "either_fills": 1637,
+    "missed_prints": 3712,
+    "phantom_prints": 910,
+    "missed_vol": 560771.0027,
+    "phantom_vol": 296080.4318,
+    "by_seed": {
+      "0": {
+        "missed_fills": 406,
+        "phantom_fills": 160,
+        "both_fills": 10,
+        "either_fills": 556
+      },
+      "1": {
+        "missed_fills": 409,
+        "phantom_fills": 156,
+        "both_fills": 3,
+        "either_fills": 562
+      },
+      "2": {
+        "missed_fills": 381,
+        "phantom_fills": 145,
+        "both_fills": 7,
+        "either_fills": 519
+      }
+    }
+  },
+  "classes": {
+    "0|grid_v1|valid_cleared|BUY": {
+      "n": 882,
+      "qty": 55816.2702,
+      "notional": 33438.0872,
+      "rebate": 94.9931,
+      "markout_30": -0.000701,
+      "markout_300": 0.010854
+    },
+    "0|grid_v1|touch_only|BUY": {
+      "n": 228,
+      "qty": 27355.99,
+      "notional": 17245.862,
+      "rebate": 44.9962,
+      "markout_30": -0.002403,
+      "markout_300": 0.021036
+    },
+    "0|grid_v1|valid_empty|BUY": {
+      "n": 180,
+      "qty": 13600.8247,
+      "notional": 8630.2608,
+      "rebate": 22.5867,
+      "markout_30": -0.007114,
+      "markout_300": 0.007584
+    },
+    "0|grid_v1|valid_cleared|SELL": {
+      "n": 869,
+      "qty": 55344.4405,
+      "notional": 33109.7148,
+      "rebate": 90.4203,
+      "markout_30": 0.007092,
+      "markout_300": 0.020197
+    },
+    "1|grid_v1|valid_cleared|BUY": {
+      "n": 862,
+      "qty": 58013.3908,
+      "notional": 35132.1703,
+      "rebate": 97.9281,
+      "markout_30": -0.000124,
+      "markout_300": 0.015807
+    },
+    "1|grid_v1|touch_only|SELL": {
+      "n": 114,
+      "qty": 17923.28,
+      "notional": 11630.3755,
+      "rebate": 28.262,
+      "markout_30": -0.011009,
+      "markout_300": 0.005981
+    },
+    "2|grid_v1|valid_cleared|BUY": {
+      "n": 861,
+      "qty": 56061.0709,
+      "notional": 33789.0306,
+      "rebate": 94.9791,
+      "markout_30": -0.000687,
+      "markout_300": 0.007982
+    },
+    "2|grid_v1|touch_only|BUY": {
+      "n": 234,
+      "qty": 26983.36,
+      "notional": 16873.0215,
+      "rebate": 44.6402,
+      "markout_30": -0.000715,
+      "markout_300": 0.032131
+    },
+    "2|grid_v1|valid_cleared|SELL": {
+      "n": 852,
+      "qty": 56245.3012,
+      "notional": 33950.796,
+      "rebate": 90.709,
+      "markout_30": 0.005658,
+      "markout_300": 0.014717
+    },
+    "2|grid_v1|touch_only|SELL": {
+      "n": 119,
+      "qty": 19691.17,
+      "notional": 11923.7597,
+      "rebate": 32.5808,
+      "markout_30": 0.00072,
+      "markout_300": -0.009704
+    },
+    "2|grid_v1|valid_empty|SELL": {
+      "n": 189,
+      "qty": 12515.7207,
+      "notional": 8330.5089,
+      "rebate": 19.1095,
+      "markout_30": -0.007621,
+      "markout_300": 0.016697
+    },
+    "0|grid_v1|touch_only|SELL": {
+      "n": 115,
+      "qty": 19751.88,
+      "notional": 12107.1859,
+      "rebate": 32.2269,
+      "markout_30": -0.006865,
+      "markout_300": 0.004049
+    },
+    "1|grid_v1|touch_only|BUY": {
+      "n": 226,
+      "qty": 27207.2878,
+      "notional": 17050.22,
+      "rebate": 45.0488,
+      "markout_30": -0.003844,
+      "markout_300": 0.019913
+    },
+    "1|grid_v1|early|SELL": {
+      "n": 36,
+      "qty": 1245.2395,
+      "notional": 842.1259,
+      "rebate": 1.8983,
+      "markout_30": 0.020365,
+      "markout_300": 0.034971
+    },
+    "1|grid_v1|valid_cleared|SELL": {
+      "n": 996,
+      "qty": 61626.1608,
+      "notional": 37229.7877,
+      "rebate": 99.4877,
+      "markout_30": 0.006531,
+      "markout_300": 0.014239
+    },
+    "0|grid_v1|valid_empty|SELL": {
+      "n": 187,
+      "qty": 12458.1418,
+      "notional": 8291.0883,
+      "rebate": 19.0714,
+      "markout_30": 0.004553,
+      "markout_300": -0.004455
+    },
+    "2|grid_v1|early|BUY": {
+      "n": 7,
+      "qty": 514.0,
+      "notional": 358.4133,
+      "rebate": 0.7673,
+      "markout_30": 0.030146,
+      "markout_300": 0.001802
+    },
+    "1|grid_v1|valid_empty|BUY": {
+      "n": 162,
+      "qty": 12605.8802,
+      "notional": 7916.5606,
+      "rebate": 20.9741,
+      "markout_30": 3.2e-05,
+      "markout_300": 0.011459
+    },
+    "1|grid_v1|valid_empty|SELL": {
+      "n": 153,
+      "qty": 8028.5452,
+      "notional": 5146.9178,
+      "rebate": 12.8162,
+      "markout_30": 0.001157,
+      "markout_300": 0.014025
+    },
+    "2|grid_v1|valid_empty|BUY": {
+      "n": 175,
+      "qty": 13907.4962,
+      "notional": 8695.0631,
+      "rebate": 23.2745,
+      "markout_30": -0.007898,
+      "markout_300": 0.014075
+    },
+    "0|grid_v1|early|SELL": {
+      "n": 30,
+      "qty": 1384.5235,
+      "notional": 958.6118,
+      "rebate": 2.149,
+      "markout_30": 0.018129,
+      "markout_300": -0.029801
+    },
+    "2|grid_v1|improve_touch|BUY": {
+      "n": 3,
+      "qty": 70.0,
+      "notional": 32.75,
+      "rebate": 0.1254,
+      "markout_30": 0.003571,
+      "markout_300": 0.052143
+    },
+    "0|grid_v1|unexplained|SELL": {
+      "n": 90,
+      "qty": 7278.3892,
+      "notional": 4397.7521,
+      "rebate": 11.8937,
+      "markout_30": 0.017209,
+      "markout_300": 0.008177
+    },
+    "1|grid_v1|unexplained|SELL": {
+      "n": 123,
+      "qty": 7983.857,
+      "notional": 5162.0665,
+      "rebate": 12.7989,
+      "markout_30": 0.013383,
+      "markout_300": -0.007462
+    },
+    "2|grid_v1|unexplained|SELL": {
+      "n": 82,
+      "qty": 5235.5507,
+      "notional": 3438.7141,
+      "rebate": 8.2853,
+      "markout_30": 0.019007,
+      "markout_300": 0.033644
+    },
+    "0|grid_v1|early|BUY": {
+      "n": 10,
+      "qty": 507.53,
+      "notional": 386.3,
+      "rebate": 0.6683,
+      "markout_30": 0.032841,
+      "markout_300": 0.056775
+    },
+    "1|grid_v1|early|BUY": {
+      "n": 9,
+      "qty": 630.22,
+      "notional": 425.3861,
+      "rebate": 0.987,
+      "markout_30": 0.040194,
+      "markout_300": 0.046736
+    },
+    "0|grid_v1|unexplained|BUY": {
+      "n": 72,
+      "qty": 3897.7402,
+      "notional": 2152.6301,
+      "rebate": 6.9345,
+      "markout_30": 0.011038,
+      "markout_300": -0.031062
+    },
+    "1|grid_v1|unexplained|BUY": {
+      "n": 58,
+      "qty": 2991.4998,
+      "notional": 1681.4319,
+      "rebate": 5.3145,
+      "markout_30": 0.021514,
+      "markout_300": -0.001957
+    },
+    "2|grid_v1|early|SELL": {
+      "n": 32,
+      "qty": 876.7967,
+      "notional": 581.6313,
+      "rebate": 1.3896,
+      "markout_30": 0.015504,
+      "markout_300": -0.047641
+    },
+    "2|grid_v1|unexplained|BUY": {
+      "n": 55,
+      "qty": 2842.9168,
+      "notional": 1679.7289,
+      "rebate": 4.8894,
+      "markout_30": 0.013069,
+      "markout_300": -0.010466
+    },
+    "0|schedule|valid_cleared|BUY": {
+      "n": 120,
+      "qty": 6436.48,
+      "notional": 3709.3618,
+      "rebate": 11.0505,
+      "markout_30": -0.005172,
+      "markout_300": 0.01294
+    },
+    "0|schedule|valid_empty|BUY": {
+      "n": 47,
+      "qty": 4061.22,
+      "notional": 2247.5581,
+      "rebate": 7.1016,
+      "markout_30": 0.004178,
+      "markout_300": 0.036333
+    },
+    "0|schedule|valid_empty|SELL": {
+      "n": 39,
+      "qty": 1971.6409,
+      "notional": 1128.0138,
+      "rebate": 3.4296,
+      "markout_30": 0.001443,
+      "markout_300": 0.004006
+    },
+    "0|schedule|touch_only|BUY": {
+      "n": 62,
+      "qty": 8359.88,
+      "notional": 4880.7753,
+      "rebate": 14.2917,
+      "markout_30": 0.000824,
+      "markout_300": 0.027674
+    },
+    "0|schedule|valid_cleared|SELL": {
+      "n": 286,
+      "qty": 10770.6039,
+      "notional": 6580.6535,
+      "rebate": 16.9583,
+      "markout_30": 0.014456,
+      "markout_300": 0.020063
+    },
+    "1|schedule|valid_cleared|BUY": {
+      "n": 120,
+      "qty": 6436.48,
+      "notional": 3709.3618,
+      "rebate": 11.0505,
+      "markout_30": -0.005172,
+      "markout_300": 0.01294
+    },
+    "1|schedule|valid_empty|BUY": {
+      "n": 47,
+      "qty": 4061.22,
+      "notional": 2247.5581,
+      "rebate": 7.1016,
+      "markout_30": 0.004178,
+      "markout_300": 0.036333
+    },
+    "1|schedule|valid_empty|SELL": {
+      "n": 39,
+      "qty": 1971.6409,
+      "notional": 1128.0138,
+      "rebate": 3.4296,
+      "markout_30": 0.001443,
+      "markout_300": 0.004006
+    },
+    "1|schedule|touch_only|BUY": {
+      "n": 62,
+      "qty": 8359.88,
+      "notional": 4880.7753,
+      "rebate": 14.2917,
+      "markout_30": 0.000824,
+      "markout_300": 0.027674
+    },
+    "1|schedule|valid_cleared|SELL": {
+      "n": 286,
+      "qty": 10770.6039,
+      "notional": 6580.6535,
+      "rebate": 16.9583,
+      "markout_30": 0.014456,
+      "markout_300": 0.020063
+    },
+    "2|schedule|valid_cleared|BUY": {
+      "n": 120,
+      "qty": 6436.48,
+      "notional": 3709.3618,
+      "rebate": 11.0505,
+      "markout_30": -0.005172,
+      "markout_300": 0.01294
+    },
+    "2|schedule|valid_empty|BUY": {
+      "n": 47,
+      "qty": 4061.22,
+      "notional": 2247.5581,
+      "rebate": 7.1016,
+      "markout_30": 0.004178,
+      "markout_300": 0.036333
+    },
+    "2|schedule|valid_empty|SELL": {
+      "n": 39,
+      "qty": 1971.6409,
+      "notional": 1128.0138,
+      "rebate": 3.4296,
+      "markout_30": 0.001443,
+      "markout_300": 0.004006
+    },
+    "2|schedule|touch_only|BUY": {
+      "n": 62,
+      "qty": 8359.88,
+      "notional": 4880.7753,
+      "rebate": 14.2917,
+      "markout_30": 0.000824,
+      "markout_300": 0.027674
+    },
+    "2|schedule|valid_cleared|SELL": {
+      "n": 286,
+      "qty": 10770.6039,
+      "notional": 6580.6535,
+      "rebate": 16.9583,
+      "markout_30": 0.014456,
+      "markout_300": 0.020063
+    },
+    "0|schedule|unexplained|SELL": {
+      "n": 8,
+      "qty": 289.5233,
+      "notional": 177.4598,
+      "rebate": 0.4704,
+      "markout_30": 0.009377,
+      "markout_300": 0.166796
+    },
+    "1|schedule|unexplained|SELL": {
+      "n": 8,
+      "qty": 289.5233,
+      "notional": 177.4598,
+      "rebate": 0.4704,
+      "markout_30": 0.009377,
+      "markout_300": 0.166796
+    },
+    "2|schedule|unexplained|SELL": {
+      "n": 8,
+      "qty": 289.5233,
+      "notional": 177.4598,
+      "rebate": 0.4704,
+      "markout_30": 0.009377,
+      "markout_300": 0.166796
+    },
+    "0|schedule|touch_only|SELL": {
+      "n": 36,
+      "qty": 5634.86,
+      "notional": 3416.8542,
+      "rebate": 8.5793,
+      "markout_30": -0.000721,
+      "markout_300": 0.018128
+    },
+    "1|schedule|touch_only|SELL": {
+      "n": 36,
+      "qty": 5634.86,
+      "notional": 3416.8542,
+      "rebate": 8.5793,
+      "markout_30": -0.000721,
+      "markout_300": 0.018128
+    },
+    "2|schedule|touch_only|SELL": {
+      "n": 36,
+      "qty": 5634.86,
+      "notional": 3416.8542,
+      "rebate": 8.5793,
+      "markout_30": -0.000721,
+      "markout_300": 0.018128
+    },
+    "0|schedule|unexplained|BUY": {
+      "n": 4,
+      "qty": 303.84,
+      "notional": 186.1437,
+      "rebate": 0.5263,
+      "markout_30": 0.045097,
+      "markout_300": 0.011413
+    },
+    "1|schedule|unexplained|BUY": {
+      "n": 4,
+      "qty": 303.84,
+      "notional": 186.1437,
+      "rebate": 0.5263,
+      "markout_30": 0.045097,
+      "markout_300": 0.011413
+    },
+    "2|schedule|unexplained|BUY": {
+      "n": 4,
+      "qty": 303.84,
+      "notional": 186.1437,
+      "rebate": 0.5263,
+      "markout_30": 0.045097,
+      "markout_300": 0.011413
+    },
+    "0|schedule|early|SELL": {
+      "n": 10,
+      "qty": 216.5814,
+      "notional": 138.3312,
+      "rebate": 0.3495,
+      "markout_30": 0.016094,
+      "markout_300": 0.107831
+    },
+    "1|schedule|early|SELL": {
+      "n": 10,
+      "qty": 216.5814,
+      "notional": 138.3312,
+      "rebate": 0.3495,
+      "markout_30": 0.016094,
+      "markout_300": 0.107831
+    },
+    "2|schedule|early|SELL": {
+      "n": 10,
+      "qty": 216.5814,
+      "notional": 138.3312,
+      "rebate": 0.3495,
+      "markout_30": 0.016094,
+      "markout_300": 0.107831
+    },
+    "1|grid_v1|improve_touch|BUY": {
+      "n": 2,
+      "qty": 378.2,
+      "notional": 199.996,
+      "rebate": 0.615,
+      "markout_30": -0.041526,
+      "markout_300": 0.101864
+    },
+    "0|grid_v1|improve_touch|BUY": {
+      "n": 3,
+      "qty": 300.0,
+      "notional": 124.6,
+      "rebate": 0.5397,
+      "markout_30": -0.045,
+      "markout_300": 0.079833
+    },
+    "0|grid_v1|improve_touch|SELL": {
+      "n": 1,
+      "qty": 40.0,
+      "notional": 27.2,
+      "rebate": 0.0653,
+      "markout_30": -0.015,
+      "markout_300": 0.005
+    },
+    "2|grid_v1|improve_touch|SELL": {
+      "n": 1,
+      "qty": 10.0,
+      "notional": 5.3,
+      "rebate": 0.0187,
+      "markout_30": -0.035,
+      "markout_300": -0.275
+    },
+    "0|schedule|improve_touch|BUY": {
+      "n": 3,
+      "qty": 35.0,
+      "notional": 16.55,
+      "rebate": 0.0654,
+      "markout_30": 0.017857,
+      "markout_300": 0.076429
+    },
+    "1|schedule|improve_touch|BUY": {
+      "n": 3,
+      "qty": 35.0,
+      "notional": 16.55,
+      "rebate": 0.0654,
+      "markout_30": 0.017857,
+      "markout_300": 0.076429
+    },
+    "2|schedule|improve_touch|BUY": {
+      "n": 3,
+      "qty": 35.0,
+      "notional": 16.55,
+      "rebate": 0.0654,
+      "markout_30": 0.017857,
+      "markout_300": 0.076429
+    }
+  },
+  "clear_lag": {
+    "telonex": {
+      "submit": {
+        "n": 5341,
+        "median_s": 0.024,
+        "p90_s": 0.385
+      },
+      "accept": {
+        "n": 5341,
+        "median_s": 0.028,
+        "p90_s": 0.387
+      }
+    },
+    "collector": {
+      "submit": {
+        "n": 4522,
+        "median_s": 0.023,
+        "p90_s": 0.42
+      },
+      "accept": {
+        "n": 4522,
+        "median_s": 0.023,
+        "p90_s": 0.432157
+      }
+    },
+    "gap": {
+      "submit": {
+        "n": 0
+      },
+      "accept": {
+        "n": 0
+      }
+    },
+    "all": {
+      "submit": {
+        "n": 9863,
+        "median_s": 0.024,
+        "p90_s": 0.398
+      },
+      "accept": {
+        "n": 9863,
+        "median_s": 0.026,
+        "p90_s": 0.41
+      }
+    }
+  }
+}

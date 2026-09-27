@@ -1,0 +1,13 @@
+{
+  "match_json": 657,
+  "with_winner": 292,
+  "session_with_p_and_winner": 281,
+  "winner_disagrees_catalog_same_cid": 0,
+  "winner_disagrees": [],
+  "orientation_disagrees_catalog": 0,
+  "orientation_disagrees": [],
+  "slug_map_number_mismatch": 0,
+  "slug_map_mismatches": [],
+  "session_hard_flips": 0,
+  "session_flips": []
+}

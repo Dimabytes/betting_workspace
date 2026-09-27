@@ -1,0 +1,77 @@
+{
+  "catalog_by_contract_kind": {
+    "map_winner": 2530,
+    "series_winner": 677
+  },
+  "map_winner_null_game_number": 0,
+  "null_game_slugs": [],
+  "identity_conflicts": [
+    {
+      "event_id": "964553",
+      "game_number": 1,
+      "match_id": 8983815575,
+      "map_condition_id": "0x88d4a75f341a77c8ed62d951635e6d238b1dab2a91e63be8571b23fe96a96cb3",
+      "radiant_token_index": 0,
+      "match_start_time": 1788610732.0,
+      "grid_clock_seconds": 2435.0,
+      "opendota_radiant_name": "Pipsqueak + 4",
+      "opendota_dire_name": "PuckChamp",
+      "link_source": "opendota+archive",
+      "sort_ts": 1788610732,
+      "archive_id": "grid-2996018-m1",
+      "archive_root": "trader",
+      "archive_feed_source": "grid",
+      "archive_condition_id": null,
+      "archive_steam_match_id": 8983774433,
+      "archive_map_number": 1,
+      "archive_joined_at_second": 57,
+      "archive_horn_at_utc": "2026-09-05T12:23:25Z",
+      "archive_winner": "radiant",
+      "archive_duration_seconds": 2435,
+      "schedule_fingerprint": "cedff7302e937a67c950592609ac7f6b316ca8262a6c784d0f450a98603e856a",
+      "identity_conflict": "archive_steam_mismatch"
+    },
+    {
+      "event_id": "985443",
+      "game_number": 3,
+      "match_id": 8989070993,
+      "map_condition_id": "0x188f77689d26e96e209c1a48b023147989dee27ef405e86135329f1eb4b274b6",
+      "radiant_token_index": 0,
+      "match_start_time": 1788881458.0,
+      "grid_clock_seconds": 2579.0,
+      "opendota_radiant_name": "Team Synapse",
+      "opendota_dire_name": "Pipsqueak + 4",
+      "link_source": "opendota+archive",
+      "sort_ts": 1788881458,
+      "archive_id": "grid-2996031-m3",
+      "archive_root": "trader",
+      "archive_feed_source": "grid",
+      "archive_condition_id": null,
+      "archive_steam_match_id": 8989036769,
+      "archive_map_number": 3,
+      "archive_joined_at_second": -83,
+      "archive_horn_at_utc": "2026-09-08T15:35:39Z",
+      "archive_winner": "radiant",
+      "archive_duration_seconds": 2579,
+      "schedule_fingerprint": "a181bdff6563c95510f4a0f992eb7c5d6ed583a98d2583207df458b397730cdf",
+      "identity_conflict": "archive_steam_mismatch"
+    }
+  ],
+  "audit_resolutions": {
+    "attach_by_condition": 119,
+    "new_link": 96,
+    "excluded_steam_condition_conflict": 2,
+    "no_steam_no_link": 2
+  },
+  "dota_index_admission": {
+    "admitted": 219,
+    "identity:condition_not_in_universe": 68,
+    "feed:no_window_updates": 10,
+    "record:no_terminal": 7,
+    "duplicate_of:9007118998": 1,
+    "feed:feed_corrupt": 1
+  },
+  "catalog_duplicate_slugs": 0,
+  "duplicate_slug_rows": [],
+  "catalog_missing_universe_kind": 0
+}

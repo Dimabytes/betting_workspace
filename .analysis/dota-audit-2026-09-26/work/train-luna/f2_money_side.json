@@ -1,0 +1,239 @@
+{
+  "all_sell_order_candidates": {
+    "0": {
+      "ceil_fair_candidate_rows": 13068,
+      "fair_bound_above_ask_events": 11343,
+      "fair_bound_unique_maps": 390,
+      "held_price_bucket_counts": {
+        "<0.85": 9279,
+        ">=0.85": 2064
+      },
+      "raw_book_ok_rows": 13068,
+      "submitted_sell_orders": 17811
+    },
+    "1": {
+      "ceil_fair_candidate_rows": 13344,
+      "fair_bound_above_ask_events": 11474,
+      "fair_bound_unique_maps": 394,
+      "held_price_bucket_counts": {
+        "<0.85": 9498,
+        ">=0.85": 1976
+      },
+      "raw_book_ok_rows": 13344,
+      "submitted_sell_orders": 18383
+    },
+    "2": {
+      "ceil_fair_candidate_rows": 13015,
+      "fair_bound_above_ask_events": 11303,
+      "fair_bound_unique_maps": 390,
+      "held_price_bucket_counts": {
+        "<0.85": 9267,
+        ">=0.85": 2036
+      },
+      "raw_book_ok_rows": 13015,
+      "submitted_sell_orders": 17887
+    }
+  },
+  "artifact_paths": {
+    "candidate_quote_rows": "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/dota-audit-2026-09-26/work/train-luna/f2_fair_bound_quote_events.parquet",
+    "exposure_rows": "/Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/.analysis/dota-audit-2026-09-26/work/train-luna/f2_fair_bound_exposures.parquet",
+    "fills": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/data/backtests/dota_maker/validation_join_delta02_x015_cut480_p4_archive-s3-20260924/seed{0,1,2}/fills.parquet",
+    "quotes": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/data/backtests/dota_maker/validation_join_delta02_x015_cut480_p4_archive-s3-20260924/seed{0,1,2}/quote_events.parquet",
+    "results": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/data/backtests/dota_maker/validation_join_delta02_x015_cut480_p4_archive-s3-20260924/seed{0,1,2}/results.parquet"
+  },
+  "first_episode_exposures": {
+    "0": {
+      "<0.85": {
+        "actual_later_value_dollars": 48539.36029181001,
+        "actual_minus_ask_counterfactual_dollars": 1449.18553181,
+        "actual_minus_counterfactual_per_share_cents": 1.8841240832777637,
+        "complete_path_only_actual_minus_ask_dollars": 1429.3205729699998,
+        "counterfactual_ask_value_dollars": 47090.174759999994,
+        "counterfactual_tracked_shares": 76915.61,
+        "direct_order_fill_vwap_cents_median": 62.000000000000014,
+        "episodes_with_open_position": 530,
+        "fate_counts": {
+          "held_to_settlement_win": 33,
+          "partly_unresolved": 44,
+          "sold_later": 453
+        },
+        "later_fair_order_fill_count": 23,
+        "median_later_sell_vwap_cents": 64.0,
+        "path_complete_episode_count": 486,
+        "settled_episode_count": 33,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 33,
+        "unique_position_episodes": 530,
+        "unresolved_tracked_shares": 0.22159300000021176
+      },
+      ">=0.85": {
+        "actual_later_value_dollars": 11857.66893705,
+        "actual_minus_ask_counterfactual_dollars": 327.42663705000007,
+        "actual_minus_counterfactual_per_share_cents": 2.4763662927713237,
+        "complete_path_only_actual_minus_ask_dollars": 507.3220456100001,
+        "counterfactual_ask_value_dollars": 11530.242299999998,
+        "counterfactual_tracked_shares": 13222.06,
+        "direct_order_fill_vwap_cents_median": 92.0,
+        "episodes_with_open_position": 86,
+        "fate_counts": {
+          "held_to_settlement_win": 36,
+          "partly_unresolved": 13,
+          "sold_later": 37
+        },
+        "later_fair_order_fill_count": 1,
+        "median_later_sell_vwap_cents": 87.47647408964632,
+        "path_complete_episode_count": 73,
+        "settled_episode_count": 36,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 36,
+        "unique_position_episodes": 86,
+        "unresolved_tracked_shares": 0.0494379999990997
+      }
+    },
+    "1": {
+      "<0.85": {
+        "actual_later_value_dollars": 51025.65124104,
+        "actual_minus_ask_counterfactual_dollars": 1461.8684810399998,
+        "actual_minus_counterfactual_per_share_cents": 1.824508297629286,
+        "complete_path_only_actual_minus_ask_dollars": 1366.4634927999996,
+        "counterfactual_ask_value_dollars": 49563.78276,
+        "counterfactual_tracked_shares": 80123.97,
+        "direct_order_fill_vwap_cents_median": 61.0,
+        "episodes_with_open_position": 518,
+        "fate_counts": {
+          "held_to_settlement_win": 30,
+          "partly_unresolved": 46,
+          "sold_later": 442
+        },
+        "later_fair_order_fill_count": 17,
+        "median_later_sell_vwap_cents": 64.46057957279908,
+        "path_complete_episode_count": 472,
+        "settled_episode_count": 30,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 30,
+        "unique_position_episodes": 518,
+        "unresolved_tracked_shares": 0.22386699999515258
+      },
+      ">=0.85": {
+        "actual_later_value_dollars": 12080.787941409999,
+        "actual_minus_ask_counterfactual_dollars": 407.61054141,
+        "actual_minus_counterfactual_per_share_cents": 3.0524484962062552,
+        "complete_path_only_actual_minus_ask_dollars": 420.07871331999996,
+        "counterfactual_ask_value_dollars": 11673.177399999999,
+        "counterfactual_tracked_shares": 13353.56,
+        "direct_order_fill_vwap_cents_median": 92.0,
+        "episodes_with_open_position": 84,
+        "fate_counts": {
+          "held_to_settlement_win": 35,
+          "partly_unresolved": 11,
+          "sold_later": 38
+        },
+        "later_fair_order_fill_count": 1,
+        "median_later_sell_vwap_cents": 88.99999999999999,
+        "path_complete_episode_count": 73,
+        "settled_episode_count": 35,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 35,
+        "unique_position_episodes": 84,
+        "unresolved_tracked_shares": 0.048510000000078435
+      }
+    },
+    "2": {
+      "<0.85": {
+        "actual_later_value_dollars": 50174.40110828,
+        "actual_minus_ask_counterfactual_dollars": 1867.42797828,
+        "actual_minus_counterfactual_per_share_cents": 2.3718126825429504,
+        "complete_path_only_actual_minus_ask_dollars": 1731.6070280999995,
+        "counterfactual_ask_value_dollars": 48306.97313,
+        "counterfactual_tracked_shares": 78734.20999999999,
+        "direct_order_fill_vwap_cents_median": 66.0,
+        "episodes_with_open_position": 513,
+        "fate_counts": {
+          "held_to_settlement_win": 32,
+          "partly_unresolved": 42,
+          "sold_later": 439
+        },
+        "later_fair_order_fill_count": 20,
+        "median_later_sell_vwap_cents": 65.0,
+        "path_complete_episode_count": 471,
+        "settled_episode_count": 32,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 32,
+        "unique_position_episodes": 513,
+        "unresolved_tracked_shares": 0.20619299999998475
+      },
+      ">=0.85": {
+        "actual_later_value_dollars": 12764.44505911,
+        "actual_minus_ask_counterfactual_dollars": 548.6845591099999,
+        "actual_minus_counterfactual_per_share_cents": 3.9108202341283724,
+        "complete_path_only_actual_minus_ask_dollars": 569.20100894,
+        "counterfactual_ask_value_dollars": 12215.7605,
+        "counterfactual_tracked_shares": 14029.91,
+        "direct_order_fill_vwap_cents_median": 92.0,
+        "episodes_with_open_position": 88,
+        "fate_counts": {
+          "held_to_settlement_win": 37,
+          "partly_unresolved": 9,
+          "sold_later": 42
+        },
+        "later_fair_order_fill_count": 1,
+        "median_later_sell_vwap_cents": 88.80096218393376,
+        "path_complete_episode_count": 79,
+        "settled_episode_count": 37,
+        "settled_loser_episode_count": 0,
+        "settled_winner_episode_count": 37,
+        "unique_position_episodes": 88,
+        "unresolved_tracked_shares": 0.041707999999971435
+      }
+    }
+  },
+  "method": {
+    "counterfactual_limit": "sell-at-ask is valued as if the full tracked quantity sold there; maker queue/fill probability and fees are not modeled",
+    "event_filter": "quote_events kind=submitted, side=SELL, price equals cent-ceil(token fair), and raw token best ask at event time has a lower cent-ceil",
+    "held_token_price": "raw selected-token midpoint at submit time, from Telonex as-of quote",
+    "path_attribution": "later same-token SELL fills consume the tracked initial quantity FIFO, then terminal settlement inventory; compare gross value with tracked quantity times raw best ask",
+    "position_unit": "first qualifying quote per (match, token, episode, held-price bucket); tracked quantity=min(open position before submit, submitted quote quantity)",
+    "raw_book_rows": "raw Telonex quote at each quote event; stale/missing selected-token books excluded from exact ask condition"
+  },
+  "n1_held_position_reconciliation": {
+    "0": {
+      "cash_flow_all_maps_dollars": -2685.2635559499995,
+      "engine_pnl_all_maps_dollars": 2848.5854130500015,
+      "held_maps_cash_flow_dollars": -3662.9552363700004,
+      "held_maps_engine_pnl_dollars": 1870.4782956300003,
+      "held_maps_loser_positions": 1,
+      "held_maps_non_dust": 35,
+      "held_maps_settlement_part_dollars": 5533.433532000001,
+      "held_maps_winner_positions": 40,
+      "held_maps_with_any_terminal_inventory": 41,
+      "maps": 613,
+      "settlement_part_all_maps_dollars": 5533.848969000001
+    },
+    "1": {
+      "cash_flow_all_maps_dollars": -1993.5679140899992,
+      "engine_pnl_all_maps_dollars": 3338.761735910002,
+      "held_maps_cash_flow_dollars": -3510.1410781600002,
+      "held_maps_engine_pnl_dollars": 1821.7914848400005,
+      "held_maps_loser_positions": 0,
+      "held_maps_non_dust": 36,
+      "held_maps_settlement_part_dollars": 5331.932563,
+      "held_maps_winner_positions": 39,
+      "held_maps_with_any_terminal_inventory": 39,
+      "maps": 613,
+      "settlement_part_all_maps_dollars": 5332.3296500000015
+    },
+    "2": {
+      "cash_flow_all_maps_dollars": -2796.3737489399996,
+      "engine_pnl_all_maps_dollars": 3320.8877490600016,
+      "held_maps_cash_flow_dollars": -4214.342851770001,
+      "held_maps_engine_pnl_dollars": 1902.5080932300002,
+      "held_maps_loser_positions": 0,
+      "held_maps_non_dust": 37,
+      "held_maps_settlement_part_dollars": 6116.850945000001,
+      "held_maps_winner_positions": 39,
+      "held_maps_with_any_terminal_inventory": 39,
+      "maps": 613,
+      "settlement_part_all_maps_dollars": 6117.261498000001
+    }
+  }
+}

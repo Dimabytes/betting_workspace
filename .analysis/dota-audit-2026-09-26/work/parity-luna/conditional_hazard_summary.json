@@ -1,0 +1,77 @@
+{
+  "15": {
+    "pairs": 460,
+    "maps": 29,
+    "event_series": 25,
+    "live_filled_orders": 48,
+    "bt_filled_orders": 20,
+    "live_fill_probability": 0.10434782608695652,
+    "bt_fill_probability": 0.043478260869565216,
+    "fill_probability_ratio_bt_live": 0.4166666666666667,
+    "live_exposure_min": 70.70038676741666,
+    "bt_exposure_min": 74.75827696183333,
+    "live_first_fill_hazard_per_min": 0.6789213212921421,
+    "bt_first_fill_hazard_per_min": 0.2675289053305855,
+    "hazard_ratio_bt_live": 0.3940499391319998,
+    "hazard_ratio_cluster_ci95": [
+      0.23112190521110376,
+      0.6212846424438846
+    ],
+    "fill_probability_ratio_cluster_ci95": [
+      0.2682926829268293,
+      0.6
+    ],
+    "live_median_time_to_fill_filled_s": 5.295412525,
+    "bt_median_time_to_fill_filled_s": 5.536050174
+  },
+  "30": {
+    "pairs": 499,
+    "maps": 29,
+    "event_series": 25,
+    "live_filled_orders": 50,
+    "bt_filled_orders": 21,
+    "live_fill_probability": 0.10020040080160321,
+    "bt_fill_probability": 0.04208416833667335,
+    "fill_probability_ratio_bt_live": 0.42,
+    "live_exposure_min": 77.10616675024998,
+    "bt_exposure_min": 81.00367657178333,
+    "live_first_fill_hazard_per_min": 0.6484565645955666,
+    "bt_first_fill_hazard_per_min": 0.259247492073898,
+    "hazard_ratio_bt_live": 0.3997916070686818,
+    "hazard_ratio_cluster_ci95": [
+      0.23662730352840902,
+      0.6125580831553951
+    ],
+    "fill_probability_ratio_cluster_ci95": [
+      0.27450980392156865,
+      0.5952507598784194
+    ],
+    "live_median_time_to_fill_filled_s": 5.558808900000001,
+    "bt_median_time_to_fill_filled_s": 5.600050174
+  },
+  "60": {
+    "pairs": 543,
+    "maps": 29,
+    "event_series": 25,
+    "live_filled_orders": 56,
+    "bt_filled_orders": 24,
+    "live_fill_probability": 0.10313075506445672,
+    "bt_fill_probability": 0.04419889502762431,
+    "fill_probability_ratio_bt_live": 0.42857142857142855,
+    "live_exposure_min": 81.74577017294999,
+    "bt_exposure_min": 87.22828489078333,
+    "live_first_fill_hazard_per_min": 0.6850507357325093,
+    "bt_first_fill_hazard_per_min": 0.27514011114685893,
+    "hazard_ratio_bt_live": 0.4016346480566258,
+    "hazard_ratio_cluster_ci95": [
+      0.24725869890392013,
+      0.5889909785029883
+    ],
+    "fill_probability_ratio_cluster_ci95": [
+      0.2857142857142857,
+      0.5909090909090909
+    ],
+    "live_median_time_to_fill_filled_s": 5.201360875000001,
+    "bt_median_time_to_fill_filled_s": 5.536050174
+  }
+}

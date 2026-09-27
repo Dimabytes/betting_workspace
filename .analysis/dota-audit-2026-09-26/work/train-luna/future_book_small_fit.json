@@ -1,0 +1,192 @@
+{
+  "latest40_extended_relaxed_labels": {
+    "paired_base_fit": {
+      "directional_markout_cents": 2.0037989812055006,
+      "large_abs_delta_calibration_ge_5c": {
+        "abs_scale_gap_pred_minus_realized_cents": -4.919657857535388,
+        "direction_accuracy": 0.7707698999565028,
+        "maps": 44,
+        "mean_abs_predicted_delta_cents": 5.368075939767787,
+        "mean_abs_realized_delta_cents": 10.287733797303176,
+        "rows": 2299,
+        "share_of_slice": 0.016753995379715933
+      },
+      "mae_gain_cents": 0.27256999626722483,
+      "maps": 279,
+      "model_bias_cents": 0.09266247650872479,
+      "model_mae_cents": 7.290088051699195,
+      "no_move_mae_cents": 7.562658047966419,
+      "rows": 137221
+    },
+    "paired_change": {
+      "augmented_minus_base_mae_gain_cents": 0.0021845291812341502,
+      "large_abs_delta_calibration_gap_change_cents": -0.28452562982948626,
+      "large_abs_delta_calibration_gap_change_event_cluster_95ci_cents": [
+        -0.39899349828879055,
+        -0.17625771694434178
+      ],
+      "large_subset_rows_fixed_from_base_abs_delta_ge_5c": 2299,
+      "mae_gain_difference_event_cluster_95ci_cents": [
+        -0.014545781314574565,
+        0.01903537694725904
+      ]
+    },
+    "paired_relaxed_train_fit": {
+      "directional_markout_cents": 2.065929413136473,
+      "large_abs_delta_calibration_ge_5c": {
+        "abs_scale_gap_pred_minus_realized_cents": -6.335902420033249,
+        "direction_accuracy": 0.8067765567765568,
+        "maps": 45,
+        "mean_abs_predicted_delta_cents": 5.313593916963088,
+        "mean_abs_realized_delta_cents": 11.649496336996338,
+        "rows": 2184,
+        "share_of_slice": 0.01591593123501505
+      },
+      "mae_gain_cents": 0.27475452544845896,
+      "maps": 279,
+      "model_bias_cents": 0.032785010852575305,
+      "model_mae_cents": 7.2879035225179605,
+      "no_move_mae_cents": 7.562658047966419,
+      "rows": 137221
+    }
+  },
+  "latest40_official_kept_labels": {
+    "paired_base_fit": {
+      "directional_markout_cents": 2.080411789045394,
+      "large_abs_delta_calibration_ge_5c": {
+        "abs_scale_gap_pred_minus_realized_cents": -5.185398552812492,
+        "direction_accuracy": 0.7933558558558559,
+        "maps": 41,
+        "mean_abs_predicted_delta_cents": 5.3551419877280475,
+        "mean_abs_realized_delta_cents": 10.54054054054054,
+        "rows": 1776,
+        "share_of_slice": 0.015309552954157543
+      },
+      "mae_gain_cents": 0.2909731394922777,
+      "maps": 269,
+      "model_bias_cents": 0.2040722286699093,
+      "model_mae_cents": 7.189045566436726,
+      "no_move_mae_cents": 7.4800187059290035,
+      "rows": 116006
+    },
+    "paired_change": {
+      "augmented_minus_base_mae_gain_cents": -0.0008549752487612862,
+      "large_abs_delta_calibration_gap_change_cents": -0.25472008133482327,
+      "large_abs_delta_calibration_gap_change_event_cluster_95ci_cents": [
+        -0.36982974617312386,
+        -0.1532495870756901
+      ],
+      "large_subset_rows_fixed_from_base_abs_delta_ge_5c": 1776,
+      "mae_gain_difference_event_cluster_95ci_cents": [
+        -0.01777665366160398,
+        0.015556777405776483
+      ]
+    },
+    "paired_relaxed_train_fit": {
+      "directional_markout_cents": 2.1328892471079084,
+      "large_abs_delta_calibration_ge_5c": {
+        "abs_scale_gap_pred_minus_realized_cents": -6.6823385326449225,
+        "direction_accuracy": 0.8150921658986175,
+        "maps": 40,
+        "mean_abs_predicted_delta_cents": 5.315069301456458,
+        "mean_abs_realized_delta_cents": 11.99740783410138,
+        "rows": 1736,
+        "share_of_slice": 0.014964743202937779
+      },
+      "mae_gain_cents": 0.2901181642435164,
+      "maps": 269,
+      "model_bias_cents": 0.14681257898989955,
+      "model_mae_cents": 7.189900541685488,
+      "no_move_mae_cents": 7.4800187059290035,
+      "rows": 116006
+    },
+    "published_research_10_member": {
+      "directional_markout_cents": 2.1373631536299844,
+      "large_abs_delta_calibration_ge_5c": {
+        "abs_scale_gap_pred_minus_realized_cents": -5.931431192037609,
+        "direction_accuracy": 0.780373831775701,
+        "maps": 54,
+        "mean_abs_predicted_delta_cents": 5.399370988647751,
+        "mean_abs_realized_delta_cents": 11.330802180685358,
+        "rows": 2568,
+        "share_of_slice": 0.02213678602830888
+      },
+      "mae_gain_cents": 0.30093395919924987,
+      "maps": 269,
+      "model_bias_cents": 0.20070354975625068,
+      "model_mae_cents": 7.179084746729755,
+      "no_move_mae_cents": 7.4800187059290035,
+      "rows": 116006
+    }
+  },
+  "member_training": [
+    {
+      "augmented_rows": 11625,
+      "base_rows": 9951,
+      "member_index": 0,
+      "sampled_maps": 1407,
+      "tree_count": 33
+    },
+    {
+      "augmented_rows": 11606,
+      "base_rows": 9949,
+      "member_index": 2,
+      "sampled_maps": 1407,
+      "tree_count": 30
+    },
+    {
+      "augmented_rows": 11595,
+      "base_rows": 9927,
+      "member_index": 4,
+      "sampled_maps": 1407,
+      "tree_count": 35
+    },
+    {
+      "augmented_rows": 11607,
+      "base_rows": 9956,
+      "member_index": 6,
+      "sampled_maps": 1407,
+      "tree_count": 38
+    },
+    {
+      "augmented_rows": 11590,
+      "base_rows": 9921,
+      "member_index": 8,
+      "sampled_maps": 1407,
+      "tree_count": 41
+    }
+  ],
+  "method": {
+    "large_calibration_subset": "fixed per validation slice using the paired base fit; same rows scored by augmented fit",
+    "large_prediction_threshold": "absolute clipped predicted delta >= 5 cents",
+    "latest_validation_current_ok_rows_with_relaxed_target": 137221,
+    "latest_validation_kept_rows": 116006,
+    "latest_validation_maps": 283,
+    "paired_member_indices": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "published_member_tree_counts": [
+      33,
+      35,
+      30,
+      41,
+      35,
+      37,
+      38,
+      42,
+      41,
+      62
+    ],
+    "relaxed_targets": "same-target relaxed midpoint for wide rows; first OK target in next 0-30 seconds for stale/missing rows",
+    "relaxed_training_maps_added_to": 950,
+    "relaxed_training_rows_added": 1835,
+    "training_dropped_rows_total": 2389,
+    "training_dropped_rows_with_relaxed_label_in_included_maps": 1835,
+    "training_maps_current": 1563,
+    "training_rows_current": 11070
+  }
+}
