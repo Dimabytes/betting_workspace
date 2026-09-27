@@ -1,0 +1,165 @@
+nice: setpriority: Operation not permitted
+HEAD_CACHE_VERSION v9c88adc2
+CACHE_VERSIONS
+v59b14c69 files 2277 bytes 96247543
+v9c88adc2 files 3041 bytes 130352673
+va75c29ad files 3081 bytes 233911969
+
+CATALOG rows 3207 loaded 3207
+DUP match_id 0 duplicate_groups 0
+DUP condition_id 0 duplicate_groups 0
+DUP event_id 2899 duplicate_groups 1676
+DUP token_id_0 0 duplicate_groups 0
+DUP token_id_1 0 duplicate_groups 0
+NULLS {'match_id': 0, 'condition_id': 0, 'event_id': 0, 'radiant_token_index': 0, 'spawn_at': 67, 'ended_at': 0, 'playback_available': 0, 'duration': 0, 'radiant_prior': 0, 'seconds_delay': 0, 'token_id_0': 0, 'token_id_1': 0, 'market_slug': 0, 'market_closed_at': 0, 'horn_at': 0, 'horn_source': 0, 'pauses_json': 0, 'pauses_source': 0, 'radiant_win': 0, 'winner_source': 0, 'archive_id': 3041, 'archive_root': 3041, 'archive_feed_source': 3041, 'schedule_fingerprint': 3041}
+RADIANT_INDEX {1: 1616, 0: 1591}
+WINNER_SOURCE {'stratz': 3207}
+HORN_SOURCE {'grid_derived': 3041, 'archive': 166}
+PAUSE_SOURCE {'opendota': 3207}
+MONTH_COUNTS
+month    split     
+2025-10  train          58
+2025-11  train          89
+2025-12  train         283
+2026-01  train         360
+2026-02  train         551
+2026-03  train         330
+2026-04  train         466
+2026-05  train         348
+2026-06  validation     75
+2026-07  validation    258
+2026-08  validation    201
+2026-09  validation    188
+SPLIT_COUNTS {'train': 2485, 'validation': 722} boundary_near_90s 0
+SPAWN_MINUS_HORN_SEC {'count': 3036.0, 'mean': 119.21014492753623, 'std': 73.16901948705664, 'min': 90.0, '5%': 90.0, '50%': 90.0, '95%': 240.75, 'max': 1281.0}
+ENDED_MINUS_HORN_DURATION_SEC {'count': 3036.0, 'mean': 62.66040843214756, 'std': 124.14611267356838, 'min': 0.0, '1%': 0.0, '5%': 0.0, '50%': 16.0, '95%': 257.0, '99%': 606.2000000000007, 'max': 1994.0}
+CLOSED_MINUS_ENDED_SEC {'count': 3033.0, 'mean': 11664.834881635345, 'std': 16366.885145897379, 'min': 3663.413, '1%': 3776.4934399999997, '5%': 7307.3564, '50%': 9282.298, '95%': 20462.972200000004, '99%': 46059.47651999978, 'max': 594784.497}
+
+CACHE_PRESENCE current_files 3041 catalog_ids 3207 catalog_has_cache 3041 not_catalog 0
+CACHE_BY_SPLIT_MONTH
+                    sum  count
+split      month              
+train      2025-10   53     58
+           2025-11   77     89
+           2025-12  217    283
+           2026-01  284    360
+           2026-02  551    551
+           2026-03  330    330
+           2026-04  465    466
+           2026-05  347    348
+validation 2026-06   75     75
+           2026-07  258    258
+           2026-08  197    201
+           2026-09  187    188
+STRATZ_INDEX status among catalog {'usable': 3207}
+STRATZ_REASON {None: 3207}
+STRATZ_PLAYBACK_AVAILABLE {False: 2437, True: 770}
+STRATZ_STATUS_BY_SPLIT {'usable': {'train': 2485, 'validation': 722}}
+
+DATASET train rows 11070 maps 1563 duplicate_map_second 0
+seconds -60 540
+
+DATASET validation rows 1859416 maps 717 duplicate_map_second 0
+seconds -50 6648
+
+DATASET production rows 16874 maps 2225 duplicate_map_second 0
+seconds -60 540
+
+DATASET game_features rows 1866586 maps 717 duplicate_map_second 0
+DATASET_SPLIT_MAP_COUNTS train/val 1563 717
+DATASET_ROWS_MONTH_SPLIT
+train {'2025-10': 6, '2025-11': 74, '2025-12': 166, '2026-01': 110, '2026-02': 359, '2026-03': 251, '2026-04': 302, '2026-05': 295}
+val {'2026-06': 75, '2026-07': 258, '2026-08': 197, '2026-09': 187}
+PROD_SPLIT_ROWS {'train': 2225}
+
+VALIDATION_STATUS {'ok': 1390644, 'wide_spread': 344826, 'stale_quote': 103060, 'missing_quote': 20886}
+VAL_BAD_ROWS_WITH_CURRENT_MID 0
+VAL_OK_NULL_CURRENT_MID 0
+VAL_STATUS_BY_MONTH
+month    market_status
+2026-06  missing_quote      6666
+         ok               106578
+         stale_quote       28481
+         wide_spread       61161
+2026-07  missing_quote      5148
+         ok               575169
+         stale_quote       19202
+         wide_spread       75716
+2026-08  missing_quote      5776
+         ok               365839
+         stale_quote       26620
+         wide_spread       90101
+2026-09  missing_quote      3296
+         ok               343058
+         stale_quote       28757
+         wide_spread      117848
+VAL_LABELS 1224779 postend 10035 share 0.008193314875581635 maps_post 474 post_abs_delta_mean_median_p95 0.07575534202392152 0.039 0.3045
+VAL_POSTEND_BY_MONTH {'2026-06': 678, '2026-07': 1830, '2026-08': 1559, '2026-09': 5968}
+TRAIN_LABELS 11070 postend 1 share 9.03342366757001e-05 maps_post 1 post_abs_delta_mean_median_p95 0.385 0.385 0.385
+TRAIN_POSTEND_BY_MONTH {'2026-04': 1}
+train_post within_5c_terminal 1 share 1.0 median_terminal_error 0.01 mean_delta 0.385
+val_post within_5c_terminal 8017 share 0.798903836571998 median_terminal_error 0.010000000000000009 mean_delta 0.07575534202392152
+VAL_LABEL_EXACT_TO_TARGET_ROW 1198089 mismatches 84378 nonnull_label_missing_target_row 10035 nonnull_label_bad_target_row 16655
+VAL_MID_RANGE 0.001 0.999 jumps_gt_10c 2074 gt_25c 166 gt_50c 15
+VAL_CONSEC_SAME_MID_SHARE 0.7901382381112636
+VAL_FINAL_OUTCOME
+maps 714 last_price_alignment 0.9845938375350141 near_terminal 0.8627450980392157 radiant_win_count 350
+misaligned [{'match_id': 8839284303, 'radiant_win': False, 'last_p': 0.735, 'last_second': 713, 'duration': 1821, 'aligned': False, 'near_terminal': False}, {'match_id': 8839929092, 'radiant_win': True, 'last_p': 0.46499999999999997, 'last_second': 2507, 'duration': 4149, 'aligned': False, 'near_terminal': False}, {'match_id': 8851258391, 'radiant_win': False, 'last_p': 0.545, 'last_second': 1491, 'duration': 3044, 'aligned': False, 'near_terminal': False}, {'match_id': 8851324525, 'radiant_win': True, 'last_p': 0.315, 'last_second': 3832, 'duration': 4212, 'aligned': False, 'near_terminal': False}, {'match_id': 8852624581, 'radiant_win': True, 'last_p': 0.05, 'last_second': 3493, 'duration': 3832, 'aligned': False, 'near_terminal': False}, {'match_id': 8852787625, 'radiant_win': True, 'last_p': 0.46499999999999997, 'last_second': 1682, 'duration': 3259, 'aligned': False, 'near_terminal': False}, {'match_id': 8910982575, 'radiant_win': False, 'last_p': 0.5700000000000001, 'last_second': 3770, 'duration': 3813, 'aligned': False, 'near_terminal': False}, {'match_id': 8920655724, 'radiant_win': True, 'last_p': 0.415, 'last_second': 2422, 'duration': 2424, 'aligned': False, 'near_terminal': False}, {'match_id': 8992034384, 'radiant_win': True, 'last_p': 0.12, 'last_second': 3016, 'duration': 3016, 'aligned': False, 'near_terminal': False}, {'match_id': 8995387004, 'radiant_win': True, 'last_p': 0.48, 'last_second': 2184, 'duration': 2675, 'aligned': False, 'near_terminal': False}, {'match_id': 9006696478, 'radiant_win': False, 'last_p': 0.545, 'last_second': 1884, 'duration': 3559, 'aligned': False, 'near_terminal': False}]
+
+FEATURE_DISTRIBUTIONS train_rows 11070 val_rows 317800
+second train_q {0.01: 0.0, 0.05: 0.0, 0.25: 120.0, 0.5: 240.0, 0.75: 420.0, 0.95: 540.0, 0.99: 540.0} val_q {0.01: -54.0, 0.05: -30.0, 0.25: 87.0, 0.5: 237.0, 0.75: 387.0, 0.95: 509.0, 0.99: 534.0} ks 0.0961 p 2.0891976876353017e-86
+radiant_nw_adv train_q {0.01: -2852.62, 0.05: -1690.65, 0.25: -429.0, 0.5: 0.0, 0.75: 489.75, 0.95: 1798.55, 0.99: 3096.75} val_q {0.01: -2913.0, 0.05: -1707.0, 0.25: -454.0, 0.5: 0.0, 0.75: 402.0, 0.95: 1654.0, 0.99: 2987.0} ks 0.0368 p 5.30796436607796e-13
+radiant_nw train_q {0.01: 2900.0, 0.05: 2950.0, 0.25: 4670.0, 0.5: 7247.5, 0.75: 10642.0, 0.95: 14162.65, 0.99: 15631.31} val_q {0.01: 2900.0, 0.05: 2950.0, 0.25: 4267.0, 0.5: 6790.0, 0.75: 10036.0, 0.95: 13397.0, 0.99: 14906.01} ks 0.0541 p 1.2337280496117652e-27
+dire_nw train_q {0.01: 2900.0, 0.05: 2950.0, 0.25: 4646.25, 0.5: 7256.5, 0.75: 10584.5, 0.95: 14103.55, 0.99: 15485.31} val_q {0.01: 2900.0, 0.05: 2950.0, 0.25: 4290.0, 0.5: 6806.0, 0.75: 10065.0, 0.95: 13447.0, 0.99: 14905.0} ks 0.0511 p 1.0884717050548363e-24
+radiant_xp_adv train_q {0.01: -2692.4, 0.05: -1440.0, 0.25: -400.0, 0.5: 0.0, 0.75: 400.0, 0.95: 1560.0, 0.99: 2840.0} val_q {0.01: -2640.0, 0.05: -1440.0, 0.25: -320.0, 0.5: 0.0, 0.75: 280.0, 0.95: 1360.0, 0.99: 2640.0} ks 0.057 p 1.1587947187160427e-30
+deaths_radiant train_q {0.01: 0.0, 0.05: 0.0, 0.25: 0.0, 0.5: 1.0, 0.75: 3.0, 0.95: 6.0, 0.99: 8.0} val_q {0.01: 0.0, 0.05: 0.0, 0.25: 0.0, 0.5: 1.0, 0.75: 2.0, 0.95: 6.0, 0.99: 8.0} ks 0.0334 p 8.960490965092947e-11
+deaths_dire train_q {0.01: 0.0, 0.05: 0.0, 0.25: 0.0, 0.5: 1.0, 0.75: 3.0, 0.95: 6.0, 0.99: 8.0} val_q {0.01: 0.0, 0.05: 0.0, 0.25: 0.0, 0.5: 1.0, 0.75: 2.0, 0.95: 6.0, 0.99: 8.0} ks 0.0514 p 5.484584660175927e-25
+top1_nw_adv train_q {0.01: -948.31, 0.05: -556.0, 0.25: -155.0, 0.5: 0.0, 0.75: 167.0, 0.95: 598.55, 0.99: 1013.31} val_q {0.01: -952.0, 0.05: -541.0, 0.25: -149.0, 0.5: 0.0, 0.75: 147.0, 0.95: 552.0, 0.99: 974.0} ks 0.0232 p 1.9092367360100235e-05
+radiant_top1_nw_ratio train_q {0.01: 0.255, 0.05: 0.255, 0.25: 0.33, 0.5: 0.375, 0.75: 0.412, 0.95: 0.47, 0.99: 0.52} val_q {0.01: 0.25, 0.05: 0.255, 0.25: 0.316, 0.5: 0.371, 0.75: 0.409, 0.95: 0.475, 0.99: 0.524} ks 0.0554 p 5.807779660125667e-29
+dire_top1_nw_ratio train_q {0.01: 0.255, 0.05: 0.255, 0.25: 0.33, 0.5: 0.377, 0.75: 0.413, 0.95: 0.471, 0.99: 0.52} val_q {0.01: 0.25, 0.05: 0.255, 0.25: 0.317, 0.5: 0.37, 0.75: 0.407, 0.95: 0.469, 0.99: 0.522} ks 0.0511 p 1.0011127757994501e-24
+market_radiant_prior train_q {0.01: 0.173, 0.05: 0.234, 0.25: 0.385, 0.5: 0.495, 0.75: 0.615, 0.95: 0.755, 0.99: 0.835} val_q {0.01: 0.125, 0.05: 0.185, 0.25: 0.345, 0.5: 0.48, 0.75: 0.635, 0.95: 0.79, 0.99: 0.875} ks 0.0842 p 1.9449652777008506e-66
+market_p_radiant train_q {0.01: 0.11, 0.05: 0.195, 0.25: 0.37, 0.5: 0.495, 0.75: 0.639, 0.95: 0.8, 0.99: 0.875} val_q {0.01: 0.09, 0.05: 0.165, 0.25: 0.325, 0.5: 0.49, 0.75: 0.65, 0.95: 0.82, 0.99: 0.895} ks 0.0711 p 2.0020523825880122e-47
+TRAIN_ZERO_FEATURES {'radiant_nw': 0, 'dire_nw': 0, 'radiant_xp_adv': 2778, 'deaths_radiant': 4219, 'deaths_dire': 4110}
+VAL_ZERO_FEATURES {'radiant_nw': 0, 'dire_nw': 0, 'radiant_xp_adv': 152652, 'deaths_radiant': 177483, 'deaths_dire': 176469}
+TRAIN_NW_ZERO_BY_MONTH
+         sum  count
+month              
+2025-10    0      6
+2025-11    0    466
+2025-12    0    900
+2026-01    0    451
+2026-02    0   2536
+2026-03    0   1978
+2026-04    0   2036
+2026-05    0   2697
+
+MONTHLY_CACHE_SAMPLE
+2025-10 8514083299 rows 2414 status {'missing_quote': 1416, 'stale_quote': 596, 'wide_spread': 362, 'ok': 40} first_game_mid (1344, 0.355) last_mid (1719, 0.20500000000000002) winner False same_mid_share 0.7 max_jump 0.14 raw_rebuild compared=2534,field_diffs=0
+2025-11 8579345535 rows 2595 status {'ok': 1969, 'wide_spread': 333, 'stale_quote': 292, 'missing_quote': 1} first_game_mid (0, 0.435) last_mid (2534, 0.985) winner True same_mid_share 0.8166582021330625 max_jump 0.09000000000000008 raw_rebuild compared=8237,field_diffs=0
+2025-12 8606207935 rows 1832 status {'wide_spread': 908, 'ok': 479, 'stale_quote': 417, 'missing_quote': 28} first_game_mid (17, 0.5700000000000001) last_mid (1768, 0.98) winner True same_mid_share 0.8413361169102297 max_jump 0.08500000000000008 raw_rebuild compared=3182,field_diffs=0
+2026-01 8645599611 rows 1729 status {'stale_quote': 902, 'ok': 609, 'wide_spread': 146, 'missing_quote': 72} first_game_mid (13, 0.8049999999999999) last_mid (1644, 0.996) winner True same_mid_share 0.8505747126436781 max_jump 0.125 raw_rebuild compared=3461,field_diffs=0
+2026-02 8690519807 rows 3494 status {'wide_spread': 1517, 'ok': 1408, 'missing_quote': 425, 'stale_quote': 144} first_game_mid (91, 0.42500000000000004) last_mid (3173, 0.9755) winner True same_mid_share 0.8011363636363636 max_jump 0.14 raw_rebuild compared=7862,field_diffs=0
+2026-03 8739725793 rows 2697 status {'ok': 2256, 'wide_spread': 363, 'missing_quote': 75, 'stale_quote': 3} first_game_mid (0, 0.55) last_mid (2624, 0.985) winner True same_mid_share 0.6839539007092199 max_jump 0.14 raw_rebuild compared=9135,field_diffs=0
+2026-04 8770803860 rows 2611 status {'ok': 2263, 'wide_spread': 348} first_game_mid (0, 0.615) last_mid (2550, 0.02) winner False same_mid_share 0.7450287229341582 max_jump 0.09499999999999997 raw_rebuild compared=9085,field_diffs=0
+2026-05 8826537048 rows 2584 status {'ok': 2472, 'wide_spread': 110, 'stale_quote': 2} first_game_mid (0, 0.6799999999999999) last_mid (2523, 0.01) winner False same_mid_share 0.7212783171521036 max_jump 0.22999999999999998 raw_rebuild compared=9672,field_diffs=0
+2026-06 8842722527 rows 3190 status {'ok': 2887, 'wide_spread': 300, 'stale_quote': 3} first_game_mid (0, 0.545) last_mid (3129, 0.01) winner False same_mid_share 0.770003463803256 max_jump 0.14500000000000002 raw_rebuild compared=11534,field_diffs=0
+2026-07 8900623530 rows 2008 status {'ok': 2007, 'wide_spread': 1} first_game_mid (0, 0.325) last_mid (1947, 0.998) winner True same_mid_share 0.7952167414050823 max_jump 0.09999999999999998 raw_rebuild compared=7766,field_diffs=0
+2026-08 8962592819 rows 2708 status {'ok': 1743, 'wide_spread': 916, 'stale_quote': 49} first_game_mid (0, 0.21000000000000002) last_mid (2647, 0.006) winner False same_mid_share 0.8267355134825014 max_jump 0.4605 raw_rebuild compared=7670,field_diffs=0
+2026-09 8995085405 rows 2400 status {'ok': 1762, 'wide_spread': 562, 'stale_quote': 40, 'missing_quote': 36} first_game_mid (0, 0.6) last_mid (2300, 0.01) winner False same_mid_share 0.818955732122588 max_jump 0.10000000000000003 raw_rebuild compared=7413,field_diffs=0
+
+RAW_BOOK_SAMPLES
+2025-10 8514083299 [('106776057197968001294925260657690891542091935424371208939011213326284021472243', 422, {'two_sided': 339, 'crossed': 0, 'dupe_ts': 26, 'median_gap': 0.11, 'p95_gap': 13.25, 'zero_or_negative_gap': 26, 'subsecond_pct': 0.6817102137767221}), ('18299265504932318615150311102817695994524045944636955562116875414476829592344', 422, {'two_sided': 339, 'crossed': 0, 'dupe_ts': 26, 'median_gap': 0.11, 'p95_gap': 13.25, 'zero_or_negative_gap': 26, 'subsecond_pct': 0.6817102137767221})]
+2025-11 8579345535 [('62515094012121129873020086361565625752829191614727257825235638792365009686721', 19895, {'two_sided': 19822, 'crossed': 0, 'dupe_ts': 10964, 'median_gap': 0.0, 'p95_gap': 0.6417999999999884, 'zero_or_negative_gap': 10964, 'subsecond_pct': 0.9624007238363326}), ('23993457444176891378515622604010154551668794992585833832432891765408899274571', 19895, {'two_sided': 19822, 'crossed': 0, 'dupe_ts': 10964, 'median_gap': 0.0, 'p95_gap': 0.6417999999999884, 'zero_or_negative_gap': 10964, 'subsecond_pct': 0.9624007238363326})]
+2025-12 8606207935 [('95584329930533248057866822068664798967228593843750262515651720484492560281589', 6961, {'two_sided': 6782, 'crossed': 7, 'dupe_ts': 1740, 'median_gap': 0.003, 'p95_gap': 1.380399999999994, 'zero_or_negative_gap': 1740, 'subsecond_pct': 0.9389367816091954}), ('81285459355874637228996663556015902032044553968654871185457964457236091456210', 6961, {'two_sided': 6782, 'crossed': 7, 'dupe_ts': 1740, 'median_gap': 0.003, 'p95_gap': 1.380399999999994, 'zero_or_negative_gap': 1740, 'subsecond_pct': 0.9389367816091954})]
+2026-01 8645599611 [('90121159201076260093078763206299629717238246748801209079870267205341097143685', 898, {'two_sided': 662, 'crossed': 4, 'dupe_ts': 174, 'median_gap': 0.109, 'p95_gap': 12.2434, 'zero_or_negative_gap': 174, 'subsecond_pct': 0.717948717948718}), ('81810211402048472285726103419620340360389684078331864871315682384094919999749', 898, {'two_sided': 662, 'crossed': 4, 'dupe_ts': 174, 'median_gap': 0.109, 'p95_gap': 12.2434, 'zero_or_negative_gap': 174, 'subsecond_pct': 0.717948717948718})]
+2026-02 8690519807 [('23230677607190514213239816476953279743181987828161191481729859931142602795285', 10963, {'two_sided': 10296, 'crossed': 30, 'dupe_ts': 2318, 'median_gap': 0.006, 'p95_gap': 1.7786999999999933, 'zero_or_negative_gap': 2318, 'subsecond_pct': 0.8998357963875205}), ('51739289316960627565508708092083383923234812397041234806752666672678654610122', 10963, {'two_sided': 10296, 'crossed': 30, 'dupe_ts': 2318, 'median_gap': 0.006, 'p95_gap': 1.7786999999999933, 'zero_or_negative_gap': 2318, 'subsecond_pct': 0.8998357963875205})]
+2026-03 8739725793 [('84191687105905701583462115235714249323598092403417823727290666381324362317029', 31462, {'two_sided': 30952, 'crossed': 136, 'dupe_ts': 5927, 'median_gap': 0.014, 'p95_gap': 0.389, 'zero_or_negative_gap': 5927, 'subsecond_pct': 0.9880804805950224}), ('82717219664973015838863468085975099598930304772965166857277814724156452891364', 31462, {'two_sided': 30952, 'crossed': 136, 'dupe_ts': 5927, 'median_gap': 0.014, 'p95_gap': 0.389, 'zero_or_negative_gap': 5927, 'subsecond_pct': 0.9880804805950224})]
+2026-04 8770803860 [('49299266985662996488552749438108768987861412564047288225355686977707600926021', 57003, {'two_sided': 56607, 'crossed': 39, 'dupe_ts': 9457, 'median_gap': 0.01, 'p95_gap': 0.197, 'zero_or_negative_gap': 9457, 'subsecond_pct': 0.9960176835900495}), ('102341639687157654623729689935684726223093234587639468590441418466786870813449', 57003, {'two_sided': 56607, 'crossed': 39, 'dupe_ts': 9457, 'median_gap': 0.01, 'p95_gap': 0.197, 'zero_or_negative_gap': 9457, 'subsecond_pct': 0.9960176835900495})]
+2026-05 8826537048 [('37890179607176188466534282121527399142135186086398632786573934307075684112387', 223733, {'two_sided': 223426, 'crossed': 148, 'dupe_ts': 31674, 'median_gap': 0.003, 'p95_gap': 0.041, 'zero_or_negative_gap': 31674, 'subsecond_pct': 0.9992669801369496}), ('25984805634702334027982031875107691593342602022609223275350442711025871367859', 223733, {'two_sided': 223426, 'crossed': 148, 'dupe_ts': 31674, 'median_gap': 0.003, 'p95_gap': 0.041, 'zero_or_negative_gap': 31674, 'subsecond_pct': 0.9992669801369496})]
+2026-06 8842722527 [('26249301166308421495158595202772992523168070537763001847328455790632389379452', 49704, {'two_sided': 48748, 'crossed': 145, 'dupe_ts': 7728, 'median_gap': 0.015, 'p95_gap': 0.287, 'zero_or_negative_gap': 7728, 'subsecond_pct': 0.9904834718226264}), ('80859092207559283176539785847117020708631595270065387116878846703875116259945', 49704, {'two_sided': 48748, 'crossed': 145, 'dupe_ts': 7728, 'median_gap': 0.015, 'p95_gap': 0.287, 'zero_or_negative_gap': 7728, 'subsecond_pct': 0.9904834718226264})]
+2026-07 8900623530 [('99235782939382735272860891310540403633388016324432338063439972910200511779722', 88113, {'two_sided': 86703, 'crossed': 86, 'dupe_ts': 16192, 'median_gap': 0.005, 'p95_gap': 0.096, 'zero_or_negative_gap': 16192, 'subsecond_pct': 0.9983657163609951}), ('60643960237912042991623385995992740897392655866310010945852324078346572439711', 88113, {'two_sided': 86703, 'crossed': 86, 'dupe_ts': 16192, 'median_gap': 0.005, 'p95_gap': 0.096, 'zero_or_negative_gap': 16192, 'subsecond_pct': 0.9983657163609951})]
+2026-08 8962592819 [('42859756957967222243036380109791520261992167772817510334484436881681563364644', 107519, {'two_sided': 107293, 'crossed': 46, 'dupe_ts': 0, 'median_gap': 0.005, 'p95_gap': 0.1, 'zero_or_negative_gap': 0, 'subsecond_pct': 0.9979166279134657}), ('82363066276098561580721941154102572323056106313632066197680664542631812173913', 107519, {'two_sided': 107293, 'crossed': 46, 'dupe_ts': 0, 'median_gap': 0.005, 'p95_gap': 0.1, 'zero_or_negative_gap': 0, 'subsecond_pct': 0.9979166279134657})]
+2026-09 8995085405 [('107044623951669091348966999425492744588256421570990128594914060306102785322991', 90699, {'two_sided': 89926, 'crossed': 18, 'dupe_ts': 0, 'median_gap': 0.005, 'p95_gap': 0.057, 'zero_or_negative_gap': 0, 'subsecond_pct': 0.9954133497982315}), ('25103806148080165533221003712300675711339706655825841688670434743115080000123', 90699, {'two_sided': 89926, 'crossed': 18, 'dupe_ts': 0, 'median_gap': 0.005, 'p95_gap': 0.057, 'zero_or_negative_gap': 0, 'subsecond_pct': 0.9954133497982315})]
+
+LIVE_ROOTS
+dirs 793

@@ -1,0 +1,3970 @@
+[
+  {
+    "seed": 0,
+    "summary_identity_net": true,
+    "net": 3237.9529545202918,
+    "engine": 2848.5854130500015,
+    "cash_flow": -2685.2635559499995,
+    "settlement_remainder": 5533.848969000001,
+    "sum_checks": {
+      "engine_pnl": {
+        "from_parquet": 2848.585413050001,
+        "summary": 2848.5854130500015,
+        "ok": true
+      },
+      "cash_flow": {
+        "from_parquet": -2685.2635559499995,
+        "summary": -2685.2635559499995,
+        "ok": true
+      },
+      "settlement_remainder": {
+        "from_parquet": 5533.848969000001,
+        "summary": 5533.848969000001,
+        "ok": true
+      },
+      "buy_fills": {
+        "from_parquet": 1611,
+        "summary": 1611,
+        "ok": true
+      },
+      "sell_fills": {
+        "from_parquet": 1671,
+        "summary": 1671,
+        "ok": true
+      },
+      "buy_qty": {
+        "from_parquet": 120674.7751,
+        "summary": 120674.7751,
+        "ok": true
+      },
+      "sell_qty": {
+        "from_parquet": 115140.584506,
+        "summary": null,
+        "ok": true
+      },
+      "terminal_inv": {
+        "from_parquet": 5533.533532,
+        "summary": 5533.533532,
+        "ok": true
+      },
+      "dust": {
+        "from_parquet": 6,
+        "summary": 6,
+        "ok": true
+      },
+      "completed": {
+        "from_parquet": 612,
+        "summary": 612,
+        "ok": true
+      },
+      "terminated": {
+        "from_parquet": 1,
+        "summary": 1,
+        "ok": true
+      },
+      "matches": {
+        "from_parquet": 613,
+        "summary": 613,
+        "ok": true
+      },
+      "maker_rebate": {
+        "from_parquet": 389.36754147029023,
+        "summary": 389.36754147029023,
+        "ok": true
+      },
+      "taker_fee": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      },
+      "buy_turnover": {
+        "from_parquet": 73018.12896609001,
+        "summary": 73018.12896609,
+        "ok": true
+      },
+      "sell_turnover": {
+        "from_parquet": 70332.86541014,
+        "summary": 70332.86541014,
+        "ok": true
+      },
+      "maker_rebate_clean": {
+        "from_parquet": 389.36754147029023,
+        "summary": 389.36754147029023,
+        "ok": true
+      },
+      "taker_fee_clean": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      }
+    },
+    "rebate_recompute": 389.3675414702907,
+    "rebate_row_mismatches": 0,
+    "markout_checks": {
+      "buy_30s": {
+        "weighted": -0.0012472965921027865,
+        "summary": -0.0012472965921027865,
+        "n": 1611,
+        "ok": true
+      },
+      "buy_300s": {
+        "weighted": 0.013958694485315016,
+        "summary": 0.013958694485315015,
+        "n": 1611,
+        "ok": true
+      },
+      "sell_30s": {
+        "weighted": 0.005420131000472552,
+        "summary": 0.0054201310004725525,
+        "n": 1671,
+        "ok": true
+      },
+      "sell_300s": {
+        "weighted": 0.013535439652317273,
+        "summary": 0.013535439652317275,
+        "n": 1671,
+        "ok": true
+      }
+    },
+    "source_counts": {
+      "30": {
+        "mid": 3282
+      },
+      "300": {
+        "mid": 3282
+      }
+    },
+    "ref_extreme": {
+      "30": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      },
+      "300": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      }
+    },
+    "identity_bad_n": 0,
+    "identity_bad": [],
+    "settlement_applied_false_traded": [],
+    "terminal_vs_walk": [
+      {
+        "match_id": 8886788497,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0016060000000095442
+        }
+      },
+      {
+        "match_id": 8897588873,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0093130000000059,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8902173969,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005717000000004191,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8904012666,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005633000000017319,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8913598312,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009168000000002507,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8914749408,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003978000000000925,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8922940920,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0038899999999983947
+        }
+      },
+      {
+        "match_id": 8926381426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0014849999999739794
+        }
+      },
+      {
+        "match_id": 8929276426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0062729999999575625
+        }
+      },
+      {
+        "match_id": 8937484593,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006061999999985801
+        }
+      },
+      {
+        "match_id": 8938634026,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.012614000000020553,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941656460,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006095999999999435
+        }
+      },
+      {
+        "match_id": 8971501630,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002701000000001841,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973944033,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00931699999998159
+        }
+      },
+      {
+        "match_id": 8985409048,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0055570000000315645,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8992034384,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006665000000065646,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8995417611,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00666599999999562,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003231861,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008890000000008058
+        }
+      },
+      {
+        "match_id": 9004282872,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005001000000014244
+        }
+      },
+      {
+        "match_id": 8839123109,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005256999999986078
+        }
+      },
+      {
+        "match_id": 8885473599,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006819999999834181
+        }
+      },
+      {
+        "match_id": 8889452921,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008362000000033731,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8891497910,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016290000000012128,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8898084910,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009658000000030142,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8900508749,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0024999999999977263,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8905233934,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007436999999981708,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8922133239,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004446000000005945,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8937631882,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.004326999999932468
+        }
+      },
+      {
+        "match_id": 8938716198,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0058000000000006935,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964657335,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.011918000000022744
+        }
+      },
+      {
+        "match_id": 8970207176,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004625000000018531,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8970886632,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004356999999935218,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973011673,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0076930000000032805,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8978832148,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009425000000064188,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8982458661,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007778999999999314
+        }
+      },
+      {
+        "match_id": 8992196498,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0097950000000111
+        }
+      },
+      {
+        "match_id": 8996565323,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004668000000002337,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9005202754,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0036360000000001946
+        }
+      },
+      {
+        "match_id": 8888731478,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001452000000000453
+        }
+      },
+      {
+        "match_id": 8898117600,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006115000000022519,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8910535715,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0074959999999819615,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8915002841,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005189999999970496
+        }
+      },
+      {
+        "match_id": 8921002620,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007545000000007462,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8936825643,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007753999999977168,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8937722788,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028800000000046566,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940365227,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00904400000001715,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941817475,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0024869999999825865
+        }
+      },
+      {
+        "match_id": 8965544741,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008245000000058567
+        }
+      },
+      {
+        "match_id": 8970352005,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004065000000000651,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971007454,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0033320000000003347
+        }
+      },
+      {
+        "match_id": 8976166971,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005771999999922173,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8982647578,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007839000000025464,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9000737299,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002860000000012519,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8889733840,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008622000000030994,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8891325877,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0033360000000133283,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8906479441,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007429000000001906,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8909658828,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009434999999996307,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8924530036,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001919000000004445
+        }
+      },
+      {
+        "match_id": 8925847726,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003861000000007664
+        }
+      },
+      {
+        "match_id": 8932657929,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007229999999992742
+        }
+      },
+      {
+        "match_id": 8937080738,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002175000000020688,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940487898,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.01342600000003813
+        }
+      },
+      {
+        "match_id": 8962736746,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.012574999999964476,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964837315,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003636999999983459,
+          "1": 0.007045999999945707
+        }
+      },
+      {
+        "match_id": 8971664649,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028779999999954953,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976300473,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00522999999999918,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8991020791,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0058819999999784045,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8994936160,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006121999999962213,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8839494962,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0013130000000955988
+        }
+      },
+      {
+        "match_id": 8842052142,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009474999999998346
+        }
+      },
+      {
+        "match_id": 8887100676,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009524999999996453
+        }
+      },
+      {
+        "match_id": 8906547471,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016450000000247655,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8927063876,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002900000000011005,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8927660975,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008496999999998422,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8933879286,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006364999999998844
+        }
+      },
+      {
+        "match_id": 8938509987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.013244000000128153,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964480771,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.019976000000042404,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8970485789,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005295999999987089
+        }
+      },
+      {
+        "match_id": 8971111987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011100000000112686,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8972611918,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0032250000000146883
+        }
+      },
+      {
+        "match_id": 8973405568,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0038970000000020377,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8974985429,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016940000000111866,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976441468,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006610999999999478
+        }
+      },
+      {
+        "match_id": 8977476867,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00939099999999371,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8988904409,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004833000000019183,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8838396820,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0018420000000105574
+        }
+      },
+      {
+        "match_id": 8885183102,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008738999999991393
+        }
+      },
+      {
+        "match_id": 8888083694,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0033359999999902357
+        }
+      },
+      {
+        "match_id": 8888819433,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004656999999895106,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8889914618,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007804000000003697,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8893106015,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0013179999999692882,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8905093611,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0019310000000132277,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8910670427,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00411900000000287
+        }
+      },
+      {
+        "match_id": 8922818221,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002747999999996864
+        }
+      },
+      {
+        "match_id": 8923704450,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002166999999985819
+        }
+      },
+      {
+        "match_id": 8927132943,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.01006900000004407
+        }
+      },
+      {
+        "match_id": 8933988979,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00571599999999961,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940059913,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009454999999974234
+        }
+      },
+      {
+        "match_id": 8940756672,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003222999999991316,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8965097316,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.001647999999946137,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976511215,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003289000000023634
+        }
+      },
+      {
+        "match_id": 8977913355,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0020279999999957
+        }
+      },
+      {
+        "match_id": 8984433236,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009232000000004348
+        }
+      },
+      {
+        "match_id": 8991817744,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.018932000000106086
+        }
+      },
+      {
+        "match_id": 8996384883,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009609000000001533,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8999268195,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0027269999999930405,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003856182,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011109999999874276,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9004969180,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007005999999975643
+        }
+      }
+    ],
+    "both_leg_matches": [
+      [
+        8922940920,
+        3
+      ],
+      [
+        8938716198,
+        11
+      ],
+      [
+        8937722788,
+        1
+      ],
+      [
+        8964837315,
+        13
+      ]
+    ],
+    "pos_mismatch_matches": [
+      [
+        8886788497,
+        1
+      ],
+      [
+        8897588873,
+        1
+      ],
+      [
+        8902173969,
+        1
+      ],
+      [
+        8904012666,
+        1
+      ],
+      [
+        8913598312,
+        1
+      ],
+      [
+        8914749408,
+        1
+      ],
+      [
+        8922940920,
+        1
+      ],
+      [
+        8926381426,
+        8
+      ],
+      [
+        8929276426,
+        3
+      ],
+      [
+        8937484593,
+        1
+      ],
+      [
+        8938634026,
+        16
+      ],
+      [
+        8941656460,
+        4
+      ],
+      [
+        8971501630,
+        1
+      ],
+      [
+        8973944033,
+        1
+      ],
+      [
+        8985409048,
+        1
+      ],
+      [
+        8992034384,
+        1
+      ],
+      [
+        8995417611,
+        1
+      ],
+      [
+        9003231861,
+        1
+      ],
+      [
+        9004282872,
+        1
+      ],
+      [
+        8839123109,
+        1
+      ]
+    ],
+    "pos_mismatch_n": 108,
+    "nonmono": [],
+    "post_game_fills": 0,
+    "post_game_sell_qty": 0.0,
+    "post_game_buy_qty": 0.0,
+    "held_n": 160,
+    "held_wins": 117,
+    "held_losses": 43,
+    "held_qty": 5534.190594000001,
+    "held_cost": 4084.061278752956,
+    "held_payout": 5533.848969000001,
+    "closed_split_episodes": {
+      "n": 360,
+      "wins": 205,
+      "losses": 155,
+      "win_qty": null,
+      "loss_qty": null
+    },
+    "loser_exit": {
+      "n": 155,
+      "median_exit": 0.56,
+      "median_mid": 0.535,
+      "median_fair": 0.5491495947359442,
+      "median_exit_minus_mid": 0.020000000000000018,
+      "median_exit_minus_fair": 0.005852646964882302,
+      "frac_exit_ge_fair": 0.987012987012987,
+      "median_secs_before_end": 2257.449000064,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1334.7359999932
+    },
+    "winner_exit": {
+      "n": 205,
+      "median_exit": 0.69,
+      "median_mid": 0.66,
+      "median_fair": 0.6705052100576625,
+      "median_exit_minus_mid": 0.025000000000000022,
+      "median_exit_minus_fair": 0.006547671152411838,
+      "frac_exit_ge_fair": 0.9658536585365853,
+      "median_secs_before_end": 1908.509999808,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1069.7655999352
+    },
+    "markout_past_book": {
+      "30": {
+        "n": 2,
+        "qty": 462.41,
+        "mean": -0.14307303042754269
+      },
+      "300": {
+        "n": 24,
+        "qty": 1540.504121,
+        "mean": -0.05853101382031291
+      }
+    },
+    "markout_inside_book": {
+      "30": {
+        "n": 3280,
+        "qty": 235352.94960600004,
+        "mean": 0.0022932290275606577
+      },
+      "300": {
+        "n": 3258,
+        "qty": 234274.855485,
+        "mean": 0.014227339984543967
+      }
+    },
+    "missing_cache_matches": 0,
+    "is_maker_false": 0
+  },
+  {
+    "seed": 1,
+    "summary_identity_net": true,
+    "net": 3727.7149631252537,
+    "engine": 3338.761735910002,
+    "cash_flow": -1993.5679140899992,
+    "settlement_remainder": 5332.3296500000015,
+    "sum_checks": {
+      "engine_pnl": {
+        "from_parquet": 3338.7617359100013,
+        "summary": 3338.761735910002,
+        "ok": true
+      },
+      "cash_flow": {
+        "from_parquet": -1993.5679140899992,
+        "summary": -1993.5679140899992,
+        "ok": true
+      },
+      "settlement_remainder": {
+        "from_parquet": 5332.329650000001,
+        "summary": 5332.3296500000015,
+        "ok": true
+      },
+      "buy_fills": {
+        "from_parquet": 1555,
+        "summary": 1555,
+        "ok": true
+      },
+      "sell_fills": {
+        "from_parquet": 1801,
+        "summary": 1801,
+        "ok": true
+      },
+      "buy_qty": {
+        "from_parquet": 121022.89861500001,
+        "summary": 121022.898615,
+        "ok": true
+      },
+      "sell_qty": {
+        "from_parquet": 115690.29198699999,
+        "summary": null,
+        "ok": true
+      },
+      "terminal_inv": {
+        "from_parquet": 5331.932563,
+        "summary": 5331.932563,
+        "ok": true
+      },
+      "dust": {
+        "from_parquet": 3,
+        "summary": 3,
+        "ok": true
+      },
+      "completed": {
+        "from_parquet": 612,
+        "summary": 612,
+        "ok": true
+      },
+      "terminated": {
+        "from_parquet": 1,
+        "summary": 1,
+        "ok": true
+      },
+      "matches": {
+        "from_parquet": 613,
+        "summary": 613,
+        "ok": true
+      },
+      "maker_rebate": {
+        "from_parquet": 388.95322721525173,
+        "summary": 388.95322721525173,
+        "ok": true
+      },
+      "taker_fee": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      },
+      "buy_turnover": {
+        "from_parquet": 73446.15381419001,
+        "summary": 73446.15381419,
+        "ok": true
+      },
+      "sell_turnover": {
+        "from_parquet": 71452.5859001,
+        "summary": 71452.5859001,
+        "ok": true
+      },
+      "maker_rebate_clean": {
+        "from_parquet": 388.95322721525173,
+        "summary": 388.95322721525173,
+        "ok": true
+      },
+      "taker_fee_clean": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      }
+    },
+    "rebate_recompute": 388.9532272152526,
+    "rebate_row_mismatches": 0,
+    "markout_checks": {
+      "buy_30s": {
+        "weighted": -0.00026820428725855215,
+        "summary": -0.00026820428725855225,
+        "n": 1555,
+        "ok": true
+      },
+      "buy_300s": {
+        "weighted": 0.01763048619891957,
+        "summary": 0.017630486198919573,
+        "n": 1555,
+        "ok": true
+      },
+      "sell_30s": {
+        "weighted": 0.0043856262337942185,
+        "summary": 0.004385626233794219,
+        "n": 1801,
+        "ok": true
+      },
+      "sell_300s": {
+        "weighted": 0.012784779565555099,
+        "summary": 0.012784779565555102,
+        "n": 1801,
+        "ok": true
+      }
+    },
+    "source_counts": {
+      "30": {
+        "mid": 3356
+      },
+      "300": {
+        "mid": 3356
+      }
+    },
+    "ref_extreme": {
+      "30": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      },
+      "300": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      }
+    },
+    "identity_bad_n": 0,
+    "identity_bad": [],
+    "settlement_applied_false_traded": [],
+    "terminal_vs_walk": [
+      {
+        "match_id": 8838480778,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001741999999978816
+        }
+      },
+      {
+        "match_id": 8839366504,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009094999999944342
+        }
+      },
+      {
+        "match_id": 8839717574,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0020260000000007494
+        }
+      },
+      {
+        "match_id": 8842722527,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0033349999999892077,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8886788497,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0016060000000095442
+        }
+      },
+      {
+        "match_id": 8888056358,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007949999999979696
+        }
+      },
+      {
+        "match_id": 8889733840,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008621999999988361,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8891325877,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0033360000000044465,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8891438996,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006280999999979997,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8892829232,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007144000000039341,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8896267691,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008594000000044844,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8905490238,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002225000000002808,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8910589445,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00714600000000587,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8912974141,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.001962000000037989,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8913598312,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009167999999974086,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8914749408,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003978000000000037,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8917853656,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007323000000003077,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8919264561,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006381000000009518
+        }
+      },
+      {
+        "match_id": 8925847726,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009355000000006441
+        }
+      },
+      {
+        "match_id": 8926381426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0014849999999944075
+        }
+      },
+      {
+        "match_id": 8927539264,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007249000000001615,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8929276426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0031229999999595748
+        }
+      },
+      {
+        "match_id": 8932657929,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007229999999985637
+        }
+      },
+      {
+        "match_id": 8937080738,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009418000000034787,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8937484593,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006061999999985801
+        }
+      },
+      {
+        "match_id": 8938634026,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005838000000039756,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940487898,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00947600000000648
+        }
+      },
+      {
+        "match_id": 8971501630,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002701000000001841,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971664649,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028780000000026007,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973944033,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.004316999999971927
+        }
+      },
+      {
+        "match_id": 8976300473,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00522999999999918,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8985409048,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0055570000000315645,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8991020791,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0058819999999784045,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8992034384,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006665000000065646,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8994936160,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006121999999962213,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8995417611,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00666599999999562,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003231861,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008890000000008058
+        }
+      },
+      {
+        "match_id": 9004282872,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005001000000014244
+        }
+      },
+      {
+        "match_id": 8839494962,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00405300000009845
+        }
+      },
+      {
+        "match_id": 8842052142,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009474999999993017
+        }
+      },
+      {
+        "match_id": 8842468101,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002859999999941465,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8885380529,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006364999999995291
+        }
+      },
+      {
+        "match_id": 8885473599,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0023819999998977437
+        }
+      },
+      {
+        "match_id": 8898084910,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009312000000019083,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8900882416,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0028589999999724114
+        }
+      },
+      {
+        "match_id": 8908486051,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006886999999977661
+        }
+      },
+      {
+        "match_id": 8908830472,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009259000000064077,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8925543582,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001788000000026102
+        }
+      },
+      {
+        "match_id": 8927063876,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002899999999982583,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8928050264,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009685999999994976
+        }
+      },
+      {
+        "match_id": 8928953683,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007139999999964175
+        }
+      },
+      {
+        "match_id": 8933453728,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008182999999995388
+        }
+      },
+      {
+        "match_id": 8937188618,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0018319999999647507
+        }
+      },
+      {
+        "match_id": 8937631882,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001178999999979169
+        }
+      },
+      {
+        "match_id": 8938509987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.019339999999970603,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8938716198,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0058000000000006935,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940266495,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004400000000146065,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941733752,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009108000000004779
+        }
+      },
+      {
+        "match_id": 8963649188,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008071999999998525,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964480771,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009824999999986872,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964657335,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.010404000000008296
+        }
+      },
+      {
+        "match_id": 8964962329,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.010212999999893668,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8969842778,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007695000000040864
+        }
+      },
+      {
+        "match_id": 8970207176,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003764000000010981,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8970485789,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009710999999981595
+        }
+      },
+      {
+        "match_id": 8970886632,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0038680000000645975,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971111987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011100000000112686,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971586781,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008416999999994346,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8972611918,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009471999999988157
+        }
+      },
+      {
+        "match_id": 8973405568,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0038970000000020377,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973568453,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0036260000000023496
+        }
+      },
+      {
+        "match_id": 8974985429,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016940000000111866,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976441468,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006610999999999478
+        }
+      },
+      {
+        "match_id": 8977476867,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00939099999999371,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8978832148,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0036999999999949296,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8982458661,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007778999999999314
+        }
+      },
+      {
+        "match_id": 8988904409,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004833000000019183,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8992196498,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0097950000000111
+        }
+      },
+      {
+        "match_id": 8996565323,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004668000000002337,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9005202754,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0036360000000001946
+        }
+      },
+      {
+        "match_id": 8888819433,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.013579000000049746,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8889468264,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.004434000000060223
+        }
+      },
+      {
+        "match_id": 8893106015,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004528999999934058,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8896486914,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00261000000000422
+        }
+      },
+      {
+        "match_id": 8905093611,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008477000000041812,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8910535715,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.001205999999967844,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8914637220,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0023090000000109967
+        }
+      },
+      {
+        "match_id": 8915002841,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005189999999970496
+        }
+      },
+      {
+        "match_id": 8921002620,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007545000000050095,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8922818221,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002747999999996864
+        }
+      },
+      {
+        "match_id": 8923704450,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00377200000002631
+        }
+      },
+      {
+        "match_id": 8927380776,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004779999999969142,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8931852727,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004430000000013479,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8932181345,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0031729999999967617
+        }
+      },
+      {
+        "match_id": 8936825643,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004106999999976324,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8937722788,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028799999998909698,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940059913,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009554999999977554
+        }
+      },
+      {
+        "match_id": 8940365227,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00904400000001715,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941817475,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0028560000000084074
+        }
+      },
+      {
+        "match_id": 8965544741,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002683999999952391
+        }
+      },
+      {
+        "match_id": 8971987707,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.004360000000005471
+        }
+      },
+      {
+        "match_id": 8972773416,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0015900000000357295,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976166971,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005771999999922173,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976511215,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003289000000023634
+        }
+      },
+      {
+        "match_id": 8977913355,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0020279999999957
+        }
+      },
+      {
+        "match_id": 8982647578,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007839000000025464,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8984433236,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009232000000004348
+        }
+      },
+      {
+        "match_id": 8988064818,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006046000000026197
+        }
+      },
+      {
+        "match_id": 8988695634,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0033330000000013627
+        }
+      },
+      {
+        "match_id": 8991817744,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.018932000000106086
+        }
+      },
+      {
+        "match_id": 8996384883,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009609000000001533,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8999268195,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0027269999999930405,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9000737299,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002860000000012519,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003856182,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011109999999874276,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9004969180,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007005999999975643
+        }
+      }
+    ],
+    "both_leg_matches": [
+      [
+        8910589445,
+        1
+      ],
+      [
+        8940487898,
+        12
+      ],
+      [
+        8964837315,
+        3
+      ],
+      [
+        8938716198,
+        7
+      ]
+    ],
+    "pos_mismatch_matches": [
+      [
+        8838480778,
+        1
+      ],
+      [
+        8839366504,
+        1
+      ],
+      [
+        8839717574,
+        1
+      ],
+      [
+        8842722527,
+        1
+      ],
+      [
+        8886788497,
+        1
+      ],
+      [
+        8888056358,
+        1
+      ],
+      [
+        8889733840,
+        1
+      ],
+      [
+        8891325877,
+        1
+      ],
+      [
+        8891438996,
+        1
+      ],
+      [
+        8892829232,
+        1
+      ],
+      [
+        8896267691,
+        1
+      ],
+      [
+        8905490238,
+        1
+      ],
+      [
+        8910589445,
+        1
+      ],
+      [
+        8912974141,
+        1
+      ],
+      [
+        8913598312,
+        1
+      ],
+      [
+        8914749408,
+        1
+      ],
+      [
+        8917853656,
+        1
+      ],
+      [
+        8919264561,
+        1
+      ],
+      [
+        8925847726,
+        9
+      ],
+      [
+        8926381426,
+        4
+      ]
+    ],
+    "pos_mismatch_n": 115,
+    "nonmono": [],
+    "post_game_fills": 0,
+    "post_game_sell_qty": 0.0,
+    "post_game_buy_qty": 0.0,
+    "held_n": 162,
+    "held_wins": 113,
+    "held_losses": 49,
+    "held_qty": 5332.6066280000005,
+    "held_cost": 3858.620677162083,
+    "held_payout": 5332.329650000001,
+    "closed_split_episodes": {
+      "n": 357,
+      "wins": 209,
+      "losses": 148,
+      "win_qty": null,
+      "loss_qty": null
+    },
+    "loser_exit": {
+      "n": 148,
+      "median_exit": 0.56,
+      "median_mid": 0.5375000000000001,
+      "median_fair": 0.5491495947359442,
+      "median_exit_minus_mid": 0.024999999999999994,
+      "median_exit_minus_fair": 0.0064097788910191245,
+      "frac_exit_ge_fair": 0.9932432432432432,
+      "median_secs_before_end": 2346.4379999305,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1332.1506999944002
+    },
+    "winner_exit": {
+      "n": 209,
+      "median_exit": 0.69,
+      "median_mid": 0.665,
+      "median_fair": 0.6838372507000766,
+      "median_exit_minus_mid": 0.025000000000000022,
+      "median_exit_minus_fair": 0.007115887460194759,
+      "frac_exit_ge_fair": 0.9617224880382775,
+      "median_secs_before_end": 1983.331999872,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1107.505198736
+    },
+    "markout_past_book": {
+      "30": {
+        "n": 3,
+        "qty": 544.27,
+        "mean": -0.12230639204806441
+      },
+      "300": {
+        "n": 26,
+        "qty": 1515.404121,
+        "mean": -0.05846460146751838
+      }
+    },
+    "markout_inside_book": {
+      "30": {
+        "n": 3353,
+        "qty": 236168.920602,
+        "mean": 0.002292779328830597
+      },
+      "300": {
+        "n": 3330,
+        "qty": 235197.78648100005,
+        "mean": 0.01573724386648939
+      }
+    },
+    "missing_cache_matches": 0,
+    "is_maker_false": 0
+  },
+  {
+    "seed": 2,
+    "summary_identity_net": true,
+    "net": 3704.4790762299535,
+    "engine": 3320.887749060001,
+    "cash_flow": -2796.3737489399996,
+    "settlement_remainder": 6117.261498000001,
+    "sum_checks": {
+      "engine_pnl": {
+        "from_parquet": 3320.8877490600016,
+        "summary": 3320.887749060001,
+        "ok": true
+      },
+      "cash_flow": {
+        "from_parquet": -2796.3737489399996,
+        "summary": -2796.3737489399996,
+        "ok": true
+      },
+      "settlement_remainder": {
+        "from_parquet": 6117.261498000002,
+        "summary": 6117.261498000001,
+        "ok": true
+      },
+      "buy_fills": {
+        "from_parquet": 1571,
+        "summary": 1571,
+        "ok": true
+      },
+      "sell_fills": {
+        "from_parquet": 1654,
+        "summary": 1654,
+        "ok": true
+      },
+      "buy_qty": {
+        "from_parquet": 119575.263874,
+        "summary": 119575.263874,
+        "ok": true
+      },
+      "sell_qty": {
+        "from_parquet": 113457.74869800001,
+        "summary": null,
+        "ok": true
+      },
+      "terminal_inv": {
+        "from_parquet": 6116.850945,
+        "summary": 6116.850945,
+        "ok": true
+      },
+      "dust": {
+        "from_parquet": 2,
+        "summary": 2,
+        "ok": true
+      },
+      "completed": {
+        "from_parquet": 612,
+        "summary": 612,
+        "ok": true
+      },
+      "terminated": {
+        "from_parquet": 1,
+        "summary": 1,
+        "ok": true
+      },
+      "matches": {
+        "from_parquet": 613,
+        "summary": 613,
+        "ok": true
+      },
+      "maker_rebate": {
+        "from_parquet": 383.5913271699525,
+        "summary": 383.5913271699525,
+        "ok": true
+      },
+      "taker_fee": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      },
+      "buy_turnover": {
+        "from_parquet": 72468.39629198,
+        "summary": 72468.39629198,
+        "ok": true
+      },
+      "sell_turnover": {
+        "from_parquet": 69672.02254304,
+        "summary": 69672.02254304,
+        "ok": true
+      },
+      "maker_rebate_clean": {
+        "from_parquet": 383.5913271699525,
+        "summary": 383.5913271699525,
+        "ok": true
+      },
+      "taker_fee_clean": {
+        "from_parquet": 0.0,
+        "summary": 0.0,
+        "ok": true
+      }
+    },
+    "rebate_recompute": 383.5913271699541,
+    "rebate_row_mismatches": 0,
+    "markout_checks": {
+      "buy_30s": {
+        "weighted": -0.0009185645391988375,
+        "summary": -0.0009185645391988376,
+        "n": 1571,
+        "ok": true
+      },
+      "buy_300s": {
+        "weighted": 0.016335693303451932,
+        "summary": 0.016335693303451932,
+        "n": 1571,
+        "ok": true
+      },
+      "sell_30s": {
+        "weighted": 0.004499081094740588,
+        "summary": 0.004499081094740588,
+        "n": 1654,
+        "ok": true
+      },
+      "sell_300s": {
+        "weighted": 0.012119783522610476,
+        "summary": 0.012119783522610476,
+        "n": 1654,
+        "ok": true
+      }
+    },
+    "source_counts": {
+      "30": {
+        "mid": 3225
+      },
+      "300": {
+        "mid": 3225
+      }
+    },
+    "ref_extreme": {
+      "30": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      },
+      "300": {
+        "n": 0,
+        "by_source": {},
+        "qty": 0.0
+      }
+    },
+    "identity_bad_n": 0,
+    "identity_bad": [],
+    "settlement_applied_false_traded": [],
+    "terminal_vs_walk": [
+      {
+        "match_id": 8837869969,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008216000000004442,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8885974297,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007147000000003345
+        }
+      },
+      {
+        "match_id": 8886788497,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0016060000000095442
+        }
+      },
+      {
+        "match_id": 8888555097,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0073940000000192185,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8889733840,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009183000000007269,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8891325877,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003336000000011552,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8904012666,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00809799999999683,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8905164476,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006667999999997676,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8911277378,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008890000000008058
+        }
+      },
+      {
+        "match_id": 8912974141,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.001962000000037989,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8914749408,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003978000000000925,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8917853656,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0024279999999947677,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8925847726,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003861000000007664
+        }
+      },
+      {
+        "match_id": 8926381426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007395999999999958
+        }
+      },
+      {
+        "match_id": 8929276426,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.01575599999999433
+        }
+      },
+      {
+        "match_id": 8932318084,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008209999999998274
+        }
+      },
+      {
+        "match_id": 8932657929,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007229999999992742
+        }
+      },
+      {
+        "match_id": 8937080738,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0077179999999543725,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8937484593,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006061999999985801
+        }
+      },
+      {
+        "match_id": 8938634026,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0031479999999993735,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940117837,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006107000000000085,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940487898,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009843999999938902
+        }
+      },
+      {
+        "match_id": 8942003788,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008694000000019741,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8962736746,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006671999999980471,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964837315,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003636999999983459,
+          "1": 0.008735000000001492
+        }
+      },
+      {
+        "match_id": 8970470057,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0033359999999982293,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971501630,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00728799999999552,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971664649,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028779999999954953,
+          "1": 0.0069710000000000605
+        }
+      },
+      {
+        "match_id": 8973944033,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002143999999987045
+        }
+      },
+      {
+        "match_id": 8976300473,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00522999999999918,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8985409048,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0055570000000315645,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8991020791,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0058819999999784045,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8992034384,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006665000000065646,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8994936160,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006121999999962213,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8995417611,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00666599999999562,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003231861,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008890000000008058
+        }
+      },
+      {
+        "match_id": 9004282872,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005001000000014244
+        }
+      },
+      {
+        "match_id": 8839494962,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00286000000002673
+        }
+      },
+      {
+        "match_id": 8842468101,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0028599999999556758,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8886728756,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002308999999993233
+        }
+      },
+      {
+        "match_id": 8887100676,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009524999999996453
+        }
+      },
+      {
+        "match_id": 8890008812,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0028770000000015727
+        }
+      },
+      {
+        "match_id": 8906547471,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004180999999988444,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8908486051,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.001365999999933365
+        }
+      },
+      {
+        "match_id": 8911784562,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005220000000001335,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8912758286,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005716000000006716
+        }
+      },
+      {
+        "match_id": 8922133239,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0044459999999872934,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8922722577,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003638000000023567,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8925543582,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.004628000000064247
+        }
+      },
+      {
+        "match_id": 8927063876,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002900000000011005,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8930398938,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005132000000003245
+        }
+      },
+      {
+        "match_id": 8933453728,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008182999999995388
+        }
+      },
+      {
+        "match_id": 8938509987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009546000000028698,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8938716198,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005799999999993588,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940266495,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.010441999999983409,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941733752,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.002220999999963169
+        }
+      },
+      {
+        "match_id": 8962458373,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0021430000000179916,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8963649188,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008071999999970103,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964480771,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.011002999999959684,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8964657335,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.010404000000008296
+        }
+      },
+      {
+        "match_id": 8970485789,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009711000000010017
+        }
+      },
+      {
+        "match_id": 8970886632,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0038679999999402526,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971111987,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011100000000112686,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971586781,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0027000000000043656,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973405568,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0038970000000020377,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973568453,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0036259999999970205
+        }
+      },
+      {
+        "match_id": 8974985429,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016940000000111866,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976441468,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.006610999999999478
+        }
+      },
+      {
+        "match_id": 8977476867,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00939099999999371,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8978832148,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007861000000005447,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8982458661,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007778999999999314
+        }
+      },
+      {
+        "match_id": 8988904409,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004833000000019183,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8992196498,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0097950000000111
+        }
+      },
+      {
+        "match_id": 8996565323,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004668000000002337,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9005202754,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0036360000000001946
+        }
+      },
+      {
+        "match_id": 8885183102,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.008738999999991393
+        }
+      },
+      {
+        "match_id": 8888083694,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0037019999999969855
+        }
+      },
+      {
+        "match_id": 8888731478,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003425999999965512
+        }
+      },
+      {
+        "match_id": 8888819433,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.013579000000021324,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8889468264,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00443400000000338
+        }
+      },
+      {
+        "match_id": 8889914618,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007804000000003697,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8893106015,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0013180000000261316,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8897696869,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.00869699999997664
+        }
+      },
+      {
+        "match_id": 8898117600,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.006115000000022519,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8910535715,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009794999999982679,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8913824141,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007180999999988558
+        }
+      },
+      {
+        "match_id": 8915002841,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005190000000027339
+        }
+      },
+      {
+        "match_id": 8921002620,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0075449999999932515,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8922552315,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003335000000021182
+        }
+      },
+      {
+        "match_id": 8922818221,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0027480000000252858
+        }
+      },
+      {
+        "match_id": 8931852727,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.003652000000002431,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8940365227,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.00904400000001715,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8941817475,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0028560000000084074
+        }
+      },
+      {
+        "match_id": 8965097316,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0016479999999852168,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8965544741,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.005106999999931361
+        }
+      },
+      {
+        "match_id": 8970352005,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004065000000000651,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8971007454,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0033320000000003347
+        }
+      },
+      {
+        "match_id": 8972773416,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.008697000000012167,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8973462028,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.004894999999994543,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976166971,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.005771999999922173,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8976511215,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.003289000000023634
+        }
+      },
+      {
+        "match_id": 8977913355,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.0020279999999957
+        }
+      },
+      {
+        "match_id": 8982647578,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.007839000000025464,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8984433236,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.009232000000004348
+        }
+      },
+      {
+        "match_id": 8991817744,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.018932000000106086
+        }
+      },
+      {
+        "match_id": 8996384883,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.009609000000001533,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 8999268195,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0027269999999930405,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9000737299,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.002860000000012519,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9003856182,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0011109999999874276,
+          "1": 0.0
+        }
+      },
+      {
+        "match_id": 9004969180,
+        "reported_qty": 0.0,
+        "reported_token": -1,
+        "walk": {
+          "0": 0.0,
+          "1": 0.007005999999975643
+        }
+      }
+    ],
+    "both_leg_matches": [
+      [
+        8940487898,
+        7
+      ],
+      [
+        8964837315,
+        11
+      ],
+      [
+        8971664649,
+        16
+      ],
+      [
+        8886728756,
+        4
+      ],
+      [
+        8938716198,
+        10
+      ],
+      [
+        8885183102,
+        4
+      ]
+    ],
+    "pos_mismatch_matches": [
+      [
+        8837869969,
+        1
+      ],
+      [
+        8885974297,
+        1
+      ],
+      [
+        8886788497,
+        1
+      ],
+      [
+        8888555097,
+        1
+      ],
+      [
+        8889733840,
+        1
+      ],
+      [
+        8891325877,
+        1
+      ],
+      [
+        8904012666,
+        1
+      ],
+      [
+        8905164476,
+        1
+      ],
+      [
+        8911277378,
+        1
+      ],
+      [
+        8912974141,
+        1
+      ],
+      [
+        8914749408,
+        1
+      ],
+      [
+        8917853656,
+        1
+      ],
+      [
+        8925847726,
+        6
+      ],
+      [
+        8926381426,
+        3
+      ],
+      [
+        8929276426,
+        6
+      ],
+      [
+        8932318084,
+        1
+      ],
+      [
+        8932657929,
+        1
+      ],
+      [
+        8937080738,
+        1
+      ],
+      [
+        8937484593,
+        1
+      ],
+      [
+        8938634026,
+        1
+      ]
+    ],
+    "pos_mismatch_n": 110,
+    "nonmono": [],
+    "post_game_fills": 0,
+    "post_game_sell_qty": 0.0,
+    "post_game_buy_qty": 0.0,
+    "held_n": 161,
+    "held_wins": 114,
+    "held_losses": 47,
+    "held_qty": 6117.515176,
+    "held_cost": 4531.2611564186855,
+    "held_payout": 6117.261498,
+    "closed_split_episodes": {
+      "n": 349,
+      "wins": 204,
+      "losses": 145,
+      "win_qty": null,
+      "loss_qty": null
+    },
+    "loser_exit": {
+      "n": 145,
+      "median_exit": 0.56,
+      "median_mid": 0.53,
+      "median_fair": 0.5453814434335956,
+      "median_exit_minus_mid": 0.020000000000000018,
+      "median_exit_minus_fair": 0.006878087069716821,
+      "frac_exit_ge_fair": 0.9862068965517241,
+      "median_secs_before_end": 2346.875999872,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1343.6141993731999
+    },
+    "winner_exit": {
+      "n": 204,
+      "median_exit": 0.69,
+      "median_mid": 0.6575,
+      "median_fair": 0.6700560185552877,
+      "median_exit_minus_mid": 0.025000000000000022,
+      "median_exit_minus_fair": 0.006105119562010708,
+      "frac_exit_ge_fair": 0.9411764705882353,
+      "median_secs_before_end": 1939.6465000960002,
+      "sells_after_game_end": 0,
+      "p10_secs_before_end": 1039.2524999333
+    },
+    "markout_past_book": {
+      "30": {
+        "n": 3,
+        "qty": 531.24,
+        "mean": -0.1213818613056246
+      },
+      "300": {
+        "n": 23,
+        "qty": 1631.275231,
+        "mean": -0.021797895456735494
+      }
+    },
+    "markout_inside_book": {
+      "30": {
+        "n": 3222,
+        "qty": 232501.7725719999,
+        "mean": 0.0020004187921404777
+      },
+      "300": {
+        "n": 3202,
+        "qty": 231401.73734099994,
+        "mean": 0.014537429995595662
+      }
+    },
+    "missing_cache_matches": 0,
+    "is_maker_false": 0
+  }
+]

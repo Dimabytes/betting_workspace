@@ -1,4 +1,10 @@
 .DS_Store
 __pycache__/
 *.pyc
-.analysis/
+.analysis/*
+!.analysis/dota-audit-2026-09-26/
+.analysis/dota-audit-2026-09-26/work/**/*.csv
+.analysis/dota-audit-2026-09-26/work/**/*.parquet
+.analysis/dota-audit-2026-09-26/work/**/*.log
+.analysis/dota-audit-2026-09-26/work/**/*.jsonl
+.analysis/dota-audit-2026-09-26/work/**/*.gz

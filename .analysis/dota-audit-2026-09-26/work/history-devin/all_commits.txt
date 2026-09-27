@@ -1,0 +1,1194 @@
+bbb288971bdfd85332b4e20688b762365a4c317b|2026-09-26|Merge branch 'main' of github.com:Dimabytes/esports-trader
+00c3dd19dc27a8dc26dde40f289765e446393aee|2026-09-26|Raise the Oddin satellite clip to $200.
+e7529a26c97b1608a0d2fbac33020b47951bf364|2026-09-26|Merge branch 'main' of github.com:Dimabytes/esports-trader
+9842e38ebfd4586b4cd26b4658824a9f03761784|2026-09-26|List open LoL matches in the Oddin watcher when no id is passed.
+ec6c8795d74afff325765b585c7e19fe915f1382|2026-09-26|Raise the Oddin satellite clip to $150.
+59b860a42e838bd3e51aebbb99a49343ce333e90|2026-09-26|Update the discovery fake in the run() wiring test for title_blacklist.
+8ddf839fa6a32e24b75d8018e90440909526d583|2026-09-26|Cover DisirCatalog.run's scan/refresh schedule with a fake-clock test.
+3100f0ba31133fdfbaa60e5fdcc6c058d4c0b23d|2026-09-26|Log blacklisted sidecar skips and make the mode/game pick a pure function.
+e3bb8d0302c10759a5634e415b2de926734bb2a4|2026-09-26|Give the live feed's snapshot client its 30s timeout back.
+940c71ab07e4e65925f0bd8805c3c385954f8b52|2026-09-26|Drain background tasks without re-raising their failures during teardown.
+0e9cad38f9290d793ddc49484c611422bd36e0c1|2026-09-26|Keep a malformed tournament from poisoning the whole catalog scan.
+a40d4163688e4c767a3aa3a79d60004ec205ea61|2026-09-26|Move select_open_match into the only watcher that uses it.
+5359328ac68c30fdb99f5bc39f60fd0346c79590|2026-09-26|Rename the LoL watcher off Bitsler and reuse the shared client helpers.
+f73c7a574ca63957524c6e2a4a4e4f8e1a8dc779|2026-09-26|Log a dead catalog or sidecar task instead of running on a stale roster.
+f4c616f388d68ecbdcc134b46d383e31188be1f6|2026-09-26|Restore pong_message's named intermediate step.
+b0a95f5e0e723f29a40bc5e41e36a2c73826945a|2026-09-26|Make the Disir client and catalog arguments required.
+5663f8e13accbc7f00339825e90c3686969bb693|2026-09-26|Shrink the Disir catalog probe to the one job nothing else does.
+252c80c1039029445f90c05ab836f92875c604e2|2026-09-26|Fold the three fault branches in OddinLiveFeed.ticks into one tail.
+0a3b86ef482476d6914caaadddb64edc87e72ed1|2026-09-26|Run the catalog's first scan through the same path as every later one.
+aaf0d87ea8023fdc42b8ea6f7a528bd8ed52a7fd|2026-09-26|Parse a Disir tournament reply in one pass with dates as datetimes.
+66c24c684c065d10d65f3c2c3199648673b657f9|2026-09-26|Filter the live title blacklist in discovery and match the league suffix only.
+22779bc8619d2674e6289644755ef6ac0fdc5252|2026-09-26|Merge branch 'main' of github.com:Dimabytes/esports-trader
+4e07b363313326b75e344a532053a89a6fbcf4eb|2026-09-26|Skip live launches whose sidecar eventTitle hits a code-pinned league blacklist.
+dec982905c9ecb32353676b51fe8848caf595fb4|2026-09-26|Replace Bitsler match discovery with an in-memory Disir catalog so Dota keeps finding Oddin ids after Bitsler closes.
+ca52df1e69543ee55ab2fe4f33a396f8e1a3f712|2026-09-26|Pass ODDIN_BRAND_TOKEN into live and paper so the Disir switch is a restart.
+de42b2fd34372d96891b2c196c845c67b3152ef3|2026-09-26|Add a one-shot Disir catalog probe and a token-free tournament fixture.
+4dab09f43e910f38692fb75ef3385de029587f0e|2026-09-26|feat: US-003 - Прогон серии LoL и выход после конца карты
+185fdf2a587f093def14f42b55351d4c60d4458a|2026-09-26|fix: US-002 review - сборка серии в series_run и отказ по картам
+861c142db7aaf80f02932945495aca7cb501b281|2026-09-26|feat: US-002 - Выборка LoL и прогон серии Dota
+3a804f018b7aecc5cba013e0cc99e4bc73fa6e89|2026-09-26|feat: US-001 - Сигнал серии и выборка Dota
+a647900b91363af772e80a7a352f2ef92bc7349b|2026-09-25|add databet
+48927b165f9fa477ee862a239e97db084853d881|2026-09-25|Add the series-market design: trade Match Winner on non-decider maps with the map model's signal.
+72506ba50409f09913f6606064575a3dee372d77|2026-09-25|Merge branch 'main' of github.com:Dimabytes/esports-trader
+1590b77ba63ec295683da0954c2b33922c40e361|2026-09-25|Read Disir without the Bitsler widget PHP, and bind the catalog card whose scoreboard is already playing.
+cce9107e279be3aa6dfd11b8ea81031d0dbb4cb7|2026-09-25|add backtests
+70eb26d80429df120bdbce48f12187d588ce9a83|2026-09-25|Raise Dota clips: Oddin satellite to $100, Steam/GRID to $60.
+d4b9964ce8b4625c8e2823021d4178fe4b22858c|2026-09-25|Record the dota-teacher experiment as drop, with the patch that restores the teacher integration.
+74d96e2aa3fe8f77de7fb93823cb756fe54bcce8|2026-09-25|Revert the teacher catalog integration: the dota-teacher backtest is noise versus LIVE.
+48487aff05be37f69ba36327c516522e07e12399|2026-09-25|Add the dota-teacher experiment scripts: teacher dataset, teacher training, main catalogs.
+34a897c600405809746c2010ef56e75aa278b323|2026-09-25|Add an optional teacher catalog to research training and backtest signals.
+db797c1ce24da4cf26f78dc47182808a00e65fea|2026-09-25|add backtests
+a899c84f28b58a7dfcbb328297725ad33c04da32|2026-09-25|Set both Dota ladder clips to $5 so each rung matches LoL.
+99292c08e3fd88d496f0a9093329dd779fae881c|2026-09-25|Resync the test stand with skipped bid levels, the 11s LoL join, and the new models.
+19239462e52b24dc897f1e0f118945d6561ae691|2026-09-24|Promote archive-s3-20260924 to LIVE for both games.
+3f0d6142ef30a13d5cb7b7dba9ef25eeec610082|2026-09-24|Retrain LoL and Dota models on the archive-linked datasets.
+1e8335965f04643a391e41b124fceac74cb0c2c0|2026-09-24|Skip lol-mkoi-vit-2026-07-26-game1: it hits the Nautilus zero-fill fault.
+3d43cad5f98a46ac553c8384075297bd23d71072|2026-09-24|Record empty-signal-tape maps as terminated_early instead of dying in on_start.
+791c80624b54cb362065bca2ca06300d1f53326b|2026-09-24|Exclude zero-ok-quote LoL audits from the backtest selection.
+5a29e0df2421190d0ee43c0b45c013874f2d8b2d|2026-09-24|Let promote_backtest point LIVE at a partial-seed catalog via --seeds N.
+856665246720461b1f13264c713a8c554363f20f|2026-09-24|Drop the Pinnacle map-winner features; they do not change maker PnL.
+dfe41b1ed1b8fcdd65d0d9a107c768d494413cea|2026-09-24|Skip bid-level walks and book events once a backtest map is flat past cutoff.
+1e894b241acaa01d57c8f3872b22c702473be1cf|2026-09-24|Drop the look-ahead tape filter and retrain Dota on books tighter than 6 ticks.
+283b43c031379e121bbd4fd7fb94fa3547454e94|2026-09-24|Advance the lonely-L0 timer before the rung loop and key its ban on quote cents so a rejected L0 still ages and the book strip uses the same price.
+86ae7cf8ee9d3ce92dc40627d9b12c83665d9c4f|2026-09-24|Turn on the lonely-L0 cancel at 3s for every production Follow300 policy.
+60e40a2c5fbb9799c18cc0c7f047968d00dc27af|2026-09-24|Strip own resting orders from live WS books and add a default-off lonely-L0 cancel so live quoting tracks the foreign book like backtests do.
+c893a43e284162c994e9f2c78b39731a7029229a|2026-09-24|Self-ack venue-drained cancels in the backtest so a zero-leaf sell frees the exit slot and requotes.
+644b99e5982a1d523289defe61e8ea7843e43dd5|2026-09-24|Kill-gate backtest artifacts: base and cand catalogs, both games.
+0802f5377cedd3f4ebb283b6d35871d56f86ce88|2026-09-24|Kill-gate experiment: +$1446 dota, +$2913 lol mean net over 3 seeds.
+4b75c2eb2af4ff63b93a5dc8f96a23fd71f4ade0|2026-09-24|Gate adverse quotes on early GRID scoreboard kills in live and backtests.
+c93e29e45594db6d09cb7c204ce87f4aee9fddfd|2026-09-24|Keep kill-bearing rows in grid-v1 cadence sampling so death ticks arrive like live GRID.
+69aef835b5eff6c7aead3ecc5c5e56f5aa5bcba7|2026-09-24|Raise the entry price floor to 0.40 so cheap joins stop lagging the signal.
+ca0183e5abf2f2740cd1362c2ce3cf78c4bb9659|2026-09-23|Apply pause cancels in the backtest and align LoL cutoff, GRID delay, and entry_block with the table the model uses.
+74d9afa11b6c2c404585459b248aa6f3cb1f095f|2026-09-23|Predict archive backtests from the live snapshot, not the label-second row.
+0e843075ae8d4c38c1ddeb0c2823cdfe2098b96a|2026-09-23|Join LoL decisions to the book 11s after the livestats frame.
+e5c3187ea9f5a8cc6cd34831fd473a7fe60357e9|2026-09-23|Merge branch 'main' of github.com:Dimabytes/esports-trader
+cc20303b0389cfc78215fabf224fa5aaa8fa672e|2026-09-23|Set the LoL clip to 5 USDC.
+0017b8d1ab0a2dbacb5e146d9469a245b40c4729|2026-09-23|Block a new buy episode while a closed one still holds shares.
+d0ddfe18ab98d0ca5577a1a04c84614b6d62284e|2026-09-23|Record the held-delta sell-gate experiment; code dropped, patch kept for restore.
+740e76d2314c5dfb13d87ad2625a74b2ce2036f2|2026-09-23|Merge branch 'main' of github.com:Dimabytes/esports-trader
+7b64bc291b6b482e32c2f524335acf6c81a11626|2026-09-22|Put every inspector panel on bot receipt time, shown in UTC
+0f93d95ec4b798714451b03fd4fa99126f97883c|2026-09-22|Run live inference on one LightGBM thread so quoting does not spawn an OpenMP pool.
+c9dadf04236d5399da6ed0090c09ec0720e66d00|2026-09-22|Load prepared places in SQL so a recompute does not read the whole session.
+5a61770f97300eec01c6d2b0f8c1e2eeedf6d3b8|2026-09-22|Index open BUY reservations so the quoting thread does not scan core_commands.
+fd881bee0d0a9caf409e39a50c32921a8dfeb567|2026-09-22|cleanup backtests
+4896643b04ebf81ba10d81624efe0094d38b1c3b|2026-09-22|Add the archive compressor daemon and post-sync gz dedup.
+6eba7f427579f6f0e4a0735fe8e823f7e2deefb1|2026-09-22|Read jsonl archives transparently whether plain or gzipped.
+5a536614ee2522d28c9f3ffc02f357919bfc6344|2026-09-22|smoke goldens: recapture after the winding_down reason label.
+fecf0e534d9fa42296ed2fb54d8fbe0571ae30e8|2026-09-22|Add a one-time verifier that deletes old run intermediates.
+8a96ac6d7641ea8e20c5952e02dfa89ddae3a560|2026-09-22|Delete merged shard dirs and quote parts after a verified finalization.
+01f712adede6c7abeba22a96794d9581041fdb1d|2026-09-22|Put every live-viewer panel on event-time wall seconds from horn
+79e947f262558bdcdfa64bac67c775dfc982ef7e|2026-09-22|Measure a wedge from when the order left live.
+834603263b504b9c8c75a1c3cbd1eaa47d4a9de2|2026-09-22|Name a wedged exit instead of leaving it to a replay.
+80f5bf1871b88ef9f69e6c589e1527d4652e9b19|2026-09-22|[risk] caps ride each game's largest clip, not the primary clip.
+7a081f07be406e1230d3e35f9368529cb056c5d5|2026-09-22|Oddin satellite clip $60 -> $100.
+e7a12d625636bec8297a958ff0de33a559b36823|2026-09-22|Merge branch 'main' of github.com:Dimabytes/esports-trader
+f59c907e3f9a2d9c03aaf6b6a0168549cce85df0|2026-09-22|dota sell-ack-0922 backtest: 3 seeds x 4 shards, neutral vs LIVE
+5e256028717ea502a70c8a4f6bc982fec5d7fae2|2026-09-22|Ack a cancel after the SELL has already left the fork book.
+01bce5356f534a25e364c45c739e319d508f4b73|2026-09-22|smoke goldens: fingerprint the resolved feed plan
+3423c6ad10012ee7b1bbf04c51a3c5831b21215a|2026-09-22|smoke goldens: add the Oddin no-XP Dota map and a second LoL map
+f8da0d52343745634a330e137bedf3e92e552fec|2026-09-22|smoke goldens: recapture on the current policy and models
+28fd65f8e341106676dd4ea49be9320b1fec66f3|2026-09-22|mid_spike: watch the token we hold, not always radiant
+14242774a07697ca1750367150f23576636c54d2|2026-09-22|pathwise-calibration: wip analysis draft
+05773041cb98a182376a0fe4bcea3c3462241679|2026-09-22|delta-sizing experiment: drop, code dropped (code.patch restores)
+44891add4cce2ee1584420c90d773a6d7d653749|2026-09-22|lol s06-playback-gf seeds 3-11 (seed10 dead: framework crash loop)
+0596fd32c580df489207bdb24da8218e85624ac2|2026-09-21|inspect: split gold panel into net worth / advantage, zoom to traded window
+ca850e9da5533eac79d9f95f03ee8507d49619be|2026-09-21|series context features design: map number, series score, prev-map prior
+32572a932c27e7f37deda317a6f9405912d2a3f3|2026-09-21|chore: raise dota-oddin clip to 60 USDC
+dd3392145883cf23d313237f143124fad15b4964|2026-09-21|ghost-fill + 50/50 audit: zero fabricated fills, one 50/50, auto-redeem ~12s
+8ae05d3bf1726ea7c7ba0439989c408a0c6380ef|2026-09-21|fix: bind dust FAK venue id so its fill does not wedge buys
+3aeb02b8eff0ee38f3f2285fde911a3b097a9ed1|2026-09-21|science exp
+7832466a51d20ff51b2ff0b6dcb84a6f360c755f|2026-09-21|fix: unwedge buys after post-episode dust sell
+a7f7e7323b418493f7ba87e2be9529c9b035cd95|2026-09-21|score-gap experiment: model-vs-market proper-score edge on validation
+2ad3af618a4238d0da2421575eb6ed2c781f5be3|2026-09-21|order-outcomes experiment: per-order fill/no-fill dataset from core_trace
+70ae43a42f64fc427c9dfcd48a3feb1125698c53|2026-09-21|promote s06-playback-gf to LIVE (3 seeds, 12-seed gate bypassed)
+3ad68583e5ac3560539b0c1ad19bd3b6e1882e8a|2026-09-21|lol s06-playback-gf seeds 1-2
+ce8df4cef8c70a705fbf61cc5d1c362ad2748cd8|2026-09-21|Merge branch 'main' of github.com:Dimabytes/esports-trader
+dffb48f65cd3ad788d3a2e8783fa85700473067f|2026-09-21|chore: raise dota-oddin and lol clips to 20 USDC
+648af926930c0926ec26356cfaa4c147f1c2daf9|2026-09-21|dota + lol models + fixes dota lol backtests
+934c3e0780e1021016385357c952fa6032c75857|2026-09-21|upd lol models
+25734ed0d0fc1ee36eae4b8c30085d1d7d59f264|2026-09-21|refactor: [step 3B] - review fixes: shared replay gates, typed feed_source, test split
+85eccfc8d3460750dcd0cbaf046ea18f33ad2766|2026-09-21|feat: [step 3B] - ordinary backtest launch and mixed-model report
+212742378d5ab66b02efe948de3766c46017062a|2026-09-21|refactor: [step 3A] - typed feed plans and strategy-owned clock tape
+199705d42b0810fbe663d380231fb848bc6ee295|2026-09-21|feat: [step 3A] - features by game-second and archive schedule
+ecd2a570f35f077057a66ce18077e80d20584e68|2026-09-21|feat: [US-005] - VPS enable and delete the Python on-chain collector
+0d1ae767df70b7b1351299976327ee14bfcd8f80|2026-09-21|refactor: [step 2] - close merge boundary leaks from review
+0e40b87ce4d39d4a85b246be33325df814cd1133|2026-09-21|fix: [step 2] - parse string steam_match_id from archive index
+de273eddd01051580e4bd6f929656781d2aa882f|2026-09-21|feat: [step 2] - Dota linking and shared dataset admission
+4516a4c25d52fa1351a96236cd5e5429b1d76305|2026-09-20|Namespace schedules by root; pair feed-gone marker with its tick
+f0f47128bfe402bda8e11c960a5c16530b472084|2026-09-20|Harden archive index: stale-file sweep, universe fingerprint, interruptions
+4580127033748d94db687e1eb77caca36167a32e|2026-09-20|Add archive index and feed schedule extraction (step 1)
+7aba8bd8e17df43f2749b817d269d113fcac368b|2026-09-20|Remove the pgl feed source (step 0 of archive-linking spec)
+5297c493823efa86f88b0cabe2e96bc8123ec8bc|2026-09-20|Simplify backtest plan around independent archive timing
+9e6c3e81b5a44020e4596ef18538c980abdf4904|2026-09-20|Clarify replay clock and prior availability limits
+32b19fe1bbb4831b61406557b0bd92c7b0fa25ce|2026-09-20|Document archive linking and feed replay design
+39a00e572283d1f68a2e903ffb36455ae2e86f76|2026-09-20|parity onchain
+6bbb0e3541c352e107e470df72bad27af99170fe|2026-09-20|upd grid starts
+2515291bd9ad18087e2cec0b3935a70734fd9a84|2026-09-20|upd backtests
+2b1ae1802e2c6bb87165e1025f34a49c3e6f1eed|2026-09-20|Default Follow300 to 2¢/1.5¢ hysteresis and drop the 30s gold-velocity gate.
+17f72279a5df8d883259227b9fabccad2d78a697|2026-09-20|add backtests
+354e37a44ea037058e8a2cf14e0985ee9f391329|2026-09-20|Add a Bitsler/Oddin live LoL watcher matching the Dota 2 one.
+78f36c01480a7b6f90b84ee144ad5f9982f07711|2026-09-20|Recovery locks a restored map only while it holds inventory or a BUY.
+deebb730a54f5f61c7fd5b30a76fb699fd1b27b9|2026-09-20|Pin Oddin horn only after the game clock goes positive.
+dd48be11377a902a3346e560f0a29ae1a79b1400|2026-09-20|Note training-tape exclusion candidates and local data-cleanup todos.
+e67c14fc8cbd3e3b5077b80cc58690619217b41e|2026-09-20|Keep live-inspector books dense and zip fair onto SignalUpdate time.
+6bff0dea4a2083a574583e555f08a9e6bc32aef4|2026-09-20|Promote research-val556-0919 and research-val934-0919 to LIVE
+d4d104a8027ed4b5e8e9f6c21929113a7d7b15b4|2026-09-19|Merge branch 'main' of github.com:Dimabytes/esports-trader
+4354188e19f7dda6c8a97f38fdb7930d986929c1|2026-09-19|Log the exception, not just its type, when a match task fails
+42ed92f7a4cb9a5e8e6468a6d2c799d117688f52|2026-09-19|Add LIVE_NOXP baseline for the no-XP Dota model and a --noxp promotion flag.
+7f4fab5d874a04cbaf420cf8ca22a23ffdf2d5ef|2026-09-19|Restructure Oddin wiring after review: async client, one WS iterator, typed catalogs.
+c36f96bf37c30f83048b1368a092b3be0ef8e89e|2026-09-19|Replace live PGL with Oddin discovery, delay probe, and archive replay.
+f69c98783c705c30552e908e3720d4fce0c6f7c3|2026-09-19|Split Oddin into client, reducer, live feed, and archive so trading can consume it like PGL.
+307d76c3f177f2f3005e5fe58751af2f1eb1cd74|2026-09-19|Add a second Dota GBM catalog without XP and wire it to the Oddin $5 satellite.
+87a36b6521c4b131c1340b0e4f32ad1366f77a7b|2026-09-19|add backtests
+2e5158ae7fd57fc01927b0dac0ec2a3690fb1e49|2026-09-19|Merge branch 'main' of github.com:Dimabytes/esports-trader
+147871d407073bea9ff63191d66256eaf5592aaa|2026-09-19|Cut the PGL satellite clip to $5.
+0bab63224e1a5a23d7ce5a3ea298fd71f687cb39|2026-09-19|Add a Bitsler/Oddin live Dota 2 watcher so we can compare its packet timing against PGL.
+d2aae04d848737ecbdca15acbb41046287ed918d|2026-09-19|Return a PGL match-id jump as a normal FINISHED tick.
+b9bf4ee1008a1491c3bceb1b789fa75f99ea118c|2026-09-19|Treat a PGL channel match_id change as map end.
+3b26395e15b994b577975115517dd469efebda61|2026-09-19|Merge branch 'main' of github.com:Dimabytes/esports-trader
+68414882d10a0d57a9677fc6febc925dd8818f2a|2026-09-19|Carry PGL watcher print state in one object so a resync cannot reset tick and seed in two places, and pause before reopening the socket.
+14a899e3a50bb4dcc8fac500bbc14e76c4341f36|2026-09-19|Resync the PGL watcher on a broken splice and reject out-of-range deletes so a bad patch cannot crash or silently drop the wrong item.
+784cfdf9e447cc06a58704cea85156b2d3b1abf0|2026-09-19|Apply PGL deep-diff array splices so an ult or Roshan drop no longer IndexErrors the watcher.
+3abb08af9b3fcec05932d611ba05f609e2ca40e9|2026-09-19|Derive the PGL clip from dota-map so feed, load, and knobs cannot drift.
+1c22eda3b8d683f809ea7670c56f6dcde068dc18|2026-09-19|Give Dota PGL its own $10 clip so Steam and GRID stay at $60.
+dd733e92b780630d735e5c27ed2e2b3e738c48bf|2026-09-19|Record the equal-match 10s control at PGL lag 25.
+78e3ef293552cf12362c058ebf067298d9f5bb41|2026-09-19|upd inputs
+d34e199a71248a08629cb245585dfdfa862117dd|2026-09-19|Retrain Dota research and production on the overnight onchain-filter dataset.
+e68837035422868bf55fd4bc42335ab8960c8c6c|2026-09-19|Record the PGL-lag-25 Dota pair and the LoL contemporaneous-mid backtest.
+2a8f995267a1b78c549559a4b9c1c4e5423f7e25|2026-09-19|Split Steam, GRID, and PGL archive readers out of match_meta.
+c9fb5cd29ba706859b31caed2f6510174e912ae9|2026-09-19|Retrain LoL research and production on contemporaneous mid after the T+10 prepare fix.
+e6f78ac0c651fa2a25b2a507aa7a6559f215bebd|2026-09-19|Add lag and 1Hz cadence flags so a PGL-aligned Dota experiment can rejoin and backtest without touching live catalogs.
+9834d8c91571cc6be8c354031c593f69cc7daab7|2026-09-19|Pick Steam, GRID, or PGL once per Dota map by delay so a 900s Steam stream can still trade.
+ad94268949e12f7934e54cbec25070d87b2d3d17|2026-09-19|Record onchain maker backtests and ignore local run logs.
+332e1c1780668b8f5fd9c9f8f24f00d70a7a424e|2026-09-19|Join LoL prepare current mid at as-of 0, not source lag.
+cdd20c9572f0e0dd46286905739230864d83ed0e|2026-09-19|Add Hawk, PGL SSE, and GetTopLiveGame watchers.
+003449820424021a946f387d4981eb3a629550fb|2026-09-19|Derive the LoL map-build cache version from imported src modules so missed files cannot stale the dataset.
+122250ce2956c2dead15008e5dfed5c644da8efa|2026-09-19|Cache per-map LoL prepare results so a warm lol-prepare skips unchanged maps.
+5f9978b1333351e3be9a7b16a713a426159fa178|2026-09-19|Strip leftover Telonex channel generality and name the tape after onchain_fills.
+6ba30b6382ed447fa4d7279eeabb6f2a69045b59|2026-09-19|Drop the Telonex trades channel and execute on onchain_fills.
+005ef59cf2b8561cc932a4d5a7bdcaa0fede0985|2026-09-19|Split Telonex onchain_fills sync from the RPC parity rebuild.
+8161f30eaf04e0e282b0af37515607de6f4dba10|2026-09-19|Record the live-gate early-stop sweep as a drop
+b19c5b3cd7faa37a81f76855cd2d03b6bc300cef|2026-09-18|Cut the BUY entry window from 540 to 480 seconds
+817931de72db987c761829de5ec04e549cbf652d|2026-09-18|add experiment train 1800
+ef5e16c01d3cf130ef3009c1df29bbbd5497a215|2026-09-18|Record the min_data_in_leaf K=10 ensemble sweep as a drop
+2567e4b4948827a853843682d27a1df8dd7d1d70|2026-09-18|add backtests
+7b3ae148e86d4eda40e9ded0db739b8b9c07244f|2026-09-18|Skip BUY entries at or above 0.85
+40eda43b6778e566057d13c1231617825cbc6b25|2026-09-18|improve sync live
+68e4b73cbcf86d51ee7cb067ab2c657b634fb44f|2026-09-18|Merge branch 'main' of github.com:Dimabytes/esports-trader
+953b1511271bc617af2d9a616736f84424a6bd7c|2026-09-16|Cut the LoL clip to 5 USDC
+ff23c36f2120e22f9f240081ef5e3963fe9d48fc|2026-09-16|lol: cut the two leagues live cannot trade, and keep LIVE at 12 seeds
+22be60181519df3357d137a1ecc02634c12368bd|2026-09-16|Drop the delta-hold gate offline
+56b77d32d7bea0559427ddffbf20db92c0e265a2|2026-09-16|Raise the Dota clip to 60 USDC
+7592b680f3bc93fd10fac1d533116d7fe967d8bd|2026-09-16|lol: promote the 14-seed research run and skip a third Nautilus fault map
+af39920dfab000ed3b63c1d2a59fcffc893f3f0a|2026-09-15|report_seeds: print a one-seed run instead of raising
+e205f39049fc5a54fcea90fe58fa430792fe8292|2026-09-15|lol: retrain research and production on the rebuilt dataset
+2c1eeb44bdd306bf83a6b6db83c3d17bc7669164|2026-09-15|backtest: add the research-val531-0915 run and point LIVE at it
+6118355d47df5547be9f0fd7a06ba4ba8992b59b|2026-09-15|lol: compact the window archives after every fetch
+75a33e13158a46f4c7388fc453499efa052554ad|2026-09-15|lol fetch: treat a frozen feed as the end of the map
+c621d27cda380fe72ced05811c4f34c26c050d85|2026-09-15|Drop DATASET_END_TIME
+288d641a17aaebe97ed71357dc09a8137ce3e898|2026-09-15|backtest: resolve trader archives with the running game's indexes
+18af0e657c41aeb561b5ea245a3b4c51e46997b9|2026-09-15|backtest: evict the Telonex cache per market, not globally
+a25456e39a5c5c8db7505062219982174d10bd82|2026-09-15|upd model
+0183871ee81ceb1f9f88af41a383baf1415e0ae9|2026-09-15|Fix mid_spike prehorn gate, pin current-policy smoke tapes
+015ad4fbc0281b49e9a467a441b38881b150a722|2026-09-15|Record steps 2, 3 and 4 of the live-replay parity plan
+4ebe057950925554f8d54fe61d205691c785ca07|2026-09-15|Pass the recorded kernel config into the backtest instead of rebuilding it
+df053a6a32f7e8ddaf49d32996380e71f3ea70e3|2026-09-15|Report trace parity per archive instead of stopping at the first mismatch
+0b82733a48c1d5a30a6e212d262fa69b7e3aaf8b|2026-09-15|add backtest
+fdc9a9b00ff95680a684bd0dc8eb4cb84d6bef21|2026-09-15|Remove live-cohort replay harness
+eb08c19053db58bca43ec55e320c412e8c309570|2026-09-14|backtest: replay live trader archives on Nautilus (archive policy, live signals)
+93371510ae3c244ebb77182ff65e1da35a2fd23e|2026-09-14|dataset: prepare full window; cut DATASET_END_TIME in train/backtest
+96e7f51d38385f742471cbe3a5e6f46e6a3a619a|2026-09-14|dataset: tighten DATASET_END_TIME to as-is validation max
+64e27f2e31cc6f2c152cbbe9caeb76622ee94d35|2026-09-14|lol: add make lol-* stages via run_lol_stage runner
+d7cc289f4ee20a4987ce71150af44c816a2093e0|2026-09-14|dataset: freeze train/backtest window with DATASET_END_TIME
+386dea7de6dda0655d3507e98cc637df3f8a9a4d|2026-09-14|Add --game dota|lol to collector parquet sync.
+f8b719933e0bbbcb0a67596dc7e72f198bdf9fbf|2026-09-14|Show report headline metrics in the backtest inspector.
+1b57bffc2ee6d2a5ef2fa26c2bc4b40e4eeb5989|2026-09-14|Inspector: keep only vs_live for live-cohort rows.
+6dffe70ff35002ceb2f47f01c2f6c5bb87a43081|2026-09-14|Show live-cohort tape lock status in the backtest inspector.
+a2bbfbb0fd0f34454aa47cad3d123094eafc6bdf|2026-09-14|Hybrid live-cohort fills: recorded while plans match, model after.
+bf69f8c9d057d1fad83c8c1c9df54c5d19afe38d|2026-09-14|Add --policy archive|current to live-cohort.
+6e4cac2c0a65c9fe1ce251ab539c44e2fdc6e7cb|2026-09-14|Execute follow-up plans after CancelAck in live-cohort.
+ceeaf7f111221d360107ee5984b5d759b205534e|2026-09-14|Fix live-cohort inspect radiant/dire flip when catalog is missing.
+84e4793d7e5cf307afd8a49972206e43ceeb923f|2026-09-14|Fix live-cohort bid/ask fallback column detection.
+7e14877e5ab5090f21fc31677cf598c8f95c6389|2026-09-14|Draw live-cohort bid/ask from core_trace when Telonex is missing.
+a038270f0cc54f8ffaa00a34dc328e760bf79fb2|2026-09-14|Close live-cohort order segments on cancel_ack in the inspector.
+ce7f5f755dbf71c8e7623d284901339695036ece|2026-09-14|Align live-cohort timestamps to wall clock for inspect charts.
+45cd028f5270722cd2986b9d4d492fd6f9908eae|2026-09-14|Fix live-cohort missing game_ended_at for the inspector.
+8c33358a1464bf01a27f30f12f8f517663c3c02c|2026-09-14|Tolerate pre-mid_spike core_trace digests in archive replay.
+02278bd1978ebabe9501da66a296d2632d4932ba|2026-09-14|Add live-cohort replay of trader archives into backtest runs.
+534ec1ae0a0a7a82290fea38be6d0f7c5e7315c5|2026-09-14|add new backtest
+0860e6dbfd90737d0fa52943ecc977f06300db57|2026-09-14|Keep resting SELLs during mid-spike cooloff.
+f6904267ab603b8fc59d7001dbe33e799be6f1f8|2026-09-14|Trigger mid-spike cooloff only on downside drops.
+8606522d09c345f67f53fbb9d7069542e20f5c5b|2026-09-14|Add mid-spike cooloff that pulls all quotes.
+61af9fbafeba43cb5d4669363b8621768edf3051|2026-09-14|upd deps
+b31d7899e11d15c8eca5b0511e0b9c9fe33aa395|2026-09-14|Select inspector matches from the table row.
+e8387c375bd1407a1ce78b6e11cd32f384a53355|2026-09-14|Promote sep14-baseline 12-seed runs to LIVE for dota and lol.
+6434a4bb81047527a43cd1465cc760ad84248122|2026-09-14|Fix live viewer time axis onto exchange ts_utc.
+a9e76b426d9423851ca4b1abce566cfd35fcf2c6|2026-09-14|fixes + backtests
+f277f9f723ceaaa041c8cb793120e07096dc1df8|2026-09-13|Add live inspector match sync button
+6078a60877883189f56c71c8bf466493e0a661a9|2026-09-13|Drop aged-SELL v6 and adverse-taker; restore 1s SELL min life.
+510eafff9d0a5ee3f094ed8a9002f602951632f9|2026-09-13|Keep backtest SELLs reduce-only and retire already-filled venue orders.
+c1d98b344990275f0f53f01311b935ea09d9b099|2026-09-13|Refill sold rungs from leftover and stop backtest sells from sticking.
+d9263719a191c75c163bd2b3e53d15192c207444|2026-09-13|Record Dota v5 sell-life 30s validation catalogs.
+c686184b305454ac3ef603a0adda4c6a937a0c61|2026-09-13|Hold SELL quotes for 30s and treat CLOB accept as network RTT, not Gamma secondsDelay.
+227f38a4e80a296ee701842577a6d2e4d7a30c58|2026-09-13|Record the Dota adverse-taker v5 and v6 validation catalogs.
+cfed7df8a15f3875958578844de410aec9475538|2026-09-13|Add a backtest-only adverse taker-exit when the latch turns 0.5¢ against inventory.
+8625d80751e6901b43b37ef9954fad4456e33a0a|2026-09-13|Record v6 aged-SELL backtests against the v5 baseline.
+2e354a8bac66c30ed613b7ca7855615ba4faa28f|2026-09-13|Gate aged-SELL behind a flag so the default stays follow300-v5.
+60bacd512e28ddf0b0c762a31eccd52cb94d5922|2026-09-13|Record remaining LoL v5-budget seeds 6–11.
+21d238555f1a9976a44862b45ba5172a10baa175|2026-09-13|Add a Streamlit inspector for every completed map in a backtest seed.
+ac2fb815e82edc6f25f6d7079af33524cc7fca84|2026-09-13|Record the 12-seed v5 catalogs for Dota 1¢/2¢/3¢ and LoL 2¢/3¢.
+3e7913ef5efe155fcc2f476fd3108aad97057b0e|2026-09-13|Show deposit and ROI in paired backtest reports.
+536fbc79f3340799b3feb9ff89b8e8a1405dd9e6|2026-09-13|Merge branch 'main' of github.com:Dimabytes/esports-trader
+e41eabe815fa21b329df4ac514040878007047c5|2026-09-13|Raise the shared BUY entry gate from 1¢ to 2¢.
+f2b155227eb5ed16852f3ca09b7ff2c8ae0672ca|2026-09-13|Record the dropped v5 unwind, 2¢, and burst-cooloff Dota replays
+3169a1d2e413e6b4bf7fc00365d542fcce7a529e|2026-09-12|Cap each buy-ladder cycle at $300 in the shared kernel
+5c6d39d9025c6e9b57c3bef57e916b3ce9e03560|2026-09-12|Merge branch 'main' of github.com:Dimabytes/esports-trader
+0a3064174bc9b59efdf70eaedd93a90c5c446613|2026-09-12|Merge branch 'main' of github.com:Dimabytes/esports-trader
+c745dff876705a8565e60b1b3e5eb31bbdd0002e|2026-09-12|Record the dropped LoL cutoff-900 replay
+2e4aebee30a684d76b0e69a366f0d3ec155b1f72|2026-09-12|Use HTTP/1.1 for CLOB requests
+05069259bb1ed236e96eedeb50bd6c729c59b4a5|2026-09-12|Raise the Dota and LoL live clips to $30
+4ba57c24a8dd3d79ffe26bd3bb61cda8e3665dde|2026-09-12|Read book age from the local receive clock and keep plans across callbacks
+937f59fc4d074908bcdfdd79754aefdbfdcbac82|2026-09-12|Put the two sampling scripts under the project lint
+e196801a180f99375cecfcc13ee4aef8df3ea0bc|2026-09-12|Back the two book-vs-Polymarket sampling scripts
+279a94e106a0dd1a05a3502ec9a35d10be688565|2026-09-12|Back the packed sub90 catalogs and the open next-steps notes
+ce46e4c515bda3603018a0dd919815602aba27d2|2026-09-12|Promote both sub90 runs to LIVE after twelve seeds
+a896864d07530008cb77ef5626fba1fee9d33acb|2026-09-12|Cut Dota and LoL live clips to $5.
+e7f1ebf74280c1cbe443ce09e09800423fd7f248|2026-09-12|Back the sub90 report, its packer, and the 3-seed backtests of both games
+b81fb4c5850b2858abbc6c3865ddf2b01de22edc|2026-09-12|Publish the sub90 K=10 research and production models for both games
+d574e629c5fcf7bd03694271689a25bb5d39582a|2026-09-12|Train every ensemble member on a random 90% of the matches
+5ed371b27890e5890f835e5c8542f7b1c8f25da7|2026-09-12|Add the LoL ensemble diagnosis worked up beside the 3.4 backtest
+c3414ef0673feec488ee99077da64df8f9714f36|2026-09-12|Record the stage 3.4 and 3.6 results in the ensemble plan
+d2acc2bd135f4e8931b132a0d2d4a3f632d66b15|2026-09-12|Back the 12-seed ensemble backtests for both games
+d2e4e25091b2a206ddd2fb7e6072c909c5528a3b|2026-09-12|Train LoL research and production as default_boot K=10 ensembles
+9100366d1a496511e1870498f3585cd3069b2b4d|2026-09-12|Memoize every off-grid-warned price so the warning stops repeating
+88bb179438e60904ca7f09eeb0ae871ca41671d2|2026-09-12|Measure the LoL ensemble offline with a --game lol arm in run.py
+94e3ef7c9e45b2ea709f1fa9b2a165a389e4c13f|2026-09-11|Fit ensemble members on a process pool, one thread per member.
+20575f3edcaa90f9f74bb181f25ff569d2fd94cb|2026-09-11|Require member_trees at catalog load and collapse duplicated ensemble helpers.
+3779cf93a198671a09beee0ece477b691fcb71e9|2026-09-11|Train production as a default_boot K=10 ensemble and drop singleton catalogs.
+59550f2b959c20792cc7203c25cfc138af4f5978|2026-09-11|Revert E2–E4 gate experiments and keep Follow300 with the ensemble.
+75b21fb7ca2d2ef412132b88bd517b636c0034a9|2026-09-11|Add E2 hysteresis, E3 pred EMA, and E4 entry debounce, all off by default.
+d5407a22ba3fd2ddbc153446ccab27e7916aa088|2026-09-11|Record ensemble stage 2.1, E0, and E1 before the gate experiments.
+d17f0d5fcaa726c982b74221ddddf4aef898301a|2026-09-11|Load Dota models as a catalog so research can ship the default_boot K=10 ensemble.
+5084c3fe72d7ce9c3710d8cecd405a66a91ec78b|2026-09-11|Measure Dota booster stability and plan the ensemble
+cc9be364b667693f1c4aca452e1a84da17941f5c|2026-09-11|Drop impossible post-gate checks in STRATZ and market rows
+cab5f20156ded7a923e4bd7339132bba1c932772|2026-09-11|Move the STRATZ usability checks into collect
+b7b5521070233729581025f45fb965114f04fc50|2026-09-11|add backtests
+a51ffa500b50798b7d1af71ca233b26718e3c6ac|2026-09-11|Split prepare back into train and validation loops and pass match inputs as one value
+9458281147c308da1d45ec834a99e76becbef839|2026-09-11|Merge branch 'main' of github.com:Dimabytes/esports-trader
+2691f7ff35252bd5855caf7ec6fa5d78d87d7692|2026-09-11|upd clip lol
+6c26543db1cae25b55eedc0517f7a3f8da65d6c2|2026-09-11|Record the map-first-entry and depth-cap drop and revert the knobs.
+ed9e3e74f60348c83f57f49c6c7307cefec0f896|2026-09-10|Walk train and validation matches in one loop and share STRATZ state fields.
+6e39d5fa66512bdccc0bf4ed3ec7ba4632f710db|2026-09-10|Merge branch 'main' of github.com:Dimabytes/esports-trader
+9994b8a906e194a20746a382e323069793bed483|2026-09-10|Let quoting read sell_only and verify while a SELL is live.
+0aaf85122f558d2b6d0436569f361a62a421bb90|2026-09-10|Keep quoting the exit through recovery.
+b8812e73f58ad672eb561f90d0f4fc5f252fd991|2026-09-10|Run pytest sequentially again
+34f1372437393a4e25c1362908a9c33030c809be|2026-09-10|Merge branch 'main' of github.com:Dimabytes/esports-trader
+d85d09f612d095e2e3cf6c3ec4e1179dee49b212|2026-09-10|Cap missing train market caches the same way as validation.
+11fee08befc8554bf0d7369df7493f9b5f6de1cc|2026-09-10|Stop GRID test sockets from filling tmpfs with a reconnect archive loop.
+bebb8b759e8e56b8c53792ae1ac8950e55e203c4|2026-09-10|Simplify prepare dataset row collection
+967554b3c3f4f094450a0e0aee74b4575f3dfe63|2026-09-10|Do not latch sell_only on sub-tick flatten residue.
+e055015ae6a4eb7d3fe480c4accca8f7910c4e32|2026-09-10|Retry feed picker after an empty discovery cycle.
+398af0c21a8ce3f5ecd8286c365528b60bcc1bc2|2026-09-10|Put catalog spawn order in MatchCatalog and drop narrating util docstrings.
+a1f7951d6be2988f10bb95fab851ba34e23b58d0|2026-09-10|Strip narrating docstrings from prepare_dataset and drop unused parse_args.
+b9f76b0e2bb2f725f842dbbf59c978111ca3c429|2026-09-10|Raise LoL clip from $15 to $30.
+61cf528373c85ee71ad4b00d0d07f84d90513e95|2026-09-09|fix: make collect contracts explicit after the processing cleanup
+a7d2b0d724b97987580d688e2cbaa369d2d2f4d5|2026-09-09|refactor: simplify src/collect processing
+efe54acc906a1b5c70cac8516d16606199e4bb42|2026-09-09|Simplify market cache jobs and dispatch
+ca240deda5912d882579512ebc6f48b150ece478|2026-09-09|Drop unused fill VWAP and extra markout horizons from market cache.
+c68d623b83cd03db8e333bf3f2f74a649afaafbe|2026-09-09|Simplify market cache completion tracking
+923c827dba4e8119d4c3801dc7f6a60ce4db4425|2026-09-09|Simplify market cache build results
+7449aab26eee19593ca459e59b47d7d53b48ad52|2026-09-09|Simplify market data source loading
+3fb941c8be262ea0bff3f41faeead1d1b31295d6|2026-09-09|refactor: drop the dead opendota_pauses miss branch
+6124730580f4d3b3119d9e39e8078a7f5fbe9b8f|2026-09-09|refactor: call collect map-load timestamps spawn_at
+5b10059f2afaed2664718ad1dc5b6a1304406b4f|2026-09-09|docs: note the VPS pytest worker cap in AGENTS.md
+a4f514cba13086cd3065cb85fb2bdfa1975e4e0e|2026-09-09|docs: record the pytest worker memory ceiling
+4ef2715e9641972b7c6fa1cc184339a05219efc8|2026-09-09|refactor: finish the collect layout and run pytest in parallel
+c4daa10891f9f0c1364b752b67538336c074042e|2026-09-09|refactor: split collect into stage scripts and collect/common
+b03c8d8b081853000ac5a5f2e97a23c1f0b446bb|2026-09-09|refactor: make collect stage scripts importable
+07e557e8dc77d3d7e2d49f3bcb8637506cb6951f|2026-09-09|refactor
+c1bd260e5f524be1d2e796c5c7aa35b2966e624b|2026-09-09|upd deps
+ef70bafbc9fe9e062ee653c374023c12e97acf93|2026-09-09|chore: drop dead shebangs from python scripts
+30ebe5b762c6ff3020b68fb74f7a7e9a5d8984aa|2026-09-09|Keep GRID side flips out of the pinned-binding check.
+c6dbb874dd87241caf019b1555a3eced6b245a99|2026-09-09|Lock YES↔Radiant on the first feed tick, not leftover Steam.
+bef88cb93fb5d06cbcc0449c0f692b19f5b19bf0|2026-09-09|Orient GRID-fed maps from GRID sides, not leftover Steam.
+4a0b2da252a3355233343685493acdcb5e250c1c|2026-09-08|Bump live clips to $100 Dota and $15 LoL.
+4149367645d535bff8ddba6e019e78d3c5691914|2026-09-08|data: point LoL LIVE at the league-whitelist subset
+e4362a42aba4ad8abd34314d8e46272c1015a6f8|2026-09-08|fix: read LoL league from the collector event envelope
+967565680504db43ba5d6e97fae957bec4885553|2026-09-08|Enforce canonical LoL league whitelist in backtest and trading
+40b6ef64f193bc941c01383fe8e5b0473cedf20a|2026-09-08|feat: keep LoL league whitelist as an opt-in backtest filter
+1d35d9e216912d58125bb401d8713f0b60a6af58|2026-09-08|upd
+b865e00fc633218fd2af25e3a65a64e91df0ec81|2026-09-07|refactor: move dust FAK into DustSweeper and drop dead gates
+1d454801cfade59d4bbc0ab6d33f92ebe43a50bb|2026-09-07|feat: FAK-sell leftover dust the maker path cannot quote
+fc4b1fde66ffb6290bbabfcef7dcb7acac328271|2026-09-07|fix: end the buy episode when a completed rung sells down to dust
+088c378f416e932ed702b5ae67a8187451b629f1|2026-09-07|fix: unblock the exit slot after a dropped SELL place or failed cancel
+3b48ab2fa3bf6ca0447d73560961d99ff0fe87ba|2026-09-07|fix: drop core orders whose place never reached the venue
+be0a4b78965dae70afc121ba98c9ac880ad35dc5|2026-09-07|chore: set both live clips to 10 USDC per ladder rung
+1f1e528790f8cc3fd74095c31a9ca48ff73492c9|2026-09-07|Merge pull request #1 from Dimabytes/ladder-experiment
+0afba755a13596474b6c898c77d15f0e8349e0b6|2026-09-07|chore: ignore leftover oracle and smoke dump dirs
+e338a0849985822839f44e63657eb5d8d5c8d72c|2026-09-07|feat: [US-010] - Publish the post-change 12-seed Follow300 baseline
+f95b6502462c4abd76f55a76908ccf1545ed3ceb|2026-09-07|fix: [US-009] - address review findings
+8669778008d733f606029d83b4513c093cf4b9ec|2026-09-07|feat: [US-009] - Write a versioned live decision trace for both games
+40558d9af6b4ce55bea5676962b8e6829e8b8ed9|2026-09-07|fix: [US-008] - address review findings
+a71bf9e0ba2807264ef774042d3ec96b57fa2366|2026-09-07|feat: [US-008] - Apply the three labeled behavior changes
+742233295afa98f6c0672dd55effc53139f087f8|2026-09-06|fix: [US-007] - address review findings
+0a6d3e4077366c732baf4ce0338b8e3a663a1285|2026-09-06|feat: [US-007] - Put both games on the core and auto-scale live caps
+22eb809c77d218c7d834f8a160188c79d95b8329|2026-09-06|fix: [US-006] - address review findings
+d8fcdb061bf1abefcdaa59f69fd6c4382608e14f|2026-09-06|feat: [US-006] - Persist core state and drain mid-episode recovery
+1f13a64724dc9a74e023f598c753e0586bb8e9f7|2026-09-06|fix: [US-005] - address review findings
+b3f612bb4d184f55fbfa6c8856179dbabae391ac|2026-09-06|feat: [US-005] - Prove both adapters agree on one synthetic tape
+ec6791df90f9834bfb7e7be06b51dd871b346666|2026-09-06|fix: [US-004] - address review findings
+2cf58d771e0fa3be8a13ab669ef4722274394a06|2026-09-06|Record that decision traces come from live, not paper.
+f73bd8545bac884877b5a5ee99d68748ca838248|2026-09-06|feat: [US-004] - Wire live/paper to execute the core plan
+5c658f732550effb9c5f6e024b35c2476968a3bd|2026-09-06|fix: [US-003] - address review findings
+7b2b65bd90c54bcb57179358b195eae0d54eac49|2026-09-06|feat: [US-003] - Wire the backtest adapter and prove extraction identity
+95168c6b7a6d49678bc34fedd1a2341b2a1e8ad6|2026-09-06|fix: [US-002] - address review findings
+6feb54e5879ca4e27abbe1535d9c6b61f4d6136a|2026-09-06|feat: [US-002] - Build the dependency-free Follow300 core
+a8478563ba25a2c72fad223e771997470a983133|2026-09-06|feat: [US-001] - Freeze the extraction oracle and disputed scenarios
+ef680f2a4a41d7cb36a396fc0225f137b1da00f1|2026-09-06|Merge origin/main into ladder-experiment.
+8dc7ea5eef902424f42818010d8498c0b205539a|2026-09-06|upd
+71eba67e5d0a33cff13a3281435e31a45242af96|2026-09-06|add doc
+5e519a1f238ab5c6ea16af6e2aef8a8fe3f39d22|2026-09-06|Strip maker narration and split the C901 quote helpers.
+b2c2214679f4be94a646cbdd60ea6b308c32fed7|2026-09-06|Drop leftover ladder CLI knobs and record Nautilus crash maps as engine faults.
+92dc66b5ec736b3f2ba17d8d8e10f4c6877ccb9b|2026-09-06|Record the LoL sell-ladder backtest; drop the experiment code
+6826ff6cc6075b0bdc03463360f4c8c2e02ef75d|2026-09-06|Skip two LoL maps that trip a Nautilus 1.226 zero-fill assert
+59e0e64b0d0d157e54ada10d5a3b33f873157d72|2026-09-06|Record the LoL lifecycle and ladder-shape experiments; drop the sequential code
+ed68a668f6afc8350aec2000df18a9b18de79ca5|2026-09-06|Add three temporary backtest policy flags for the LoL ladder experiment
+2aff82d97293e3f8b8c3d7235afa24e8dc0b434a|2026-09-06|Add the Follow300 cleanup diagnostic replays
+b4604e6d8e0fc57162756cb69578bb01614e97fa|2026-09-06|Add Dota Follow300 seeds 3-11 and the driver exit records
+6104e28dd74ee99799d1a13b0a69d4c17fb6b1b5|2026-09-06|Record the Follow300 decision and mark the old experiments historical
+91aeeffca848d1e01d9fba041a9014017d61927c|2026-09-06|Make Follow300 the only backtest policy
+7e9c07a144d8ee10153b9d3287ac327b1294059d|2026-09-06|Make backtest completion and capital reporting truthful
+0d3eafd561706d819c15f3867431d6257c5c125f|2026-09-06|Record LoL F300/B200 12-seed catalogs and drop sell-drop-block.
+a7c8875a147e2fe10fb8ec30ec76466f9fde8269|2026-09-06|Save the B300 legacy baseline at three seeds
+dfac5ab03de13140675662acf0f2af2b12718457|2026-09-06|Depth-cap sizing: seed runs, audits and result
+f3c030aee0a58e29f4015ef21e6a1b9b70c65215|2026-09-05|Add depth-at-submit BUY sizing to the maker backtest
+27547e191eedb26c3a7736e30d84f682574d9d69|2026-09-05|Add trailing newline to ladder run manifests and summaries (pre-commit fixer)
+454fe4e22ee5acf7099f272a082847ea98e63b5f|2026-09-05|BUY ladder v2: experiment code, runs and docs
+fde4e5e27029429d49488738997b38801d676200|2026-09-05|Fix REST fill backfill accounting and drop the in-memory archive cache.
+aad4928bcc9cc43caefbf30c5185778f393b952f|2026-09-05|Recover live CLOB fills that maker-only WS parse dropped.
+eac5690f0bbbec85cc925f742a4292e9d411817e|2026-09-05|Record the live SELL cadence backtest as a drop.
+520e3363b1218ffb114bde9ce787e51f335e4301|2026-09-05|Bound the SELL freeze after a CLOB balance reject
+31ce6957abbf61b2da61fe90087a62d1937a5f9f|2026-09-05|Remove the Sep 5 duplicate Dota boosters from the archive.
+0186201cd4625770639df38c760cff103aabc0f3|2026-09-05|Record the Dota 1.5¢ delta gate as a drop and restore Sep 4 model names.
+c7bc296ec99384cbadeee846f62ace86d51ae4f7|2026-09-05|upd dota data
+50078e92a8979074641c3f162f36e41fbfd5b077|2026-09-04|Drop thin Telonex LoL maps from prepare, republish models, and point LIVE at tape10.
+86437c959465afd4477642d1487ff2d6833469b6|2026-09-04|Promote the thin-tape Dota backtest to LIVE and republish production.
+081fb493244dfb77741766e7a0b0ed0d921dd180|2026-09-04|Stop gating the catalog on GRID wall duration and drop thin Telonex tapes.
+1667ad05fabd16237be0eb61e64484a10bb4c57e|2026-09-04|Keep shared for code that more than one pipeline actually uses.
+9fcb0df984eea5b50d6e292ecc69e6a5e8d3e5a3|2026-09-04|LoL pipeline trusts its own files: existence is the cache contract.
+db23b9451d9ce29c512795f2acad872ac9525ba5|2026-09-04|Trust our own pipeline files: existence is the cache contract.
+c02d4d70bd520c10df63985a8e18bbe81e66b91f|2026-09-04|Publish catalog ended_at from STRATZ duration and pauses.
+0524ad636221d68202a392878e48d058371c4ed2|2026-09-04|Put collect contracts in names instead of comments.
+7d1fc655d484902dfc0433aec424d9548adefa41|2026-09-04|Split _fetch_server_ids so C901 stays at 10.
+87ff968dcfc97c4177acf534caa07d616eca39ea|2026-09-04|Split follow_realtime_stats_async so C901 stays at 10.
+9bbba4abe6ebb0f0b3469099d9be7a82fa7d4aef|2026-09-04|Split _compute_decision into gate, latch, and quote.
+7338fb0eb9d4910f9a977c9df35d4366e58d4d3f|2026-09-04|Split _quiesce so C901 stays at 10.
+39b789d677f9fbdd2c63166dd9f8c88f6563ea7b|2026-09-04|Split _apply_sidecar_update so C901 stays at 10.
+bc34ff8dae4babdf13587698540d9dce5e7a1715|2026-09-04|Split resource fake installer so C901 stays at 10.
+6643e6ea1b419f9e831fa5c4169f2006144f9627|2026-09-04|Pull the flat no-buy chain out of _no_target_reason so C901 stays at 10.
+b63f42a06c4f9df58238e22bf2602c6cc86c2799|2026-09-04|Pull latch stale/anchor no-quotes out of _evaluate so C901 stays at 10.
+ae4a6b94679b9fe531c76378f8ad7a912c5c0458|2026-09-04|Split download_map_details so C901 stays at 10.
+bcebf40b5f40dc6b259a026450723ed8b0a47a25|2026-09-04|Extract drop_unusable_map so prepare_map_livestats_until stays at C901 10.
+6cbdec98e2bf060d35e480e881119dc551565658|2026-09-04|Extract check_player_bounds so invariant_rule stays at C901 10.
+37c2400d51b96e52e78ef5d50581bdf190e0a37d|2026-09-04|Split prepare_dataset main so C901 stays at 10.
+33f2716c179f6bafaef2209c9b96d29556db825a|2026-09-04|Split GridLiveFeed.ticks so C901 stays at 10.
+353a6cbf00f234d2cbffa27028458bd669b492dc|2026-09-04|Split run_market_data_build so C901 stays at 10.
+0d2447c3c161ce5a1cc63419e043e0854a47914d|2026-09-04|Extract consumed per-frame inventory diffs so C901 stays at 10.
+466b650779090799e81512f4e20b2640270d0302|2026-09-04|Extract build_matchup_series so C901 stays at 10.
+e11cf9f1aa846d4fc120a99e4eacf209c708a9f4|2026-09-04|Extract require_positive_candidate_ints so C901 stays at 10.
+0a3e9ba87d1c11ce4de9e1bd1c02b2c0061ea6c8|2026-09-04|Split build_sidecar_meta so C901 stays at 10.
+68b69fab45be980dbfc2b4162f3bbe38e00a59a9|2026-09-04|Split evaluate_entry so C901 stays at 10.
+3d7a02064584a6443fce893eaf9f83216042ecfc|2026-09-04|Extract inventory freeze and per-cid error_rate from the place guard.
+4393980d012c390681bcc14249dc17ecf13f714b|2026-09-04|Lift on-chain excess counting out of wrap_position_divergence.
+074c7cb75b4a0ab7cb9944c3ab1571546614f8ef|2026-09-04|Collect terminal cancel ids from canceled[] and not_canceled{}.
+e065578fed10ec4b608abb10b5974b46b6ab2636|2026-09-04|Split check_market_seconds_cache so C901 stays at 10.
+9dfbf888ad4daaea0fdfbba5a73f27949dc3a6d9|2026-09-04|Extract maker-row parse so normalize_maker_trades stays under C901.
+4e82a37aca4c874f070773252c76d0151b7bb9b5|2026-09-04|Extract require_positive_candidate_ints so C901 stays at 10.
+5ac0825f92f36885121333462f5d7a51e20cbcb9|2026-09-04|Split download_one so C901 stays at 10.
+a6adbe1265dedd71febb7644bd8fc30a52e27679|2026-09-04|Extract record_page_event_ids from LoL validate_raw_snapshot.
+c8dbf692f2d4e1e243cae74f6830534f23096973|2026-09-04|Extract record_page_event_ids from Dota validate_raw_snapshot.
+e6b3d920f7cd7ab418a878f976f82464ce81d2ac|2026-09-04|Split STRATZ fetch main so C901 stays at 10.
+f8680e16a80a7a40aa96339daf8a49857be6b84f|2026-09-04|Split build_exact_second_states so C901 stays at 10.
+500e6cd90d2dbab3730b814943b7c961bbab3eb0|2026-09-04|Split backtest main into selection and replay planning.
+c6c9578e5df314462e4b6db340641f9d22ab87b1|2026-09-04|Move drawdown fill/mark into DrawdownState.
+65bfbcd74a8774aac794a2730d6696d0acd59ba3|2026-09-04|Split follow_series so C901 stays at 10.
+1ae88f733d8afa43b40c91abaae178d7043c5cf0|2026-09-04|upd
+e5417f5918927cc360c9ad7866fc06248e6e471a|2026-09-04|Lint src/collect with the rest of the repo.
+3479af29c35b1e10a720cfe90ea031ffc966751a|2026-09-04|Point the Docker build context and domain notes at esports-trader
+eca06fc2ac62f713e536c50d97390cd44dae8b61|2026-09-04|Publish match_catalog.parquet and read it everywhere downstream
+37e822c929b8fc1532a9da0fc1bdf1f6e58d804a|2026-09-03|Rename live_paper to trader and point compose at esports-trader.
+9992c9ad783d517f2b563a0ddc21b8bf55f4b79c|2026-09-03|upd docs
+3262457802745eb8b0d46a76c57892444c9c0d44|2026-09-03|docs: mark no-unwind CLI as historical
+d72fbc6c3d63e0255191a4909f659d49dd546563|2026-09-03|docs: define the canonical three-stage cleanup
+f93f19de75a1477eb349379306e8bb2bbb54d23f|2026-09-03|test: keep resume_exit only on restart-mismatch fixtures
+509b6484fe84ebf8ef45ed4fa795d16d04e31f03|2026-09-03|refactor: remove dead live policy options
+6a08b7cf1d06e1722caeed868babb60cafded177|2026-09-03|refactor: drop dead unwind-dust cancel wrapper
+952f160db3a46580f4097a5192f242cfa1198a4d|2026-09-03|refactor: freeze backtest policy at canonical defaults
+5b2cee76633ba3200b1b2bff1b28d11a1d074b3b|2026-09-03|refactor: fix LoL training at the 300-second window
+6fa6ca8bff3f53777cbba166b91510ac1eea6571|2026-09-03|refactor: publish both Dota artifact tiers per run
+a29c85b3ff69e5b906641e133ee32670b6922b01|2026-09-03|refactor: drop extra-horizon passthrough from Dota train loader
+9d71f6d36b3b9857b81319e15e800d6d7a3b207c|2026-09-03|refactor: fix Dota training at the 300-second window
+c9d91d9182e889a0ae2bce9f81810b93d97f07f2|2026-09-03|refactor: remove model-bank routing
+b275ef5c5ed1abab21b22072c166b4472c93dbc8|2026-09-03|docs: record final-frame settlement after zero forced-hold maps
+dc1461c4c0737ec92311923803f9f5fe2e0b3d31|2026-09-03|refactor: drop forced-hold accounting because no LoL map reaches the safety cap
+9b897c12748c7d387b3073a404f5a92f74be6131|2026-09-03|refactor: use final LoL frames because every fetched map reaches map end
+e6aae12fe62ace0f4245951dd658714d4265745e|2026-09-03|refactor: fix validation runs at four shards for the 12-core host
+15528510338767823f89ccdbb7686e81a9b446c9|2026-09-03|Remove the Kalshi venue from live-paper
+160677a8ee10492859d7c31053b9bf55fe317889|2026-09-03|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+257869684a9eab15dbb65041371cdaab46eab126|2026-09-03|Drop the PnL-action BUY gate after it lost on maps after 2026-08-04.
+461ae1ba0707ba8f21cde491bbdf08f5a9e2fb39|2026-09-03|upd vps
+5a53651399157ebcd067f28b2637beb1c7f6b656|2026-09-03|Record the agreed Kalshi removal design before cutting the venue.
+9171ea9f6813c8a74f1028c6141c0492b421bed3|2026-09-03|Measure live GRID cadence from the paper archive.
+f2569235da11659a3398da6037f7d5b7c6c763e9|2026-09-03|Drop SELL through-ask after a 1 Hz raise tied LIVE.
+8a73bea79266307aa940673f6ac48a8c60f1abc6|2026-09-03|Drop entry-k and EMA-fair gates after both lost vs LIVE.
+ecd53589b7e9bf93d924239c0348d09a210a56ef|2026-09-02|Drop P(win) as fair after both games lost vs LIVE, and stop auto keep/drop.
+18197a88f1d8b7992d083e26e165229c3c5cd01f|2026-09-02|Drop LoL gold-velocity-off and stop treating Wilcoxon as a universal keep.
+afec91231bb850df5eeb08231916e1a16cf22e93|2026-09-02|Add chronological slices to backtest reports
+4a45e803f8bce15b198b07d0ea78026c3eef021c|2026-09-02|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+6d45a2ebf887e0022caa74ce6af97210034e284e|2026-09-02|Make grid-v1 the only backtest cadence and put three seeds in one run.
+82b2cda152307845fa236ccc56aa923d196a6d5b|2026-09-02|Cut the LoL Polymarket clip to $30.
+56980a887f5ebebfe34ef91462eb18f2ac1bbdef|2026-09-02|Scope the order-error halt to one condition so sibling maps keep quoting.
+eb78cbe03d9f635a787f955db8ec25c338caa9ea|2026-09-02|Stop the double count that stranded 8.1 shares on the CLOB.
+7b0d05d6881882fe02efff7af6529a034a43fe6f|2026-09-02|Keep the SELL at ceil(fair) when a jumper prints below it.
+e6c0ab274706aca2be0bea2302743e25440cd4fd|2026-09-02|Match the LoL Polymarket clip to Dota at $200.
+db90b65461025a4b2a6375a5f73627cf31b41a35|2026-09-02|Skip GRID probes for an hour only after a series is decided.
+3399def36be1df1fafc97bf0555f6c374bf06268|2026-09-02|Pull a resting SELL only after 45s of feed silence.
+4aab3d6ce38ee823cc0716bcea5a2c31b471fc54|2026-09-02|Let Kalshi poll reconcile while tripped so private_ws_blind recovers without a restart.
+06957bd75ea4b8ba4d06e56f16c348411366281c|2026-09-02|Record the stuck MATCHED fill as resolved.
+876e154317e949413758814127dfffd6f4332704|2026-09-02|Hold the heartbeat dead-man halt through boot and refresh the US-015 facts.
+0c5d52b46a8a57e6bbe5dbc24dd28924b595736c|2026-09-02|Keep the SELL min-life in quoting and validate the trade timestamp.
+54cf56cd7f8a0f4bfdb2cbbda43aae6fd8973f27|2026-09-02|Hold resting SELLs for 1s and time the 10s exit from the BUY trade.
+642bbb47448af4b9c702004f325702264f101a93|2026-09-02|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+8a5f73b9cb029779038a9fbde36692590952f407|2026-09-02|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+71c7c34da85957fbd205b537bd544fdb994c9d11|2026-09-02|Require --name on validation and point LIVE at the keep so runs stop colliding and experiments stop guessing the baseline.
+63d79ba949281fca1d862cfc7e0d24576e577d68|2026-09-02|Archive lead2min maker validation after Dota matched the old baseline and LoL merged 11 shards.
+9b64940e9c416c052af8aa721d77821854a8abe0|2026-09-02|Record the live-paper PnL audit so the ranked leaks survive the interrupted session.
+b5254552df66ed41487b4116169e0af4cdab7e8f|2026-09-02|Speed up maker backtests: skip post-run artifacts, cache Gamma, 2-minute book lead.
+186b542e289d5852df347170c902f352daca4629|2026-09-01|Skip unpublished GRID widgets for an hour and reprice on every tick.
+9038da6a5671a1a75ec4bde7158c66e2b2df1001|2026-09-01|Do not promote the LoL whole-map model: its whole edge sits before 2026-08-04.
+7504844a220f2fa4a56a3edd00d75bb249117c24|2026-09-01|Keep LoL late-phase labels and bank routing after the exits-only arm missed 95%.
+d556805b35400bcb7fdc471c1fcddb2452ecb048|2026-09-01|Finish a GRID session when the widget dies after cutoff.
+1520f4b679c5853f8463d95f4229cf1eb7cbfaeb|2026-09-01|Document quiet shard launches so validation does not pay for INFO/rtk.
+183c93c952487fb5048106241df06a1339b370f4|2026-09-01|Keep the up-only |pred| clip ramp after a flat-clip control split leverage from allocation.
+106f023670cd8c3d5c55e95282d36c4827927486|2026-09-01|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+0a8ddfae7525ccdb66c48063dc505eb270f2e3ff|2026-09-01|Raise LoL PM clip to $100 and Kalshi clips to $30.
+c0ac8f0a8c252139aa4fa28aad1bf2f9302080f7|2026-09-01|Keep Game 2 off Game 1's archive: match_id is the session, not the feed.
+26381fdc358367aa69685c05de55fac858a96fb4|2026-09-01|Stop Kalshi LoL from inheriting Dota gates and executor clip state.
+efef1e2ae8cd154fa43b1bd70c8526d67033d22a|2026-09-01|Route LoL Kalshi to KXLOLMAP/KXLOLGAME with a $10 clip.
+387691417ba68f42bd3f4f9f6eca9ca54ae4f278|2026-09-01|Keep a |pred| clip ramp behind --size-alpha after LoL Arm A beat baseline PnL/$.
+0db295b378cf901f3b91e1bf3ee6b3b76a1152fb|2026-09-01|Raise the LoL live clip to $50.
+1037f9b0097196eee3a6d2dfc2e7f877b827da13|2026-09-01|Archive LoL h120/h180 matched-share delta after they lost to live 300s/1¢.
+de245ea72eef746de9d12cfbb77c8867ac7fb2b9|2026-09-01|Add the overnight ROI maker-sweep driver.
+385b1282788f82283c189ddf9658b9bf859ce365|2026-09-01|Archive LoL train-horizon 60..900 after they lost to live 300s.
+58d47c7eb9cad4c088df4051c48976cf0e172147|2026-09-01|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+caae758d09b67194c2e6a766c33314e26eae3819|2026-09-01|Archive Dota minute specialists after the holdout bank lost.
+325476ecb745c4834e8caedffac382036570dbc4|2026-09-01|Stop live REST reconcile from canceling another market.
+97c48e3e255390b6e6536a4fdd93e6128d259841|2026-09-01|Pass a per-game alias table into team-name matching.
+6f7e372160cf419067a0ed417772df8f95e8c70e|2026-09-01|Raise the Dota live clip to $200.
+a1ae8b265a21d7660e565a2bb8fc51cffbc35efb|2026-09-01|Keep local CLOB orders until cancel is proven terminal.
+f172887b36eeca7ff4c5aa64057a0374a22070e9|2026-08-31|Keep Dota maker backtests for cut1200 entry and the horizon-window arms.
+e1e218a41f81692018ba557bb901658197923e20|2026-08-31|Keep Dota horizon/window train flags after 240/420/allmin lost to live 300s.
+c9e5939de148d441f42ecdda017280e91ff30da9|2026-08-31|Drop same-token add clips after N=10 lost to a fat one-clip.
+6f0c683f2d90faa62a0d2af1d113771bb7befa38|2026-08-31|Write every assigned game profile into the wallet Engine so LoL attach finds lol-map.
+54383bc89ecc33094308dbf675eee0b410605898|2026-08-31|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+363d8cd6ffde899e2a2cf0d5898b10e6d7b1c120|2026-08-31|Allow 0.01 quotes on millitick books without shrinking EVENT to 1.5¢.
+e5e7e337f52aa2c2367383a7203d6378f7d3fa97|2026-08-31|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+e240febe848336a276661eb5be1985dcb4fe4272|2026-08-31|Stop CLOB inventory rejects from halting the map.
+cda8f90e38e104d020c58d5ecb78ad85978fb67f|2026-08-31|Keep the LoL s2 no-unwind validation backtest for model 20260831T120843Z.
+267085cc2eefc670e621f7ab0b71103d6068ac08|2026-08-31|Add --warm-cache so cold Telonex Nautilus maps can load without a 10-shard crash.
+0f09a8c698fb6cb8d1b2f2f1d38ee8f2e9b8e0fb|2026-08-31|Run LoL live at $20 next to Dota.
+d01f563c38af13b40a220afebab6e8e356fbd8ec|2026-08-31|Show spawn-relative clock on the LoL livestats watcher.
+116b36c0b970490e138dca1e8957f981b5e33bd9|2026-08-31|Default unwind off for live and backtest on both games.
+f65504ef5b83bf131c41ec1b2538549f10209fbc|2026-08-31|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+881e8c65b875d2b24d9488e4cd879dc307a45947|2026-08-31|fix kalshoi and some things
+a2d2280256179d6a2701690d6c19737c550db2f8|2026-08-31|Accept reconstructed LoL Stage 05 maps and retrain research and production.
+af93787edef09b6cb983749947b469a7477bae64|2026-08-31|Add a lolesports livestats watcher for live Polymarket LoL maps.
+80f7728fbabff2b5122cb1e0fbebf0eb6d5f4c19|2026-08-31|refactor: LoL stage 05 audit table and publish order
+5829eeb0224b15ea2c8a3f635d6c0fbec8ad5cab|2026-08-31|Stop dropping LoL maps for shop flicker, late spawn, extra details, and local glitch frames.
+90d3c928e7d646843ee00d8e5b0728bd6501a41f|2026-08-31|Replace LoL Stage 05 invariant cap with committed audit JSON and allow Cash Back undo gold dips.
+267407cabd420b6111e054d8a6246f51913af98b|2026-08-31|Grid LoL Stage 05 through map end and store the no-unwind backtest.
+0b6ea08b9a9f548697103743dca163a845f19bcb|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+b51d8bff6a55a78610e367b3ec4adc6383178b08|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+729358dfff0cdb27494de1d9433ecca2ea015805|2026-08-30|Skip BUY entries when the token book is 8 ticks wide or more.
+b9bca5069e23cbde8d7b1bafbaf52a4437695773|2026-08-30|Store LoL GRID-networth maker backtest for model 20260830T142723Z.
+6e45aae8c9b5e4365d5ec9d9da90122612d6df49|2026-08-30|Record Dota no-unwind with gold-velocity off: drop, keep nw 350.
+4d27907f5fad3226084a947ea2ae98a640628a5b|2026-08-30|Make Telegram session pages show game, mode, and sides.
+e82ec9b9097e240206de3fc1075e73ea86af6a03|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+9e9b270cde619903558c6b1846543f6089b6be9c|2026-08-30|Retrain LoL research and production on the 20-minute GRID dataset.
+b136990c95adc3d90f58b7257d473b5d074ef373|2026-08-30|Restore the LoL Stage 05 grid to 20 minutes.
+8b1faaee22cd6cbfe68397c70b831a96a7cadc3f|2026-08-30|fix: US-014 - restore operations heading tree and journal schema 6
+7b666bf4ae6180fc321817b090e278ce7a51a89d|2026-08-30|feat: US-014 - Обновить operator docs и VPS diagnostics под две игры
+d04347d4287cd351e68d3dfd57b652de11a770de|2026-08-30|feat: US-013 - Применять game-specific gold-velocity gate
+c5f3576e24dce0cbc78015e18b44831637a91ccb|2026-08-30|fix: US-012 - reject unknown game at launch before spawn
+192ac92166d327eb66f976a7d930fa303733f397|2026-08-30|feat: US-012 - Маршрутизировать feed и production model по игре
+1d01c9a4e8faa1a4f4606370ed3909573a92de79|2026-08-30|feat: US-011 - Строить LoL GameSnapshot по profile правилам
+a1d298cac6987eccf10ad9e45ce35ce71e3679c0|2026-08-30|feat: US-010 - Дискаверить LoL markets через отдельный GRID archive
+f8836ad71c1e709884442d841d22c682198aceef|2026-08-30|fix: US-009 - MatchMetaKalshi docstring says schema 4+
+311493aebc87926718fe3c467c5943f606650918|2026-08-30|feat: US-009 - Записывать game identity в discovery и match metadata
+2d6d2c94a9f3a4bc117572ce51a4c4ca6cdffc8d|2026-08-30|feat: US-008 - Разделить Trader на live и paper compose services
+520deb8550926bca195dbbf182ae1e511621d703|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+13402bfbc98eb6c5e8cf632d86d0b49200cff3ce|2026-08-30|Retrain LoL research and production on GRID net-worth datasets.
+fc3e657c585b641fb83efa75273d7c3968413238|2026-08-30|feat: US-007 - Открывать WalletHost resources только для назначенных игр
+7cd2674dfb501b66b0e8666ef0638e3ab3a4665b|2026-08-30|fix: US-006 - name the pytest LIVE_TRADING clear after what it does
+532a34be5591e644315a66c7f885130d5e5f62d9|2026-08-30|feat: US-006 - Назначать игры процессам явным trading mode
+d2595a607fc0c8c08c02a76cab603b364fb60e08|2026-08-30|feat: US-005 - Материализовать per-game trading profiles и общие risk limits
+00c222b1364ff3caafb4d3d6a30755168c681f84|2026-08-30|feat: US-004 - Добавить frozen GameProfile для Dota и LoL
+3c98c08aee270417756e521311626b6ab268aa3d|2026-08-30|feat: US-001 - Зафиксировать контракт LoL GRID живыми фикстурами
+234229ab4dcad552d046bab6923041b7505b967f|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+9280da402282c46eaeed1b5becc1d89d748e5714|2026-08-30|fix kalshi
+eaa108b4073d483514b7c89f20cc7fa2338107e5|2026-08-30|Keep the last LoL prepare and stop the grid at 15 minutes.
+d7a5b608f8e784fe42991f46196be5f388200f2a|2026-08-30|Accept LoL levels 19-20 and raise the livestats invariant cap.
+4642e9f3d2cfd2b14c9ecc27497efc0d6ec9949c|2026-08-30|Price LoL consumed gold from the Data Dragon table for that map's patch.
+5bee0d32d1448ca7120f753e661c4ef77f4a89e2|2026-08-30|Skip LoL maps that will never have details archives.
+d0bbb51177ec9ea3866363d8d01b4c79bcb16b0f|2026-08-30|Drop bad LoL maps instead of aborting Stage 05.
+2d1f8d788f45a8e7531bce20b809b8aaee7fab05|2026-08-30|Record reconstructed GRID net worth in the LoL model contract.
+6a22bf9ad9ded9378a48cf31b7023abcc24131a7|2026-08-30|Build LoL gold features from reconstructed net worth.
+64009c4ffda3e071b2a139cf95623539b3322e44|2026-08-30|Reconstruct LoL consumed gold from pinned item data.
+4c9dd1fbfb3f6b6fd07c4ba3a57f6a85c488b1d9|2026-08-30|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+8f7e365b489b66f7078df49c275beba257fb2a2a|2026-08-30|Fetch LoL details frames so net worth can be rebuilt as totalGold minus consumed.
+615aa2452ca293e73f4aa829afcb042035f7fe38|2026-08-29|Bound Kalshi quiesce so a hung overlay still writes PM session_end.
+624c02f2e67550f7b907eae54e8a156d1aec03ff|2026-08-29|Report the death-derived clock offset and read gzipped recordings.
+b147eec7b9427eaaccbb26272eb74a1c5649645e|2026-08-29|Run the livestats clock through the real pause logic in the comparator.
+047ed1ea03c206dbf28c24efc5afc274c717c10e|2026-08-29|Add three probes that test GRID as the live LoL state source.
+375e4cb872e8879bb74e6041ce9e1fc48d5b3abf|2026-08-29|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+06363544613c92ef117881f2173e8cecaf04088c|2026-08-29|Name the 7200 still-going flag after the fact, not the old 20-minute cap.
+9b95b767cd81f2d6aa1f9599f862fa6bda293334|2026-08-29|Fetch LoL livestats until map end so quoting can run past 20 minutes.
+ce7a36347f284fb1243d3211536afe7a5ad8a528|2026-08-29|Drop onchain_fills_* from catalog required columns so slice_catalog does not stall upstream catalogs that only ship books and trades.
+5d8a628b117bf159fda1ed7ea959355b47f0d32e|2026-08-29|Require 300s in --label-horizons so overnight extra columns cannot drop the train target.
+61bdfde65b54bb0c9089166838cfc2907d1af4ea|2026-08-29|Treat a Telonex trades 404 as a 0-row day file so an empty asset dir cannot pass as coverage.
+376490e3c1abfad131b5efbab5e7f9749b31a35a|2026-08-29|Pin CLOB place tick at 0.01 when sidecar advertises millitick.
+b8e494c32594f75cb83774bf22a3e91cb35c6885|2026-08-29|Seed livestats .partial from the published archive before append so a crash cannot drop the prefix on resume.
+4d7e1f8c43af036df0d0089376406b26fb461429|2026-08-29|Record Dota no-unwind maker try: leftover inventory to resolution.
+37ae16940564ff42e5cdeff6b38fa5cc9e1370da|2026-08-29|Fold LoL backtest artifacts into prepare so Stage 07 can go.
+75a50dfd7fc280eb1e280db91c1c6d7c4237060a|2026-08-29|Restore Kalshi fence join wait so boot/stop/drain await an in-flight runner.
+f204a7d1f210f1349de6aedf15bee9c134aee9d8|2026-08-29|Keep Kalshi I/O off the feed loop and make sqlite the working-order source of truth.
+7453ecb5e68ce7b734e6b1ed9e558f2e4bbb0fd6|2026-08-29|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+90accd6c14f61e8fbdee838d9886be3b25cb55ff|2026-08-29|fix bug
+4844ecb93e55d7efa3d13b96e41d33d373fc1af3|2026-08-29|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+62fa1f8afa0b0a503202f844d530b6a5ca22ca13|2026-08-29|Write Dota validation rows through map duration so backtest FV can roll until game end.
+252f6560553da6d17822b064b85d35372cc2f514|2026-08-29|docs: record LoL overnight maker and horizon sweep
+cc0e8cedfbbec9549e4b494da744134d1d94eb5d|2026-08-28|fix: Kalshi user WS is ready only after subscribe ACKs; retire books without killing the socket
+19ac67d19c45d5eadde5c4a4be7a8a4f82204450|2026-08-28|Retrain LoL on the Dota 12-feature set, lag 10, and 0..540/899 windows.
+aaeddcd47918dd2bf36f4652d31fc23b34afd970|2026-08-28|fix: take LoL Blue/Red from livestats window, not getEventDetails
+9fcb1bcd33b1cdd33825d963ada3e9eba998b5a2|2026-08-28|Add LoL livestats lag watcher and GRID∩livestats feature note.
+1e9b39322272d48ce1f66a5a483bc12bbd8336cd|2026-08-28|feat: thread LoL campaign candidate through trainer and S2 replay
+b08c7103f7555ce31a5caf6bd70bb9146bf86294|2026-08-28|docs: plan adaptive LoL model selection
+b15c8c3eee657b0c5b9cb04a797e645c3d793846|2026-08-28|docs: drop Dota 120s train label after maker backtests
+74e795c995ebbffccd58a4f152dba3e5b7dfc8dd|2026-08-28|docs: archive LoL horizon sweep tables
+8b4aa415f43288587267383347b6bedc1056dffb|2026-08-28|chore: track LoL and Dota validation S2 runs
+1221f7de5452cda68e5a1de566e0d295e98b2636|2026-08-28|fix: LoL Stage 02 downloads validation books and trades only
+5a38d8e628c23aff52e304de95afc9aa51be5b9c|2026-08-28|feat: LoL horizon sweep and 0..1200 delta labels
+0cc03df8c269b70d3a93052b5d788b802ec1fe38|2026-08-28|feat: offline Dota per-label horizon DIR grid
+09f3b69f2024e9f98511cfb35030798f5929ed88|2026-08-28|feat: LoL role features, extra label horizons, and smaller replay batches
+9201a6f75969ab5930222078db36901554500bb4|2026-08-28|fix: fund the sim account flat so results stop moving with batch size
+e12e5e325bc4dc039d3dd10f332434a49a94a747|2026-08-28|fix: LoL Stage 02 pool leak and Stage 07 replay input edges
+21d430c3c05a169a55b876923b8c493ab9229b0b|2026-08-28|track LoL models in git like Dota
+66b08465ce23b8ac83bee6f0c915c092caf627ea|2026-08-28|feat: US-004 - Учесть cutoff и forced-hold tail PnL
+f8586b9b92653f4b34de81b72298706ee147bb8b|2026-08-28|fix: US-003 review — drop game dispatcher and report_root helper
+1640692c9551399742d62c238180dfab4105ab1b|2026-08-28|feat: US-003 - Подключить LoL к общему backtest runner
+5de4c873f7cd27fc7d47f4846204365199b25b13|2026-08-28|fix: US-002 review — labeled-match gate only after rebuild
+67f9344908c18ebf507da976e6925d2f32d2435a|2026-08-28|feat: US-002 - Подготовить LoL Stage 07 replay inputs
+f8e7a99a49de877988a072d9f83f604b29813386|2026-08-28|fix: US-001 review — explicit channel dispatch
+08f4bdf9d9f440e6492f39878d1a0276653e06ac|2026-08-28|docs: record dropped LoL minute-boundary train
+b3d6a0604027b9b613d23261eed75a8508c3df87|2026-08-28|upd date contsant
+9729d743e70465fb9425c873b85efa7db7b89a50|2026-08-28|feat: US-001 - Расширить LoL Stage 02 execution archive
+53321ab220f892f9b6be6c968c3f3d8deaf68a1a|2026-08-28|fix: pull Kalshi rests on GRID/Steam feed timeout
+84f62f7f31f98c2a1e99854fd05c7b560ec17060|2026-08-28|fin
+547a024097d84c1b3b9f92b6f9e385163526db24|2026-08-27|refactor: US-007 - address review findings
+cbf2294dcf65f9581db62975285f6c77bba6c952|2026-08-27|feat: US-007 - Реализовать отдельный LoL model trainer
+34bfd31d7b9fc6a93b3d935c7ed2469b8c6ab9d8|2026-08-27|refactor: US-006 - address review findings
+14eec0a7d48f66e93a9b0bb57c1cff11c6e38451|2026-08-27|feat: US-006 - Построить полные LoL datasets
+438645f386ea59ad4abb78e09041b76ca2c421fc|2026-08-27|test: US-005 - assert auth header and backoff sleep
+d71bb620ae233c0cf03d675ebdde340164cd27e2|2026-08-27|chore: US-005 - bump Telonex download workers to 20
+3825c739d97dc04aa418623790c934a3f2b8ee44|2026-08-27|feat: US-005 - Скачать архив Telonex после GO
+6ce3cc349b7829ac2d99f2586645733e31ce54c7|2026-08-27|fix: parse live getEventDetails (event.id, team id, schedule start)
+8dd7351e472c3565d7872cbe0e583e00b2db22dc|2026-08-27|fix: US-003 - atomic partial rewrite
+99b08d31287e9111de5ce4e58ce51fa29affe711|2026-08-27|feat: US-003 - Архивировать lolesports livestats windows
+f1d34710a5ee8a3043c702db5a19ebcac26c7951|2026-08-27|refactor: US-002 - address review findings
+393862c1674c7abd8f72b2434b380afb590bbe34|2026-08-27|feat: US-002 - Связать Polymarket events с lolesports maps
+49cac0f666a625a4a7ecea197db71f507a45e213|2026-08-27|refactor: US-001 - drop dead decider branch
+acdb04ce6c2808ca7172bd1e06ecf3a5802dcb27|2026-08-27|feat: US-001 - Собрать Polymarket LoL universe
+08162260d65a126e6cbee69b74706ade468e0402|2026-08-27|move plan
+fcf52c064becee038ba78b862b545ecff4413997|2026-08-27|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+3d049bfe8ea927f3c8be3f35fc852b79daab178e|2026-08-27|upd plan
+c406cd8164bf2b1e9d2330c7c29653b72a01c303|2026-08-27|docs: gate LoL Telonex work behind preflight
+514bda4744a0e592e6548f31da714ce8ebb83819|2026-08-27|upd plan
+517b2ade8a3f6e547006711e0ccd9d9cdbfd652b|2026-08-27|upd doc
+df7e8314fc3faffa587ae0629554a3d966d70e10|2026-08-27|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+a7db3a3e7fc351fd5464d9bdaa4f27c66fb7bc18|2026-08-27|test: the SDK import fence matches an import, not the substring "import kalshi"
+4b69cc51606ab9e1a12c3b76273c9ec1f907213f|2026-08-27|refactor: break the match.json Kalshi import cycle and drop five leftovers
+bc7788a908898fdd4b9a108308cdb7d7bad5dd28|2026-08-27|fix: smoke fails in one place so the fence cannot be skipped
+cfb81baff8c2bfd31ab87d7822d0f240fb235478|2026-08-27|fix: Kalshi fill journal follows ledger seq, not a full-tape scan per tick
+aea0e603ac1ee6b5a2edcdd7077be7aaf3ecf9ab|2026-08-27|refactor: split Kalshi match.json bind and JSONL writers out of PM modules
+598838d6e9ab266e2caf9982ec1ae95d2324a47a|2026-08-27|move plan
+da188f66f2e0e6f3ed91311fd95cd7f253f0a538|2026-08-27|fix: entry gate picks yes/no, not a venue token id
+d367c62af9dde11ec6d4d0ca17e2d80803f81d13|2026-08-27|refactor: one flock, one Kalshi series, one WS pump
+278cb8399134d27e978b6334ee48cd10de1e41ce|2026-08-27|docs: define LoL data and training pipeline
+800f0f6ad2afe9118688913dce454ab3c094715f|2026-08-27|refactor: one Kalshi observe apply path and a typed desired stamp
+8aa8521df33c180b579813c959f6c58454387e31|2026-08-27|refactor: replace KalshiSettings with a three-variant union
+8410e9a805c26a3b65e217d7dc59df9f9ead8f38|2026-08-27|refactor: pass KalshiTickDecision and fees into executor.sync
+7167fb66c2ca3cf9818edf5793a3e7191bb3f335|2026-08-27|refactor: replace Kalshi session flag ladders with explicit states
+619258478e25fccf6ce164062e3dda28cee50897|2026-08-27|refactor: settle Kalshi orders through one status rule
+d67e54cb36664ce33fb5e14e23ae4ecf3c3c7e62|2026-08-27|refactor: split kalshi_client into types, REST, and WS modules
+4c04e2a143641a461379ddefeead26d520c23aca|2026-08-27|refactor: type Kalshi WS mappers onto SDK frame models
+b51228acbd899eb3152fabf1c627c729cd8242ed|2026-08-27|refactor: type Kalshi REST mappers onto SDK pydantic models
+0fea8bae7d2ff226618c80a0b4e9aa8cdd6a377a|2026-08-27|refactor: one KalshiLeg owns the four outcome/book dispatchers
+27c6a31974780d69a5aa4c55d61279919e87f76f|2026-08-27|fix: keep Kalshi prior, poll, and live quoting after SDK/stream faults
+5fbd48c47b750db6d43e66a42d60ab83af141496|2026-08-27|add lol info
+477fcab88317ca244ae5a3870b5e7d6780e4fc9d|2026-08-27|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+d2c174dfb953a702078a3659c24c84161b6b0d02|2026-08-27|feat: US-015 - Kalshi overlay docs, read-only PEM mount, live-paper rebuild
+da69db56316e445ed1348d8a2e2db7700c6ec8a1|2026-08-27|feat: US-014 - Kalshi demo execution smoke with real PASS
+3695185904139a3caef7311cee82fb167c97aa82|2026-08-27|cleanup docs
+301781e4ad55329e69f4793173b6ac13a5cad310|2026-08-27|cleanup next steps
+b8f36317e9697a5a1235ac288897e2c913789205|2026-08-27|fix: US-013 - move pin_engine_identity to engine_seams
+bd26edf7d2589987a53335d1ec09fe8a994910a0|2026-08-27|feat: US-013 - dual MatchWorker quoting and Kalshi-fence teardown
+b27556be5c9e29d8d6d17486ac25f409f96d536d|2026-08-26|fix: US-012 - latch unknown cancel and keep occupying only while resting
+44657fcccca618e88a1ab0afb177bc4062c4aa3d|2026-08-26|feat: US-012 - kalshi_executor: desired-order sync, комиссии и fee gate
+82c003d2d35748b2edc74ecc3f73e7f87999049e|2026-08-26|fix: US-011 - stamp Kalshi fill position_after from the ledger row
+2e1e4df2dfb67ac1fb9be82a6a2ae1944037ebce|2026-08-26|feat: US-011 - session.jsonl schema 6 venue discriminator
+a5206d9af588bd49c5021b88dfcd3a04c5a79ba1|2026-08-26|feat: US-010 - kalshi_session: boot-реконсиляция, ownership и периодический REST
+8634d5fb1d2078b3cf76b283898042a53684eb24|2026-08-26|fix: US-009 - serialize concurrent faults and gate reopen on proven fence
+d1c0d2058ffdfdee21a10e73f869dcbe2cb464f4|2026-08-26|feat: US-009 - kalshi_session: книга, readiness и локальный safe mode
+ef0966ea8ea44d250e283f8dfb1c0d6376dd7878|2026-08-26|fix: US-008 - advance cancel intent after unknown write
+098df52c829659b84209166f44df0295830d4f3d|2026-08-26|feat: US-008 - kalshi_store: sqlite intents/orders/fills/ledger
+b7818bc5bf379c824536bce12a520d9e4b59975b|2026-08-26|feat: US-007 - kalshi_prior: map-load P(Radiant) из свечей
+f5874300f707023dda3dd67d203878d43d2a77ed|2026-08-26|fix: US-006 - map WS handshake and silent-close faults to typed events
+f413f0f2b31216456c890147ea789d855485e089|2026-08-26|feat: US-006 - kalshi_client: auth REST и WebSocket
+affbee185d7fcaa5b8ecedd6ef9e5145423c8cc6|2026-08-26|refactor: US-005 - extract kalshi observe collaborator
+ecad51e8bbae3c2f2921c3174e2d75b39131066b|2026-08-26|feat: US-005 - Резолв из _pick_and_run, ретрай и Telegram bind
+60c4fcf6e8104b5eb382979ba77de1c055f65725|2026-08-26|feat: US-004 - match.json схема 4: объект kalshi
+571e5657af325862922bb191ed810568e782edde|2026-08-26|feat: US-003 - kalshi_match: резолв тикера, fail closed
+549296e04014b0c4d1b67ce3af072d9f23f65f47|2026-08-26|feat: US-002 - kalshi_client: публичный REST
+73f18ec9d3f12946fee23734ab9f5aebc6358460|2026-08-26|feat: US-001 - Зависимость kalshi-sdk, env-режимы и таблица [kalshi]
+c52c2d90f7c02c3c87e37a50574a68ad54fb39e3|2026-08-26|gitignore keys/: Kalshi PEMs briefly lived there before moving to /root/secrets
+9c53ffe83a82a64e5d9aa8263b626f31d227bc98|2026-08-26|Record that S2 wide-book post lost to join.
+655d51b93fd7ebe27b65a41baa418fa7674b956c|2026-08-25|Raise GRID stale timeout to 16s so unique-gold gaps stop ripping quotes.
+e268c40644dacf5e8e9f0aa51622a188f6bf2e28|2026-08-25|Remove the dead live-winprob dashboard and Telonex rescue script.
+53ee439de4d58bfc7de1b90a8a444fd9eb1d5403|2026-08-25|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+b278a2957f1d945b9d03d9a47b880b9a365659d3|2026-08-25|Remove unused backtest Streamlit viewer and Nautilus HTML reports.
+ff1d481266806358e560bb9605b16bbd4b359338|2026-08-25|fix: keep Cyrillic in team names and unglue Tearlaments from Yakult
+237866fb09f62929349139e1a518b2bed020b157|2026-08-25|fix: let the first worker attach and resume when Steam labels arrive later
+f29f9f42e30cdf670c2d23b8c28af94fef954af4|2026-08-25|fix: wait for GRID sides on the next map and own one task per condition
+4b0de465d57088a3ba569e525b777096a16abb41|2026-08-25|fix: read a series_table that has no increaseLevel column yet
+9067f38e8c16ca1679a0568d2ccdcc10ff307de5|2026-08-25|refactor: one discovery pipeline for Steam and GRID sources
+180b92d71c4b8460aa3c0d659fad13bc186065a8|2026-08-25|fix: score team aliases in both directions
+f434e36b8ae722d4fb7c253f6d32f9c5102be9c0|2026-08-25|fix: mint GRID match ids without Steam and bump match.json to v3
+4037fc3812d102819cfd257a0e341fa63f80f5b2|2026-08-25|fix: probe GRID delay from scoreboard so the socket opens in draft
+cae35662d75d5bef6ab3580421d7b7dc7b0b52db|2026-08-25|fix: pin GRID orientation to market names, not Steam labels
+773d5945255c28a1f7da1213b0442322ec7b7ba8|2026-08-25|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+978df5a498693c28d4ad2e7b4d3b6af71dd3f35f|2026-08-25|feat: drive every USDC limit from base_size_usdc
+c65c5ee2f145b540115c9c46e69c00df0368943b|2026-08-25|fix: allow half a share tick of float residue on the oversized-SELL gate
+1208ace1eb97ce93c3089fa03f526043a23a6955|2026-08-25|record: s2-join backtest of 20260825T014658Z with as-of 30s gold
+5b6eb3d686b180a42c2dcec03f64e4dc07ebd056|2026-08-25|fix: snap SELL vs held size to CLOB 2dp so split fills do not halt
+14af0cdb7feb66a2b6d79c84736136c3136ebe5a|2026-08-25|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+9abea7a18cd0deb80e8fdb194a41c96556aab5e5|2026-08-25|fix: keep same-bar prior lasts and probe GRID maps in one pass
+bc561b16521f4c78bdb0f3621003470d8a0a6b63|2026-08-25|fix: take live map number from GRID, not Steam 0-0
+7ac88bc48621020ae4e45d0134a268f748c0a0cd|2026-08-25|refactor: one as-of 30s gold rule for backtest and live
+216e9c9cdb51e2fc804e4d78a6fe704ff4557599|2026-08-25|fix: look back up to 10s for live 30s gold velocity
+ee2917ef832ef5221ef00ce03e9f369b4d09ffa1|2026-08-25|fix: split feed-wait from feed corruption in the picker skip
+65e1b8dc780cb86923c688fdf382116113878a6e|2026-08-25|fix: wait for a feed on draft instead of exhausting crash restarts
+bf5be9d22ab0fd97aab06907ab2942e01f9291af|2026-08-25|docs: record the lag grid; keep train/backtest lag at 10s
+1e20ab7c2bd38cfc59714f9056f3b5b0e37b0e94|2026-08-25|refactor: flatten the live entry floor pick so ranking stays max-edge
+50a54547c8b81826eeb758f13d840b22281d0369|2026-08-25|feat: apply the 0.35 entry floor in live paper, not only in backtest
+5cb34138867828319fe5bc59b843161ad8d24fd9|2026-08-25|perf: halve the replay batch cap to 25 matches
+721199844763cb8f66307e3f983218904b7d2e79|2026-08-25|feat: take the production tree count from the research fit, plus the lag split and entry floor
+0336d02356c0617a19fac2082c8b8b8fc9e8801c|2026-08-25|fix: align map-load prior to the older prices-history print
+605e722c078eccc00494e24c3e41fc60e2f30dd7|2026-08-25|refactor: pick the live feed outside WalletHost and split GRID archive from reduce
+5ca5c4fd986eaec44ebf8f51aeccc85d9902494c|2026-08-25|feat: US-005 - Pick and pin the fastest usable feed
+77fa2a16c86bbcc1383a00927c9d0cfe6241c072|2026-08-25|feat: US-004 - Make archive and match.json v2 source-aware
+e87c0d7c353c7328f1685ccefb2f3bc3450f75b5|2026-08-24|feat: US-003 - Extract shared GRID parser and implement GRID LiveFeed
+45ebb87f36776100a8f1d06d7d342f05882c1a2d|2026-08-24|refactor: one Steam phase mapping, document the tolerant delay parse
+b9c7fd5465b4d3a3e4ef2efc61ef2e8e0143f3f9|2026-08-24|feat: US-002 - Carry Steam delay and move MatchWorker onto LiveFeed
+c6485e2880025ede22da51a627ad5dfa78ffac67|2026-08-24|refactor: drop the dead backtest poll constant, rename --arm to --fair-source
+3357aa10627ab5a054557da1e3852ef110846171|2026-08-24|feat: US-001 - Split cadence, retrain lag-10 model and compare backtest
+33897221283a10124c3d28566079a2d14d8b8f49|2026-08-24|Delete the live-paper offline parquet converter.
+4038f6359a6c344036bc44e64ad2d6f7774903ba|2026-08-24|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+da0d725378657d7a7d3884ac323b6c42b53ff926|2026-08-24|Harden backtest validation and add GRID diagnostics
+f1fca09b677a1fa13912c01aefdd6befb5a514c0|2026-08-24|Scale dota-map live sizing down to $100 clips
+312d5aed24c0b25bab79834d24f583846e97572c|2026-08-22|Drop the pre-draft prior feature after a losing s2-join.
+834d5e0bef2c409d983c88ac209d61faf644ba55|2026-08-22|Replace README with AGENTS.md and keep working notes in docs/.
+c3493bc912e3464e7b09f1671e579db0b50ec427|2026-08-22|Split models into research/ and production/, publish both atomically
+746bc80033114eab48d4bec4cfb67c4bb0746aa8|2026-08-22|Merge origin/main live $500 dota-map sizing.
+8972e4b7e9a6e651b5ab55ce9fd591e198bbdd31|2026-08-22|Track backtest run dirs in git without shard copies or quote_events.
+11843de69d5114a9aee492dc07a860413f51920a|2026-08-22|Track production/validation_scenarios.csv with the rest of the production model artifacts.
+eb52070000de6fd40c2ebc568d43d681b94c1dcd|2026-08-22|Train a production booster on all included matches and point live paper at it.
+21bce918b48b5644d9157f7f2145bf1634403701|2026-08-22|Anchor the live-paper fallback window at map load, and stop rotation deleting a model.
+bb5ac6a61f69c1cbbc85439ccd4839e29af65d6c|2026-08-22|udp config 2
+e47775ee0b2468d66588d90f1fe7445dd21b6088|2026-08-22|Rebuild train rows from minute leads so prepare keeps the full train split.
+ec61d30e53aaef343201e4b62ecf217935d4548f|2026-08-22|Route the live-paper fallback through resolve_window and the canonical archive reader.
+df5f436aa0cc995737a7098b2c0df51e4fda69ed|2026-08-22|Fall back unmatched GRID windows to a live-paper spawn tick so TI maps get a startedAt without GRID.
+0d97fd06ce71c5b932fb0cf06eaaf434e24e3f99|2026-08-22|udp config
+3d45a63b3c68a4bdeb970cdda90db51dcca4db6e|2026-08-22|Fold the duplicated held check in build_dota_quotes into one block.
+0afe6fe301eb9c1a4c12cdd5d346735eab30a0c4|2026-08-22|Give the postprocess split a leaf module so wallet_path stops importing postprocess back.
+b59bc23ee34760c4105663bace810a22408c7086|2026-08-22|Key submitted size by order id so a fill racing a cancel keeps its own order size.
+c9735e1780290dd1de46b8f35f4e4cf70aebdf55|2026-08-22|Point BALANCE chart corners toward the vertical so a one-row rise reads as one stroke.
+e1d129ff15d249a2bd6c8b33835f92c8eb384704|2026-08-22|Count open fds via /dev/fd when /proc/self/fd is missing so Darwin can run the silenced-stderr leak checks.
+7a85bc3b65a07e868f371ebbf550c2e6ca8abd25|2026-08-22|Nest wallet and hold in summary.json like markout so the report and tests share one object per concern; leave min_equity flat as a different horn-order series.
+a1ea02b424e60a82986a8c2e1d9667aff6578a34|2026-08-22|Keep _can_afford as a cash check and skip join prices that floor to 0.00 so they are not no_cash.
+e656dd2ae744c93634ac78b7f31b9f7eaf22637c|2026-08-22|Cancel only a leftover BUY on unwind dust; leave a live SELL resting.
+2050eaa16d0df73d087537aa7368370983161e3d|2026-08-22|Count partials as leftover orders vs submitted size, not as multi-piece fills.
+5e1e8a2597dbb492bc397e4f02b6304f81b7288d|2026-08-22|Drive the wallet equity path by calendar time so same-ns BUY+SELL is net cash and a fill at t0 cannot overwrite the deposit vertex.
+43ef6d319c021f8e7e36ec39275a5aed93953f22|2026-08-22|Split postprocess so the terminal report and wallet-path can evolve independently.
+5998705606fd6f96d6e65a3594613f634acec6cf|2026-08-22|Size backtest clips at $100 and sell any held >= 5 so incomplete fills do not sit to resolution.
+029f0a8bdd0750703978325fe1d0eea5dca8f58f|2026-08-21|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+96bf47a01f168e5fadd9e4e6f87c2718df011ab5|2026-08-21|Record that binary P(up>=1c) mapped to delta lost on s2-join.
+b8d96bef0affbc737114e2641259071e5f1a1f16|2026-08-21|Record that |label| weights and gated early-stop lost on s2-join.
+8ad998d35475c103b5f6f3a49e3467100c4bc2cb|2026-08-21|Keep the engine journal as our private order/fill tape and pin horn from the first spawn tick.
+12afb4e8de8d15b204a04fbaa4359b6c762055d9|2026-08-21|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+c655873d075251cb6ebd77b030575033f55f7685|2026-08-21|Print shared-wallet capital and a start-anchored equity path in the backtest report.
+5ae0f3c993a3845ce01fab3ca9da9900929fa2a9|2026-08-21|Raise live entry to $100 and risk caps 5x.
+8ce3b270e3da8ab88c086bc790e839c72877ec55|2026-08-21|Treat leftover below CLOB min as flat so a 0.009 SELL residue cannot block the next clip.
+f973fb64facde9b718225eee87cf94fc4483a6ea|2026-08-21|Record that frozen entry-fair SELL lost to rolling fair.
+ab6d85b284f214b0bff629223b23092d1a49b0bd|2026-08-21|Let backtest override exit settle without changing the live 10s constant.
+57d973f4ad4dfaab8aeb36f1b067daf0fb1669a4|2026-08-21|Hold SELL 10s after the last BUY in backtest and print a compact summary.
+8bc84c227fa5cb77f58fd6ac20521f470552a88d|2026-08-20|Keep cell+now quotes and hold SELL while store.inflight is set.
+8c74655d67057259ae9e3465b7d510750fab6950|2026-08-20|Bound pre-horn clock at MODEL_START_SECOND, name PREHORN_LEAD_SECONDS once, and default empty discovery cycles.
+2326d1bbe0dd973e2b652b2b333f5ba85c88067c|2026-08-20|Nest static market bindings so a Steam server change is compared separately from identity mismatch.
+ac42a5bdee38a21a6b606dde30ebec7e71acd15e|2026-08-20|Flush RepeatingWarning's old suppress count when the message changes so Steam HTTP failures can share one emit path without dropping counts.
+875ac2655530def8f257f3f29ac9fc80ba3358ab|2026-08-20|Flatten window_reason so draft/showcase clocks stay PRE_HORN without a new SignalReason, and drop unused is_after_horn.
+20656dafbdfa5aafe19c1082749c80f9ae4320c7|2026-08-20|Give build_dota_quotes the cell and an injected now so sell_after tests do not patch monotonic.
+273fdca560e4669888cba10adff10f180919cca3|2026-08-20|Let market-prior HTTP raise so the worker can retry; latch only missing_quote.
+81aac251c98f5b7e3d127b0c9226fa9f8b3c45be|2026-08-20|Pin signature/chain without wiping funder; pin funder only when the gateway actually has one.
+2fa3ebe5afb819befc97119c26f92d95341586f8|2026-08-20|Move fill size parsing onto shared require_number so scan_open_round rejects bool/NaN and foreign tokens the same way as other untrusted JSON.
+fe9faeed889eb796e2726eb13ccdc9f507d1e949|2026-08-20|Train rows reuse ExactSecondState so there is one STRATZ walker, not a second npm/playback path.
+91cf575ec5308b5c3aa5fc9208baf538a7a7abe7|2026-08-20|Mark resume lock as resume_locked and unwind from held size, not a faked round clock.
+b5e3476d2348f8c2f61d1bd59de0a0f179654e27|2026-08-20|Stamp settle only on BUY so a SELL cannot block divergence or exits.
+974e0a82c675cc4461338c3af812b0d54723b466|2026-08-20|Drop --max-abs-nw-delta so every run pins max_abs_nw_delta_30 from MAX_ABS_NW_DELTA_30.
+66956498f52e1f3b22055f2585ad7737e3593d54|2026-08-20|Record that restart unwind and settle restore shipped in 5992343.
+599234355b1c0a1c1a38060a1252998e8c4c6ce0|2026-08-20|Restore unwind and settle clocks from journal fills so a restart does not reset a live round.
+b71c1e9b4b38b9d51413fd017dd1dcb364b8f9ab|2026-08-20|Record that live prior and pre-horn quoting shipped in 482b7f8.
+482b7f88d20c0162a5c005a774a1e5920b6fa8ec|2026-08-20|Feed the live model the map-load prior and open quoting at Steam spawn.
+55c9e2ae028c5b4c9902c7818d425a628246d57a|2026-08-20|Start maker reprice at the first signal and share a 350 gold-velocity cap so pre-horn entries are measured.
+65c8feb44e59e047134ec40d638474ce88bc6d9c|2026-08-20|fix plan
+1120866b3c7a8402782fb7232c19e940da360f98|2026-08-20|upd plan
+2985b01cb47663ffb2895c45de4272edf9a92cf4|2026-08-20|Hold SELL while store.inflight is set.
+56685919694c740368100397d79e3d8cf941d8d8|2026-08-20| plan
+8db9429ab0f42a62f13c0374c4f6c9a81f9d7645|2026-08-20|Merge branch 'main' of github.com:Dimabytes/dota_2_model
+6886f31c45db122f6c67396e796cb51d09ccada1|2026-08-20|Start train/val/backtest at -60 so 30s gold exists at horn; retrain as 20260820T133559Z.
+ddecbf1eeb8591ce9ecae9f6a4293e35d84bbf28|2026-08-20|Fix live quoting on draft clocks and lag-flatten of a just-filled clip.
+213bf8256a4a643eb9df143d0322e0fa69fa60f0|2026-08-20|Add --max-abs-nw-delta so a backtest can try a tighter gold gate without changing live.
+8001a45f0baba0ffbc3758884df933ad32d33dbb|2026-08-20|Add map-load market_radiant_prior as a feature and retrain as 20260820T100434Z.
+7445120da8b88780ea913d9c8507603d5630f498|2026-08-19|Cover the wallet remediations the live daemon actually runs.
+d2708169929269b6bf2f45a2204e2ac5ab8d4231|2026-08-19|Pin wallet identity before start and drain in-flight places through teardown.
+64b210e776e93ec482cde86b288e5279e6bdee76|2026-08-19|Rebuild FAILED from remaining fills and ack outbox only after side effects.
+db41f2df52e895e3a57f6b766a90ec31497a3824|2026-08-19|Quiesce every match exit and drop leftover from sqlite on Steam-final.
+d756eecfa2d3f35234dc5ae4845a67ed479ef7c5|2026-08-19|Resubscribe the market WS on attach so a second CID is not a dead book.
+c2f54582e5661ecc4db71293a853449c76da419b|2026-08-19|Remove the leftover one-session runtime; WalletHost is the only live process.
+d2212e9ad1a353243a4571502410ecf6a320ec1c|2026-08-19|Run live-paper as one process and one wallet Engine.
+55b498aed7ec49f1eff34213381ed2f77686db3f|2026-08-19|Delete the net-worth tie-break; the top-1 features are order-invariant.
+50c62476d5c9f311642631b9897b560c9ff243e7|2026-08-19|Replace carry-death counts with team gold totals and retrain as 20260819T151315Z.
+f95437da000b4d52d3a7b51e2b89c63763bb3ed4|2026-08-19|Ignore polymaker scan artifacts at the repo root.
+1cc4bdfeae5737ac8ba93a35da9250ac19e1b62a|2026-08-19|Enable live CLOB from the same paper daemon behind LIVE_TRADING=1.
+ffbf6aac6e4ae6324ff87d4a19df1d3ff00ebeab|2026-08-18|Retrain booster as 20260817T212849Z after net-worth tie-break sync.
+ee44ddb6c7d1129e99934480b5e11f11465e8799|2026-08-17|Nest top-player features on snapshots so the next feature swap is not a 25-file fan-out.
+9932410e7d725d017e9e051e0473248a01d20ec0|2026-08-17|Restore the 13-feature booster after the scale-free run lost on s2.
+cca9d3e707d043dc6f3403cde5b08e22840b15dc|2026-08-17|Replace personal-death counts with scale-free shares, spreads, deaths_nw_adv, and towers.
+7008a0cf84dac64bf7667984ba7e28fed363a12a|2026-08-17|Add seven top-player net-worth features to train, validation, and backtest.
+93c9a7fe748e72791b9d95f6c687df6215a646ec|2026-08-16|Quote live paper as s2-join: join bid, 899 window, schema 2.
+b693ad731464aca0e3f8e29a696f07b6928f3cde|2026-08-15|Retrain after decider linking; skip small collector book holes.
+8434968b26df3414566d88f1a7e00ed5372ef412|2026-08-15|add deciders
+a1e265c2913c869dd5b8d9632eeed136001558b1|2026-08-15|fix: send session-finished Telegram on the child thread before exit
+c22b0c1c2fe30bac30096b1eb72d77555bc8d540|2026-08-15|bugfixes
+21b4c3b6758776b95cef17b46880418a46c1ea63|2026-08-15|feat: [US-015] - Docker Compose for the live-paper daemon on the VPS
+475b3ad8d9b87ff0c658e76b01f6ad2786730c75|2026-08-15|feat: [US-014] - report.py: отчёт PnL бумажной торговли
+850e037e0d247fe9ee6dcac9bc2d59ea87bdb94f|2026-08-15|feat: US-013 - state_to_parquet.py: archive to parquet and winner backfill
+ad72a98fc33561e795d63eaec41d6c6a78de8359|2026-08-15|refactor: cut live-paper review-round essays and one dead book branch
+7b1378c78bf5b83010fdbdd1b51c7083f7747083|2026-08-15|refactor: structural review pass over the live paper stack (US-009..US-012)
+b05a44e0a78fbb2e3f861b4ce113106792c449d5|2026-08-15|fix: stop pytest from paging Telegram on session fault tests
+f7a92d78dad5e2c38acd3c80825baeef9dfcf27f|2026-08-15|fix: US-012 review - post-kill bounded wait must prove the death before clearing
+965c0da5b2c7aa870ad67f7a89cfeb4f278a466e|2026-08-15|fix: US-012 review - quarantine unproven child deaths, never clear an unknown live handle
+764b31743d702945f2358a90b4fb64501a0df807|2026-08-15|fix: US-012 review - durable identity marker, bounded OSError failures, isolated child stop
+7543c4e2fa682e1b94e1fcefa140b885f7a9d6e6|2026-08-15|feat: US-012 - live paper daemon: one child session per matched Steam game
+021bf2a2989ca78db53f4645d6b605a61a46f6f5|2026-08-15|fix: US-011 review - no rebaseline on lost baseline, strict provenance shapes
+d6a8fc88a5d387bc989551fddff9e63177f4a35b|2026-08-15|fix: US-011 review - root provenance validation, terminal finalize, bounded join
+43d4b222f633285cf2c90a9ebcdd10f40470664a|2026-08-15|fix: US-011 review - no-raise fault reporting, canonical binding key, atomic shutdown
+d220423951f34215c764fa4bef4346476d6e69ab|2026-08-15|fix: US-011 review - cancellation-proof cleanup, kind identity, durable binding
+8089d609463b8db94faf09a8bd5e45b990a07335|2026-08-15|fix: US-011 review - closed startup gate, terminal one-event, no-Gamma start
+60cc4f521b003489917233a70f35fd5ab14ba3ff|2026-08-15|feat: US-011 - live paper session: model FV gate, sidecar metadata, journal
+7e64f12dd15421485e27d736a585bd9adf3177e8|2026-08-15|fix: US-010 review - pin raw TOML literal kinds and prove extra=forbid
+677c7ed3b115e050abf5bab44ca17f8f8db4e57b|2026-08-15|feat: US-010 - versioned dota-map tuning template with strict schema test
+71965f86a955cee43551e6490eb1f7320ecc92fa|2026-08-15|fix: US-009 review - one-sided or malformed book never fills
+edf7c2be8b55af23f2c908595b581a0f5a9821c9|2026-08-15|feat: US-009 - paper gateway with simulated full-size fills
+9cd97ecda353d4a282ca076db8a1862f41631362|2026-08-15|fix: US-008 review - harden suppression cleanup and fail-safe restore policy
+d0c7a459d83d767a1bab833dff5ca35576c27baf|2026-08-15|fix: US-008 review - serialize and harden the fd-2 stderr suppression
+926ee1072e99fa302cad63c5aaa5796672d1da5e|2026-08-15|fix: US-008 review - stderr path leak, failure normalization, strict delta
+83325db592fc1071e65bfc73a7ea713a09466638|2026-08-15|feat: US-008 - model server with contract gate and clipped fair price
+9fea1c14ae792da5813548301d2d36085aa3e35c|2026-08-15|fix: thermos review - failed ticks, no Steam redirects, split discovery
+83134e0a3eadefefdea28dc395ee52bb6437833e|2026-08-14|feat: US-007 - discover tradable markets from collector sidecars linked to Steam
+388bec53bb3cb1a3aa019b3e4dd07f89782d987c|2026-08-14|feat: US-006 - atomic per-match match.json metadata with restart-safe bindings
+5111a6fef719ddd9c6250729a904ddfd15ab8780|2026-08-14|fix: US-005 review - validate match_id path component and pin archive contract
+e4474c5e721c1a5c96ecbaf59c0eb0dc103f4bc2|2026-08-14|feat: US-005 - fsynced JSONL state archive per match with restart-safe append
+52b1655bafb6bd84163bb5c34e6f008caf872e11|2026-08-14|fix: US-004 review - malformed 2xx payloads and consumer drift stay failed ticks
+ffa685b68254b3c62f6208a24f97cba343d134cb|2026-08-14|feat: US-004 - 1 Hz Steam realtime feed with frozen GameSnapshot
+5825fb5bc7c23d9a6f61c783ca07be775a35a279|2026-08-14|fix: US-003 review - stop key leaks in httpx INFO logs and bound alert delivery
+4993c718b1f90d001a4249218c34ea73671d5040|2026-08-14|feat: US-003 - Telegram notifications and Steam-key rotation
+e73f6fb7dc127c10276424b540315411ac48138c|2026-08-14|feat: US-001 A4 - Steam-contract model and level-timeline policy
+e9bbe44907f0611e07cb1b329498a0201a07ebb4|2026-08-14|feat: US-002 - polymaker dependency and shared team name matcher
+df4ccb0c3fa751005d0d5b8aa021854f4f77baec|2026-08-14|refactor: US-001 review - restore the specified level-timeline gate
+2f29c775e8f273752c4edc9d8c930358b32ccfe5|2026-08-14|feat: US-001 - Steam contract and model registry
+e00f9e9047cc6c3f307d3dda50a083f5e0d831d4|2026-08-14|UPD
+b91020a3eadd11bac9ba29a405b822364a721a1d|2026-08-14|upd
+2b1a1fc5dddb9626553e2809f8778677bff25012|2026-08-14|feat: add Steam live-match watcher as a free replacement for GRID
+88533b314e49e27fe6a4a0d0d4f395762a3027c9|2026-08-14|feat: add a Streamlit viewer for one backtest run
+7aee62d18b96537ddceb1f7c321b6e2fc74c3d8a|2026-08-14|fix: unblock validation runs and make a merged run self-describing
+d8e18021a1f17139e7e369b7134a5a34cc2c1734|2026-08-14|fix: close sharded-merge, gold-velocity, and quote-telemetry holes
+07d5147457d9678f403d0bad7200ee30bff346c0|2026-08-14|feat: suffix backtest reports with --name so a rerun does not overwrite
+22b94047e00ae25cb49cff3322c45ec8b18ec67e|2026-08-14|feat: train on market at T+8 to match the live GRID snapshot
+d6d546824d8738715aeb33ae0357efe0ad36c899|2026-08-14|feat: lag valid/backtest to GRID snapshot and shard validation runs
+63569d69a55dfa9570c4e18fe7138945aa1ae7e0|2026-08-13|chore: archive project docs and add new model bundle
+87d150cb3058e95307203af2e7fc2dbdffb2e972|2026-08-13|feat: lag GRID signals 10s and gate BUY on 30s gold velocity
+d4211ffb4792fe1c3439154360e09cd235433938|2026-08-12|feat: S2 BUY cutoff 540s and 1-cent delta gate
+a6d2523d84f2e819e4bd675fe0646847512c5c93|2026-08-12|fix: reduce_only SELL so a stale leaves_qty fill cannot flip the position
+7de02abdad0e49f675852fd118cd5c6d261cc102|2026-08-12|feat: US-010 - Real replay smoke for match 8837869969 and limit-2 resume
+5ca6660e6b6427b59def4db9e407342dd1cc9e1e|2026-08-12|feat: US-009 - Post-process markout, rebate, and stub forced-liquidation fields
+5a0d5461a40f060905e6be7c7153ad5d4e6a63c4|2026-08-12|fix: US-005..US-008 review - resume, cancel abort, fill context, arm HTML
+1a69fee9cf4b0af14062925be059927333090a0c|2026-08-12|fix: US-005..US-008 review - game-end, unwind, partial cancel, arm fills
+7c350d94f45422ce17bce7711ba50eff4a37b417|2026-08-12|feat: US-005..US-008 - Maker strategy, windows, telemetry, and arm orchestrator
+9aedd3ac183afd92a83d7d008f59aeb85b164e33|2026-08-12|feat: US-004 - Signal contract from validation parquet with anchor gate
+f4e8f1e5326129d5e3365d2e02faceeffc3c81ca|2026-08-12|fix: US-003 review - audit seconds_delay and align story criteria
+2af7a845363d2e798e92ca58144ad0f1f18e4162|2026-08-12|feat: US-003 - Historical Gamma trading metadata and zero engine fees
+cea15bcce0c1c82cf222ce616f556abc40a5c9c1|2026-08-12|feat: US-001 + US-002 - Telonex disk prefilter and validation seconds 0..899
+66d325e4c6cefaf041f2c0105800f485e708e224|2026-08-12|Add maker backtest feature.json for progon-1 orchestration.
+375084494fd52e18f7c6e7d29ffcd56adcf88dc9|2026-08-12|move docs
+25a9eab2a724c2357ef8ba6808e56b2dff7325e8|2026-08-12|Drop stale Telonex tier-A gate and park obsolete docs.
+b96bf420369ed0dd96c9d42f72124e3b7619ff9f|2026-08-12|docs: lock maker backtest decision rule and drop tier-A gate
+38d97aa7aa28dd8641531819f2bcabee2f05ba85|2026-08-11|docs: revise maker backtest plan against measured data
+dcaa2c37793cbbbae5177d324ab33717c8004866|2026-08-11|docs: add market-making backtest plan for 300s forecast
+bc75cf8ac6ccd94a361da7c2905b0257902291de|2026-08-11|docs
+a4813314a8ff2d2c577fd62b001a37036085e603|2026-08-11|refactor: US-004 review fixes — collapse duplicated validation filters
+d9e0dde2b5ca8774006ea0bbba26d423049e3e40|2026-08-11|docs: mark US-004 passes
+a7dcc543d6ed708cc5b147182ea27f465db521ff|2026-08-11|feat: US-004 - Train on the 300s price delta, disable the legacy backtest, update docs
+1f5cde302193f01d15a68e5bb37c346612b9d6a4|2026-08-11|refactor: US-003 review fixes — bootstrap on SeriesMetricTotals, rename stats
+901ccd11d034b1f8dbf8e65902693a4d64f81067|2026-08-11|docs: mark US-003 passes
+41f7b65d2e1fa220a69cc55a48ffba17b9edb8ad|2026-08-11|feat: US-003 - One bucket CSV with series-cluster CI, settlement metrics deleted
+81b9398a1df7984c18e265f063b09a26e8a35f69|2026-08-11|refactor: US-002 review fixes — share cache inspection and model-window predicate
+0913d15a6fe2034b1eb6177983c368252b8b05d2|2026-08-11|docs: mark US-002 passes
+a4b9c7ad7d99cb09c541a8872c9fc83f342e1179|2026-08-11|feat: US-002 - Prepare train rows 0..540 with current and future price, validation 0..599
+0097643e0a7e88d8496892ff3caa97d7a6a2ac10|2026-08-11|refactor: US-001 review fixes — unify build exit path, collapse miss arms
+989146f3644bb24144c794f06807aebfcd4b7280|2026-08-11|docs: mark US-001 passes
+3e16a29de9be37c86fadd02a1774acb2192f3786|2026-08-11|feat: US-001 - Build market caches for every prior-backed match, log train gaps
+7181e7716480f2d3befa5d9ef633716b4e19ed11|2026-08-11|f
+8816092f07cb434af914af12c7f16d2ad28dbd88|2026-08-11|ccc
+1796b4436e36889dacd54fc47e237f128528bf1a|2026-08-11|plan: future market price model as four stories
+f23e6b2b552c61d4dc6009eaf8f659305fb17690|2026-08-11|upd docs
+23c3f2a4e4cd58e4c8eb2feeeed78ff5cb6c50ea|2026-08-10|add columns
+27cd2c8cd41b813a84929120ee83a50324e3143a|2026-08-10|feat: extend markout horizons to 10m and add 5-minute scenario CSV
+e5d5bfa9226181857210f1113f7a6e77c01277ae|2026-08-09|feat: write minute scenarios CSV with markouts at 120/180/240s
+f282290f433ed530256d7eceefd133c109971a5c|2026-08-09|fix: close cache-staleness and horizon-duplication findings from review
+5e5f8d7e4d8d2c817b22c7c6e026419b455dd99d|2026-08-09|chore: drop unused plotly pin after US-012
+4cba7f35c1eedaadad0bcda0b34a3538d2b2c11b|2026-08-09|feat: US-012 - mark story passes
+340816964a2dcdfa84379097870ac7bb47d9ad28|2026-08-09|feat: US-012 - Remove the old market-edge flow
+c7b3b9a7a3833f70167f81ada4dc8191e1588488|2026-08-09|fix: make US-011 minute report self-explanatory
+ff380704b4a87c96e86e9cd5854266eb8a6a2a0c|2026-08-09|feat: US-011 - mark story complete
+854b89a5c8ceb7ebdc7d0b98540d382eea3263bb|2026-08-09|feat: US-011 - print exact-minute market scenarios
+7ad9344e151bce20370c0b69cca850dce88e3ec0|2026-08-09|fix: derive US-010 parquet columns from TypedDicts
+2e910b74787f4ecffe2f5ab8753c8d2ee4c6943e|2026-08-09|feat: US-010 - mark story complete
+4283e43250b8db6c525330bdf203211a779904dd|2026-08-09|feat: US-010 - write exact-second market metrics
+cce6e7c79f299a60a981c30b9f7b7554f4835838|2026-08-09|refactor: harden US-009 evaluator horizon wiring
+8c6e60f55b8017e7361b6fda1c2f23856af7623b|2026-08-09|feat: US-009 - mark story passes
+3973e1fc6afbf156bdcd1c9f4993d5c9220117cc|2026-08-09|feat: US-009 - calculate per-second market and trade metrics
+74218555a16a62e19fc9b294778288704b997311|2026-08-09|fix: harden US-008 join uniqueness and train column boundary
+8973fbe980ac73d2996d6c68d619d380eaa6e202|2026-08-09|feat: US-008 - mark story passes
+9750a1db173e63dc9ea61461bbebe9aa15ae1b0f|2026-08-09|feat: US-008 - build fixed train and validation datasets
+310f052524bdc0a9d5096b6f7b757a0bd9fabd4b|2026-08-09|fix: simplify US-007 exact-second NW/XP aggregation
+1696950a9f9d959cb36bc3910e84abfafffdef86|2026-08-09|feat: US-007 - mark story passes
+8eb8f5486e9c298c3b79d7f4b7e8860b3c3d8e57|2026-08-09|feat: US-007 - build validated exact-second STRATZ state
+e740f2675802bf7cc9c641c5acbe7970e9316b13|2026-08-09|fix: harden US-006 cache builder contracts
+a17632bd834099368981808fe982d157a93731d2|2026-08-09|feat: US-006 - mark story passes
+8c42e463994bd3767be88b1d59b6f836fa8b7875|2026-08-09|feat: US-006 - build parallel market caches
+7188d1afd6024b3852da7789dceea0304fa9f3ef|2026-08-09|fix: keep stale_quote distinct from missing book
+b263042a2e68d968ab6ad694403dad2d210ee584|2026-08-09|fix: harden Telonex quote engine before cache build
+a6be157529efb14e297b14a7d642d73a33910118|2026-08-09|feat: US-005 - mark story passes and note cache API
+8134de160941b0f219fb3a792489e56a0bed781a|2026-08-09|feat: US-005 - Read exact Telonex quotes for target times
+b592fe4a94f65d597b4a3f60c5156fdb739d89f3|2026-08-09|Consolidate agent skills into one shared skills/ directory.
+2327907a4bf836ba3f74e35d6c94923feb867549|2026-08-09|feat: US-004 - Define validation market paths and row types
+bf8b923aa65e67fe3daf59c43b279b7329251acd|2026-08-09|feat: US-003 - Share trading calculations
+6531a8ccf8c6250a8fc92493f4d061136e467e69|2026-08-09|Move archived Gamma metadata loading into shared utils.
+59516fc2dea5a852b4e19f6dc69d2363b8448ad6|2026-08-09|Clarify implement-step skill ends with a commit.
+1075cbef9aab2dbd6ef60110a530c6caad16a300|2026-08-09|Move match timing helpers into shared utils.
+17c211a9e1c73ab4f86c26eb43a44709f7c49ec9|2026-08-09|Plan exact-second market metrics
+5301fe236068d515f5b27a7d55828d0db599de4b|2026-08-09|chore: add feature workflows and market metrics handoff
+75c9f32595db9f86976698f1c223d400d6b130f2|2026-08-09|Reject STRATZ reset-tail matches instead of trimming them.
+6ff3fb2c7a0e2979992d9f753f56363761995148|2026-08-09|Track DuckDB view definitions under data/views.sql.
+282a69dd0a8d4f7d424dce63e0090d4e7e1615ab|2026-08-09|docs: record what the backtest and the three lag runs measured
+6f377533e5d606a31a31ac9be9f0e079603b9736|2026-08-09|market-edge: make source lag a flag, not a constant
+ffeb3711c3543c4e57ca617d252d890344fefea7|2026-08-09|upd
+dc78245b7e04346ba534e1c7b6cf26011b774517|2026-08-08|Add Telonex Dota winner rescue planner and resumable downloader.
+be59d4941d72b0efe23ab6a0727898be18768584|2026-08-08|backtest: add market-edge diagnostic vs live books
+2371126b8a4a0361104c235d4d6c128a62a814be|2026-08-08|docs: lock archive/rescue plans and refresh next_steps
+72a186d0d0cbd326a3d59d49bec018d440784ad4|2026-08-07|backtest: resume validation from results.parquet
+505c1cebf3aa5a6f57615215f1b0dd3d98b7c1e6|2026-08-07|prior: feed it as init_score instead of a feature
+b3b869f0bee105dc8d80e558494b2b4a1e095c63|2026-08-06|docs: roadmap item 23, drop the resolved in-sample-backtest findings
+cbef03829cb6684e83ec2df4dda01ba1d4eef755|2026-08-06|prior: feed the pre-game market price into dataset, model and backtest
+82db81e3e8e35818236c23b2c5c2c768c16dff78|2026-08-06|05/05b: fetch only matches with a resolved GRID window.
+c267b0b78ded05d360d1e9e994646a632d13b5a2|2026-08-06|docs: record the post-fetch 05a coverage
+ae2029b0edf97c6925f8c8c59c86c45f33beb6e2|2026-08-06|docs: record the 05a shrink contract and the prior-source numbers
+3320219ba7478090be28acd31005daa5da1dc9ee|2026-08-06|05a: price GRID windows only, publish oriented pre-game quotes
+6ef56e94abd07a34bcec3e10b1d10c09c4981dbc|2026-08-06|grid: publish link-backed exact game windows
+017929587b677ca96acdef19a1291a44caa7826c|2026-08-06|Match GRID games by OpenDota duration, not team names.
+211823e52fe0f3882ac008293c08183b2719978b|2026-08-06|refactor(linker): infer series before matching events
+725115a68075ae94932d4651825246994187b851|2026-08-06|refactor(linker): cache duration and outcomes
+2ece3d2e35564fcf91704ff8bf1f2e5608ed3294|2026-08-06|refactor(linker): keep six consumed link fields
+2d661f95f4f5dda7aa03f7bd7a48c0d8adf3e6f2|2026-08-06|Type collect fetch scripts and align GRID starts with universe.
+7bb6c59ef758779d5327d42d41521d470336362e|2026-08-06|Drop unused manual link metadata
+8bcb6bc3e0bb58556a1b5317bd9b603b7e6374a7|2026-08-06|Remove learned OpenDota aliases
+e3e6e5919839f0089750ebc8b7b708b8765b3b5e|2026-08-06|Rebuild OpenDota links without historical state
+7bec2e897bf783089d918ad4c3cd2464874d1ec3|2026-08-06|Type OpenDota event contexts from universe
+09538dcc10cedf90534b7b05785a7b9e32fbe6b5|2026-08-06|Simplify OpenDota linker inputs to universe-only contexts.
+f1997879c9dcf483aba0d82c7ca113aa8c3305b0|2026-08-06|Remove GRID gold dependency from linker
+d2d729628b3f3894096a3b8e9ebdb86150bd0335|2026-08-06|refactor: simplify collection pipeline
+0524f6d64e48465d158adb52876bc2a312328315|2026-08-05|Type-check 02_link_opendota with its errors baselined
+f147cc57f6e008685f1eb27c43e318427ccde844|2026-08-05|Inline universe contract checks into build_frames and add shrink skill.
+f9a6d6a3979a3c8ad98bf281e42082cc56403695|2026-08-05|Remove idle STRATZ linker fallback
+c356d16e355a04d3947c546a2ce18b5bfdf35dd6|2026-08-05|Fix parse_status metadata status typing
+e3597637ab0a00b7a82d57cc817155c377aa4917|2026-08-05|Parse archived Gamma pages with the official Polymarket SDK
+28302440a2bfb2620b74b261eb1d0cd4dd084514|2026-08-05|Require --as-of and check it while loading raw pages.
+9d332df127dd073f4e8ee2f5fe4b027978e5ef61|2026-08-05|Simplify Gamma universe discovery to one Dota tag without merge.
+63c87cb1c750fcce432385681ab07d1ad73d7ac0|2026-08-05|Drop dead Gamma page resume and type the keyset fetch path.
+d03544bb72462ead586587bb56fc4715d16ede34|2026-08-05|Rename universe freeze stamp to --as-of and simplify the CLI path.
+93ff527ee3544f794b9cba35fb63108a240d73c1|2026-08-05|Treat framework results as a trust boundary in validation runs
+73206975ee5c8955adbebe2b22d8962e9505aae5|2026-08-04|Back-test every validation market in delay-grouped batches
+96808a6042942f40ef95ff7a5ed8bffe8ba808b9|2026-08-04|Use chronological train/validation split and write split.parquet.
+61e1de94ff8d67b0389b51398a9883efb319b945|2026-08-04|Model Polymarket sports delay as exact submit-to-match latency.
+662a6633c8cc35baa4cb920f301b4fe8a14e8ab7|2026-08-04|Gate thin books with FOK and settle on closedTime locally
+3b84a1836c711a939483f32c85288152c9565a7e|2026-08-04|Derive replay windows and block post-game entries
+7ac8799fa52d7c3ce2db5037bc45ce7f87e9a8da|2026-08-04|Keep both market legs distinct in the HTML backtest report.
+dc21a64aaea6c868544e2487cec717ae60c6134a|2026-08-04|Clear pending on denied/expired orders, test strategy entry
+ac524b955efe0e8e8bfafb2b64aecfc7b870e25c|2026-08-03|move docs
+c9454760d941de2712d8422907dc978165165f95|2026-08-02|Refactor Dota backtest strategy
+15019e1bbaf58629d043a01898ec0aa8c335fdff|2026-08-02|upd claude.md
+a39a10adf415ff02a818d2f50d673ad173d49f27|2026-08-02|Fix pause timing, type OpenDota cache, split backtest layers
+b08b81d173b649e6e3918b0a6735bd2446432ce8|2026-08-02|Drop corrupt STRATZ samples, fix learning rate
+b4159b5818f6f430ad735621497c5aa513288cd1|2026-08-02|add backtest
+be8aa6f876ecea426e4e4fe07be4d8ae75ca4b86|2026-08-02|upd model
+604b0aa1e6a0ee4187c0a5b674e60ebb6448b0f0|2026-08-02|add model training
+34b47a8069466c95689e6d1c205162b21441f7e2|2026-08-01|Rename prepare_dataset script dir, add dataset types and log util
+a14b10507e0512161465f9e41cfbf5adfe4049d1|2026-08-01|Move shared paths and utils out of src/collect into src/shared
+506c8305f308e8104e2c168c79604d5ab8d29800|2026-08-01|upd agents
+e5a2e2c215b8bcf4c0b185b96a0b13cbe0d3e7e8|2026-08-01|Add editor settings and a lint rule for agents
+a9b535f1bb707ab7c53425abd521de48e8295d77|2026-08-01|Scope ruff and basedpyright, add type check to pre-commit
+df33073e1d4000166cea7f845a6cfefcd2666dbe|2026-08-01|Add ruff + pre-commit, reformat repo
+20931644a312e7381e9eed81cc6d01893b18bed8|2026-08-01|cleanup
+43bbd7125962cccd30174b0ae9bc78d2573d93cc|2026-08-01|cleanup
+45f341789b590c8597d5da18798b5a6dcd843482|2026-08-01|Record S0: Telonex has series books for 791/792 events
+e07bf30b2ce0c9f39841255229fce6a021b1bfe7|2026-08-01|Track S: series-winner screen fails — the drift is bid-ask bounce
+503b0efa33c50098dc7d26c1810a7fccd182ca1d|2026-08-01|Add P2 quote-value screen; absolute and paired gates fail.
+815ec4bc7ca2b8b97a37221a1002efc3e1ab7176|2026-08-01|P1 innovation screen fails absolute and paired gates.
+0251f73dfc08249d4a817b0cfcff68a0a7e36340|2026-08-01|Record live lag analysis: plumbing works, lead not proven.
+8f11da4b64961d27818b4bcf6b569b2b82275da7|2026-08-01|Add live lag logger and P0 decision-grid for P1.
+3593ce4f666d0effb89e0f57a0b6cc9fe56f9d9c|2026-08-01|Track B: price improvement uses an explicit $0.01 step, not the metadata tick
+838d9aa8dd79018f0726a2f4b9cde68d3aa86776|2026-08-01|Close P0: no conditional taker cell survives, the leash is unmeasurable
+f53d8a97d15af7be7719cee71a6820852ba1e3f0|2026-07-30|Explain the model-driven trading plan in plain language
+ca9a2b76fdf62712e376e066202707444a1c4134|2026-07-29|Plan the model-driven trading path after Track B
+3cc26204498271479f8bc66c5ab8c8be114ae985|2026-07-29|Track B: queue position closes the maker path too, nothing survives at 30 s
+88554bbebcd50ebc9db5254a1fcb1bdd73c1fe76|2026-07-29|Track B B4: the maker's edge is real, the toxicity signal is print size, not the model
+9c6538117bb085c50cb9394603476c478558bf4b|2026-07-29|Track B: the information is real and ~6x too small to cross the spread
+95efae3d68e8e7d1f2d2e0062b66a54310756ebb|2026-07-29|Track B plan: executable markout first, bot only after the gate
+c3582cb6dbb12da7ba1b8a8f9dcf16f6fde8e3e1|2026-07-29|Implement Track A information-edge analysis
+98a176f23f98956152baccd78f07f81accc212e0|2026-07-28|Track A plan: price from the Telonex book, not a prices-history refetch
+8389961b92ba4a8a55bbee69987271370d64bf01|2026-07-28|Track 0 report: the leash was the binding constraint, not a blind replay
+2abc16f8d86fadf4c2225455d51ea16c4ae73eb0|2026-07-28|Compute the time-normalized advantage features in exactly one place
+71d631211eb7a84b67cdfa381248f3f7e36c4ef9|2026-07-28|Track 0 plan: drop latency sweep entirely (250ms assumption stays, track C will measure real latency)
+70a35f5c79b189a977723aa336831983bd907894|2026-07-28|Track 0 plan: collapse to 2 decisive runs (baseline + max leash), rest conditional
+7904436a708f916482c613ff85de1130ad0d8a2c|2026-07-28|Track 0 plan: fix feature duplication at the root with one shared function
+a26fed18bfad0f4c3c3f1b166d7e43bb556830d7|2026-07-28|Simplify Track 0 plan: no retraining, no new scripts, glossary, runs-only timing
+105354bb4a3e97f0a851745c243c2d772086147f|2026-07-28|Time-box Track 0 plan: measured runtimes, conditional robustness sweep
+a914f50112b17ca04589c0d472bd0311135a07ad|2026-07-28|Add Track 0 implementation plan (fix the measurer)
+4053bd1c9a5591db4f1274c89181d1ee7b17591a|2026-07-28|Merge three profitability reviews into one roadmap
+c247ea61faf5a4663c9791a01b6ce9cbcb7a8500|2026-07-28|Archive unused data paths and document data hygiene.
+e57e75cbb03743b6dda8926bf0311833df43bcb5|2026-07-25|Run NW-feature release: refetch v3, rebuild, train, evaluate. Not promoted.
+0d13df87b3dd0fbed31b84facb6b735ce72ccfd3|2026-07-25|Cache STRATZ stats.level/itemPurchases/towerDeaths before the v3 refetch.
+e6be219cc9180e65a4d090747d146a6ef8d1541a|2026-07-25|Fix train/live net-worth mismatch: use STRATZ networthPerMinute.
+42ca482127ba3f2cd1255f62b0ca4cb60a717f6a|2026-07-25|Add per-player NW distribution, dead-core, and aegis features.
+e3587259d722150872e7764c8943be07466b7a53|2026-07-25|Keep candidates.html offline: drop Google Fonts CDN.
+8281cf6feaebdf665d48b26cc350040c2d1215c0|2026-07-25|Drop incumbent comparison from evaluate and candidate HTML.
+6deded735e4962e22b1b89413fc59d49e6df0d0f|2026-07-25|Restyle candidates.html and clarify incumbent status labels.
+6b24da28b5455ee6884407f2e93c834bb4b49d9b|2026-07-25|Add per-candidate eval_report.json and HTML comparison viewer.
+3ac51f1a8c9484a009b75060ebcd6b281b159711|2026-07-25|remove some docs
+a146804d948a98385f75d07df3978c343136021f|2026-07-25|Phase 10: drop phantom model paths, refresh docs, log retired surface
+44c4252ee3cfdce0fc6a9b60e066fa42fb59993a|2026-07-25|Phase 10: remove retired review, sidecar, and gold-gate surface
+a681391fce8afce7aa5bb2944e7de9eca2ab2962|2026-07-25|Phase 9: promote production_20260724T224901Z and smoke it
+c62984b560aaf102f492d685298473f3cac9cef8|2026-07-25|Log Phase 8 metric 3: three-arm maker numbers for candidate_20260724T204104Z
+d77af620dad4a7552c30f9c9927c01b42890a98e|2026-07-24|upd docs
+585c6e955e2e851db9e485f84bf313a7a02fe990|2026-07-24|Log Phase 8 run: quality metrics done, replay blocked on sort budget
+807ae3884694d92d6baa74638a2f44fd1dd47f09|2026-07-24|Separate clean-OOS incumbent keys and unpin metadata column set
+22fb268860469d7919c26ec23a4633c576c0f2b3|2026-07-24|Wire Phase 8 third arm and honest maker coverage
+33a360b7b1449be8b3c3db3632ee3cc61ab33d56|2026-07-24|Harden baseline cache key and metadata guard; retire speedup plan doc
+8d4816aa59ae8b00be09e611fb4b2f9fdb6f9d19|2026-07-24|Speed up maker evaluation: parallel arms, shared baseline, screening default
+2f38083f556f1cd690a9880e58bb770996cad18c|2026-07-24|Restore replay-required Telonex metadata fields with publish guard
+dc8bd093c0e32f47437011bfa9c38f7ce1efa10b|2026-07-24|Revise replay speedup plan after step 5 profiling
+aafbee080f99db3a1c373bec7db268470acbb9a8|2026-07-24|Log Telonex refetch results (markets 2383 -> 2460, tier A 2232)
+e383fa11f7ebb2ae69e8e70c80c484c7ec58f61b|2026-07-24|Fix missing hashlib import in Telonex collector (blocker #8)
+e239eb3a2520e7fb70a7e3e21309940e9c92520b|2026-07-24|Plan Phase 8 replay speedup
+2c0a6b75cf92a3b2f96d8d5c6dbe2e7900c8fde3|2026-07-24|Clarify Phase 8 model metrics
+65a2553ba29f11946cddc998996c981e868c1315|2026-07-24|Plan three-arm Phase 8 evaluation
+ad5c493e38453b08220aba2b5941c59ec1b13731|2026-07-24|Phases 6-7: midpoint-only dataset + fixed-window holdout
+dfb2b2a45eb3ac9b0bea745c55b968bb5b1327b5|2026-07-24|Log Phase 4 real refresh run (cutoff 2026-07-24T14:10:46Z)
+44e7bef8f6330c2695c55c48f555793b7928366a|2026-07-24|Allow partial per-series game coverage in OpenDota links
+c61f0e7be1544383863bc8ec31bab2f992becfac|2026-07-24|Preserve prior OpenDota candidate ids across refreshes
+cf92951d7074c22fe9515427bf03abe0f2809d4e|2026-07-24|Handle BO2 scoreline/draw markets in universe classifier
+a372264b72b45811225772316603b38a5e3afac6|2026-07-24|Fix blocker #5: GRID command must pass --fetch-index --fetch-states
+45c5b10d2fe2476ebfdfdd820459d164d64ab642|2026-07-24|Fix Phase 4 fetch order: prices-history after GRID/OpenDota
+a3888b0b0ef1edaf0117095683cb4b3aff6338f7|2026-07-24|upd docs
+abba799011b34fbdeb1a717d51f8d14b56628e4a|2026-07-24|Implement rolling pipeline refresh phases 1-3
+8d149948cfc310183f8f75fa5da2100604b1c083|2026-07-24|ponytail
+ebc2ec7fc67c6e450638dcf36073136f291812db|2026-07-24|thermos
+86439ed382ddb84af5b8dc2ae9fcf7b0713f420c|2026-07-24|Document pipeline refresh plan
+3ba2c12fdc7bece5d933d67d1610a7c2857073c5|2026-07-15|cleanup
+3cdfb251e01dc059ed7b2da93b19fc39e4a82251|2026-07-15|Add Serena project memories
+d972cd4b5294817aa7a428540b623cd16518dced|2026-07-14|Remove retired pipeline surface
+eb1e76d5fb2ffe8537cdfa320d6c761ac2119fd2|2026-07-14|Install Pi dcg guard extension
+b441c51631c3227d8d9857e4a0faac38e78a2f9c|2026-07-14|upd
+834deba9579836b5b01fbcb2d93a634d78a88027|2026-07-14|Fix editor import resolution for scripts
+48f3f432b4821bb1dd8b2ed8a3db00602ff97b5e|2026-07-14|Document keep-it-simple contract in READMEs
+d2b0e946c381a8306bca13008cd255f9ce3e26a7|2026-07-14|Simplify win probability model pipeline
+f98b93ceb201df9b1889346c73d75007be986242|2026-07-14|upd
+9edf3f83d63e8a00d50f7da0da0c28e7fe3cd161|2026-07-14|Support Phase A selection for holdout export
+c3b8fe55779dd50753bad7ec6fe3d01348b1a383|2026-07-14|Add true three-fold final model trainer
+d175f293b0b33095b8c6cc0403af9482de40de81|2026-07-14|Log chronological power replay result
+dfc77f9e818a09f8b047596821ea593b9377f010|2026-07-14|Log legacy replay schema fix
+75a8ff202a3fc80bcb4fc624b14696a5abc15b06|2026-07-14|Correct chronological power series audit
+a35aa54b87786a4b451bd42d5c15640e48129293|2026-07-14|Allow verified base signals in power export
+76b9a87f3a4611a0d7686908635d2886986bccde|2026-07-14|Fix chronological power script imports
+c18e4d635691c76e76a8c778548ffe0b33a9fc8d|2026-07-14|Add chronological maker power funnel
+a1db5cf3e9f706198f088f58104ba41b63a58fe3|2026-07-14|Add preholdout maker power export
+4505361d013adbc639097f2b932b8049b3cb0423|2026-07-14|Log replay materialization optimization
+00f98266223b420a4155b6e9eae0fab9fd0452e0|2026-07-14|Fix Phase A baseline parent handoff
+3d1fc4494c9d11d0615e9f012d9e0ba04f46e8f1|2026-07-13|Fix Phase A three-fold control pairing
+5aa9e21991fb9736dbe71cf2acb57954e687293d|2026-07-13|Use active three-fold signals in Phase A driver
+142a41bea61e6e8b91aecb53c855d121c3fd8165|2026-07-13|Implement three-fold Phase A screening/confirmation funnel.
+50853e5012225dabf149450e2d7d1cd9d57e1786|2026-07-13|Plan fast three-fold Phase A funnel
+1ddb9b02d8edcdd8dab78e13be3f3ce31c80dd78|2026-07-13|Document three-fold migration and B1 ablation
+ed25c6b182fb5eeef762f26bf283d0479dfd74b0|2026-07-13|Add Phase A maker orchestration and fill-gate selection.
+e60338728439fde95491ed6ee5ec2dd57049b39f|2026-07-13|Stage maker replay workers by arm
+70a822001e76d39986f608931ac72595cbde1668|2026-07-13|Add reproducible maker feature experiments
+41b2ff49d84d028991543dbbca1d61acdbe2e56a|2026-07-12|Complete poly-maker backtest integration
+35c7a2879f0b4172166aa86eb1b5afabed3c9806|2026-07-12|Optimize Telonex full-book validation
+9c4ce0d616e94dd1122df87b355e199c36cb44b9|2026-07-12|Implement maker backtest signal orchestration
+fab7ae2f303084a8734979c973743a22b623db9c|2026-07-12|Document maker backtest implementation plan
+d51e9ad69cc47a8aa68e4cddc757e6f4e68c1b61|2026-07-12|Harden Telonex pilot against historical schemas
+46aa94abecd57a13138ea2f4d8a061d2ef00c923|2026-07-12|Add GRID-only Telonex maker data collector
+f4307f788f9f2af515c2dd4b69e0b8f0cc12e142|2026-07-12|Document removed hybrid code and restore steps in experiment reports
+99b29e9c9a69d787d112c154f44ac8443bc4f754|2026-07-12|Remove hybrid experiment code from pipeline; keep only 3-fold standard
+561563429ad5372e22e129f09737808864bbc532|2026-07-12|Revert non-market dataset expansion; keep 3 folds, holdout v4
+8c4447ecefe682d1a2b24a63947438d3662cb7e2|2026-07-12|Restore pro-corpus fetcher with match_id-cursor pagination
+2b50401ae43294a0ebc3ccec5eef09f8ba65ed97|2026-07-12|Implement hybrid non-market research pipeline; reject on effect holdout.
+d9f6011f8cdc35321237ccb80594a6b833d08b6c|2026-07-12|Make 3 monthly folds and ~1000 holdout the v6 default.
+cf0594d7ad9f0cb65b3be3d1bb9fac702656801e|2026-07-12|Switch hybrid A/B to three equal monthly folds.
+d9311fe45fb7db5365e030a2d923f13165f30a3c|2026-07-12|Require max parallel hybrid fold A/B up to 10 workers.
+8956da904fa22faf838b66871ca82e6a7442a603|2026-07-12|Drop rolling-forward wait from hybrid plan.
+9a7d7b5c0daada1bdf6ba00ad9766c67c533a668|2026-07-12|Tighten hybrid plan: ~1000 effect holdout and non-inferiority gates.
+192e77a696dc4ef36ab07a5c9368de77cfd5ca9c|2026-07-12|Clean up post-v5 compatibility paths. update HYBRID_NON_MARKET_PLAN.md.
+4be2c9738c2013bd1122de375e8ecd0822d87a84|2026-07-12|Record v5 production promotion
+b22e492843dfe8ecd346c92dfa97a87e045b3e77|2026-07-12|Record v5 promotion-ready release
+b7d6ed9c2a32f32ee6b257cbd4e01373adaf3e9c|2026-07-12|Fix incumbent promotion quality checks
+2f9d3ba537cfc275e5b6420da0b7723d98b8158c|2026-07-12|Document parallel research training
+39080531ac5a5ea8e4f890ec0c161b4902c00322|2026-07-12|Parallelize full research fold evaluation
+8ffa35beb606174479a6550850d9823bf7652243|2026-07-12|Run research folds in parallel
+50427a90db63af4c9eb461d40832903b5f5c2aad|2026-07-12|Parallelize residual ablation variants
+b1c77498c066898c5281659382e52ea6afe7db4e|2026-07-12|Automate v5 prior policy selection
+f23d27037076215a1387c5e61f5bb072b7b60b34|2026-07-12|Fix v5 residual pipeline review findings
+e34a683a53b0006da471239947ab427ca4843efe|2026-07-12|add new fix
+5f828c50371128950e0d8a847b539eb503c63d46|2026-07-12|Add pro-corpus STRATZ fetch universe
+cf0007c0b5a7ce648ab923e0e3aede87d8b5a583|2026-07-12|Harden hybrid research plan against leakage
+497781b3edf813fdeffa7e3c6a4578ee4591fda7|2026-07-12|upd
+6a294c844178c73757ad3e3a889dfb06354f927f|2026-07-12|Document two-step hybrid non-market research plan
+6c5915df16db3a5a2c9e2656114b68705e503ee2|2026-07-11|Add --force-quality-override to promote v4 bootstrap; promote STRATZ model
+23f29d608136f7491e9e882c7a5777d90d8c50b1|2026-07-11|Log full STRATZ fetch, dataset v4 seal, holdout v3, research bootstrap
+e497ac66e5e1f33332e28247d033e34dc227582d|2026-07-11|Treat httpx transport errors as retryable in STRATZ client
+8d1e24e4c6ad315413243529edc7325f4a1ecf88|2026-07-11|Document STRATZ migration runbook and one-time retrain procedure
+4827f4cfd08d61c6f3386a33ab085e25ae145251|2026-07-11|Rename GRID live to networth, hybridize backtest, add STRATZ test suite
+a0e9a7e4cc1d308f1c80c70c34a8abc7e13fd8e1|2026-07-11|Migrate snapshots to hybrid STRATZ economy + bump dataset/holdout/model versions
+454a54720a475e6ccecc1c7b3d70422edcfb20ea|2026-07-11|Add STRATZ rich fetcher (05b) with legacy import and rate limiter
+c4afa21f4ec745a602eb2b815db432888f4d6d9c|2026-07-11|Add shared STRATZ client and docs/STRATZ_API.md
+8393362a744c15f4dfaf7e5b03a0426f39562a39|2026-07-11|Document ready bootstrap research baseline
+81555a4898cbca6869a535b20db24bafb7acb119|2026-07-11|Mark promotion integrity audit item fixed
+2d068593d0866e9de70da1bccd9058400baa71d9|2026-07-11|Harden research promotion gate integrity
+e20280f3a317750bded63106c65d0989ac6df6e7|2026-07-11|Make promotion research-gated with honest in-sample production sanity.
+7e5ff09c178963b3e5045ca017e34dca2503457d|2026-07-11|Add original Claude and Codex audit reports beside merged doc.
+da5014344ccc19831bce2346959089da6de606eb|2026-07-11|Add merged Claude/Codex audit doc of open model-vs-market issues.
+6e567cfd10c320fcfe21a25510385d149a76be3e|2026-07-11|Promote prod v3 and drop production rollback.
+e556000f8107f31ea6b89f4fb6f9b3df7b4d26f8|2026-07-11|Log research and production candidate on dataset v3.
+3afc2543ca85f34ded0501a6c623602c76b9aade|2026-07-11|Seal links/prior v3 rebuild: rebrand resolution, GRID floors, gate 4001.
+622a81b1af657ed08d55a07e527729e614f87f09|2026-07-11|Load Game Winner markets from Polymarket -more-markets sibling.
+f8dab04b24186e8895a0f1f4430fe0bce7f8582f|2026-07-11|Fix Live Winprob market pick for BO2 series-result events.
+9a7b27c8f999f7cc0c5154c2c31118e158bfb8c0|2026-07-11|docs: archive reverted draft experiment
+ebe19d88765a01881ff6b0ca56413f93b1a83874|2026-07-11|Implement links/prior v3: series_id numbering, GRID floors, no stale tape.
+40aa47859c59615d81780ce8a80dbaeb675e1680|2026-07-11|Archive and remove rejected training experiments
+7b8ff6d6e5db69457d861a30d43899bd5000deb1|2026-07-11|Train with match-balanced weights and fixed-minute early-stop/Platt.
+b8bf9b083ba622c6ff72e7de349295c58db71054|2026-07-11|Fix research market comparison by wiring execution timeline into quality reports.
+1128f22f3c6b1b2e8452a7810974435ed0b91c3a|2026-07-10|remove todo
+88f261c972b23f60b95a051b4bb90cdc38350ad7|2026-07-10|Remove legacy buy quote aliases
+928a77da84eb420ab06f5e2cdc109332ca008e0d|2026-07-10|Add live model SMA and hidden book quotes
+0deceb3c16b4f617862bff8fff7eabc1038ccf89|2026-07-10|Remove patch-aware weighting after the experiment gate failed.
+f76bb3c6976adb579be777248779d8401b0dc8b6|2026-07-10|Record patch-weight experiment result: gate failed, keep uniform.
+f7f08b75c51556c55ac0fe49a1c3612b7f595e1c|2026-07-10|Fix per-recipe artifact-dir collision in the patch-weight experiment.
+1173a13a317c943dc7380dc71422179929cba215|2026-07-10|Harden patch-weight experiment runner before the full sweep.
+3cbee9269b11fbb2aa3a8930b5b2ae46b2fb166e|2026-07-10|Add patch-aware sample weighting without live patch features.
+6861f4a7a07e7ba86fd4cac4bdfccfd93fe78ef0|2026-07-10|Record no-minute retrain: metrics unchanged, production promoted.
+3064aed7deadbb35cf6b7be507b78b1dbc6c513f|2026-07-10|Drop redundant minute feature from the winprob model input.
+7f7f280145d21f760e6d696d1724827db357c74d|2026-07-10|delete plan add todo
+b8a1839aeebd03ce90eae04908370eaeec70610b|2026-07-10|Publish links v2 coverage expansion and reseal the training dataset.
+1d4a4b66076828f4b5eaf661a1539e302992d478|2026-07-10|Expand OpenDota linking coverage with team_id aliases, wider windows, and PM dedupe.
+b496f8d80c746cc509b604c471eb9b0e7487cc7f|2026-07-10|Default to single-seed training for faster parameter iteration.
+5d7e4d70e529686945bc89438fe9fd4665723882|2026-07-10|Add gated CLOB minute-quote fallback for empty-tape market priors.
+33eb9dba927b1c1d82cb3aae8f31dddbd877d00d|2026-07-10|Clean up the model pipeline into a linear 01–11 flow without legacy/v2 labels.
+6ba4d7b50d9fa5ec31b4006dc353ee001f69e536|2026-07-10|Add production train/promote path and wire the dashboard to current.json.
+34a03daeb3561cbb2b991a8d04bfe2aba96e3fe4|2026-07-10|Seal holdout v2 and run walk-forward research v2.
+738fe5087c026398472b1e57527e9cbfb7baa740|2026-07-10|Make the trainer manifest-driven and split research/production artifacts.
+cbf99e09b9e2bf296fd6807c20d36853830743f8|2026-07-10|plan
+ec425138565e167ffa421f9aecae82f8c0123c42|2026-07-10|Switch training to market-only priors and drop Elo.
+45ccd4b52fa1beac0112ec159f99aa5044f33a0f|2026-07-10|Seal the PM-only v2 market-prior training dataset.
+f30cee06231b044a5b9b0e762bd6eeaf84c6b8b1|2026-07-10|Add parallel OpenDota workers to use the paid 3000/min tier.
+5f7022f81bd27afbf61b2384f9456cc292458dfe|2026-07-10|Load OpenDota API key from .env for paid-tier fetches.
+2412c3e598c29c8cfc0ff5a1bbe64f96a5cde34c|2026-07-10|Add PM-only v2 OpenDota and trade-tape fetch scopes.
+428447f61f28f93dad6181245e67de944d0a1e37|2026-07-10|Add GRID-optional PM-only OpenDota linking
+3f3338c9c1fed8b4c97331a56cfbca4ef29e67df|2026-07-10|Build write-once PM-only v2 universe
+af588219e1a2fe175d0b18208188ad174bf21e8b|2026-07-10|Seal research v1 hybrid/Elo baseline as a write-once archive.
+c72ecc2bf712155d1387937301b868842b6451be|2026-07-10|remove unvalidated 10s feature-availability buffer: strict as-of state, latency lives in execution proxy
+8eb53ee84cfa5d29b03a60e5b83d4797f7adb8fd|2026-07-10|Revert "Revert "upd""
+2cb025659541a393249764b14dc13815580ea179|2026-07-10|Revert "Revert "fix causal holdout backtest""
+5c58fef50dc5f0e0ffffef3b03ee34faca87266e|2026-07-10|Revert "Revert "add docs""
+9e57caa2fd46b493904e264fef26004c0b180d54|2026-07-10|Revert "Revert "upd data""
+fcfe95547a9ac7bfe0ce955694717b738311aebc|2026-07-10|Revert "upd data"
+87690136ead104fba1b7251616d12b2eea43649d|2026-07-10|Revert "add docs"
+942d8aca677fc3e8c47b6b2b370d46d70e198bc1|2026-07-10|Revert "fix causal holdout backtest"
+ac11b6e2a84e05ba70af62e0acabf6604e3aecb9|2026-07-10|Revert "upd"
+bde941276de2829b542957a071370ddf77d06ff3|2026-07-10|upd readme
+ab695a18d2adaf8ddd81feddd8bb757b0691350c|2026-07-10|upd readme
+9121c582490123db59c84c5d7ed370bd70ff699c|2026-07-10|upd
+4692b32dbcdd7465c8e953eaf91d06c426c08144|2026-07-10|fix causal holdout backtest
+5a8ec7bab66430d3a3fc9ab41bf4395dd48126a4|2026-07-10|add docs
+0ec6c0fc0ccd73467f5374a81c7b32b000ac3d27|2026-07-10|upd data
+650995811667abb173cac27b9cc5dcc4ab28f2ac|2026-07-09|docs: record reverted draft feature experiment
+93b1fc542994e2ae1599264bfe0459dcc0549764|2026-07-09|upd data
+33301699fcf68dc9eef174a18075e42fb37b6b7e|2026-07-09|upd dash
+bdd533563e61839b85054ec98f7eb1e49d8b2b70|2026-07-09|upd model
+0e31b437f59877631192ac7c646d5dd501a3d435|2026-07-09|upd
+dbb6896972a3fa251daa6bf1dbe21af361faa416|2026-07-09|improve chart
+9e3b269f1799ec6b3d5d186699e3166e49b83040|2026-07-09|improve chart
+083018d35c634a34ff8f54a2fb42f2e1fe6383b0|2026-07-09|merge models into one
+3e1c53de2011bc328d953548bc5c435d905ce4cb|2026-07-09|add charts
+40ae91bcff86dce02c426a3ef2f39705d5ca4664|2026-07-09|fix
+8f7154c573af76f11eaec0e6ad8c12d1b876998f|2026-07-09|Merge matching into 00c, drop no-GRID branch, corpus-first candidates
+b014a850a9104e3eff7ac14182df62ddef66409c|2026-07-09|Separate GRID starts from computed horn
+ddbfbb92c364ea1caa8fe9e7103eabe1fd1e6e2a|2026-07-09|Fix Dota review artifacts and universe rebuild
+5fbd1731928806209b3d3fb4e87cf1394013ba64|2026-07-09|fix
+f64a754cfd85445230d7e7936c321c34d2879dc5|2026-07-09|exact horn + strict backtest timing, cleanup, markets_master review
+4ecd72a3df276a1ed3524e98e3abc8233008be9f|2026-07-09|backtest holdout discipline: 02d freezes newest 35% of priced GRID markets
+fc78f68eadd0f814279dc32fe758c8e2d4eed1b5|2026-07-09|OpenDota-first pipeline: matching fixes, event-grid snapshots, dual priors
+12ed7302be1e753ec6bb61cbc793149d8ee88a8c|2026-07-08|refocus repo on win-prob model: remove bookwarrior trader pipeline
+67bcc0a91ecbe0c4a2175b9a071aa60da129e02a|2026-07-08|model pipeline: Polymarket Dota universe, GRID starts, STRATZ id-matching + rich cache
+fcdf48ec9fd58a4112a1eb2e6b898f1bf79ec6b7|2026-07-08|upd
+b7a75fb83e4dea89a477ac9fc1c790a75ba8e4bc|2026-07-08|add model
+886a8e4093db5b35ca533c97760f736ac6cc6884|2026-07-08|add model
+bb382291dbf1dad041d946bec5e64404d86b1f40|2026-07-07|add strategy info
+6baaf9a3c4c730586efd50dc7350e956c47bb8fd|2026-07-07|fix match map
+9fee1c1099315a7063fffa874e663a4fc9330588|2026-07-07|fix game parse
+88d361d5260b1f4683fa09022a6985c7f0d39881|2026-07-07|fix markets fetch
+6ce44bcd30e6f94aad3a1109b0a01c6bfe413e3f|2026-07-07|fix markets fetch
+987bb983369ff5dfe03f8b6f29a66017f881b598|2026-07-07|remove analysis
+ff081e841a902e6201c6bb4815676126cb3114a6|2026-07-06|Document GRID live-log horn-timestamp findings
+eff7db7d7524e32ddc62d6593ff29e5c858ad3ab|2026-07-06|Fix wrong-game matching, synthetic token order, missing outcome in timeline
+d1c8686b78fc2b2e446861a753235ab285202fa4|2026-07-06|Initial project state: bookwarrior Dota 2 research pipeline

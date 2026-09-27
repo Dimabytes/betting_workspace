@@ -1,0 +1,40 @@
+
+===== SEED 0 reported terminal n=41 =====
+wins 40 losses 1 qty 5533.5335
+last sell vs end mid: above 8 at-or-below 31 no-submit 2
+last sell order final event: {"cancel_ack:game_end": 1, "cancel_ack:kill": 23, "cancel_ack:stale_book": 12, "cancel_ack:stale_signal": 3, "no_sell_submit": 2}
+outliers:
+  match_id                               slug    side        qty   avg_px  entry_second  last_sell_px  last_sell_wall_before_end_s  end_token_mid  end_second  duration  duration_gap_s  won
+8982107035  dota2-spirit1-ks-2026-09-04-game2 radiant 119.040000 0.840000           631          0.98                      -32.355         0.9455        2555      2570              15 True
+8938855404     dota2-ill-z10-2026-08-10-game2 radiant 138.001313 0.724579           233          0.95                      324.159         0.9100        1402      1709             307 True
+9006987731   dota2-kalmy-yes-2026-09-17-game2 radiant  49.820000 0.720000           141          0.91                      366.900         0.8700         805      1355             550 True
+8843465364 dota2-4iki-nande4-2026-06-08-game1 radiant 276.764420 0.463001           201          0.66                      605.699         0.5950        1181      1706             525 True
+winner token bought 71452.36 sold 65918.51 open 5533.85 sold_frac 0.9226
+loser token  bought 49222.42 sold 49222.08 open 0.34 sold_frac 1.0000
+
+===== SEED 1 reported terminal n=39 =====
+wins 39 losses 0 qty 5331.9326
+last sell vs end mid: above 5 at-or-below 32 no-submit 2
+last sell order final event: {"cancel_ack:game_end": 1, "cancel_ack:kill": 24, "cancel_ack:stale_book": 9, "cancel_ack:stale_signal": 3, "no_sell_submit": 2}
+outliers:
+  match_id                               slug    side    qty   avg_px  entry_second  last_sell_px  last_sell_wall_before_end_s  end_token_mid  end_second  duration  duration_gap_s  won
+8922137329    dota2-vg-amaru-2026-07-31-game2 radiant  50.00 0.810000           370          0.99                      219.460         0.9900        1393      1488              95 True
+8982107035  dota2-spirit1-ks-2026-09-04-game2 radiant 119.04 0.840000           631          0.98                      -32.355         0.9455        2555      2570              15 True
+8843465364 dota2-4iki-nande4-2026-06-08-game1 radiant 284.23 0.463001           201          0.64                      662.815         0.5950        1181      1706             525 True
+8938855404     dota2-ill-z10-2026-08-10-game2 radiant 105.99 0.796226           370          0.95                      324.159         0.9100        1402      1709             307 True
+9006987731   dota2-kalmy-yes-2026-09-17-game2 radiant  49.82 0.720000           141          0.91                      366.900         0.8700         805      1355             550 True
+winner token bought 71575.49 sold 66243.16 open 5332.33 sold_frac 0.9255
+loser token  bought 49447.41 sold 49447.14 open 0.28 sold_frac 1.0000
+both-leg match 8940487898 peak_min_qty 4.2100 end {0: 7.993605777301127e-15, 1: 0.00947600000000648}
+
+===== SEED 2 reported terminal n=39 =====
+wins 39 losses 0 qty 6116.8509
+last sell vs end mid: above 8 at-or-below 31 no-submit 0
+last sell order final event: {"cancel_ack:game_end": 2, "cancel_ack:kill": 23, "cancel_ack:stale_book": 14}
+outliers:
+  match_id                              slug    side        qty   avg_px  entry_second  last_sell_px  last_sell_wall_before_end_s  end_token_mid  end_second  duration  duration_gap_s  won
+8982107035 dota2-spirit1-ks-2026-09-04-game2 radiant 119.040000 0.840000           631          0.98                      -32.355         0.9455        2555      2570              15 True
+8938855404    dota2-ill-z10-2026-08-10-game2 radiant 143.891313 0.694967           233          0.95                      330.662         0.9100        1402      1709             307 True
+9006987731  dota2-kalmy-yes-2026-09-17-game2 radiant  49.820000 0.720000           141          0.91                      366.900         0.8700         805      1355             550 True
+winner token bought 70551.31 sold 64434.05 open 6117.26 sold_frac 0.9133
+loser token  bought 49023.96 sold 49023.70 open 0.25 sold_frac 1.0000

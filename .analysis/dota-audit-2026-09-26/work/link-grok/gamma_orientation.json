@@ -1,0 +1,14 @@
+{
+  "universe_rows": 74492,
+  "missing_gamma": 520,
+  "token_order_mismatch": 0,
+  "null_names_or_teams": 0,
+  "orientation": {
+    "yes_is_team_a": 11968,
+    "unresolved": 60608,
+    "yes_is_team_b": 1396
+  },
+  "candidate_yes_is_team_b": 0,
+  "reverse_candidates": [],
+  "reverse_candidate_total": 0
+}

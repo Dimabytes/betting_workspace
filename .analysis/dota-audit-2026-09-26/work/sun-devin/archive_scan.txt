@@ -1,0 +1,82 @@
+total match.json: 657
+by game: Counter({'dota': 333, 'lol': 324})
+by mode: Counter({'live': 648, None: 9})
+by feed: Counter({'grid': 581, 'oddin': 76})
+by model: Counter({'20260831T120859Z': 106, '20260904T193238Z': 102, '20260904T222047Z': 69, '20260825T193532Z': 51, '20260912T100229Z': 45, '20260912T100410Z': 39, '20260921T085717Z': 35, '20260915T105754Z': 35, '20260921T085655Z': 28, '20260921T095813Z': 27, '20260919T182837Z': 26, '20260915T210431Z': 16, '20260924T183921Z': 14, '20260924T195444Z': 14, '20260919T112946Z': 13, '20260919T182816Z': 13, None: 9, '20260919T114805Z': 8, '20260924T183900Z': 7})
+terminal reasons: Counter({'finished': 625, None: 32})
+
+== sessions WITHOUT session_end (died mid-write or never closed) ==
+2026-09-19 9007118998.pgl-detached dota feed=oddin final=False cleanup=False fills=5 model_ticks=648 errs=[]
+2026-09-20         9007720090 dota feed=oddin final=False cleanup=False fills=0 model_ticks=4193 errs=[]
+2026-09-21         9009436210 dota feed=oddin final=False cleanup=False fills=2 model_ticks=7047 errs=[]
+2026-09-21         9009517003 dota feed=oddin final=False cleanup=False fills=0 model_ticks=0 errs=[]
+2026-09-22         9011229961 dota feed=oddin final=False cleanup=False fills=20 model_ticks=3989 errs=[]
+2026-09-24         9013571077 dota feed=oddin final=False cleanup=False fills=21 model_ticks=4264 errs=[]
+2026-09-26         9016945136 dota feed=oddin final=False cleanup=False fills=0 model_ticks=1957 errs=[]
+2026-09-26         9017026154 dota feed=oddin final=False cleanup=False fills=11 model_ticks=5347 errs=[]
+2026-09-08    grid-2965527-m1 lol  feed=grid final=True cleanup=True fills=6 model_ticks=340 errs=[]
+2026-08-31    grid-2971821-m1 lol  feed=grid final=False cleanup=True fills=0 model_ticks=0 errs=[]
+2026-08-31    grid-2971821-m2 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-02    grid-2971823-m3 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-02    grid-2972363-m4 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-08-31    grid-2974335-m4 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-08-31    grid-2974335-m5 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-02    grid-2987018-m4 lol  feed=grid final=False cleanup=True fills=11 model_ticks=626 errs=['place:validation', 'place:validation']
+2026-09-05    grid-2987021-m2 lol  feed=grid final=True cleanup=True fills=10 model_ticks=549 errs=[]
+2026-09-05    grid-2987021-m4 lol  feed=grid final=False cleanup=False fills=6 model_ticks=324 errs=[]
+2026-09-01    grid-2996003-m3 dota feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-02    grid-2996005-m2 dota feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-05    grid-2996020-m3 dota feed=grid final=False cleanup=False fills=8 model_ticks=501 errs=[]
+2026-09-02    grid-2996949-m3 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-02    grid-2998724-m2 lol  feed=grid final=True cleanup=True fills=0 model_ticks=0 errs=[]
+2026-09-03    grid-3002523-m3 dota feed=grid final=False cleanup=False fills=8 model_ticks=101 errs=[]
+2026-09-19    grid-3002603-m2 lol  feed=grid final=True cleanup=True fills=2 model_ticks=463 errs=[]
+2026-09-12    grid-3003938-m3 dota feed=grid final=False cleanup=False fills=4 model_ticks=203 errs=[]
+2026-09-10    grid-3004388-m3 lol  feed=grid final=True cleanup=True fills=11 model_ticks=378 errs=[]
+2026-09-12    grid-3005967-m1 dota feed=grid final=False cleanup=False fills=5 model_ticks=358 errs=[]
+2026-09-15    grid-3007246-m3 dota feed=grid final=False cleanup=False fills=0 model_ticks=347 errs=[]
+2026-09-19    grid-3007266-m3 dota feed=grid final=True cleanup=True fills=5 model_ticks=676 errs=[]
+
+== session_end present but NO final in match.json ==
+2026-09-01    grid-2996002-m2 dota feed=grid term=None ncash=-4.679400 cleanup=False
+
+== trading_error records ==
+   11 place:validation
+    3 place:ValueError
+    1 cancel:cancel_failed
+    1 setup:TradingDisabled
+
+== sessions with trading_error ==
+2026-08-30         8974985429 term=finished ncash=12.351899999999993 leftover=0.0 errs=['place:validation', 'place:validation']
+2026-08-31         8976166971 term=finished ncash=0.0 leftover=0.0 errs=['place:validation']
+2026-08-31         8976441468 term=finished ncash=20.16250000000001 leftover=0.0 errs=['place:validation']
+2026-08-31         8976511215 term=finished ncash=-0.042875999999989034 leftover=0.0 errs=['cancel:cancel_failed']
+2026-09-12    grid-2973273-m1 term=finished ncash=None leftover=0.0 errs=['setup:TradingDisabled']
+2026-09-02    grid-2974337-m1 term=finished ncash=-0.005858000000001695 leftover=0.0 errs=['place:validation']
+2026-09-02    grid-2987018-m4 term=None ncash=None leftover=0.0 errs=['place:validation', 'place:validation']
+2026-09-02    grid-2991212-m3 term=finished ncash=0.0 leftover=0.0 errs=['place:validation', 'place:ValueError', 'place:ValueError', 'place:ValueError']
+2026-09-01    grid-2994622-m2 term=finished ncash=0.0 leftover=0.0 errs=['place:validation']
+2026-09-02    grid-2996007-m1 term=finished ncash=-1.4686620000000001 leftover=0.0 errs=['place:validation']
+2026-09-02    grid-2996949-m2 term=finished ncash=-41.449471999999986 leftover=0.0 errs=['place:validation']
+
+== leftover inventory at session_end (>5 shares) ==
+2026-09-06    grid-3002533-m2 dota term=finished ncash=-90.00094000000003 imv=99.03748139999999 leftover=99.6
+2026-09-12    grid-3003938-m1 dota term=finished ncash=-4.998 imv=5.92025 leftover=6.0
+
+== sessions WITHOUT execution_cleanup ==
+2026-09-19 9007118998.pgl-detached dota has_end=False final=False term=None leftover=0.0
+2026-09-20         9007720090 dota has_end=False final=False term=None leftover=0.0
+2026-09-21         9009436210 dota has_end=False final=False term=None leftover=0.0
+2026-09-21         9009517003 dota has_end=False final=False term=None leftover=0.0
+2026-09-22         9011229961 dota has_end=False final=False term=None leftover=0.0
+2026-09-24         9013571077 dota has_end=False final=False term=None leftover=0.0
+2026-09-26         9016945136 dota has_end=False final=False term=None leftover=0.0
+2026-09-26         9017026154 dota has_end=False final=False term=None leftover=0.0
+2026-09-05    grid-2987021-m4 lol  has_end=False final=False term=None leftover=0.0
+2026-09-01    grid-2996002-m2 dota has_end=True final=False term=None leftover=0.0
+2026-09-05    grid-2996020-m3 dota has_end=False final=False term=None leftover=0.0
+2026-09-03    grid-3002523-m3 dota has_end=False final=False term=None leftover=0.0
+2026-09-12    grid-3003938-m3 dota has_end=False final=False term=None leftover=0.0
+2026-09-12    grid-3005967-m1 dota has_end=False final=False term=None leftover=0.0
+2026-09-15    grid-3007246-m3 dota has_end=False final=False term=None leftover=0.0
+total no-cleanup: 15

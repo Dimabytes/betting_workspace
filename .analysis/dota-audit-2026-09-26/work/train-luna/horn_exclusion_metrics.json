@@ -1,0 +1,53 @@
+{
+  "affected_catalog_maps": 58,
+  "affected_group_definition": "match_catalog horn_source=archive and any positive-duration pauses_json pause at game-clock time -90 <= time < 0",
+  "affected_validation_maps_with_rows": 57,
+  "affected_validation_rows": 28353,
+  "all_validation": {
+    "bias_cents": 0.11683927379176247,
+    "directional_markout_cents": 1.6178062690542103,
+    "events": 310,
+    "label": "all_validation_labeled",
+    "mae_gain_cents": 0.2430470204446015,
+    "maps": 682,
+    "model_mae_cents": 7.564487788166442,
+    "no_move_mae_cents": 7.807534808611044,
+    "rows": 342444
+  },
+  "clean_minus_full_point_change_cents": {
+    "directional_markout": -0.1068857078155887,
+    "mae_gain": -0.024852036296401092
+  },
+  "excluding_affected_maps": {
+    "bias_cents": 0.10167192276741593,
+    "directional_markout_cents": 1.5109205612386216,
+    "events": 304,
+    "label": "excluding_archive_horn_pre_horn_pause_maps",
+    "mae_gain_cents": 0.2181949841482004,
+    "maps": 625,
+    "model_mae_cents": 7.695215301405987,
+    "no_move_mae_cents": 7.9134102855541855,
+    "rows": 314091
+  },
+  "filter_definition": "current market_status=ok, market second in [-60,600), signal_market_p_radiant_300s non-null; same research model, no retraining",
+  "paired_event_cluster_bootstrap": {
+    "directional_markout": {
+      "clean_maps_with_targets": 625,
+      "clean_minus_full_95ci_cents": [
+        -0.22470535388803453,
+        -0.0009780001752428813
+      ],
+      "event_clusters": 310,
+      "replicates": 2000
+    },
+    "mae_gain": {
+      "clean_maps_with_targets": 625,
+      "clean_minus_full_95ci_cents": [
+        -0.05695755482213025,
+        0.0039044161950135972
+      ],
+      "event_clusters": 310,
+      "replicates": 2000
+    }
+  }
+}

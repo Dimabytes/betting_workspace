@@ -1,0 +1,152 @@
+{
+  "books": {
+    "n_days": 343,
+    "schema_counts": {
+      "timestamp_us:int64,local_timestamp_us:int64,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: struct<price: string, size: string>>,asks:list<element: struct<price: string, size: string>>": 27918,
+      "timestamp_us:int64,local_timestamp_us:double,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: struct<price: string, size: string>>,asks:list<element: struct<price: string, size: string>>": 3328,
+      "timestamp_us:int64,local_timestamp_us:int64,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: struct<price: string, size: string>>,asks:list<element: null>": 209,
+      "timestamp_us:int64,local_timestamp_us:int64,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: null>,asks:list<element: struct<price: string, size: string>>": 209,
+      "timestamp_us:int64,local_timestamp_us:double,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: null>,asks:list<element: struct<price: string, size: string>>": 92,
+      "timestamp_us:int64,local_timestamp_us:double,exchange:string,market_id:string,slug:string,asset_id:string,outcome:string,bids:list<element: struct<price: string, size: string>>,asks:list<element: null>": 92
+    },
+    "short": [
+      {
+        "files": 24,
+        "rows": 42656,
+        "max_us": 1760737844885000,
+        "no_stats": 0,
+        "day": "2025-10-17",
+        "max": "2025-10-17T21:50:44.885000+00:00"
+      },
+      {
+        "files": 24,
+        "rows": 56540,
+        "max_us": 1760823700198000,
+        "no_stats": 0,
+        "day": "2025-10-18",
+        "max": "2025-10-18T21:41:40.198000+00:00"
+      },
+      {
+        "files": 50,
+        "rows": 232768,
+        "max_us": 1764179873096000,
+        "no_stats": 0,
+        "day": "2025-11-26",
+        "max": "2025-11-26T17:57:53.096000+00:00"
+      },
+      {
+        "files": 8,
+        "rows": 150538,
+        "max_us": 1765114786801000,
+        "no_stats": 0,
+        "day": "2025-12-07",
+        "max": "2025-12-07T13:39:46.801000+00:00"
+      },
+      {
+        "files": 14,
+        "rows": 92952,
+        "max_us": 1767190983172000,
+        "no_stats": 0,
+        "day": "2025-12-31",
+        "max": "2025-12-31T14:23:03.172000+00:00"
+      },
+      {
+        "files": 8,
+        "rows": 6620,
+        "max_us": 1767467687596000,
+        "no_stats": 0,
+        "day": "2026-01-03",
+        "max": "2026-01-03T19:14:47.596000+00:00"
+      },
+      {
+        "files": 14,
+        "rows": 29786,
+        "max_us": 1768192829992000,
+        "no_stats": 0,
+        "day": "2026-01-12",
+        "max": "2026-01-12T04:40:29.992000+00:00"
+      },
+      {
+        "files": 88,
+        "rows": 632868,
+        "max_us": 1768765960187000,
+        "no_stats": 0,
+        "day": "2026-01-18",
+        "max": "2026-01-18T19:52:40.187000+00:00"
+      },
+      {
+        "files": 22,
+        "rows": 1305098,
+        "max_us": 1774892807038000,
+        "no_stats": 0,
+        "day": "2026-03-30",
+        "max": "2026-03-30T17:46:47.038000+00:00"
+      },
+      {
+        "files": 16,
+        "rows": 3322689,
+        "max_us": 1787492934158092,
+        "no_stats": 0,
+        "day": "2026-08-23",
+        "max": "2026-08-23T13:48:54.158092+00:00"
+      }
+    ],
+    "missing_note": "see caller"
+  },
+  "catalog_hits": [
+    {
+      "match_id": 8935608232,
+      "slug": "dota2-jenz-ill-2026-08-08-game1",
+      "horn": "2026-08-08T15:31:29.393000+00:00",
+      "ended": "2026-08-08T16:20:27.393000+00:00",
+      "duration": 2267,
+      "past_cut": false,
+      "files": {
+        "t0:2026-08-08": null,
+        "t1:2026-08-08": null
+      }
+    },
+    {
+      "match_id": 8935755968,
+      "slug": "dota2-jenz-ill-2026-08-08-game2",
+      "horn": "2026-08-08T16:47:05.991000+00:00",
+      "ended": "2026-08-08T17:40:39.991000+00:00",
+      "duration": 3106,
+      "past_cut": false,
+      "files": {
+        "t0:2026-08-08": null,
+        "t1:2026-08-08": null
+      }
+    },
+    {
+      "match_id": 8935913261,
+      "slug": "dota2-amaru-jenz-2026-07-28-game1",
+      "horn": "2026-08-08T18:26:03.022000+00:00",
+      "ended": "2026-08-08T18:56:58.022000+00:00",
+      "duration": 1660,
+      "past_cut": false,
+      "files": {
+        "t0:2026-08-08": null,
+        "t1:2026-08-08": null
+      }
+    },
+    {
+      "match_id": 8936009381,
+      "slug": "dota2-amaru-jenz-2026-07-28-game2",
+      "horn": "2026-08-08T19:26:22.851000+00:00",
+      "ended": "2026-08-08T19:51:50.851000+00:00",
+      "duration": 1434,
+      "past_cut": false,
+      "files": {
+        "t0:2026-08-08": null,
+        "t1:2026-08-08": null
+      }
+    }
+  ],
+  "onchain_2026_09_20": {
+    "files": 226,
+    "rows": 2204,
+    "min": "2026-09-20T20:29:11+00:00",
+    "max": "2026-09-20T23:59:58+00:00"
+  }
+}

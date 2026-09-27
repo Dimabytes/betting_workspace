@@ -1,0 +1,546 @@
+{
+  "method": {
+    "move_test": "event-series cluster bootstrap, 2,000 replicates; dropped rows use the recovered relaxed label",
+    "regime_scope": "current-status-ok candidate rows only; future statuses split dropped rows into wide_spread, stale_quote, missing_quote, inconsistent_pair where present"
+  },
+  "production": {
+    "current_ok_rows": 19933,
+    "drop_share": 0.15346410475091557,
+    "dropped_current_ok_rows": 3059,
+    "future_status_counts": {
+      "missing_quote": 43,
+      "stale_quote": 561,
+      "wide_spread": 2455
+    },
+    "kept_labeled_rows": 16874,
+    "move_comparison": {
+      "dropped_rows_with_relaxed_label": 2849,
+      "kept_rows": 16874,
+      "kept_share_abs_move_ge_10c": 0.30532179684722055,
+      "mean_abs_move_gap_dropped_minus_kept_cents": 0.6714782125799068,
+      "mean_abs_move_gap_event_cluster_95ci_cents": [
+        0.36198416829262836,
+        0.980085638280242
+      ],
+      "recovered_drop_fraction": 0.931350114416476,
+      "recovered_dropped_share_abs_move_ge_10c": 0.3467883467883468,
+      "share_abs_move_ge_10c_gap_dropped_minus_kept_pp": 4.146654994112625,
+      "share_abs_move_ge_10c_gap_event_cluster_95ci_pp": [
+        2.0855315103273213,
+        6.240131349252417
+      ]
+    },
+    "regimes": {
+      "favorite_result": {
+        "favorite_correct": {
+          "current_ok_rows": 13610,
+          "drop_share": 0.1523879500367377,
+          "dropped_rows": 2074,
+          "future_status_counts": {
+            "missing_quote": 37,
+            "stale_quote": 441,
+            "wide_spread": 1596
+          },
+          "kept_labeled_rows": 11536
+        },
+        "favorite_wrong": {
+          "current_ok_rows": 6323,
+          "drop_share": 0.15578048394749328,
+          "dropped_rows": 985,
+          "future_status_counts": {
+            "missing_quote": 6,
+            "stale_quote": 120,
+            "wide_spread": 859
+          },
+          "kept_labeled_rows": 5338
+        }
+      },
+      "nw_bucket": {
+        "3k-<10k": {
+          "current_ok_rows": 393,
+          "drop_share": 0.17048346055979643,
+          "dropped_rows": 67,
+          "future_status_counts": {
+            "missing_quote": 4,
+            "stale_quote": 28,
+            "wide_spread": 35
+          },
+          "kept_labeled_rows": 326
+        },
+        "<3k": {
+          "current_ok_rows": 19540,
+          "drop_share": 0.15312180143295803,
+          "dropped_rows": 2992,
+          "future_status_counts": {
+            "missing_quote": 39,
+            "stale_quote": 533,
+            "wide_spread": 2420
+          },
+          "kept_labeled_rows": 16548
+        }
+      },
+      "price_bucket": {
+        "0.15-<0.50": {
+          "current_ok_rows": 9432,
+          "drop_share": 0.14652247667514842,
+          "dropped_rows": 1382,
+          "future_status_counts": {
+            "missing_quote": 17,
+            "stale_quote": 210,
+            "wide_spread": 1155
+          },
+          "kept_labeled_rows": 8050
+        },
+        "0.50-<0.85": {
+          "current_ok_rows": 9363,
+          "drop_share": 0.1535832532308021,
+          "dropped_rows": 1438,
+          "future_status_counts": {
+            "missing_quote": 10,
+            "stale_quote": 226,
+            "wide_spread": 1202
+          },
+          "kept_labeled_rows": 7925
+        },
+        "<0.15": {
+          "current_ok_rows": 596,
+          "drop_share": 0.18959731543624161,
+          "dropped_rows": 113,
+          "future_status_counts": {
+            "missing_quote": 5,
+            "stale_quote": 60,
+            "wide_spread": 48
+          },
+          "kept_labeled_rows": 483
+        },
+        ">=0.85": {
+          "current_ok_rows": 542,
+          "drop_share": 0.23247232472324722,
+          "dropped_rows": 126,
+          "future_status_counts": {
+            "missing_quote": 11,
+            "stale_quote": 65,
+            "wide_spread": 50
+          },
+          "kept_labeled_rows": 416
+        }
+      },
+      "second_bucket": {
+        "0-119": {
+          "current_ok_rows": 3886,
+          "drop_share": 0.1312403499742666,
+          "dropped_rows": 510,
+          "future_status_counts": {
+            "missing_quote": 6,
+            "stale_quote": 107,
+            "wide_spread": 397
+          },
+          "kept_labeled_rows": 3376
+        },
+        "120-299": {
+          "current_ok_rows": 5875,
+          "drop_share": 0.15591489361702127,
+          "dropped_rows": 916,
+          "future_status_counts": {
+            "missing_quote": 8,
+            "stale_quote": 165,
+            "wide_spread": 743
+          },
+          "kept_labeled_rows": 4959
+        },
+        "300-479": {
+          "current_ok_rows": 5808,
+          "drop_share": 0.16322314049586778,
+          "dropped_rows": 948,
+          "future_status_counts": {
+            "missing_quote": 17,
+            "stale_quote": 158,
+            "wide_spread": 773
+          },
+          "kept_labeled_rows": 4860
+        },
+        "480-599": {
+          "current_ok_rows": 3752,
+          "drop_share": 0.17084221748400852,
+          "dropped_rows": 641,
+          "future_status_counts": {
+            "missing_quote": 12,
+            "stale_quote": 122,
+            "wide_spread": 507
+          },
+          "kept_labeled_rows": 3111
+        },
+        "prehorn [-60,0)": {
+          "current_ok_rows": 612,
+          "drop_share": 0.0718954248366013,
+          "dropped_rows": 44,
+          "future_status_counts": {
+            "stale_quote": 9,
+            "wide_spread": 35
+          },
+          "kept_labeled_rows": 568
+        }
+      }
+    },
+    "rows_any_status": 31175
+  },
+  "research_train": {
+    "current_ok_rows": 13459,
+    "drop_share": 0.17750204324244,
+    "dropped_current_ok_rows": 2389,
+    "future_status_counts": {
+      "missing_quote": 34,
+      "stale_quote": 470,
+      "wide_spread": 1885
+    },
+    "kept_labeled_rows": 11070,
+    "move_comparison": {
+      "dropped_rows_with_relaxed_label": 2202,
+      "kept_rows": 11070,
+      "kept_share_abs_move_ge_10c": 0.3120144534778681,
+      "mean_abs_move_gap_dropped_minus_kept_cents": 0.7294898946264672,
+      "mean_abs_move_gap_event_cluster_95ci_cents": [
+        0.3663916537919768,
+        1.0983595760419251
+      ],
+      "recovered_drop_fraction": 0.9217245709501883,
+      "recovered_dropped_share_abs_move_ge_10c": 0.3605812897366031,
+      "share_abs_move_ge_10c_gap_dropped_minus_kept_pp": 4.856683625873498,
+      "share_abs_move_ge_10c_gap_event_cluster_95ci_pp": [
+        2.497350178063411,
+        7.389300790097546
+      ]
+    },
+    "regimes": {
+      "favorite_result": {
+        "favorite_correct": {
+          "current_ok_rows": 9175,
+          "drop_share": 0.17384196185286105,
+          "dropped_rows": 1595,
+          "future_status_counts": {
+            "missing_quote": 29,
+            "stale_quote": 364,
+            "wide_spread": 1202
+          },
+          "kept_labeled_rows": 7580
+        },
+        "favorite_wrong": {
+          "current_ok_rows": 4284,
+          "drop_share": 0.18534080298786182,
+          "dropped_rows": 794,
+          "future_status_counts": {
+            "missing_quote": 5,
+            "stale_quote": 106,
+            "wide_spread": 683
+          },
+          "kept_labeled_rows": 3490
+        }
+      },
+      "nw_bucket": {
+        "3k-<10k": {
+          "current_ok_rows": 244,
+          "drop_share": 0.20081967213114754,
+          "dropped_rows": 49,
+          "future_status_counts": {
+            "missing_quote": 4,
+            "stale_quote": 22,
+            "wide_spread": 23
+          },
+          "kept_labeled_rows": 195
+        },
+        "<3k": {
+          "current_ok_rows": 13215,
+          "drop_share": 0.17707150964812712,
+          "dropped_rows": 2340,
+          "future_status_counts": {
+            "missing_quote": 30,
+            "stale_quote": 448,
+            "wide_spread": 1862
+          },
+          "kept_labeled_rows": 10875
+        }
+      },
+      "price_bucket": {
+        "0.15-<0.50": {
+          "current_ok_rows": 6385,
+          "drop_share": 0.17149569303054032,
+          "dropped_rows": 1095,
+          "future_status_counts": {
+            "missing_quote": 13,
+            "stale_quote": 183,
+            "wide_spread": 899
+          },
+          "kept_labeled_rows": 5290
+        },
+        "0.50-<0.85": {
+          "current_ok_rows": 6416,
+          "drop_share": 0.17581047381546136,
+          "dropped_rows": 1128,
+          "future_status_counts": {
+            "missing_quote": 10,
+            "stale_quote": 197,
+            "wide_spread": 921
+          },
+          "kept_labeled_rows": 5288
+        },
+        "<0.15": {
+          "current_ok_rows": 330,
+          "drop_share": 0.22727272727272727,
+          "dropped_rows": 75,
+          "future_status_counts": {
+            "missing_quote": 2,
+            "stale_quote": 43,
+            "wide_spread": 30
+          },
+          "kept_labeled_rows": 255
+        },
+        ">=0.85": {
+          "current_ok_rows": 328,
+          "drop_share": 0.2774390243902439,
+          "dropped_rows": 91,
+          "future_status_counts": {
+            "missing_quote": 9,
+            "stale_quote": 47,
+            "wide_spread": 35
+          },
+          "kept_labeled_rows": 237
+        }
+      },
+      "second_bucket": {
+        "0-119": {
+          "current_ok_rows": 2698,
+          "drop_share": 0.15344699777613047,
+          "dropped_rows": 414,
+          "future_status_counts": {
+            "missing_quote": 5,
+            "stale_quote": 93,
+            "wide_spread": 316
+          },
+          "kept_labeled_rows": 2284
+        },
+        "120-299": {
+          "current_ok_rows": 4100,
+          "drop_share": 0.18121951219512195,
+          "dropped_rows": 743,
+          "future_status_counts": {
+            "missing_quote": 6,
+            "stale_quote": 144,
+            "wide_spread": 593
+          },
+          "kept_labeled_rows": 3357
+        },
+        "300-479": {
+          "current_ok_rows": 4033,
+          "drop_share": 0.18621373667245228,
+          "dropped_rows": 751,
+          "future_status_counts": {
+            "missing_quote": 14,
+            "stale_quote": 131,
+            "wide_spread": 606
+          },
+          "kept_labeled_rows": 3282
+        },
+        "480-599": {
+          "current_ok_rows": 2582,
+          "drop_share": 0.18628969790859798,
+          "dropped_rows": 481,
+          "future_status_counts": {
+            "missing_quote": 9,
+            "stale_quote": 102,
+            "wide_spread": 370
+          },
+          "kept_labeled_rows": 2101
+        },
+        "prehorn [-60,0)": {
+          "current_ok_rows": 46,
+          "drop_share": 0.0,
+          "dropped_rows": 0,
+          "future_status_counts": {},
+          "kept_labeled_rows": 46
+        }
+      }
+    },
+    "rows_any_status": 23288
+  },
+  "validation": {
+    "current_ok_rows": 382760,
+    "drop_share": 0.10532971052356568,
+    "dropped_current_ok_rows": 40316,
+    "future_status_counts": {
+      "missing_quote": 354,
+      "stale_quote": 6374,
+      "wide_spread": 33588
+    },
+    "kept_labeled_rows": 342444,
+    "move_comparison": {
+      "dropped_rows_with_relaxed_label": 38951,
+      "kept_rows": 342444,
+      "kept_share_abs_move_ge_10c": 0.29949130368761023,
+      "mean_abs_move_gap_dropped_minus_kept_cents": 0.2890134186488466,
+      "mean_abs_move_gap_event_cluster_95ci_cents": [
+        -0.10571134047525597,
+        0.6950245175710693
+      ],
+      "recovered_drop_fraction": 0.9661424744518305,
+      "recovered_dropped_share_abs_move_ge_10c": 0.32130112192241533,
+      "share_abs_move_ge_10c_gap_dropped_minus_kept_pp": 2.18098182348051,
+      "share_abs_move_ge_10c_gap_event_cluster_95ci_pp": [
+        -0.47217721298537546,
+        4.931817018221496
+      ]
+    },
+    "regimes": {
+      "favorite_result": {
+        "favorite_correct": {
+          "current_ok_rows": 262189,
+          "drop_share": 0.1107407252020489,
+          "dropped_rows": 29035,
+          "future_status_counts": {
+            "missing_quote": 310,
+            "stale_quote": 5238,
+            "wide_spread": 23487
+          },
+          "kept_labeled_rows": 233154
+        },
+        "favorite_wrong": {
+          "current_ok_rows": 120571,
+          "drop_share": 0.09356312877889376,
+          "dropped_rows": 11281,
+          "future_status_counts": {
+            "missing_quote": 44,
+            "stale_quote": 1136,
+            "wide_spread": 10101
+          },
+          "kept_labeled_rows": 109290
+        }
+      },
+      "nw_bucket": {
+        "3k-<10k": {
+          "current_ok_rows": 11453,
+          "drop_share": 0.15864838906836637,
+          "dropped_rows": 1817,
+          "future_status_counts": {
+            "missing_quote": 47,
+            "stale_quote": 601,
+            "wide_spread": 1169
+          },
+          "kept_labeled_rows": 9636
+        },
+        "<3k": {
+          "current_ok_rows": 371307,
+          "drop_share": 0.10368509077394178,
+          "dropped_rows": 38499,
+          "future_status_counts": {
+            "missing_quote": 307,
+            "stale_quote": 5773,
+            "wide_spread": 32419
+          },
+          "kept_labeled_rows": 332808
+        }
+      },
+      "price_bucket": {
+        "0.15-<0.50": {
+          "current_ok_rows": 178851,
+          "drop_share": 0.09754488373003226,
+          "dropped_rows": 17446,
+          "future_status_counts": {
+            "missing_quote": 161,
+            "stale_quote": 1938,
+            "wide_spread": 15347
+          },
+          "kept_labeled_rows": 161405
+        },
+        "0.50-<0.85": {
+          "current_ok_rows": 174124,
+          "drop_share": 0.10606808940754864,
+          "dropped_rows": 18469,
+          "future_status_counts": {
+            "missing_quote": 13,
+            "stale_quote": 2402,
+            "wide_spread": 16054
+          },
+          "kept_labeled_rows": 155655
+        },
+        "<0.15": {
+          "current_ok_rows": 16743,
+          "drop_share": 0.14250731649047363,
+          "dropped_rows": 2386,
+          "future_status_counts": {
+            "missing_quote": 105,
+            "stale_quote": 1169,
+            "wide_spread": 1112
+          },
+          "kept_labeled_rows": 14357
+        },
+        ">=0.85": {
+          "current_ok_rows": 13042,
+          "drop_share": 0.15450084342892195,
+          "dropped_rows": 2015,
+          "future_status_counts": {
+            "missing_quote": 75,
+            "stale_quote": 865,
+            "wide_spread": 1075
+          },
+          "kept_labeled_rows": 11027
+        }
+      },
+      "second_bucket": {
+        "0-119": {
+          "current_ok_rows": 70686,
+          "drop_share": 0.0836657895481425,
+          "dropped_rows": 5914,
+          "future_status_counts": {
+            "missing_quote": 43,
+            "stale_quote": 794,
+            "wide_spread": 5077
+          },
+          "kept_labeled_rows": 64772
+        },
+        "120-299": {
+          "current_ok_rows": 106378,
+          "drop_share": 0.09929684709244392,
+          "dropped_rows": 10563,
+          "future_status_counts": {
+            "missing_quote": 92,
+            "stale_quote": 1684,
+            "wide_spread": 8787
+          },
+          "kept_labeled_rows": 95815
+        },
+        "300-479": {
+          "current_ok_rows": 106314,
+          "drop_share": 0.11306130895272495,
+          "dropped_rows": 12020,
+          "future_status_counts": {
+            "missing_quote": 108,
+            "stale_quote": 1923,
+            "wide_spread": 9989
+          },
+          "kept_labeled_rows": 94294
+        },
+        "480-599": {
+          "current_ok_rows": 64645,
+          "drop_share": 0.138262820017016,
+          "dropped_rows": 8938,
+          "future_status_counts": {
+            "missing_quote": 111,
+            "stale_quote": 1349,
+            "wide_spread": 7478
+          },
+          "kept_labeled_rows": 55707
+        },
+        "prehorn [-60,0)": {
+          "current_ok_rows": 34737,
+          "drop_share": 0.08293750179923425,
+          "dropped_rows": 2881,
+          "future_status_counts": {
+            "stale_quote": 624,
+            "wide_spread": 2257
+          },
+          "kept_labeled_rows": 31856
+        }
+      }
+    },
+    "rows_any_status": 466050
+  }
+}
