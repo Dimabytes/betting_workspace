@@ -21,7 +21,7 @@
 | 7 | S2 | Размер клипа бэктеста не равен лайву | — | | | |
 | 8 | S2 | Сопоставление GRID теряет 35% связей | — | | | |
 | 9 | S2 | Якорь: сырой mid против чистого | план | [09](plans/09-anchor-stripped-mid.md) | | Замер: наши заявки — 4.4–18.3% провалов якоря, 204 в отчёте — строки `Wake`, не сигналы |
-| 10 | S2 | Мусорные строки GRID в признаках лайва | в работе | [10](plans/10-grid-table-rows.md) | e7886633 | Код в `esports-trader` main (`e7886633`). Шаги 4–7 не делались: индекс, бэктесты и деплой — после ревью. `watch_steam_live.py` не тронут — там свой локальный `PlayerNetWorth` |
+| 10 | S2 | Мусорные строки GRID в признаках лайва | в работе | [10](plans/10-grid-table-rows.md) | e7886633 + f36cd43b | Код в `esports-trader` main (`e7886633`, ревью-фикс `f36cd43b`). Шаги 4–7 не делались: индекс, бэктесты и деплой — после ревью. `watch_steam_live.py` не тронут — там свой локальный `PlayerNetWorth` |
 | 11 | S2 | Операционные потери лайва | — | | | |
 | 12 | S2 | Кэш `market_seconds` не знает входов | — | | | П. 2 обходит его удалением файлов |
 | 13 | S3 | Ранняя остановка на картах бэктеста | — | | | |
@@ -56,3 +56,4 @@
 - 2026-09-27: план для п. 10, замер `scripts/grid_row_rules.py` на 224 архивах Dota и 307 LoL.
 - 2026-09-27: п. 2 закоммичен в `esports-trader` `2e875eb0`, ревью — `55c93645`. Деплой, пересборка каталога, train и event study не делались.
 - 2026-09-27: п. 10 закоммичен в `esports-trader` `e7886633` (правило C: `select_side_players`, `feed-schedule-v6`). `make test`: 16 предсуществующих фейлов (дрейф goldens после `4afbc6fb`, `ODDIN_BRAND_TOKEN`, `ok_quote_fraction` в данных) — подтверждены на чистом HEAD. Индекс, каталог, бэктесты и деплой не делались — после ревью.
+- 2026-09-27: ревью-фиксы п. 10 в `esports-trader` `f36cd43b`: один `select_board_players` на обе стороны (`_on_table`, `_live_snapshot`, `_side_deaths`), сброс невалидной pre-lock таблицы в `_lock_sides`, `PLAYERS_PER_SIDE` → `shared.constants.strategy`, `compare_lol_grid_livestats` на `select_side_players`, фикстуры `table_rows`/`copy_series_table`/`foreign_table`, docstring `format_players` о сырых строках. pre-commit и 102 таргетных теста зелёные.
