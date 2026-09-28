@@ -226,8 +226,12 @@ def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
     the current maps, not August leftovers. A container restart or a feed that
     ends without a final leaves the same gap in `live`/`paper`, so an archive
     nobody wrote to for STALE_OPEN_SECONDS is an orphan, not a live map.
+    A record-only map writes no session.jsonl: without session_start the worker
+    never attached, so it holds no positions and never blocks a restart.
     """
     if not sess["live"]:
+        return False
+    if sess["start"] is None:
         return False
     if tree == "legacy":
         return False
@@ -704,7 +708,7 @@ def check_game_default() -> None:
         raise SystemExit("lol game must stay lol")
     if HOST_TREES[0][0] != "live" or HOST_TREES[1][0] != "paper" or HOST_TREES[2][0] != "legacy":
         raise SystemExit("host tree order must be live, paper, legacy")
-    dummy_sess = {"live": True}
+    dummy_sess = {"live": True, "start": {"kind": "session_start"}}
     dummy_meta: dict = {}
     dummy_archive = Path("/nonexistent")
     if is_open_session("legacy", dummy_archive, dummy_sess, dummy_meta):
@@ -713,6 +717,8 @@ def check_game_default() -> None:
         raise SystemExit("live tree without end/final/cleanup must count as open")
     if is_open_session("live", dummy_archive, dummy_sess, {"final": {"winner": None}}):
         raise SystemExit("GRID final with null winner must not count as open")
+    if is_open_session("live", dummy_archive, {"live": True, "start": None}, dummy_meta):
+        raise SystemExit("no session_start means record-only: must not count as open")
     check_stale_open()
 
 
@@ -723,13 +729,14 @@ def check_stale_open() -> None:
         archive.mkdir()
         tape = archive / "grid_state.jsonl"
         tape.write_text("{}\n")
+        sess = {"live": True, "start": {"kind": "session_start"}}
         old = datetime.now(timezone.utc).timestamp() - 4.0 * STALE_OPEN_SECONDS
         os.utime(tape, (old, old))
-        if is_open_session("live", archive, {"live": True}, {}):
+        if is_open_session("live", archive, sess, {}):
             raise SystemExit("stale archive must not count as an open session")
         fresh = datetime.now(timezone.utc).timestamp()
         os.utime(tape, (fresh, fresh))
-        if not is_open_session("live", archive, {"live": True}, {}):
+        if not is_open_session("live", archive, sess, {}):
             raise SystemExit("freshly written archive must count as an open session")
 
 
