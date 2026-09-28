@@ -226,8 +226,11 @@ def is_open_session(tree: str, archive: Path, sess: dict, meta: dict) -> bool:
     the current maps, not August leftovers. A container restart or a feed that
     ends without a final leaves the same gap in `live`/`paper`, so an archive
     nobody wrote to for STALE_OPEN_SECONDS is an orphan, not a live map.
-    A record-only map writes no session.jsonl: without session_start the worker
-    never attached, so it holds no positions and never blocks a restart.
+    A record-only map never opens a journal, so its archive has no
+    session.jsonl and lands on the start-is-None check like any other
+    archive-only map. match.json carries the `record_only` marker for
+    consumers that need the reason; this predicate trusts the session file
+    itself, so a stale marker can never hide a live session.
     """
     if not sess["live"]:
         return False
@@ -717,8 +720,12 @@ def check_game_default() -> None:
         raise SystemExit("live tree without end/final/cleanup must count as open")
     if is_open_session("live", dummy_archive, dummy_sess, {"final": {"winner": None}}):
         raise SystemExit("GRID final with null winner must not count as open")
-    if is_open_session("live", dummy_archive, {"live": True, "start": None}, dummy_meta):
-        raise SystemExit("no session_start means record-only: must not count as open")
+    if is_open_session(
+        "live", dummy_archive, {"live": True, "start": None}, {"record_only": True}
+    ):
+        raise SystemExit("record-only has no session_start: must not count as open")
+    if not is_open_session("live", dummy_archive, dummy_sess, {"record_only": True}):
+        raise SystemExit("a real session_start outranks a stale record_only marker")
     check_stale_open()
 
 
