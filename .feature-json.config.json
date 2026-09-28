@@ -1,0 +1,19 @@
+{
+  "init": {
+    "instructions": []
+  },
+  "orchestrate": {
+    "instructions": []
+  },
+  "plan": {
+    "model": "claude-opus-5-5-xhigh",
+    "instructions": []
+  },
+  "implement": {
+    "model": "grok-4.7-high",
+    "instructions": []
+  },
+  "review": {
+    "model": "claude-opus-5-5-high"
+  }
+}
