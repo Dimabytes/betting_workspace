@@ -98,16 +98,16 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
 1. Run `summarize.py --live`.
 2. Confirm the container is up and logs are still appending.
-3. Last `signal.reason`: `model` means the window is open. `pre_horn` / `paused` / `missing_book` / `outside_window` are usually not daemon crashes.
+3. Last `signal.reason`: `model` means the window is open. `pre_horn` / `paused` / `missing_book` / `own_liquidity_only` / `outside_window` are usually not daemon crashes.
 4. Last `quote.decision`: `normal` vs `reduce_only`.
 5. Long with no resting SELL: run `core_state.py <match_id>`. Do not wait it out and do not sell by hand before the verdict line says WEDGED.
 6. Fills: BUY then SELL is the s2-join clip. `entry_block=position_open` after a fill means the next clip waits until flat. That is strategy, not a hang.
-7. `missing_book` / `one_sided_book` with a visible Polymarket book in the UI can still be our MDS. Check recent logs for WS/halt before calling it an outage.
+7. `missing_book` / `one_sided_book` with a visible Polymarket book in the UI can still be our MDS. `own_liquidity_only` is different: the raw book is there, and our orders are the whole bid or ask. Check recent logs for WS/halt before calling `missing_book` an outage.
 8. Steam HTTP 400 on `GetRealtimeStats` is Valve-side for that `server_steam_id`, not a bad key. Neighboring games in the same second can return 200. LoL has no Steam.
 
 ## Common false alarms
 
-- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=480), `no_edge`, `missing_book` are skips, not misses of discovery. Discovery miss is: no `session_start` for that match at all.
+- **No bets this map.** Histogram `signal.reason` and `entry_block`. `min_delta`, `nw_velocity` (cap 350, Dota and LoL), `cutoff` (after t=480), `no_edge`, `missing_book`, `own_liquidity_only` are skips, not misses of discovery. `own_liquidity_only` means our orders are the whole bid or ask. Discovery miss is: no `session_start` for that match at all.
 - **Bought but not selling / quoting stopped with inventory.** `entry_block` is buy-side only — it never explains a missing SELL. Do not histogram anything; replay the core:
 
   ```bash
