@@ -105,6 +105,7 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 | `finished` | Post-game |
 | `stale` | Feed watchdog, not a fresh snapshot |
 | `missing_book` | MDS has no usable YES or NO book |
+| `own_liquidity_only` | Raw book is two-sided, but our orders are the whole bid or ask |
 | `one_sided_book` | Bid or ask missing |
 | `crossed_book` / `nonfinite_pair` / `out_of_range_pair` / `pair_out_of_tolerance` | Broken YES/NO pair |
 | `missing_prior` | Map-load prior missing |
