@@ -121,6 +121,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 - **Halt leftover.** Wallet-wide. New matches will not size in until restart or the halt clears. Do not restart just to "see if it helps" unless asked.
 - **Log spam in `live.jsonl`.** Fork engine journal. Health comes from docker logs + `session.jsonl`.
 - **Paper fills on LoL.** PaperGateway writes `fill` rows. They are not CLOB. Absence of PK on `paper` is the live-order gate.
+- **Cancelled BUY still occupying a rung, or cash short after a cancel.** `gone` holds the rung until `BuySettled`. The money is the `unsettled_buys` row, not the core reserve. MATCHED lowers that reserve. Only BUY `CONFIRMED` resolves a positive qty. The worker ending, or the map finishing, does not release the row. Alert key `unsettled_buy:` plus the first 8 characters of `venue_id`. Triage that exact venue, token, and session: Polymarket UI or REST maker trades, then `fill_ledger` status. `get_order` returning None, a cancel timeout, and venue `not found` are not proof the size was zero. `not found` means the order is off the book.
 
 ## Restart (only when asked)
 
@@ -153,6 +154,14 @@ If the count is not zero, wait until reconcile resolves those rows, or explicitl
 Version-3 checkpoints stay loadable by old code. Old code sees that order as `unknown` with cancel reason `unsettled` and keeps inventory, the episode, and `sell_only`.
 
 Old replay tooling cannot decode `CancelUnsettled` or `BuySettled` trace events. That limit is the replay tool. Checkpoint load is separate and still works.
+
+Do not resolve a row because a cancel timed out. After the on-chain activity for that order is CONFIRMED, and the credited size is 0 (no fill, or the ledger row is `SUPERSEDED`, which credits 0):
+
+```sql
+UPDATE unsettled_buys SET resolved=1, qty=0 WHERE venue_id='<venue>';
+```
+
+Steps 001–004 go out together, and only on a separate user command. This note does not record a deploy, a measured post-deploy latency, or part-A readiness. After that deploy, check `CancelUnsettled` / `gone` and `BuySettled` in the trace, that open-row counts and reserve fall after reconcile, and the `wait_ms` distribution plus the same-rung cancel-to-next-place delay. Report restored clocks separately: `wait_ms=unavailable origin=restored`. The 2026-09-29 journal comparison, not a live measurement from this change, saw user-WS cancellation 41–46 ms before the HTTP ack, about one wake when `size_matched` was 0. Without that WS proof the row waits at least 60 seconds plus a reconcile. A canceled order still sitting in the market WS book is the grid-3008273 ghost; this does not claim a market-feed repair.
 
 ## Size change
 

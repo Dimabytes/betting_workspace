@@ -64,3 +64,21 @@ STEP-001: commit 54b7ce50; stepreview and commentsreview found no findings; pass
   - A test docstring in this file should add a fact the name cannot carry. Otherwise delete it.
 
 ---
+STEP-003: commits c72792c9 + c38dfa06; stepreview none, commentsreview 1 docstring fixed; passes=true.
+
+## 2026-09-30 01:08 UTC+2 - STEP-004
+
+- HTTP cancel and a user-WS `CANCELLATION`/`CANCELED` insert `unsettled_buys` before `note_cancel`. A successful BUY becomes `CancelUnsettled` (`gone`). A SELL stays `CancelAck`. A false result stays `CancelTimeout`.
+- `_own_remaining` skips `gone`, so that bid stays in the book. Schema stays 3. `passes` was not set.
+- esports-trader commit `f6bcd785`.
+- **Learnings for future iterations:**
+  - Capture BUY metadata before the await. The cancel outcome and the row share one `with conn`. Resolve only after that commit and after `note_cancel`.
+  - `sqlite3.Connection.commit` is read-only. A second connection inside the notify callback is how a test sees the row before the core event.
+  - `parse_buy_cancellation` is not `parse_terminal_buy_proof`. Creation requires `type=CANCELLATION` and `status=CANCELED`. Empty `size_matched` still creates. `MATCHED` and a full `UPDATE` do not.
+  - A resolved row returns immediately. An open row keeps the STEP-003 proof path.
+  - A live ok BUY cancel diverges from backtest `CancelAck`. Adapter tapes stop parity at that row. Do not make the live driver emit `CancelAck`.
+  - `get_unsettled_buy` returns resolved rows. `open_unsettled_buys` does not.
+  - `note_cancel` of an already-retired id still requotes. A new order placed during the await needs fresh books, or that requote marks it `canceling`.
+  - Deploy steps 001–004 together only on a separate user command. This step does not deploy.
+
+---
