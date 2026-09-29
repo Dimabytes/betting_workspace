@@ -6,14 +6,17 @@
     "instructions": []
   },
   "plan": {
-    "model": "claude-opus-5-5-xhigh",
+    "model": "gpt-6.1-sol-high",
     "instructions": []
   },
   "implement": {
-    "model": "grok-4.7-high",
+    "model": "grok-4.7-high-fast",
     "instructions": []
   },
   "review": {
-    "model": "claude-opus-5-5-high"
+    "model": "grok-4.7-high-fast",
+    "instructions": [
+      "The comments review (feature-json-no-comments) is done by devin high (swe-2-high)"
+    ]
   }
 }

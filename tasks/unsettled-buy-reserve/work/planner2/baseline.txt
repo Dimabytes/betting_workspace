@@ -1,0 +1,9 @@
+main
+117c61d4 Pin the 6-rung map cap in the refill test and the follow300 smokes.
+f24b5d72 Match the adapter contract's account room to the backtest fork.
+54b7ce50 Hold a venue-terminal BUY on its rung until the credited fill matches the proof.
+22f53724 Classify SELL refusals once and clear the order-error alert on reset.
+ M AGENTS.md
+ M pyproject.toml
+ M tests/conftest.py
+ M uv.lock
