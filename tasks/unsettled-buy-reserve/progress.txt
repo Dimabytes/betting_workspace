@@ -29,3 +29,12 @@ STEP-001: commit 54b7ce50; stepreview and commentsreview found no findings; pass
   - Rollback notes live in `.shared-skills/vps-trader/SKILL.md`. Manual resolution and the incident note are STEP-004.
 
 ---
+
+## 2026-09-29 23:46 UTC+2 - STEP-002 review fix
+
+- `_resting` takes `OrderStatus`, so the checkpoint fixture no longer needs `type: ignore[arg-type]`.
+- esports-trader commit `021fcc10`.
+- **Learnings for future iterations:**
+  - `reportPrivateUsage=false` on these tests is the existing white-box convention. Leave it.
+
+---
