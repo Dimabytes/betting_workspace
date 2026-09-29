@@ -38,3 +38,20 @@ STEP-001: commit 54b7ce50; stepreview and commentsreview found no findings; pass
   - `reportPrivateUsage=false` on these tests is the existing white-box convention. Leave it.
 
 ---
+
+## 2026-09-30 00:17 UTC+2 - STEP-003
+
+- Existing unsettled BUY rows are proved from a terminal user-WS order or from aged REST trades, then resolved when BUY CONFIRMED covers the proof. `BuySettled` repeats until the core drops the order. Cancel-to-retirement logs `wait_ms`.
+- No live insert. `note_cancel` does not emit `CancelUnsettled`. `_own_remaining` is unchanged. Schema stays 3.
+- esports-trader commit `c72792c9`.
+- **Learnings for future iterations:**
+  - WS proof returns before insert. A missing row is a no-op, not `CancelUnsettled`.
+  - Do not hold SQLite across `gateway._io`. After the await, prove only rows that are still open and unproven.
+  - `_dispatch_fill` resolves a CONFIRMED BUY before the `seq is None` return. MATCHED to CONFIRMED does not call the credited handler.
+  - `LiveSources.settled_buys` is required. Query only when an active BUY has a venue binding. `0.0` is delivered by key membership.
+  - Cancel clocks are not `_canceling_since` and are not in the checkpoint. A restored gone order logs `wait_ms=unavailable origin=restored`.
+  - `FakeEngine` has no `user`. Bind with `getattr(self.engine, "user", None)`.
+  - One trades read can lag past 60s and prove zero. That ceiling is the `ponytail` comment in `unsettled_buy_recovery.py`.
+  - A maker fill whose outcome matches the taker flips side. Booking a BUY needs taker side SELL on the same outcome.
+
+---
