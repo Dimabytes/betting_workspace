@@ -1,0 +1,5 @@
+Repository: /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader
+Branch: main
+HEAD: 021fcc1043d7719326d54d00dc00d9d584ad21a4
+Working tree: clean at planning inspection (git status --short returned no entries).
+Planner: planner3; code repository inspected read-only; no tests executed.
