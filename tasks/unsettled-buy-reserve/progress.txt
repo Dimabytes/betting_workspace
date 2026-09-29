@@ -1,0 +1,94 @@
+## 2026-09-29 22:57 UTC+2 - STEP-001
+
+- Kernel now treats a venue-terminal BUY as `gone`: the rung and episode stay occupied until `BuySettled` sees credited `filled_qty` within `HALF_SHARE_TICK` of `matched_qty`.
+- `CancelUnsettled` and `BuySettled` are inbound events, applied in the engine, evaluated immediately, and decoded strictly in the trace codec.
+- `gone` is excluded from kernel BUY reserve, target matching, cancel retries, entry-stale wake, and recovery downgrade. Checkpoint restore still rejects the status.
+- **Learnings for future iterations:**
+  - `HALF_SHARE_TICK` lives in `shared.utils.trading` and is re-exported by `wallet_store` so `engine_seams` keeps its import. Do not import `wallet_store` from lifecycle.
+  - No-op checks for these events must call the lifecycle helpers. `step` requotes immediately, so engine output is not identity.
+  - Acceptance opens a dirty window at `now_ns=0`. A later book update does not move `dirty_open_ns`.
+  - `core_persistence._require_status` still allows only the old four statuses. Do not emit live `CancelUnsettled` until STEP-002 writes the row and encodes `gone`.
+  - Adapter `account_cap_room inf != 1000000.0`, `test_shared_position_cap_stops_refills`, and seed-0 smoke tape drift already fail on `22f53724`. This step did not change them.
+
+---
+STEP-001: commit 54b7ce50; stepreview and commentsreview found no findings; passes=true.
+
+## 2026-09-29 23:40 UTC+2 - STEP-002
+
+- `unsettled_buys` stores submitted qty until proof, then matched qty. Reserve is `max(0, qty - booked) * price`. Booked is BUY MATCHED and CONFIRMED. A row resolves when BUY CONFIRMED covers qty within `HALF_SHARE_TICK`.
+- Account and map budgets add that notional, including rows whose core is gone or not loaded. Core reserve still excludes `gone`, so a bound venue is not counted twice.
+- Checkpoints stay schema 3. `gone` is stored as `unknown` with cancel reason `unsettled` and restored back to `gone`. Raw status `gone` is still rejected.
+- No live insert, proof, or resolve call site. HTTP and WS writers stay for STEP-004.
+- esports-trader commit `9b2742b7`.
+- **Learnings for future iterations:**
+  - Import `HALF_SHARE_TICK` from `shared.utils.trading`. `wallet_store` already imports `core_persistence`.
+  - These helpers do not commit. Compose them inside the caller's transaction.
+  - `resolve_settled_buys` aggregates the ledger once. The open-row index is `unsettled_buys_resolved_session`. A per-row ledger scan showed up in EXPLAIN and was not kept.
+  - `get_session` looks up `condition_id`. Load a snapshot with that id.
+  - Old-code restore is `_require_status` on the stored status. Patch `_decode_checkpoint_status` in the compatibility test. Do not accept `gone` in the old set.
+  - Rollback notes live in `.shared-skills/vps-trader/SKILL.md`. Manual resolution and the incident note are STEP-004.
+
+---
+
+## 2026-09-29 23:46 UTC+2 - STEP-002 review fix
+
+- `_resting` takes `OrderStatus`, so the checkpoint fixture no longer needs `type: ignore[arg-type]`.
+- esports-trader commit `021fcc10`.
+- **Learnings for future iterations:**
+  - `reportPrivateUsage=false` on these tests is the existing white-box convention. Leave it.
+
+---
+
+## 2026-09-30 00:17 UTC+2 - STEP-003
+
+- Existing unsettled BUY rows are proved from a terminal user-WS order or from aged REST trades, then resolved when BUY CONFIRMED covers the proof. `BuySettled` repeats until the core drops the order. Cancel-to-retirement logs `wait_ms`.
+- No live insert. `note_cancel` does not emit `CancelUnsettled`. `_own_remaining` is unchanged. Schema stays 3.
+- esports-trader commit `c72792c9`.
+- **Learnings for future iterations:**
+  - WS proof returns before insert. A missing row is a no-op, not `CancelUnsettled`.
+  - Do not hold SQLite across `gateway._io`. After the await, prove only rows that are still open and unproven.
+  - `_dispatch_fill` resolves a CONFIRMED BUY before the `seq is None` return. MATCHED to CONFIRMED does not call the credited handler.
+  - `LiveSources.settled_buys` is required. Query only when an active BUY has a venue binding. `0.0` is delivered by key membership.
+  - Cancel clocks are not `_canceling_since` and are not in the checkpoint. A restored gone order logs `wait_ms=unavailable origin=restored`.
+  - `FakeEngine` has no `user`. Bind with `getattr(self.engine, "user", None)`.
+  - One trades read can lag past 60s and prove zero. That ceiling is the `ponytail` comment in `unsettled_buy_recovery.py`.
+  - A maker fill whose outcome matches the taker flips side. Booking a BUY needs taker side SELL on the same outcome.
+
+---
+
+## 2026-09-30 00:25 UTC+2 - STEP-003 review fix
+
+- Removed the `test_sync_inputs_repeats_buy_settled_until_the_order_leaves` docstring. It repeated the test name.
+- esports-trader commit `c38dfa06`.
+- **Learnings for future iterations:**
+  - A test docstring in this file should add a fact the name cannot carry. Otherwise delete it.
+
+---
+STEP-003: commits c72792c9 + c38dfa06; stepreview none, commentsreview 1 docstring fixed; passes=true.
+
+## 2026-09-30 01:08 UTC+2 - STEP-004
+
+- HTTP cancel and a user-WS `CANCELLATION`/`CANCELED` insert `unsettled_buys` before `note_cancel`. A successful BUY becomes `CancelUnsettled` (`gone`). A SELL stays `CancelAck`. A false result stays `CancelTimeout`.
+- `_own_remaining` skips `gone`, so that bid stays in the book. Schema stays 3. `passes` was not set.
+- esports-trader commit `f6bcd785`.
+- **Learnings for future iterations:**
+  - Capture BUY metadata before the await. The cancel outcome and the row share one `with conn`. Resolve only after that commit and after `note_cancel`.
+  - `sqlite3.Connection.commit` is read-only. A second connection inside the notify callback is how a test sees the row before the core event.
+  - `parse_buy_cancellation` is not `parse_terminal_buy_proof`. Creation requires `type=CANCELLATION` and `status=CANCELED`. Empty `size_matched` still creates. `MATCHED` and a full `UPDATE` do not.
+  - A resolved row returns immediately. An open row keeps the STEP-003 proof path.
+  - A live ok BUY cancel diverges from backtest `CancelAck`. Adapter tapes stop parity at that row. Do not make the live driver emit `CancelAck`.
+  - `get_unsettled_buy` returns resolved rows. `open_unsettled_buys` does not.
+  - `note_cancel` of an already-retired id still requotes. A new order placed during the await needs fresh books, or that requote marks it `canceling`.
+  - Deploy steps 001–004 together only on a separate user command. This step does not deploy.
+
+---
+
+## 2026-09-30 01:18 UTC+2 - STEP-004 review fix
+
+- `_resting` and `add_order` take `Literal["BUY", "SELL"]`. The `type: ignore[arg-type]` on `side` is gone.
+- esports-trader commit `2c615b77`.
+- **Learnings for future iterations:**
+  - `polymaker.domain.Side` already owns the name `Side` in this test. Annotate the core side as `Literal["BUY", "SELL"]`. An alias import of `strategy.types.Side` gets split into a second import by ruff.
+
+---
+STEP-004: commits f6bcd785 + 2c615b77; stepreview none, commentsreview 1 type-ignore fixed; passes=true.
