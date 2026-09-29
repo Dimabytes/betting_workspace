@@ -119,7 +119,7 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 |---|---|
 | `none` | Entry allowed |
 | `cutoff` | `second >= 480`, no new buys |
-| `min_delta` | `abs(fair - market) < 0.01` |
+| `min_delta` | `abs(predicted_delta) < 0.02` (`MIN_ABS_DELTA`); hysteresis down to `0.015` (`EXIT_ABS_DELTA`) |
 | `nw_velocity` | 30s net-worth move above 350. Dota and LoL. |
 | `missing_nw` | No net-worth for the velocity gate. Dota and LoL. |
 | `off_grid` | CLOB tick coarser than 0.01 |
