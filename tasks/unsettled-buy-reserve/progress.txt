@@ -91,3 +91,4 @@ STEP-003: commits c72792c9 + c38dfa06; stepreview none, commentsreview 1 docstri
   - `polymaker.domain.Side` already owns the name `Side` in this test. Annotate the core side as `Literal["BUY", "SELL"]`. An alias import of `strategy.types.Side` gets split into a second import by ruff.
 
 ---
+STEP-004: commits f6bcd785 + 2c615b77; stepreview none, commentsreview 1 type-ignore fixed; passes=true.

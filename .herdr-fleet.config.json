@@ -9,8 +9,8 @@
     "sol": {
       "kind": "codex",
       "model": "gpt-6.1-sol",
-      "args": ["-c", "model_reasoning_effort=\"high\"", "-c", "service_tier=\"priority\"", "--approve-for-me"],
-      "notes": "GPT-6.1-Sol, high effort, fast tier (= gpt-6.1-sol-high). feature-json: planner."
+      "args": ["-c", "model_reasoning_effort=\"high\"", "--approve-for-me"],
+      "notes": "GPT-6.1-Sol, high effort, default tier, not fast (= gpt-6.1-sol-high). feature-json: planner."
     },
     "composer": {
       "kind": "cursor",
