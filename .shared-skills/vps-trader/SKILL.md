@@ -138,6 +138,22 @@ docker compose logs --since 2m live
 
 Confirm production model names from `data/new_model/production/model.json` and `data/lol/models/production/model.json`, and clips from `config/trading.toml`. Size/risk/Python/model changes need this restart. Do not rebuild unless deps/Dockerfile/poly-maker changed.
 
+## Unsettled BUY reserve rollback
+
+Steps 001–004 deploy together, and only after STEP-004 plus a separate user command.
+
+Before a separately authorized rollback, inspect the live wallet (`data/trader/wallet/live.db` inside the live container):
+
+```sql
+SELECT COUNT(*) FROM unsettled_buys WHERE resolved=0;
+```
+
+If the count is not zero, wait until reconcile resolves those rows, or explicitly accept the previous cancellation behavior for those orders. Old code ignores these money rows. An `unknown` order with cancel reason `unsettled` is still waiting for cancel; it is not a fresh core.
+
+Version-3 checkpoints stay loadable by old code. Old code sees that order as `unknown` with cancel reason `unsettled` and keeps inventory, the episode, and `sell_only`.
+
+Old replay tooling cannot decode `CancelUnsettled` or `BuySettled` trace events. That limit is the replay tool. Checkpoint load is separate and still works.
+
 ## Size change
 
 Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale that profile (`q_max_usdc`, `merge_min_size`) and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. `merge_min_size` is the fork's inventory merge threshold, not the clip size.
