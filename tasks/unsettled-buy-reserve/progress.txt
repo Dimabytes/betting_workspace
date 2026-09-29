@@ -82,3 +82,12 @@ STEP-003: commits c72792c9 + c38dfa06; stepreview none, commentsreview 1 docstri
   - Deploy steps 001–004 together only on a separate user command. This step does not deploy.
 
 ---
+
+## 2026-09-30 01:18 UTC+2 - STEP-004 review fix
+
+- `_resting` and `add_order` take `Literal["BUY", "SELL"]`. The `type: ignore[arg-type]` on `side` is gone.
+- esports-trader commit `2c615b77`.
+- **Learnings for future iterations:**
+  - `polymaker.domain.Side` already owns the name `Side` in this test. Annotate the core side as `Literal["BUY", "SELL"]`. An alias import of `strategy.types.Side` gets split into a second import by ruff.
+
+---
