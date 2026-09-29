@@ -6,6 +6,12 @@
       "args": ["-c", "model_reasoning_effort=\"max\"", "-c", "service_tier=\"priority\"", "--approve-for-me"],
       "notes": "Local data and stats, careful cohort definitions, 0 refuted claims in 6 tasks. Slow on big tapes: 35 min - 2 h."
     },
+    "sol": {
+      "kind": "codex",
+      "model": "gpt-6.1-sol",
+      "args": ["-c", "model_reasoning_effort=\"high\"", "-c", "service_tier=\"priority\"", "--approve-for-me"],
+      "notes": "GPT-6.1-Sol, high effort, fast tier (= gpt-6.1-sol-high). feature-json: planner."
+    },
     "composer": {
       "kind": "cursor",
       "model": "composer-2.5",
@@ -16,19 +22,25 @@
       "kind": "cursor",
       "model": "grok-4.7-high",
       "args": ["--force", "--trust", "--sandbox", "disabled"],
-      "notes": "Protocols, endpoints, code reading, exact numbers. 15-30 min per deep task. feature-json: implementer."
+      "notes": "Protocols, endpoints, code reading, exact numbers. 15-30 min per deep task."
+    },
+    "grok-fast": {
+      "kind": "cursor",
+      "model": "grok-4.7-high-fast",
+      "args": ["--force", "--trust", "--sandbox", "disabled"],
+      "notes": "Grok 4.7 High in fast mode. feature-json: implementer and reviewer."
     },
     "opus-high": {
       "kind": "claude",
       "model": "claude-opus-5-5",
       "args": ["--effort", "high", "--permission-mode", "auto"],
-      "notes": "Claude Code, Opus 5.5, high effort (= claude-opus-5-5-high). feature-json: reviewer."
+      "notes": "Claude Code, Opus 5.5, high effort (= claude-opus-5-5-high)."
     },
     "opus-xhigh": {
       "kind": "claude",
       "model": "claude-opus-5-5",
       "args": ["--effort", "xhigh", "--permission-mode", "auto"],
-      "notes": "Claude Code, Opus 5.5, extra high effort (= claude-opus-5-5-xhigh). feature-json: planner."
+      "notes": "Claude Code, Opus 5.5, extra high effort (= claude-opus-5-5-xhigh)."
     },
     "sonnet-xhigh": {
       "kind": "claude",
@@ -41,6 +53,12 @@
       "model": "claude-sonnet-5-5",
       "args": ["--effort", "max", "--permission-mode", "auto"],
       "notes": "Claude Code, Sonnet 5.5, max effort (= claude-sonnet-5-5-max)."
+    },
+    "swe-high": {
+      "kind": "devin",
+      "model": "swe-2-high",
+      "args": ["--permission-mode", "bypass"],
+      "notes": "Devin CLI, SWE-2 High. feature-json: comments review (feature-json-no-comments)."
     },
     "swe-max": {
       "kind": "devin",
