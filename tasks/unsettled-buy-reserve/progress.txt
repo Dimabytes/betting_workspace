@@ -55,3 +55,12 @@ STEP-001: commit 54b7ce50; stepreview and commentsreview found no findings; pass
   - A maker fill whose outcome matches the taker flips side. Booking a BUY needs taker side SELL on the same outcome.
 
 ---
+
+## 2026-09-30 00:25 UTC+2 - STEP-003 review fix
+
+- Removed the `test_sync_inputs_repeats_buy_settled_until_the_order_leaves` docstring. It repeated the test name.
+- esports-trader commit `c38dfa06`.
+- **Learnings for future iterations:**
+  - A test docstring in this file should add a fact the name cannot carry. Otherwise delete it.
+
+---
