@@ -1,0 +1,775 @@
+{
+  "scope": "Five archived live Dota markets, 2026-09-29. Read-only investigation; no trading changes.",
+  "timestamps": "UTC",
+  "methodology": {
+    "sell_places": "Recorded core plan SELL placement attempts, including rejected or canceled-before-acceptance attempts.",
+    "order_lifetime": "OrderAccepted to first recorded cancel request, only nonnegative intervals; excludes cancel-before-acceptance races. This is a quoting metric, not venue trade lifetime.",
+    "above_ceil_ask_fraction": "Time-weighted observed SELL price versus external best ask rounded up to 0.01. Only intervals with trace inventory >=5; from accepted to first cancel request or full recorded fill. Event timestamps are monotonic mapped by trace header to wall time. Not a queue or fill counterfactual.",
+    "financial_truth": "Session durable fills, not sum of trace Fill events. Maker alternatives require order-flow/queue simulation; top bid snapshots do not guarantee execution of a full position.",
+    "replay": "Exact archived code commit 2ebc8ee3cfcc1b128de3ec47f76eeb9ae3bbeb60; current code produced incompatible state, discarded. Archived code produced 0 plan mismatches and all digest groups OK at 15:53:31."
+  },
+  "markets": {
+    "grid-3011799-m3": {
+      "summary": {
+        "policy": {
+          "version": "follow300-v6",
+          "level_count": 3,
+          "step_ticks": 1,
+          "tick_size": 0.01,
+          "level_usdc": 400.0,
+          "min_abs_delta": 0.02,
+          "exit_abs_delta": 0.015,
+          "min_entry_price": 0.4,
+          "max_entry_price": 0.85,
+          "max_entry_spread_ticks": 6,
+          "buy_cutoff_second": 480,
+          "exit_settle_s": 10.0,
+          "debounce_ms": 100,
+          "fallback_timer_s": 2.0,
+          "sell_min_life_s": 1.0,
+          "hold_unconfirmed_sell": true,
+          "mid_spike_lookback_s": 10.0,
+          "mid_spike_threshold": 0.1,
+          "mid_spike_cooloff_s": 30.0,
+          "latch_reanchor_s": 0.25
+        },
+        "sell_places": 217,
+        "sell_accepted": 213,
+        "sell_rejected": 4,
+        "sell_cancel_reasons": {
+          "kill": 14,
+          "reprice": 200,
+          "stale_signal": 1,
+          "paused": 1
+        },
+        "canceled_life_p50": 2.606724500656128,
+        "canceled_life_p90": 14.373735427856445,
+        "canceled_life_lt3s": 112,
+        "canceled_life_n": 210,
+        "cancel_ack_p50": 0.0654451847076416,
+        "cancel_ack_max": 0.3225281238555908,
+        "sells_with_fill": 2,
+        "placed_above_ceil_ask": 216,
+        "exposure": {
+          "held_s": 1549.0404543876648,
+          "held_without_active_sell_s": 407.31318068504333,
+          "resting_sell_s": 1141.7272737026215,
+          "above_raw_ask_s": 1134.5808997154236,
+          "above_ceil_ask_s": 1132.6100597381592,
+          "gap_price_seconds": 35.44131860995293
+        }
+      },
+      "selected_actions": [
+        {
+          "time": "2026-09-29T15:37:55.147+00:00",
+          "action": "cancel",
+          "id": "c146",
+          "price": 0.83,
+          "reason": "reprice",
+          "bid": 0.771,
+          "ask": 0.799,
+          "life": 6.26,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:55.205+00:00",
+          "action": "place",
+          "id": "c147",
+          "price": 0.82,
+          "qty": 1381.85,
+          "bid": 0.771,
+          "ask": 0.799,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:56.461+00:00",
+          "action": "cancel",
+          "id": "c147",
+          "price": 0.82,
+          "reason": "reprice",
+          "bid": 0.76,
+          "ask": 0.788,
+          "life": 1.078,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:56.519+00:00",
+          "action": "place",
+          "id": "c148",
+          "price": 0.81,
+          "qty": 1381.85,
+          "bid": 0.76,
+          "ask": 0.788,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:58.379+00:00",
+          "action": "cancel",
+          "id": "c148",
+          "price": 0.81,
+          "reason": "reprice",
+          "bid": 0.755,
+          "ask": 0.78,
+          "life": 1.683,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:58.441+00:00",
+          "action": "place",
+          "id": "c149",
+          "price": 0.8,
+          "qty": 1381.85,
+          "bid": 0.755,
+          "ask": 0.78,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:59.896+00:00",
+          "action": "cancel",
+          "id": "c149",
+          "price": 0.8,
+          "reason": "reprice",
+          "bid": 0.76,
+          "ask": 0.788,
+          "life": 1.285,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:37:59.954+00:00",
+          "action": "place",
+          "id": "c150",
+          "price": 0.81,
+          "qty": 1381.85,
+          "bid": 0.76,
+          "ask": 0.788,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:01.150+00:00",
+          "action": "cancel",
+          "id": "c150",
+          "price": 0.81,
+          "reason": "reprice",
+          "bid": 0.746,
+          "ask": 0.786,
+          "life": 1.018,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:01.204+00:00",
+          "action": "place",
+          "id": "c151",
+          "price": 0.8,
+          "qty": 1381.85,
+          "bid": 0.746,
+          "ask": 0.786,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:02.381+00:00",
+          "action": "cancel",
+          "id": "c151",
+          "price": 0.8,
+          "reason": "reprice",
+          "bid": 0.746,
+          "ask": 0.771,
+          "life": 1.001,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:02.451+00:00",
+          "action": "place",
+          "id": "c152",
+          "price": 0.79,
+          "qty": 1381.85,
+          "bid": 0.746,
+          "ask": 0.771,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:04.553+00:00",
+          "action": "cancel",
+          "id": "c152",
+          "price": 0.79,
+          "reason": "reprice",
+          "bid": 0.76,
+          "ask": 0.78,
+          "life": 1.926,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:04.640+00:00",
+          "action": "place",
+          "id": "c153",
+          "price": 0.8,
+          "qty": 1381.85,
+          "bid": 0.76,
+          "ask": 0.78,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:06.225+00:00",
+          "action": "cancel",
+          "id": "c153",
+          "price": 0.8,
+          "reason": "reprice",
+          "bid": 0.752,
+          "ask": 0.791,
+          "life": 1.41,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:06.286+00:00",
+          "action": "place",
+          "id": "c154",
+          "price": 0.81,
+          "qty": 1381.85,
+          "bid": 0.752,
+          "ask": 0.791,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:07.480+00:00",
+          "action": "cancel",
+          "id": "c154",
+          "price": 0.81,
+          "reason": "reprice",
+          "bid": 0.791,
+          "ask": 0.795,
+          "life": 1.019,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:07.535+00:00",
+          "action": "place",
+          "id": "c155",
+          "price": 0.83,
+          "qty": 1381.85,
+          "bid": 0.791,
+          "ask": 0.795,
+          "delta": 0.029758814795373345,
+          "second": 565
+        },
+        {
+          "time": "2026-09-29T15:38:11.112+00:00",
+          "action": "cancel",
+          "id": "c155",
+          "price": 0.83,
+          "reason": "reprice",
+          "bid": 0.784,
+          "ask": 0.806,
+          "life": 3.402,
+          "second": 587
+        },
+        {
+          "time": "2026-09-29T15:38:11.172+00:00",
+          "action": "place",
+          "id": "c156",
+          "price": 0.84,
+          "qty": 1381.85,
+          "bid": 0.784,
+          "ask": 0.806,
+          "delta": 0.03532069439354907,
+          "second": 587
+        },
+        {
+          "time": "2026-09-29T15:46:28.157+00:00",
+          "action": "cancel",
+          "id": "c248",
+          "price": 0.91,
+          "reason": "reprice",
+          "bid": 0.841,
+          "ask": 0.882,
+          "life": 29.969,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:28.217+00:00",
+          "action": "place",
+          "id": "c249",
+          "price": 0.89,
+          "qty": 1381.85,
+          "bid": 0.841,
+          "ask": 0.882,
+          "delta": 0.02624347133336058,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:29.500+00:00",
+          "action": "cancel",
+          "id": "c249",
+          "price": 0.89,
+          "reason": "reprice",
+          "bid": 0.841,
+          "ask": 0.842,
+          "life": 1.102,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:29.555+00:00",
+          "action": "place",
+          "id": "c250",
+          "price": 0.87,
+          "qty": 1381.85,
+          "bid": 0.841,
+          "ask": 0.842,
+          "delta": 0.02624347133336058,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:31.209+00:00",
+          "action": "cancel",
+          "id": "c250",
+          "price": 0.87,
+          "reason": "reprice",
+          "bid": 0.845,
+          "ask": 0.877,
+          "life": 1.479,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:31.302+00:00",
+          "action": "place",
+          "id": "c251",
+          "price": 0.89,
+          "qty": 418.91,
+          "bid": 0.845,
+          "ask": 0.877,
+          "delta": 0.02624347133336058,
+          "second": 1080
+        },
+        {
+          "time": "2026-09-29T15:46:33.456+00:00",
+          "action": "cancel",
+          "id": "c251",
+          "price": 0.89,
+          "reason": "kill",
+          "bid": 0.85,
+          "ask": 0.877,
+          "life": 1.975,
+          "second": 1090
+        },
+        {
+          "time": "2026-09-29T15:52:44.894+00:00",
+          "action": "cancel",
+          "id": "c283",
+          "price": 0.99,
+          "reason": "kill",
+          "bid": 0.961,
+          "ask": 0.975,
+          "life": 22.707,
+          "second": 1434
+        },
+        {
+          "time": "2026-09-29T15:54:57.103+00:00",
+          "action": "place",
+          "id": "c284",
+          "price": 0.99,
+          "qty": 418.91,
+          "bid": 0.951,
+          "ask": 0.96,
+          "delta": 0.02579046103049411,
+          "second": 1576
+        },
+        {
+          "time": "2026-09-29T15:54:58.312+00:00",
+          "action": "cancel",
+          "id": "c284",
+          "price": 0.99,
+          "reason": "reprice",
+          "bid": 0.95,
+          "ask": 0.958,
+          "life": 1.105,
+          "second": 1577
+        },
+        {
+          "time": "2026-09-29T15:54:58.374+00:00",
+          "action": "place",
+          "id": "c285",
+          "price": 0.98,
+          "qty": 418.91,
+          "bid": 0.95,
+          "ask": 0.958,
+          "delta": 0.02579046103049411,
+          "second": 1577
+        }
+      ]
+    },
+    "grid-3011801-m1": {
+      "summary": {
+        "policy": {
+          "version": "follow300-v6",
+          "level_count": 3,
+          "step_ticks": 1,
+          "tick_size": 0.01,
+          "level_usdc": 600.0,
+          "min_abs_delta": 0.02,
+          "exit_abs_delta": 0.015,
+          "min_entry_price": 0.4,
+          "max_entry_price": 0.85,
+          "max_entry_spread_ticks": 6,
+          "buy_cutoff_second": 480,
+          "exit_settle_s": 10.0,
+          "debounce_ms": 100,
+          "fallback_timer_s": 2.0,
+          "sell_min_life_s": 1.0,
+          "hold_unconfirmed_sell": true,
+          "mid_spike_lookback_s": 10.0,
+          "mid_spike_threshold": 0.1,
+          "mid_spike_cooloff_s": 30.0,
+          "latch_reanchor_s": 0.25
+        },
+        "sell_places": 97,
+        "sell_accepted": 93,
+        "sell_rejected": 4,
+        "sell_cancel_reasons": {
+          "reprice": 95,
+          "kill": 2
+        },
+        "canceled_life_p50": 3.335392475128174,
+        "canceled_life_p90": 13.760740756988525,
+        "canceled_life_lt3s": 43,
+        "canceled_life_n": 93,
+        "cancel_ack_p50": 0.06321120262145996,
+        "cancel_ack_max": 0.22971653938293457,
+        "sells_with_fill": 4,
+        "placed_above_ceil_ask": 79,
+        "exposure": {
+          "held_s": 617.0027379989624,
+          "held_without_active_sell_s": 102.61421227455139,
+          "resting_sell_s": 514.388525724411,
+          "above_raw_ask_s": 446.7887454032898,
+          "above_ceil_ask_s": 446.7887454032898,
+          "gap_price_seconds": 9.615648305416086
+        }
+      },
+      "selected_actions": [
+        {
+          "time": "2026-09-29T16:56:20.024+00:00",
+          "action": "place",
+          "id": "c88",
+          "price": 0.88,
+          "qty": 1661.44,
+          "bid": 0.83,
+          "ask": 0.85,
+          "delta": 0.03172947877719038,
+          "second": 433
+        },
+        {
+          "time": "2026-09-29T16:56:21.317+00:00",
+          "action": "cancel",
+          "id": "c88",
+          "price": 0.88,
+          "reason": "reprice",
+          "bid": 0.84,
+          "ask": 0.87,
+          "life": 1.153,
+          "second": 433
+        },
+        {
+          "time": "2026-09-29T16:56:21.387+00:00",
+          "action": "place",
+          "id": "c91",
+          "price": 0.89,
+          "qty": 1661.44,
+          "bid": 0.84,
+          "ask": 0.87,
+          "delta": 0.03172947877719038,
+          "second": 433
+        },
+        {
+          "time": "2026-09-29T16:56:23.118+00:00",
+          "action": "cancel",
+          "id": "c91",
+          "price": 0.89,
+          "reason": "reprice",
+          "bid": 0.87,
+          "ask": 0.88,
+          "life": 1.464,
+          "second": 433
+        },
+        {
+          "time": "2026-09-29T16:56:23.187+00:00",
+          "action": "place",
+          "id": "c94",
+          "price": 0.91,
+          "qty": 1661.44,
+          "bid": 0.87,
+          "ask": 0.88,
+          "delta": 0.02713320851346874,
+          "second": 436
+        },
+        {
+          "time": "2026-09-29T16:56:24.415+00:00",
+          "action": "cancel",
+          "id": "c94",
+          "price": 0.91,
+          "reason": "reprice",
+          "bid": 0.85,
+          "ask": 0.86,
+          "life": 1.043,
+          "second": 436
+        },
+        {
+          "time": "2026-09-29T16:56:24.585+00:00",
+          "action": "place",
+          "id": "c97",
+          "price": 0.89,
+          "qty": 1661.44,
+          "bid": 0.85,
+          "ask": 0.86,
+          "delta": 0.02713320851346874,
+          "second": 436
+        }
+      ]
+    },
+    "grid-3011801-m2": {
+      "summary": {
+        "policy": {
+          "version": "follow300-v6",
+          "level_count": 3,
+          "step_ticks": 1,
+          "tick_size": 0.01,
+          "level_usdc": 600.0,
+          "min_abs_delta": 0.02,
+          "exit_abs_delta": 0.015,
+          "min_entry_price": 0.4,
+          "max_entry_price": 0.85,
+          "max_entry_spread_ticks": 6,
+          "buy_cutoff_second": 480,
+          "exit_settle_s": 10.0,
+          "debounce_ms": 100,
+          "fallback_timer_s": 2.0,
+          "sell_min_life_s": 1.0,
+          "hold_unconfirmed_sell": true,
+          "mid_spike_lookback_s": 10.0,
+          "mid_spike_threshold": 0.1,
+          "mid_spike_cooloff_s": 30.0,
+          "latch_reanchor_s": 0.25
+        },
+        "sell_places": 29,
+        "sell_accepted": 27,
+        "sell_rejected": 2,
+        "sell_cancel_reasons": {
+          "reprice": 26,
+          "kill": 1
+        },
+        "canceled_life_p50": 5.981576919555664,
+        "canceled_life_p90": 17.186707973480225,
+        "canceled_life_lt3s": 7,
+        "canceled_life_n": 25,
+        "cancel_ack_p50": 0.06555747985839844,
+        "cancel_ack_max": 0.8762574195861816,
+        "sells_with_fill": 5,
+        "placed_above_ceil_ask": 17,
+        "exposure": {
+          "held_s": 299.04690289497375,
+          "held_without_active_sell_s": 77.79484486579895,
+          "resting_sell_s": 221.2520580291748,
+          "above_raw_ask_s": 165.9289162158966,
+          "above_ceil_ask_s": 165.9289162158966,
+          "gap_price_seconds": 6.439192147254935
+        }
+      },
+      "selected_actions": [
+        {
+          "time": "2026-09-29T18:03:28.122+00:00",
+          "action": "cancel",
+          "id": "c36",
+          "price": 0.71,
+          "reason": "reprice",
+          "bid": 0.67,
+          "ask": 0.68,
+          "life": 17.187,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:28.178+00:00",
+          "action": "place",
+          "id": "c37",
+          "price": 0.72,
+          "qty": 1775.62,
+          "bid": 0.67,
+          "ask": 0.68,
+          "delta": 0.042667887634082025,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:32.133+00:00",
+          "action": "cancel",
+          "id": "c37",
+          "price": 0.72,
+          "reason": "reprice",
+          "bid": 0.67,
+          "ask": 0.69,
+          "life": 3.788,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:32.187+00:00",
+          "action": "place",
+          "id": "c38",
+          "price": 0.73,
+          "qty": 1775.62,
+          "bid": 0.67,
+          "ask": 0.69,
+          "delta": 0.042667887634082025,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:41.269+00:00",
+          "action": "cancel",
+          "id": "c38",
+          "price": 0.73,
+          "reason": "reprice",
+          "bid": 0.67,
+          "ask": 0.68,
+          "life": 8.865,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:41.331+00:00",
+          "action": "place",
+          "id": "c39",
+          "price": 0.72,
+          "qty": 1775.62,
+          "bid": 0.67,
+          "ask": 0.68,
+          "delta": 0.042667887634082025,
+          "second": 360
+        },
+        {
+          "time": "2026-09-29T18:03:45.776+00:00",
+          "action": "cancel",
+          "id": "c39",
+          "price": 0.72,
+          "reason": "reprice",
+          "bid": 0.67,
+          "ask": 0.68,
+          "life": 4.27,
+          "second": 395
+        },
+        {
+          "time": "2026-09-29T18:03:45.832+00:00",
+          "action": "place",
+          "id": "c42",
+          "price": 0.71,
+          "qty": 1775.62,
+          "bid": 0.67,
+          "ask": 0.68,
+          "delta": 0.02731642989519603,
+          "second": 395
+        }
+      ]
+    },
+    "grid-3011798-m3": {
+      "summary": {
+        "policy": {
+          "version": "follow300-v6",
+          "level_count": 3,
+          "step_ticks": 1,
+          "tick_size": 0.01,
+          "level_usdc": 400.0,
+          "min_abs_delta": 0.02,
+          "exit_abs_delta": 0.015,
+          "min_entry_price": 0.4,
+          "max_entry_price": 0.85,
+          "max_entry_spread_ticks": 6,
+          "buy_cutoff_second": 480,
+          "exit_settle_s": 10.0,
+          "debounce_ms": 100,
+          "fallback_timer_s": 2.0,
+          "sell_min_life_s": 1.0,
+          "hold_unconfirmed_sell": true,
+          "mid_spike_lookback_s": 10.0,
+          "mid_spike_threshold": 0.1,
+          "mid_spike_cooloff_s": 30.0,
+          "latch_reanchor_s": 0.25
+        },
+        "sell_places": 18,
+        "sell_accepted": 18,
+        "sell_rejected": 0,
+        "sell_cancel_reasons": {
+          "reprice": 17,
+          "kill": 1
+        },
+        "canceled_life_p50": 2.8071043491363525,
+        "canceled_life_p90": 8.87081789970398,
+        "canceled_life_lt3s": 10,
+        "canceled_life_n": 18,
+        "cancel_ack_p50": 0.0737154483795166,
+        "cancel_ack_max": 0.11401653289794922,
+        "sells_with_fill": 1,
+        "placed_above_ceil_ask": 13,
+        "exposure": {
+          "held_s": 86.94992399215698,
+          "held_without_active_sell_s": 14.768058776855469,
+          "resting_sell_s": 72.18186521530151,
+          "above_raw_ask_s": 60.83380436897278,
+          "above_ceil_ask_s": 60.83380436897278,
+          "gap_price_seconds": 0.6805229973793036
+        }
+      },
+      "selected_actions": []
+    },
+    "grid-3011800-m2": {
+      "summary": {
+        "policy": {
+          "version": "follow300-v6",
+          "level_count": 3,
+          "step_ticks": 1,
+          "tick_size": 0.01,
+          "level_usdc": 600.0,
+          "min_abs_delta": 0.02,
+          "exit_abs_delta": 0.015,
+          "min_entry_price": 0.4,
+          "max_entry_price": 0.85,
+          "max_entry_spread_ticks": 6,
+          "buy_cutoff_second": 480,
+          "exit_settle_s": 10.0,
+          "debounce_ms": 100,
+          "fallback_timer_s": 2.0,
+          "sell_min_life_s": 1.0,
+          "hold_unconfirmed_sell": true,
+          "mid_spike_lookback_s": 10.0,
+          "mid_spike_threshold": 0.1,
+          "mid_spike_cooloff_s": 30.0,
+          "latch_reanchor_s": 0.25
+        },
+        "sell_places": 18,
+        "sell_accepted": 16,
+        "sell_rejected": 2,
+        "sell_cancel_reasons": {
+          "reprice": 15,
+          "min_delta": 1
+        },
+        "canceled_life_p50": 2.8875207901000977,
+        "canceled_life_p90": 9.420018434524536,
+        "canceled_life_lt3s": 8,
+        "canceled_life_n": 14,
+        "cancel_ack_p50": 0.06241488456726074,
+        "cancel_ack_max": 0.10415267944335938,
+        "sells_with_fill": 4,
+        "placed_above_ceil_ask": 6,
+        "exposure": {
+          "held_s": 90.99465918540955,
+          "held_without_active_sell_s": 37.064053773880005,
+          "resting_sell_s": 53.93060541152954,
+          "above_raw_ask_s": 26.143675327301025,
+          "above_ceil_ask_s": 26.143675327301025,
+          "gap_price_seconds": 0.40548235654830933
+        }
+      },
+      "selected_actions": []
+    }
+  },
+  "archived_core_replay": "VERDICT: OK        tmp\ntrace     events=72242 plan_mismatch=0 truncated=- written=3m ago\ndigests   orders=OK rungs=OK inventory=OK episode=OK schedule=OK latch=OK mid_spike=OK kill_gate=OK\nclock     t=1491s paused=False ended=False\nflags     sell_only=False winding_down=False recovery_pending=False\nperms     halt=False reduce_only=False allow_buy=True allow_sell=True\nfair      radiant=1.0000 valid=True age=1s no_buy_reason=-\nbook      YES bid=0.982 ask=0.988 | NO bid=0.012 ask=0.018\ninventory YES=418.91707700000006 NO=0.0  sell_occupied=False held_sell=None\norders    (none)\nrequote   block_reason=fair places=[] cancels=[]\nblocks    newest first: ['fair', 'kill', 'fair', 'kill']\nlast plans that acted, newest first\n  seq=70686 Wake places=[] cancels=['c283']\n  seq=69782 CancelAck places=['SELL@0.99x418.9'] cancels=[]\n  seq=69781 Wake places=[] cancels=['c282']\n  seq=68625 CancelAck places=['SELL@0.98x418.9'] cancels=[]"
+}
