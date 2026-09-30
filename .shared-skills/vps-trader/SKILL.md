@@ -223,7 +223,7 @@ gets `games=dota,lol`; `paper` idles (`assigned=()`).
 
 ## Chain balance logs
 
-A chain read is used only when its block is at least as new as the last CONFIRMED fill for that token (or process start, whichever is later) and the block is not more than 30 seconds old. `POLYGON_RPC` on `live` is `ALCHEMY_POL_ENDPOINT`. `POLYGON_RPC_RESERVE` is `ALCHEMY_POL_ENDPOINT_RESERVE`. Public nodes follow those. Check that the variables are set; do not print their values.
+A chain read is used only when its block is at least as new as the last CONFIRMED fill for that token (or process start, whichever is later) and the block is not more than 30 seconds old. `POLYGON_RPC` on `live` is the trader's own Alchemy URL. Public nodes are the fallback. Check that the variable is set; do not print its value.
 
 | Log / Telegram | Meaning |
 |---|---|
