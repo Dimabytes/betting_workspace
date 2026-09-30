@@ -228,6 +228,7 @@ A chain read is used only when its block is at least as new as the last CONFIRME
 | Log / Telegram | Meaning |
 |---|---|
 | `position_divergence stale block` | Chain answer ignored. sqlite is unchanged |
+| `chain balance stale block` | Every RPC that answered had a head that was too old. sqlite is unchanged |
 | `trader position restored from ledger` | A fresh chain balance matched the fill ledger, and sqlite was put back |
 | `trader rest size-down ignored` | REST tried to shrink sqlite by more than half a share tick. Only a fresh chain read may shrink it |
 | `SELL blocked` | The core's SELL was dropped for 30 seconds. The message has the match, token, the size the core wants, and the sqlite size |
