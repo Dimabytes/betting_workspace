@@ -223,15 +223,16 @@ gets `games=dota,lol`; `paper` idles (`assigned=()`).
 
 ## Chain balance logs
 
-A chain read is used only when its block is at least as new as the last CONFIRMED fill for that token (or process start, whichever is later) and the block is not more than 30 seconds old. `POLYGON_RPC` on `live` is Alchemy. Public nodes are the fallback. Check that the variable is set; do not print its value.
+A chain read is used only when its block is at least as new as the last CONFIRMED fill for that token (or process start, whichever is later) and the block is not more than 30 seconds old. `POLYGON_RPC` on `live` is `ALCHEMY_POL_ENDPOINT`. `POLYGON_RPC_RESERVE` is `ALCHEMY_POL_ENDPOINT_RESERVE`. Public nodes follow those. Check that the variables are set; do not print their values.
 
 | Log / Telegram | Meaning |
 |---|---|
 | `position_divergence stale block` | Chain answer ignored. sqlite is unchanged |
 | `chain balance stale block` | Every RPC that answered had a head that was too old. sqlite is unchanged |
+| `chain balance encode failed` | The token id or funder could not be encoded. No RPC was called |
 | `trader position restored from ledger` | A fresh chain balance matched the fill ledger, and sqlite was put back |
 | `trader rest size-down ignored` | REST tried to shrink sqlite by more than half a share tick. Only a fresh chain read may shrink it |
-| `SELL blocked` | The core's SELL was dropped for 30 seconds. The message has the match, token, the size the core wants, and the sqlite size |
+| `SELL blocked` | The core's SELL was dropped for 30 seconds. A size drop names the wanted size and sqlite. A frozen SELL says `reason=frozen` |
 
 ## Details
 
