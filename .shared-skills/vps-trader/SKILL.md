@@ -221,6 +221,17 @@ docker compose up -d --force-recreate live paper
 Both games live: `LOL_TRADING_MODE=live` with Dota live. `live`
 gets `games=dota,lol`; `paper` idles (`assigned=()`).
 
+## Chain balance logs
+
+A chain read is used only when its block is at least as new as the last CONFIRMED fill for that token (or process start, whichever is later) and the block is not more than 30 seconds old. `POLYGON_RPC` on `live` is Alchemy. Public nodes are the fallback. Check that the variable is set; do not print its value.
+
+| Log / Telegram | Meaning |
+|---|---|
+| `position_divergence stale block` | Chain answer ignored. sqlite is unchanged |
+| `trader position restored from ledger` | A fresh chain balance matched the fill ledger, and sqlite was put back |
+| `trader rest size-down ignored` | REST tried to shrink sqlite by more than half a share tick. Only a fresh chain read may shrink it |
+| `SELL blocked` | The core's SELL was dropped for 30 seconds. The message has the match, token, the size the core wants, and the sqlite size |
+
 ## Details
 
 Record kinds, signal reasons, and entry blocks: [log-map.md](log-map.md)
