@@ -8,3 +8,7 @@ __pycache__/
 .analysis/dota-audit-2026-09-26/work/**/*.log
 .analysis/dota-audit-2026-09-26/work/**/*.jsonl
 .analysis/dota-audit-2026-09-26/work/**/*.gz
+2026-10-01-dota-exit-offline
+price-forecasts
+2026-10-01-dota-feature-retrain
+codex-session-*.md
