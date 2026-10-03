@@ -1,0 +1,12 @@
+# Brief: grok-timeline — every LoL-affecting change since 2026-09-20 mapped to its backtest numbers
+
+Build the dated timeline of what changed for LoL (code, constants, catalog, data, backtest knobs, whitelist, cadence, promote) from `git -C esports-trader log --since=2026-09-18 --stat` plus `docs/experiments/README.md` and the per-experiment pages, and attach to each change the backtest run(s) that measured it and the numbers (`scripts/report_seeds.py <run_dir> --expected-seeds 3` from the esports-trader root with `PYTHONPATH=src:scripts:../prediction-market-backtesting uv run --group backtest python`; run dirs `data/backtests/lol_maker/validation_join_delta02_x015_cut480_p45_*`, older ones also exist). For each run record: model name/path (`seed0/manifest.json`), features count, training window, history policy, maps, net PnL per seed, CVaR5, worst map, buy fills, buy-300s markout, late-third net PnL and markout, incomplete maps.
+
+Answer precisely:
+1. Which run is the "cur (LIVE)" column in the owner's table (CVaR −433/−493/−444, worst −1,107/−1,055/−1,055, buy turnover ~$762k, mean net 25,657) and which is "histfix" (−597/−622/−632; −1,913/−1,914/−2,088; ~$875k; 27,233)? Confirm by matching numbers.
+2. The chain: 12-column ≤540 (rebuild-20260930) → 77-column full-map (cf59c757, run name?) → 77-column ≤540 (w540lv6) → histfix. Give one table, one row per step, with the delta of each metric, so it is obvious which step moved what. Include the late-third numbers in every row.
+3. Were there data/extraction changes in between (feed-schedule v6→v8, archive exclusions, dataset rebuilds, `game_features_sha256`, `validation_dataset_sha256` in manifests) that make the runs not comparable? List manifest diffs between consecutive runs (`scripts/compare_backtests.py` prints unexpected manifest diffs; or diff the manifest.json yourself).
+4. Which of the earlier LoL experiments (index in `docs/experiments/README.md`) already answer parts of the owner's questions, with the number that answers it (horizon, window, whitelist retrain, exit model, cut 900, nw-off, cadence)?
+5. Dota's parallel chain for contrast (`docs/experiments/hist-policy-20261003.md`, `dota-train-540.md`, `data/backtests/dota_maker/*hist77*`, `*oldcat12*`, `*histfix*`), same table.
+
+Read-only; no training, no backtests. Write `reports/grok-timeline.md` in the context's format; `Status: FINAL` on line 2 when done.

@@ -1,0 +1,56 @@
+{
+  "history_early": {
+    "selected_mae_improvement_cents": {
+      "estimate": 0.01429506517769172,
+      "ci95": [
+        0.003955283270431359,
+        0.024828719790518147
+      ],
+      "events": 520
+    },
+    "selected_directional_improvement_cents": {
+      "estimate": 0.05026657057568599,
+      "ci95": [
+        -0.03594993688358356,
+        0.14226386569789665
+      ],
+      "events": 520
+    }
+  },
+  "history_full": {
+    "selected_mae_improvement_cents": {
+      "estimate": 0.011827864186845567,
+      "ci95": [
+        0.0028261242544620436,
+        0.021094991632060422
+      ],
+      "events": 520
+    },
+    "selected_directional_improvement_cents": {
+      "estimate": 0.05670009377060189,
+      "ci95": [
+        -0.02577241999015481,
+        0.13659208726099728
+      ],
+      "events": 520
+    }
+  },
+  "early_training_77": {
+    "selected_mae_improvement_cents": {
+      "estimate": 0.015686923973901677,
+      "ci95": [
+        -0.014980692360614323,
+        0.04603989939154212
+      ],
+      "events": 520
+    },
+    "selected_directional_improvement_cents": {
+      "estimate": 0.22090204043191808,
+      "ci95": [
+        0.038984032091905506,
+        0.4097551330714151
+      ],
+      "events": 520
+    }
+  }
+}

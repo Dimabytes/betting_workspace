@@ -1,0 +1,22 @@
+{
+  "repository_head": "cf59c7578d7385482c3ccc6dcbf8428bcc98afff",
+  "evaluation_seconds": "0 <= second < 480",
+  "ablation_train_matches": 2551,
+  "ablation_validation_matches": 2080,
+  "members": [
+    0,
+    1,
+    2
+  ],
+  "sampling": "default_sub90; same match draws in every ablation arm",
+  "boost_rounds": 180,
+  "baseline_reproduction_max_abs_delta": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "raw_predictions_and_diagnostic_boosters": "/private/tmp/codex-lol-history-20261002",
+  "training_dataset_sha256": "3fe170fefa7311c857b21f2a3f4fc4e77e639c24d0581771fd58b7009276f36f",
+  "validation_dataset_sha256": "65d5bb70d3a2872976c2dba6234d1d8dd08091a940e2f6fc2a6bb41354794ea5",
+  "game_features_sha256": "d9de77d2d8157b8c30cf488f0d51c5cb0bbf8a310a390107edbc2da18bfad398"
+}

@@ -1,0 +1,68 @@
+{
+  "selected": {
+    "old": {
+      "rows": 488426,
+      "model_mae_cents": 9.312892755295245,
+      "mae_gain_cents": 0.22108045661402975,
+      "directional_cents": 1.2848056819252047,
+      "bias_cents": -0.02687966273599749,
+      "signal_fraction": 0.32546383689647973,
+      "entry_fraction": 0.2599411169757548,
+      "entry_directional_cents": 2.4645988563507193
+    },
+    "new": {
+      "rows": 488426,
+      "model_mae_cents": 9.314441563530035,
+      "mae_gain_cents": 0.219531648379241,
+      "directional_cents": 1.20040026534214,
+      "bias_cents": -0.04412467980279973,
+      "signal_fraction": 0.3773038290344904,
+      "entry_fraction": 0.31348454013504606,
+      "entry_directional_cents": 2.1290698433846678
+    }
+  },
+  "archive": {
+    "old": {
+      "rows": 116049,
+      "model_mae_cents": 9.079531864559945,
+      "mae_gain_cents": 0.14165401381901535,
+      "directional_cents": 0.7560840679368198,
+      "bias_cents": 0.30348153490878876,
+      "signal_fraction": 0.3238976639178278,
+      "entry_fraction": 0.26416427543537646,
+      "entry_directional_cents": 1.5363615605427978
+    },
+    "new": {
+      "rows": 116049,
+      "model_mae_cents": 9.05516103277055,
+      "mae_gain_cents": 0.1660248456084088,
+      "directional_cents": 0.6329567682616826,
+      "bias_cents": 0.260956769994849,
+      "signal_fraction": 0.3747985764633905,
+      "entry_fraction": 0.31027410835078284,
+      "entry_directional_cents": 1.7121490265781656
+    }
+  },
+  "synthetic": {
+    "old": {
+      "rows": 372377,
+      "model_mae_cents": 9.385618240513024,
+      "mae_gain_cents": 0.24583321862650265,
+      "directional_cents": 1.4495785185443784,
+      "bias_cents": -0.1298346965471078,
+      "signal_fraction": 0.32595192506518933,
+      "entry_fraction": 0.25862499563614294,
+      "entry_directional_cents": 2.760074138682948
+    },
+    "new": {
+      "rows": 372377,
+      "model_mae_cents": 9.395244745021126,
+      "mae_gain_cents": 0.236206714118404,
+      "directional_cents": 1.3772405384865338,
+      "bias_cents": -0.13920143579892005,
+      "signal_fraction": 0.3780845755779761,
+      "entry_fraction": 0.31448505143980426,
+      "entry_directional_cents": 2.257260881074573
+    }
+  }
+}

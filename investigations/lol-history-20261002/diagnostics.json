@@ -1,0 +1,214 @@
+{
+  "backtests": {
+    "validation-20260930-s3-sh6": {
+      "means": {
+        "completed": 1176.3333333333333,
+        "traded": 731.6666666666666,
+        "buy_fills": 9777.666666666666,
+        "sell_fills": 6199.333333333333,
+        "net_pnl": 24664.808953837386,
+        "match_mean_sd": 0.09055590814410322,
+        "maxdd_over_total": 0.09913840109283159,
+        "roi_with_rebate": 24.13131414625347,
+        "loss_match_rate": 0.2708979938619458,
+        "cvar_5": -455.97272000548026,
+        "worst_match": -1319.9376207733335,
+        "buy_300s": 0.022267396787024493,
+        "required_cash_with_reserves": 2193.295798556667,
+        "required_cash_with_reserves_at_close": 2838.725458006667,
+        "peak_reserved": 2999.982400000001,
+        "net_per_required_deposit": 11.88023550432761
+      },
+      "sd": {
+        "completed": 0.5773502691896257,
+        "traded": 8.504900548115382,
+        "buy_fills": 260.8530876438562,
+        "sell_fills": 28.04163571073081,
+        "net_pnl": 5448.666515309962,
+        "match_mean_sd": 0.02277458201875477,
+        "maxdd_over_total": 0.03213066407766271,
+        "roi_with_rebate": 10.70115450848766,
+        "loss_match_rate": 0.006012540315247858,
+        "cvar_5": 33.99494906110809,
+        "worst_match": 336.3352561839146,
+        "buy_300s": 0.0016184401204482563,
+        "required_cash_with_reserves": 453.6138825886171,
+        "required_cash_with_reserves_at_close": 559.2346310910046,
+        "peak_reserved": 2.6254850544756925e-13,
+        "net_per_required_deposit": 4.918237875747978
+      },
+      "buy_turnover": 681669.5472364834,
+      "pnl_per_share_cents": 1.9539705988783118,
+      "pnl_per_share_rebate_cents": 2.266413617799552
+    },
+    "rebuild-20260930": {
+      "means": {
+        "completed": 1231.3333333333333,
+        "traded": 765.3333333333334,
+        "buy_fills": 10112.333333333334,
+        "sell_fills": 6735.333333333333,
+        "net_pnl": 21891.85986057547,
+        "match_mean_sd": 0.07715078278277061,
+        "maxdd_over_total": 0.11110182950018707,
+        "roi_with_rebate": 22.086097379859122,
+        "loss_match_rate": 0.27504123279915316,
+        "cvar_5": -455.34346795655915,
+        "worst_match": -1295.2915415466668,
+        "buy_300s": 0.02126616834055644,
+        "required_cash_with_reserves": 2015.0865884666669,
+        "required_cash_with_reserves_at_close": 2717.728238906667,
+        "peak_reserved": 3899.969300000009,
+        "net_per_required_deposit": 11.528203880952788
+      },
+      "sd": {
+        "completed": 0.5773502691896257,
+        "traded": 4.618802153517006,
+        "buy_fills": 285.874681168748,
+        "sell_fills": 115.00579695534192,
+        "net_pnl": 4831.8823034292745,
+        "match_mean_sd": 0.020838015557477555,
+        "maxdd_over_total": 0.04380210450182733,
+        "roi_with_rebate": 8.002966767641801,
+        "loss_match_rate": 0.004529186178118561,
+        "cvar_5": 35.136075175337794,
+        "worst_match": 355.6414367224066,
+        "buy_300s": 0.0020678573510360346,
+        "required_cash_with_reserves": 430.5123252267647,
+        "required_cash_with_reserves_at_close": 476.73399532161756,
+        "peak_reserved": 2.6254850544756925e-13,
+        "net_per_required_deposit": 5.098139128610419
+      },
+      "buy_turnover": 692013.79191492,
+      "pnl_per_share_cents": 1.6781946536244787,
+      "pnl_per_share_rebate_cents": 1.9899426060153116
+    },
+    "cat77": {
+      "means": {
+        "completed": 1231.3333333333333,
+        "traded": 827.6666666666666,
+        "buy_fills": 14681.666666666666,
+        "sell_fills": 8462.666666666666,
+        "net_pnl": 27910.152918878,
+        "match_mean_sd": 0.07011697688940557,
+        "maxdd_over_total": 0.10245897548552556,
+        "roi_with_rebate": 11.777397922894403,
+        "loss_match_rate": 0.33297155728106176,
+        "cvar_5": -571.2630011465053,
+        "worst_match": -1323.6739033733334,
+        "buy_300s": 0.01507810460053902,
+        "required_cash_with_reserves": 2836.203628200001,
+        "required_cash_with_reserves_at_close": 3817.2839202466675,
+        "peak_reserved": 3899.969300000014,
+        "net_per_required_deposit": 9.851317559650777
+      },
+      "sd": {
+        "completed": 0.5773502691896257,
+        "traded": 2.0816659994661326,
+        "buy_fills": 181.26867719860851,
+        "sell_fills": 54.64735431229341,
+        "net_pnl": 6250.7074319142575,
+        "match_mean_sd": 0.018620385669118306,
+        "maxdd_over_total": 0.031747459588206885,
+        "roi_with_rebate": 3.4315001891502406,
+        "loss_match_rate": 0.0026564495780046177,
+        "cvar_5": 27.87262744490448,
+        "worst_match": 71.16830649442531,
+        "buy_300s": 0.0009480526783709203,
+        "required_cash_with_reserves": 59.309651640076595,
+        "required_cash_with_reserves_at_close": 365.45217352567613,
+        "peak_reserved": 9.466320986876474e-13,
+        "net_per_required_deposit": 2.2608251409249354
+      },
+      "buy_turnover": 1012516.5804840601,
+      "pnl_per_share_cents": 1.4473400017425466,
+      "pnl_per_share_rebate_cents": 1.75831832983666
+    },
+    "cat77lv6": {
+      "means": {
+        "completed": 1231.3333333333333,
+        "traded": 827.6666666666666,
+        "buy_fills": 12460.0,
+        "sell_fills": 8036.333333333333,
+        "net_pnl": 22672.771118316647,
+        "match_mean_sd": 0.0748726864166645,
+        "maxdd_over_total": 0.08286927341650557,
+        "roi_with_rebate": 16.764792215290917,
+        "loss_match_rate": 0.32674487711043354,
+        "cvar_5": -433.3705822602688,
+        "worst_match": -892.713459706667,
+        "buy_300s": 0.015543602729304103,
+        "required_cash_with_reserves": 2058.5485657266668,
+        "required_cash_with_reserves_at_close": 3040.0980198966668,
+        "peak_reserved": 3899.9693000000107,
+        "net_per_required_deposit": 11.018814116341112
+      },
+      "sd": {
+        "completed": 0.5773502691896257,
+        "traded": 2.0816659994661326,
+        "buy_fills": 173.24260445975753,
+        "sell_fills": 88.04733575374858,
+        "net_pnl": 3090.129622196932,
+        "match_mean_sd": 0.011930528269298834,
+        "maxdd_over_total": 0.016250130264255983,
+        "roi_with_rebate": 4.349143199213345,
+        "loss_match_rate": 0.003852726868513155,
+        "cvar_5": 11.649633830369732,
+        "worst_match": 38.430584913544884,
+        "buy_300s": 0.0017658448339106607,
+        "required_cash_with_reserves": 77.54519825996678,
+        "required_cash_with_reserves_at_close": 535.215267382837,
+        "peak_reserved": 6.946380525059552e-13,
+        "net_per_required_deposit": 1.5304000124903774
+      },
+      "buy_turnover": 846652.6448287567,
+      "pnl_per_share_cents": 1.3871111754993135,
+      "pnl_per_share_rebate_cents": 1.7001279720512241
+    }
+  },
+  "live_old": {
+    "rows": 840345,
+    "model_mae_cents": 9.187809472196337,
+    "mae_gain_cents": 0.21551089027383677,
+    "directional_cents": 1.2683926839571842,
+    "bias_cents": -0.2524739887453152,
+    "signal_fraction": 0.3410861015416287,
+    "entry_fraction": 0.27078402322855494,
+    "entry_directional_cents": 2.5897346540570947
+  },
+  "old": {
+    "rows": 840345,
+    "model_mae_cents": 9.188645062075917,
+    "mae_gain_cents": 0.214675300394259,
+    "directional_cents": 1.2580758497997848,
+    "bias_cents": -0.25275491217394974,
+    "signal_fraction": 0.3303916843677299,
+    "entry_fraction": 0.26329662222063555,
+    "entry_directional_cents": 2.5853945584380362
+  },
+  "new": {
+    "rows": 840345,
+    "model_mae_cents": 9.16836448931513,
+    "mae_gain_cents": 0.23495587315504632,
+    "directional_cents": 1.243901195342389,
+    "bias_cents": -0.2699951095617023,
+    "signal_fraction": 0.3794631966632752,
+    "entry_fraction": 0.31775877764489585,
+    "entry_directional_cents": 2.349394817752512
+  },
+  "paired_mae_improvement_cents": {
+    "estimate": 0.020280572760787322,
+    "ci95": [
+      -0.0017415816264380753,
+      0.04233626697207331
+    ],
+    "events": 969
+  },
+  "paired_directional_improvement_cents": {
+    "estimate": -0.014174654457395484,
+    "ci95": [
+      -0.15220478226873665,
+      0.12330773247076442
+    ],
+    "events": 969
+  }
+}

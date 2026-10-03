@@ -1,0 +1,15 @@
+# Brief: market-dev — is the LoL backtest realistic, and where is its PnL concentrated
+
+Question: LoL PnL per map is a third of Dota's and its late third is flat. Check whether the backtest's fill and book assumptions hold for LoL books, and how concentrated the LoL PnL is.
+
+Data: run dirs `data/backtests/lol_maker/validation_join_delta02_x015_cut480_p45_{w540lv6,histfix-20261003r2}/seed*/{results,fills,quote_events}.parquet` and Dota `data/backtests/dota_maker/LIVE/seed*/`; book reader `src/backtest/telonex_local.py`, `src/shared/utils/telonex_book.py`, maker model `src/backtest/maker_orders.py`, `strip_own_book.py`, `src/backtest/strategy.py`, framework `../prediction-market-backtesting` (fill logic: queue position, join, adverse taker; `manifest.json` lists `adverse_taker`, `base_size_usdc`, `max_position_levels`, `layer_usdc`); docs `docs/experiments/sizing-sweep.md`, `docs/analysis/2026-09-07-follow300-v4-baseline.md`, `betting_workspace/.learnings/esports-trader-backtest-performance-2026-09-07.md`, `docs/experiments/ghost-fill-audit/`, `order-outcomes/`.
+
+Do:
+1. Concentration: per seed, sort maps by engine PnL; share of total from top 5 % / 10 % of maps; share of maps with |PnL| < $20; Gini. By month. Same for Dota. Is LoL a few-big-wins game whose big wins stopped coming?
+2. Fill realism: for 200 LoL buy fills (stratified by month) rebuild the book at fill time from Telonex and check: was our price at best bid, how deep was the queue ahead (framework assumption vs actual size at that level), did a trade print at that price on-chain within the fill window (onchain fills if available), how often would a realistic queue have skipped us. Report the implied optimistic-fill rate per month. Same for 100 Dota fills.
+3. Book thinness: at entry, size at best bid/ask and within 2 ¢, for LoL vs Dota per month; fraction of our $300 clip that exceeds the resting size (we would move the book or wait).
+4. Rebate share: net PnL − engine PnL per run; what fraction of the LoL total is rebate; what happens to the verdict if the rebate halves (the owner cannot control it).
+5. Sell side: sell-30s markout is negative in all LoL runs (−0.44..−0.68 ¢) and sell-300s ≈ 0; SELL counts ≈ 7.7 k vs 13 k BUY fills. Characterise the exits: how much of the loss on losing maps is realised by SELL at bad prices vs held to resolution; would "no SELL, hold to resolution" or "SELL only via taker at the kill gate" change the LoL total (simulate from fills + resolution outcome `radiant_win` in the dataset; approximate, say so).
+6. Capital: `required_cash_with_reserves`, `peak_res` 3,900 for LoL — what return on deployed capital per month, LoL vs Dota, and whether the LoL late third is even worth the capital.
+
+Deliver: concentration and realism tables, an estimate of how much of the LoL backtest PnL is at risk from optimistic fills / rebate, the exit-side finding, and recommendations with the experiment for each (e.g. tighten queue assumption flag if the framework has one, exit rule change).

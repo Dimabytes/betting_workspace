@@ -1,0 +1,13 @@
+# Brief: grok-compare — Dota vs LoL: design differences and ranked hypotheses for why LoL earns less
+
+Read `00-context.md` fully, then the Dota and LoL pipelines side by side (`src/collect/`, `src/market_data/`, `src/prepare_dataset/`, `src/train_model/` vs `src/lol/`; `src/backtest/signals.py`, `lol_inputs.py`; `src/trader/game_profile.py`, `grid_live_feed.py`, `oddin_*` for Dota's second feed; `config/trading.toml`), the docs (`docs/as-is.md`, `docs/experiments/README.md` and the LoL pages, `docs/experiments/lol-grid-widget.md`, `grid-v1-cadence.md`, `docs/analysis/`), and the learnings in `betting_workspace/.learnings/` (pgl-source-delay, pandascore-fast-feed, oddspapi-bookmakers, dota-training-filter-and-zero-lag, strategy-seed-sensitivity).
+
+Deliver two things:
+
+1. A design-difference table, one row per aspect: data source(s) and their latency vs real game time; feature source for nw/xp/deaths/top3; second-0 anchor; prior; label clock and pause handling; training rows per map and sampling grid; training window; validation split; ensemble/tree counts in the published models (`model.json` of `data/new_model/research` and `data/lol/models/research`); backtest cadence bands and first tick; live cadence; buy cutoff and sell rule (`config/trading.toml`, `src/shared/constants/strategy.py`); clip size; league/market admission; number of maps per month traded; Polymarket market structure (BO formats, map markets vs series markets, typical liquidity). Each cell with file:line or doc reference.
+
+2. Ranked hypotheses (≥ 8) for "why is LoL worse than Dota and why did the last changes do nothing": for each, the mechanism, what evidence already exists in the repo/docs (cite), what number would confirm or kill it, which agent in the context's table is measuring it, and your prior probability. Be explicit about the two the owner named: (a) "LoL is a different game in a way we do not model", (b) "a data-collection or training bug". And about the structural one in context fact 2 (no information lead at 11 s).
+
+Also answer: the owner says LoL "has more matches and more volume" — in the datasets and backtests, by how much (maps, rows, traded maps, turnover, PnL per map, PnL per $ traded), LoL vs Dota, per month. Pull the numbers from `report_seeds.py` output on `data/backtests/lol_maker/LIVE` and `data/backtests/dota_maker/LIVE` (`PYTHONPATH=src:scripts:../prediction-market-backtesting uv run --group backtest python scripts/report_seeds.py <dir> --expected-seeds 3` from the esports-trader root) and from the dataset parquets (columns=[...] only).
+
+Read-only; no training, no backtests. Write `reports/grok-compare.md` in the context's format; `Status: FINAL` on line 2 when done.

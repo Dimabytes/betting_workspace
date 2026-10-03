@@ -1,0 +1,18 @@
+{
+  "selected_mae_improvement_cents": {
+    "estimate": -0.001548808234788789,
+    "ci95": [
+      -0.03237434376254736,
+      0.02952573693967851
+    ],
+    "events": 520
+  },
+  "selected_directional_improvement_cents": {
+    "estimate": -0.08440541658306482,
+    "ci95": [
+      -0.27563471245578974,
+      0.10661574221717586
+    ],
+    "events": 520
+  }
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "seed": 0,
+    "dense": {
+      "rows": 14104,
+      "model_mae_cents": 8.928327168967067,
+      "mae_gain_cents": 0.4498669603579453,
+      "directional_cents": 1.8035202779353374,
+      "bias_cents": -1.1018618840359748,
+      "signal_fraction": 0.41179807146908676,
+      "entry_fraction": 0.33798922291548494,
+      "entry_directional_cents": 4.368607090413257
+    },
+    "sparse": {
+      "rows": 14104,
+      "model_mae_cents": 8.934127525175418,
+      "mae_gain_cents": 0.44406660414959565,
+      "directional_cents": 1.7864754679523538,
+      "bias_cents": -1.0524004684916086,
+      "signal_fraction": 0.4106636415201361,
+      "entry_fraction": 0.3372802041973908,
+      "entry_directional_cents": 4.3293567374395625
+    },
+    "mean_abs_delta_shift_cents": 0.10408866063891951,
+    "signal_gate_flip_fraction": 0.024532047646057854,
+    "direction_flip_fraction": 0.016023823028927964
+  },
+  {
+    "seed": 1,
+    "dense": {
+      "rows": 14151,
+      "model_mae_cents": 8.962599086343905,
+      "mae_gain_cents": 0.42605542570471244,
+      "directional_cents": 1.7537311850752597,
+      "bias_cents": -0.8980879809300344,
+      "signal_fraction": 0.4178503285986856,
+      "entry_fraction": 0.34541728499752666,
+      "entry_directional_cents": 4.096276595744681
+    },
+    "sparse": {
+      "rows": 14151,
+      "model_mae_cents": 8.96494324878411,
+      "mae_gain_cents": 0.4237112632645092,
+      "directional_cents": 1.7365380538477846,
+      "bias_cents": -0.8453593440053694,
+      "signal_fraction": 0.41855699243869693,
+      "entry_fraction": 0.34633594798954137,
+      "entry_directional_cents": 4.12555600897776
+    },
+    "mean_abs_delta_shift_cents": 0.10674109708812521,
+    "signal_gate_flip_fraction": 0.023743905024379904,
+    "direction_flip_fraction": 0.0158999364002544
+  },
+  {
+    "seed": 2,
+    "dense": {
+      "rows": 14035,
+      "model_mae_cents": 9.065046900222235,
+      "mae_gain_cents": 0.47018288246390644,
+      "directional_cents": 1.9313893836836478,
+      "bias_cents": -1.065247145359488,
+      "signal_fraction": 0.4170288564303527,
+      "entry_fraction": 0.3405771286070538,
+      "entry_directional_cents": 4.328410041841004
+    },
+    "sparse": {
+      "rows": 14035,
+      "model_mae_cents": 9.065297357918764,
+      "mae_gain_cents": 0.4699324247673786,
+      "directional_cents": 1.9221767011043822,
+      "bias_cents": -1.0058818129745728,
+      "signal_fraction": 0.4172426077662985,
+      "entry_fraction": 0.3419308870680442,
+      "entry_directional_cents": 4.201260679308189
+    },
+    "mean_abs_delta_shift_cents": 0.11086496223777602,
+    "signal_gate_flip_fraction": 0.02500890630566441,
+    "direction_flip_fraction": 0.016672604203776274
+  }
+]
