@@ -10,9 +10,9 @@ the process still writes `data/trader/<match_id>/`.
 
 | File | Role |
 |---|---|
-| `match.json` | Schema 5 + `game`. Start document, then finalized with `final`. Winner from last snapshot's surviving ancients. `pnl` is engine handoff, often zero after flatten. Missing `game` on read → `dota` |
+| `match.json` | Schema 5 + `game`. Start document, then finalized with `final`. Winner from the feed archive at finalize. `pnl` is engine handoff, often zero after flatten. Missing `game` on read → `dota` |
 | `session.jsonl` | Trade tape. Schema 6. One compact JSON object per line |
-| `state.jsonl` | Raw Steam `GetRealtimeStats` plus `request_started_at_utc` / `received_at_utc`. Huge. Tail only. Dota Steam source |
+| `state.jsonl` | Old raw Steam `GetRealtimeStats`, only maps traded on Steam before 2026-10-05. No new files: Steam is not a live feed. Huge. Tail only |
 | `grid_state.jsonl` | Raw GRID socket frames. LoL archives this; Dota GRID source does too |
 | `execution_cleanup.json` | `{match_id, condition_id}` once orders on that market are proven gone |
 
@@ -26,7 +26,7 @@ Skip the `wallet/` directory when listing matches.
 
 **quote.** Engine placement batch. `decision` is `normal` or `reduce_only`. `fv_source` is `model` or `engine`. `placed[]` has token/side/price/size. `canceled[]` is order ids.
 
-**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (Steam game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won. PaperGateway fills are simulated.
+**fill.** Durable fill. `side` BUY/SELL, `position_after`, `net_cash` (engine cash after this fill), `second` (feed game second), `ts_utc` (wall clock), `is_maker`, `fill_key`. `summarize.py --match` labels the fill `yes` or `no` from `yes_token_id` / `no_token_id`. Yes is not always the team that won. PaperGateway fills are simulated.
 
 **tick_size_change.** Collector tick strings.
 
@@ -99,8 +99,8 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 | reason | Meaning |
 |---|---|
 | `model` | In window, books usable, booster called |
-| `pre_horn` | Not state 5 with `second >= 0`. Draft/strategy/spawn clocks are not minute nine |
-| `paused` | Steam pause |
+| `pre_horn` | Not `in_progress` with `second >= 0`. Draft/strategy/spawn clocks are not minute nine |
+| `paused` | Feed pause |
 | `outside_window` | `second > 599` (model window is 0..599 inclusive) |
 | `finished` | Post-game |
 | `stale` | Feed watchdog, not a fresh snapshot |
@@ -126,7 +126,7 @@ Finish, feed-dead, and exhaustion reuse the identity block. `net = realized + im
 | `position_open` | Still in the clip, no second entry |
 | `no_edge` | Join bid has no edge vs fair |
 
-Trading window: Steam `game_state==5` and `0 <= second <= 599`. State 2 draft often has a positive clock; that is still `pre_horn`. LoL is GRID-only.
+Trading window: phase `in_progress` and `0 <= second <= 599`. A draft clock is often positive; that is still `pre_horn`. LoL is GRID-only; Dota is GRID or Oddin.
 
 ## Wallet sqlite (`live.db`)
 
@@ -153,7 +153,6 @@ live-paper launch:
 risk_halt
 HALTED
 429
-GetRealtimeStats
 model startup blocked
 ```
 
@@ -169,12 +168,11 @@ tick.
 | `discovery emit:` | `game`, `match_id`, `steam_match_id`, `grid_series_id`, `map`, `slug`, `cid`, `archive_id_kind=grid\|steam` |
 | `live-paper rebind:` | `old_match_id`, `new_match_id`, `cid`, `map`, `steam_match_id`, `grid_series_id` |
 | `live-paper skip:` | `reason`, `match_id`, `cid`, `record_cid`, `archive_cid`, `steam_match_id`, `grid_series_id` |
-| `live-paper feed_selected:` | `match_id`, `feed_source`, `steam_delay_s`, `grid_delay_s`, `cid` |
+| `live-paper feed_selected:` | `match_id`, `feed_source`, `grid_delay_s`, `oddin_delay_s`, `cid` |
 | `live-paper launch:` | `match_id`, `cid`, `archive_id_kind`, `steam_match_id`, `grid_series_id`, `map` |
 
 `match_id` is the archive directory. When GRID series is known it is
-`grid-<series>-m<map>` even if the picker chose Steam. `steam_match_id` is the
+`grid-<series>-m<map>` even if the picker chose Oddin. `steam_match_id` is the
 Valve id. `archive_id_kind=steam` is the numeric fallback when there is no
 series id.
 
-Steam 400 on one `server_steam_id` for a whole game, while neighbors return 200, is a known Valve miss. The feed dies after 30 consecutive non-2xx, then WalletHost backoff 60/120/240s, max 3 restarts.

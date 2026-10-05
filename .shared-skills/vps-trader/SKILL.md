@@ -1,6 +1,6 @@
 ---
 name: vps-trader
-description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, rebate accrued since the last payout, why we are not selling, whether a restart is safe, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, Steam, books, halt, dust, or quoting. Do not restart unless asked.
+description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, rebate accrued since the last payout, why we are not selling, whether a restart is safe, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, feeds, books, halt, dust, or quoting. Do not restart unless asked.
 ---
 
 # VPS trader
@@ -9,7 +9,7 @@ This machine runs the live and paper traders. Read this before grepping the repo
 
 Answer first with the match, PnL, and whether anything is actually wrong. Then the evidence. Do not restart Docker, git pull, or edit config unless the user asked.
 
-Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-only LoL, Steam Dota.
+Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-only LoL, GRID/Oddin Dota. Steam only links Dota markets in discovery; it is never a live feed.
 
 ## Layout
 
@@ -63,7 +63,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
 `--rebate` answers "сколько ребейта накопилось" directly: it finds the newest paid `MAKER_REBATE` in Polymarket activity (payout lands ~00:45 UTC daily) and sums the maker-fill rebate estimate in `session.jsonl` since that timestamp — live, legacy, and still-open maps included, paper excluded. It is also printed automatically at the end of `--today` as `rebate_accrued`. Never ask the user "since when" — the window is the last payout.
 
-`--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`, and a file written in the last 15 minutes. A restart or a feed that ends without a final leaves a session with no `session_end` forever. `--today` labels such a dead session `ORPHAN`, not `LIVE`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a Steam/GRID `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
+`--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`, and a file written in the last 15 minutes. A restart or a feed that ends without a final leaves a session with no `session_end` forever. `--today` labels such a dead session `ORPHAN`, not `LIVE`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
 
 ## Which file answers what
 
@@ -72,15 +72,15 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 | Who played, map, market, model, winner, game | `<match>/match.json` (`game`; missing → `dota`) |
 | Did we bet, fills, quotes, why no entry | `<match>/session.jsonl` kinds `fill`, `quote`, `signal` |
 | Match PnL the user saw in Telegram | docker logs / `session finished` line. Formula: `net = realized + imv + rebate` |
-| Engine cash at Steam final | `session.jsonl` last `session_end`, or `match.json` `final.pnl` |
+| Engine cash at match final | `session.jsonl` last `session_end`, or `match.json` `final.pnl` |
 | Still quoting / leftover shares (live) | last `fill.position_after` and last `quote` in `session.jsonl` |
 | Why no SELL while long, stuck order, exit slot | `core_state.py <match_id>` — the `VERDICT:` line. `session.jsonl` cannot answer this |
 | Exit state per feed tick | `session.jsonl` `signal.exit_state` + `pos_yes` / `pos_no` |
 | Orders proven gone | `<match>/execution_cleanup.json` exists |
-| Steam snapshots | `<match>/state.jsonl`. Do not dump it. Sample tail only if feed/pause/game_state is the bug |
-| LoL GRID snapshots | `<match>/grid_state.jsonl` |
+| Old Steam snapshots | `<match>/state.jsonl`, only maps traded on Steam before 2026-10-05. Do not dump it |
+| GRID / Oddin snapshots | `<match>/grid_state.jsonl` / `<match>/oddin_state.jsonl` |
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
-| Halt / 429 / Steam 400 / Telegram | `docker compose logs --since 30m live` / `paper` |
+| Halt / 429 / Telegram | `docker compose logs --since 30m live` / `paper` |
 | Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
 | Rebate accrued since last payout | `summarize.py --rebate` (or `rebate_accrued` in `--today`) |
 
@@ -103,7 +103,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 5. Long with no resting SELL: run `core_state.py <match_id>`. Do not wait it out and do not sell by hand before the verdict line says WEDGED.
 6. Fills: BUY then SELL is the s2-join clip. `entry_block=position_open` after a fill means the next clip waits until flat. That is strategy, not a hang.
 7. `missing_book` / `one_sided_book` with a visible Polymarket book in the UI can still be our MDS. `own_liquidity_only` is different: the raw book is there, and our orders are the whole bid or ask. Check recent logs for WS/halt before calling `missing_book` an outage.
-8. Steam HTTP 400 on `GetRealtimeStats` is Valve-side for that `server_steam_id`, not a bad key. Neighboring games in the same second can return 200. LoL has no Steam.
+8. Steam is discovery only: one `GetLiveLeagueGames` per cycle (`STEAM_KEYS`) links Dota markets and fills `steam_match_id`. It never feeds a live map. LoL has no Steam.
 
 ## Common false alarms
 
@@ -117,7 +117,7 @@ python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize
 
   It leads with `VERDICT: OK` or `VERDICT: WEDGED`, and exits 1 when wedged. `--all --quiet` sweeps the recent live matches. A SELL outside `status=live` for more than 30s holds the exit slot for the rest of the map through `sell_occupied`. Faster first pass over every match at once: the wedge sweep in `log-map.md`, plus `docker compose logs live | grep -E 'orphaned|unproven|unmapped'`.
 - **Stopped quoting after one clip.** Round-trip then dust below `min_order_size` (usually 5 shares) is forgotten on purpose. Check leftover sizes on `session finished`.
-- **Telegram start but no finish.** Finish fires after Steam `game_state==6` and cleanup. A 400-zombie / no-snapshot death goes through backoff, not `session finished`. LoL GRID finish is pinned-map `status == finished`.
+- **Telegram start but no finish.** Finish fires after the feed's finished phase and cleanup. A no-snapshot feed death goes through backoff, not `session finished`. GRID finish is pinned-map `status == finished`.
 - **Halt leftover.** Wallet-wide. New matches will not size in until restart or the halt clears. Do not restart just to "see if it helps" unless asked.
 - **Log spam in `live.jsonl`.** Fork engine journal. Health comes from docker logs + `session.jsonl`.
 - **Paper fills on LoL.** PaperGateway writes `fill` rows. They are not CLOB. Absence of PK on `paper` is the live-order gate.
