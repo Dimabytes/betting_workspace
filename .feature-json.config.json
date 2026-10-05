@@ -10,13 +10,13 @@
     "instructions": []
   },
   "implement": {
-    "model": "grok-4.7-high-fast",
+    "model": "swe-max",
     "instructions": []
   },
   "review": {
-    "model": "grok-4.7-high-fast",
+    "model": "grok-4.7-high",
     "instructions": [
-      "The comments review (feature-json-no-comments) is done by devin high (swe-2-high)"
+      "The comments review (feature-json-no-comments) is done by devin high (swe-2-high). Also a lot code already have comments. But it's not un excuse for a new code. New code should not have comments just because old one have. And if we refator function it's a good moment to remove comments. Fuck comments."
     ]
   }
 }
