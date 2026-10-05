@@ -2,6 +2,9 @@
 
 Read from SKILL.md when a reason/kind is unclear. Do not load this for a simple PnL question.
 
+`summarize.py` moved into the product repo: `esports-trader/src/dashboard/summarize.py`
+(stdlib-only, plain `python3`). `core_state.py` is still `scripts/core_state.py` here.
+
 ## Per-match files
 
 Host trees: `data/trader_live/<id>/` (live process), `data/trader_paper/<id>/`

@@ -49,14 +49,14 @@ docker compose -f /root/work/esports-trader/compose.yaml logs --since 30m paper
 Match / day summary (run this, do not re-parse JSONL by hand):
 
 ```bash
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --today
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --game dota
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --game lol
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --match 8959222564
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --live
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --rebate
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --restart-check
+python3 /root/work/esports-trader/src/dashboard/summarize.py
+python3 /root/work/esports-trader/src/dashboard/summarize.py --today
+python3 /root/work/esports-trader/src/dashboard/summarize.py --game dota
+python3 /root/work/esports-trader/src/dashboard/summarize.py --game lol
+python3 /root/work/esports-trader/src/dashboard/summarize.py --match 8959222564
+python3 /root/work/esports-trader/src/dashboard/summarize.py --live
+python3 /root/work/esports-trader/src/dashboard/summarize.py --rebate
+python3 /root/work/esports-trader/src/dashboard/summarize.py --restart-check
 ```
 
 `--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
@@ -178,7 +178,7 @@ Separate compose. Five services: `archive-dota`, `compact-dota`, `archive-lol`, 
 ## LoL deploy / verify / rollback (US-015 is done; kept for the rollback path)
 
 ```bash
-python3 /root/work/betting_workspace/.shared-skills/vps-trader/scripts/summarize.py --live
+python3 /root/work/esports-trader/src/dashboard/summarize.py --live
 # If a Dota map is live, wait. Recreate detaches it.
 
 # In /root/work/esports-trader/.env (delete LIVE_TRADING entirely):
