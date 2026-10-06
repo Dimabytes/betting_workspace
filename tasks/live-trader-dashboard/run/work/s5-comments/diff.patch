@@ -1,0 +1,3188 @@
+diff --git a/src/dashboard/game_grid.py b/src/dashboard/game_grid.py
+new file mode 100644
+index 00000000..5660e0ca
+--- /dev/null
++++ b/src/dashboard/game_grid.py
+@@ -0,0 +1,363 @@
++import json
++from collections.abc import Mapping
++from dataclasses import dataclass
++from typing import cast
++
++from shared.utils.json_read import as_map, try_int
++from shared.utils.match_time import parse_utc
++from trader.game_profile import GameProfile
++from trader.grid_feed import (
++    FEED_GONE_SERVICE,
++    BoardSides,
++    read_board_sides,
++    select_board_players,
++)
++from trader.grid_widget_types import TableRow
++from trader.grid_widgets import (
++    FINISHED_STATUS,
++    SCOREBOARD_SERVICE,
++    TABLE_SERVICE,
++    Frame,
++    NetWorthSnapshot,
++    PlayerNetWorth,
++    Scoreboard,
++    clock_age_seconds,
++    live_clock_seconds,
++    parse_frame,
++    read_map_scoreboard,
++    read_net_worth,
++    same_table_content,
++    side_team,
++)
++from viewer.archive_read import as_str
++
++CONTROL_LIMIT = 8
++_FRAME_ERRORS = (json.JSONDecodeError, KeyError, IndexError, TypeError, AttributeError)
++
++
++@dataclass(frozen=True)
++class GridPlayerObs:
++    nick: str | None
++    hero: str | None
++    net_worth: int | None
++    kills: int | None
++    deaths: int | None
++    assists: int | None
++    level: int | None
++
++
++@dataclass(frozen=True)
++class GridBoardObs:
++    clock_seconds: int
++    clock_ticking: bool
++    game_status: str
++    occurred_at: str
++    kills_0: int | None
++    kills_1: int | None
++    series_0: int | None
++    series_1: int | None
++    name_0: str | None
++    name_1: str | None
++    received_at_utc: str
++    signature: tuple[object, ...]
++
++
++@dataclass(frozen=True)
++class GridTableObs:
++    second: int | None
++    received_at_utc: str
++    board_received_at_utc: str
++    board_occurred_at: str
++    feed_delay: int
++    players_0: tuple[GridPlayerObs, ...]
++    players_1: tuple[GridPlayerObs, ...]
++
++
++def _cell(row: Mapping[str, object], name: str) -> int | None:
++    cell = as_map(row.get(name))
++    if cell is None:
++        return None
++    return try_int(cell.get("value"))
++
++
++def _game_state(raw: dict[str, object]) -> dict[str, object] | None:
++    for group in cast(list[object], raw.get("stateGroups") or []):
++        group_map = as_map(group)
++        if group_map is not None and group_map.get("name") == "Game":
++            states = cast(list[object], group_map.get("states") or [])
++            if states:
++                return as_map(states[-1])
++    return None
++
++
++def _player_table(state: dict[str, object]) -> dict[str, object] | None:
++    for entity_group in cast(list[object], state.get("entityGroups") or []):
++        entity = as_map(entity_group)
++        if entity is not None and entity.get("name") == "Player":
++            tables = cast(list[object], entity.get("tables") or [])
++            if tables:
++                return as_map(tables[0])
++    return None
++
++
++def _raw_rows(payload: str) -> dict[tuple[str, str], TableRow]:
++    raw = as_map(json.loads(payload))
++    state = _game_state(raw) if raw is not None else None
++    table = _player_table(state) if state is not None else None
++    out: dict[tuple[str, str], TableRow] = {}
++    if table is None:
++        return out
++    for row in cast(list[object], table.get("tableRows") or []):
++        row_map = as_map(row)
++        if row_map is None:
++            continue
++        entity_cell = as_map(row_map.get("entity"))
++        if entity_cell is None:
++            continue
++        nick = as_str(entity_cell.get("value"))
++        team_color = as_str(entity_cell.get("teamColor"))
++        if nick is None or team_color is None:
++            continue
++        out[(team_color.rsplit(".", 1)[-1], nick)] = cast(TableRow, row_map)
++    return out
++
++
++def _player_obs(parsed: PlayerNetWorth, rows: Mapping[tuple[str, str], TableRow]) -> GridPlayerObs:
++    row = rows.get((parsed.team_id, parsed.nick))
++    level: int | None = None
++    if row is not None:
++        level_cell = row.get("increaseLevel")
++        cell_map = as_map(level_cell) if level_cell is not None else None
++        level_ups = try_int(cell_map.get("value")) if cell_map is not None else None
++        if level_ups is not None:
++            level = level_ups + 1
++    return GridPlayerObs(
++        nick=parsed.nick or None,
++        hero=parsed.hero or None,
++        net_worth=_cell(row, "NetWorth") if row is not None else None,
++        kills=_cell(row, "Kills") if row is not None else None,
++        deaths=_cell(row, "Deaths") if row is not None else None,
++        assists=_cell(row, "KillAssistsGiven") if row is not None else None,
++        level=level,
++    )
++
++
++def _board_signature(board: Scoreboard) -> tuple[object, ...]:
++    return (
++        board.game_status,
++        board.clock_seconds,
++        board.clock_ticking,
++        board.active_game_number,
++        tuple(sorted((team.team_id, team.kills, team.maps_won, team.won) for team in board.teams)),
++    )
++
++
++def _series_scores(payload: str) -> dict[str, int]:
++    raw = as_map(json.loads(payload))
++    if raw is None:
++        return {}
++    series = as_map(raw.get("series"))
++    if series is None:
++        return {}
++    out: dict[str, int] = {}
++    for item in cast(list[object], series.get("teams") or []):
++        team = as_map(item)
++        if team is None:
++            continue
++        team_id = as_str(team.get("id"))
++        score = try_int(team.get("score"))
++        if team_id is not None and score is not None:
++            out[team_id] = score
++    return out
++
++
++def _board_obs(
++    payload: str, board: Scoreboard, sides: BoardSides | None, received: str
++) -> GridBoardObs:
++    series = _series_scores(payload)
++    kills_0 = kills_1 = series_0 = series_1 = None
++    name_0 = name_1 = None
++    if sides is not None:
++        name_0 = sides.radiant_name
++        name_1 = sides.dire_name
++        for team in board.teams:
++            if team.team_id == sides.radiant_id:
++                kills_0 = team.kills
++                series_0 = series.get(team.team_id)
++            elif team.team_id == sides.dire_id:
++                kills_1 = team.kills
++                series_1 = series.get(team.team_id)
++    return GridBoardObs(
++        clock_seconds=board.clock_seconds,
++        clock_ticking=board.clock_ticking,
++        game_status=board.game_status,
++        occurred_at=board.occurred_at,
++        kills_0=kills_0,
++        kills_1=kills_1,
++        series_0=series_0,
++        series_1=series_1,
++        name_0=name_0,
++        name_1=name_1,
++        received_at_utc=received,
++        signature=_board_signature(board),
++    )
++
++
++def _table_second(board: Scoreboard, table: NetWorthSnapshot, received: str) -> int | None:
++    try:
++        received_dt = parse_utc(received)
++    except ValueError:
++        return None
++    age = clock_age_seconds(board.occurred_at, received_dt)
++    return live_clock_seconds(board, age) - table.feed_delay
++
++
++class GridFold:
++    def __init__(
++        self,
++        *,
++        map_number: int,
++        outcome_0_name: str | None,
++        outcome_1_name: str | None,
++        profile: GameProfile,
++    ) -> None:
++        self._map_number = map_number
++        self._outcome_0_name = outcome_0_name
++        self._outcome_1_name = outcome_1_name
++        self._profile = profile
++        self._sides: BoardSides | None = None
++        self._board: Scoreboard | None = None
++        self._board_received: str | None = None
++        self._table_snapshot: NetWorthSnapshot | None = None
++        self.board: GridBoardObs | None = None
++        self.table: GridTableObs | None = None
++        self.orientation: bool | None = None
++        self.team_0_name: str | None = None
++        self.team_1_name: str | None = None
++        self.terminal = False
++        self.rejected = 0
++        self.control: tuple[str, ...] = ()
++
++    def _note(self, text: str) -> None:
++        self.control = (*self.control, text)[-CONTROL_LIMIT:]
++
++    def _lock_sides(self, board: Scoreboard) -> None:
++        if self._sides is not None:
++            return
++        side_0 = side_team(board, self._profile.side_0_text)
++        side_1 = side_team(board, self._profile.side_1_text)
++        if side_0 is None or side_1 is None:
++            return
++        self._sides = BoardSides(
++            radiant_id=side_0.team_id,
++            dire_id=side_1.team_id,
++            radiant_name=side_0.name,
++            dire_name=side_1.name,
++            outcome_0_is_radiant=False,
++        )
++        self.team_0_name = side_0.name
++        self.team_1_name = side_1.name
++        if self._outcome_0_name is None or self._outcome_1_name is None:
++            return
++        read = read_board_sides(
++            board,
++            self._outcome_0_name,
++            self._outcome_1_name,
++            self._profile.side_0_text,
++            self._profile.side_1_text,
++            self._profile.aliases,
++        )
++        if read.sides is not None:
++            self._sides = read.sides
++            self.orientation = read.sides.outcome_0_is_radiant
++            self.team_0_name = read.sides.radiant_name
++            self.team_1_name = read.sides.dire_name
++        elif not read.pending:
++            self._note("outcome orientation unresolved")
++
++    def apply(self, record: Mapping[str, object]) -> None:
++        received = as_str(record.get("received_at_utc"))
++        frame_text = as_str(record.get("frame"))
++        if received is None or frame_text is None:
++            self.rejected += 1
++            self._note("malformed record")
++            return
++        try:
++            frame = parse_frame(frame_text)
++        except _FRAME_ERRORS:
++            self.rejected += 1
++            self._note("unparsable frame")
++            return
++        if frame.service == FEED_GONE_SERVICE:
++            self.terminal = True
++            self._note(f"feed gone @{received}")
++            return
++        if not frame.payload:
++            return
++        if frame.service == SCOREBOARD_SERVICE:
++            self._on_board(frame, received)
++        elif frame.service == TABLE_SERVICE:
++            self._on_table(frame, received)
++
++    def _on_board(self, frame: Frame, received: str) -> None:
++        try:
++            board = read_map_scoreboard(frame.payload, self._map_number)
++        except _FRAME_ERRORS:
++            self.rejected += 1
++            self._note("unparsable scoreboard")
++            return
++        if board is None:
++            return
++        self._lock_sides(board)
++        self._board = board
++        self._board_received = received
++        obs = _board_obs(frame.payload, board, self._sides, received)
++        if self.board is not None and obs.signature == self.board.signature:
++            return
++        self.board = obs
++        if board.game_status == FINISHED_STATUS:
++            self.terminal = True
++
++    def _on_table(self, frame: Frame, received: str) -> None:
++        try:
++            table = read_net_worth(frame.payload, frame.delay)
++        except _FRAME_ERRORS:
++            self.rejected += 1
++            self._note("unparsable table")
++            return
++        if table is None:
++            self.rejected += 1
++            self._note("table without players")
++            return
++        if table.game_number != self._map_number:
++            self.rejected += 1
++            self._note(f"table for map {table.game_number}")
++            return
++        board = self._board
++        sides = self._sides
++        if board is None or sides is None:
++            self.rejected += 1
++            self._note("table before pinned board")
++            return
++        if board.active_game_number != self._map_number:
++            self.rejected += 1
++            self._note("table while other map active")
++            return
++        players = select_board_players(table, sides)
++        if players is None:
++            self.rejected += 1
++            self._note("incomplete roster")
++            return
++        if self._table_snapshot is not None and same_table_content(table, self._table_snapshot):
++            return
++        rows = _raw_rows(frame.payload)
++        self._table_snapshot = table
++        self.table = GridTableObs(
++            second=_table_second(board, table, received),
++            received_at_utc=received,
++            board_received_at_utc=self._board_received or received,
++            board_occurred_at=board.occurred_at,
++            feed_delay=table.feed_delay,
++            players_0=tuple(_player_obs(player, rows) for player in players.radiant),
++            players_1=tuple(_player_obs(player, rows) for player in players.dire),
++        )
+diff --git a/src/dashboard/game_oddin.py b/src/dashboard/game_oddin.py
+new file mode 100644
+index 00000000..3e06ae31
+--- /dev/null
++++ b/src/dashboard/game_oddin.py
+@@ -0,0 +1,213 @@
++from collections.abc import Mapping
++from dataclasses import dataclass
++from typing import cast
++
++from shared.utils.json_read import as_map, read_str, try_int
++from shared.utils.match_time import parse_utc
++from trader.oddin_feed import (
++    RECONNECT_EVENT,
++    SNAPSHOT_EVENT,
++    WS_EVENT,
++    OddinSnapshotReducer,
++    project_tick,
++)
++from trader.oddin_types import DIRE, RADIANT
++from viewer.archive_read import as_str
++
++CONTROL_LIMIT = 8
++
++
++@dataclass(frozen=True)
++class OddinPlayerObs:
++    nick: str | None
++    hero: str | None
++    net_worth: int | None
++    kills: int | None
++    deaths: int | None
++    assists: int | None
++    alive: bool | None
++    respawn: int | None
++    aegis: bool | None
++
++
++@dataclass(frozen=True)
++class OddinSliceObs:
++    received_at_utc: str
++    updated_at: str | None
++    second: int | None
++    paused: bool | None
++    match_status: str | None
++    kills_0: int | None
++    kills_1: int | None
++    gold_0: int | None
++    gold_1: int | None
++    towers_0: int | None
++    towers_1: int | None
++    barracks_0: int | None
++    barracks_1: int | None
++    roshans_0: int | None
++    roshans_1: int | None
++    series_home: int | None
++    series_away: int | None
++    home_name: str | None
++    away_name: str | None
++    name_0: str | None
++    name_1: str | None
++    players_0: tuple[OddinPlayerObs, ...]
++    players_1: tuple[OddinPlayerObs, ...]
++
++
++def _faction_side(payload: Mapping[str, object], faction: str) -> dict[str, object] | None:
++    current = as_map(payload.get("currentMap"))
++    if current is None:
++        return None
++    for side_key in ("homeTeam", "awayTeam"):
++        side = as_map(current.get(side_key))
++        if side is None:
++            continue
++        if read_str(side, "faction").upper() == faction:
++            return side
++    return None
++
++
++def _team_gold(side: Mapping[str, object]) -> int | None:
++    gold = try_int(side.get("netWorthNullable"))
++    if gold is not None:
++        return gold
++    return try_int(side.get("netWorth"))
++
++
++def _team_barracks(side: Mapping[str, object]) -> int | None:
++    barracks = try_int(side.get("barracksNullable"))
++    if barracks is not None:
++        return barracks
++    return try_int(side.get("barracks"))
++
++
++def _side_players(side: Mapping[str, object], nicks: tuple[str, ...]) -> tuple[OddinPlayerObs, ...]:
++    raw_players = side.get("players")
++    rows: list[dict[str, object]] = []
++    if isinstance(raw_players, list):
++        rows = [
++            row
++            for row in (as_map(item) for item in cast(list[object], raw_players))
++            if row is not None
++        ]
++    out: list[OddinPlayerObs] = []
++    for nick in nicks:
++        row = next(
++            (
++                item
++                for item in rows
++                if read_str(as_map(item.get("player")) or {}, "nickname") == nick
++            ),
++            None,
++        )
++        if row is None:
++            out.append(OddinPlayerObs(nick, None, None, None, None, None, None, None, None))
++            continue
++        player = as_map(row.get("player")) or {}
++        hero = as_map(row.get("hero")) or {}
++        alive = row.get("alive")
++        aegis = row.get("hasAegis")
++        out.append(
++            OddinPlayerObs(
++                nick=read_str(player, "nickname") or None,
++                hero=read_str(hero, "name") or None,
++                net_worth=try_int(row.get("netWorth")),
++                kills=try_int(row.get("kills")),
++                deaths=try_int(row.get("deaths")),
++                assists=try_int(row.get("assists")),
++                alive=alive if isinstance(alive, bool) else None,
++                respawn=try_int(row.get("respawnTimer")),
++                aegis=aegis if isinstance(aegis, bool) else None,
++            )
++        )
++    return tuple(out)
++
++
++def _obs(payload: Mapping[str, object], received: str) -> OddinSliceObs | None:
++    tick = project_tick(payload)
++    if tick.radiant is None or tick.dire is None:
++        return None
++    raw_0 = _faction_side(payload, RADIANT)
++    raw_1 = _faction_side(payload, DIRE)
++    paused = payload.get("mapPaused")
++    return OddinSliceObs(
++        received_at_utc=received,
++        updated_at=tick.last_updated_at or None,
++        second=tick.game_time,
++        paused=paused if isinstance(paused, bool) else None,
++        match_status=tick.match_status if tick.match_status != "?" else None,
++        kills_0=try_int(raw_0.get("kills")) if raw_0 is not None else None,
++        kills_1=try_int(raw_1.get("kills")) if raw_1 is not None else None,
++        gold_0=_team_gold(raw_0) if raw_0 is not None else None,
++        gold_1=_team_gold(raw_1) if raw_1 is not None else None,
++        towers_0=try_int(raw_0.get("towers")) if raw_0 is not None else None,
++        towers_1=try_int(raw_1.get("towers")) if raw_1 is not None else None,
++        barracks_0=_team_barracks(raw_0) if raw_0 is not None else None,
++        barracks_1=_team_barracks(raw_1) if raw_1 is not None else None,
++        roshans_0=try_int(raw_0.get("roshans")) if raw_0 is not None else None,
++        roshans_1=try_int(raw_1.get("roshans")) if raw_1 is not None else None,
++        series_home=try_int(payload.get("homeScore")),
++        series_away=try_int(payload.get("awayScore")),
++        home_name=tick.home_name,
++        away_name=tick.away_name,
++        name_0=tick.radiant.name,
++        name_1=tick.dire.name,
++        players_0=_side_players(raw_0, tuple(p.nickname for p in tick.radiant.players))
++        if raw_0 is not None
++        else (),
++        players_1=_side_players(raw_1, tuple(p.nickname for p in tick.dire.players))
++        if raw_1 is not None
++        else (),
++    )
++
++
++class OddinFold:
++    def __init__(self, *, map_number: int, yes_is_radiant: bool) -> None:
++        self._reducer = OddinSnapshotReducer(map_number, yes_is_radiant)
++        self.last: OddinSliceObs | None = None
++        self.terminal = False
++        self.rejected = 0
++        self.control: tuple[str, ...] = ()
++
++    def _note(self, text: str) -> None:
++        self.control = (*self.control, text)[-CONTROL_LIMIT:]
++
++    def apply(self, record: Mapping[str, object]) -> None:
++        event_name = as_str(record.get("event"))
++        received = as_str(record.get("received_at_utc"))
++        if event_name == SNAPSHOT_EVENT:
++            self._note(f"seed @{received}")
++            return
++        if event_name == RECONNECT_EVENT:
++            self._reducer.reset()
++            self._note(f"reconnect @{received}")
++            return
++        if event_name != WS_EVENT:
++            self.rejected += 1
++            self._note(f"unknown event {event_name!r}")
++            return
++        if self.terminal:
++            return
++        payload = as_map(record.get("payload"))
++        if payload is None or received is None:
++            self.rejected += 1
++            self._note("malformed ws record")
++            return
++        try:
++            received_dt = parse_utc(received)
++        except ValueError:
++            self.rejected += 1
++            self._note("bad receipt stamp")
++            return
++        event = self._reducer.apply_payload(payload, received_dt)
++        if event is None:
++            self.rejected += 1
++            return
++        if event.snapshot.finished:
++            self.terminal = True
++            self._note(f"terminal @{received}")
++            return
++        self.last = _obs(payload, received)
+diff --git a/src/dashboard/game_state.py b/src/dashboard/game_state.py
+new file mode 100644
+index 00000000..9667368f
+--- /dev/null
++++ b/src/dashboard/game_state.py
+@@ -0,0 +1,1040 @@
++import json
++import math
++import threading
++from collections import deque
++from collections.abc import Mapping
++from dataclasses import dataclass, field
++from pathlib import Path
++from typing import Literal
++
++from dashboard import game_grid, game_oddin
++from dashboard.catalog import ArchiveEntry
++from dashboard.tails import RecordTail, TailCache
++from shared.utils.json_read import as_map
++from trader.game_profile import GAME_PROFILES, GameProfile
++from trader.paths import (
++    GRID_STATE_ARCHIVE_FILENAME,
++    MATCH_META_FILENAME,
++    ODDIN_STATE_ARCHIVE_FILENAME,
++    SESSION_JOURNAL_FILENAME,
++)
++from viewer.archive_read import as_float, as_int, as_str, market_block, read_match_document
++
++DECISION_LABEL = "игровой снимок решения"
++ARCHIVE_LABEL = "данные игры"
++XP_NOT_USED_TEXT = "не используется этой моделью"
++STATE_LIMIT = 64
++SEEN_LIMIT = 128
++NOTES_LIMIT = 16
++COMPACT_LIMIT = 14
++
++FEED_FILES = {
++    "grid": GRID_STATE_ARCHIVE_FILENAME,
++    "oddin": ODDIN_STATE_ARCHIVE_FILENAME,
++}
++
++Comparison = Literal["aligned", "different", "unknown"]
++Continuity = Literal["cold", "warm", "reconstructed"]
++XpStatus = Literal["available", "not_used", "unknown"]
++Provenance = Literal["signal", "legacy", "none"]
++
++
++@dataclass(frozen=True)
++class TopSummary:
++    top1_nw_adv: int | None
++    radiant_top1_nw_ratio: float | None
++    dire_top1_nw_ratio: float | None
++    top3_nw_adv: int | None
++    radiant_top3_nw_ratio: float | None
++    dire_top3_nw_ratio: float | None
++
++
++@dataclass(frozen=True)
++class GameIdentity:
++    archive_dir: Path
++    match_id: str
++    condition_id: str | None
++    game: str | None
++    map_number: int | None
++    source: str | None
++    side_0_label: str
++    side_1_label: str
++    team_0: str | None
++    team_1: str | None
++    yes_is_side_0: bool | None
++    outcome_0_name: str | None
++    outcome_1_name: str | None
++
++
++@dataclass(frozen=True)
++class DecisionSlice:
++    provenance: Provenance
++    second: int | None
++    server_timestamp: int | None
++    phase: str | None
++    paused: bool | None
++    radiant_nw: int | None
++    dire_nw: int | None
++    radiant_nw_adv: int | None
++    xp_status: XpStatus
++    radiant_xp_adv: int | None
++    xp_text: str | None
++    deaths_radiant: int | None
++    deaths_dire: int | None
++    top: TopSummary | None
++    model_evaluated: bool | None
++    raw_delta: float | None
++    reason: str | None
++    entry_block: str | None
++    feed_source: str | None
++    feed_received_at_utc: str | None
++    recorded_at_utc: str | None
++    journal_path: Path
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class SeriesScore:
++    name_0: str | None
++    name_1: str | None
++    score_0: int | None
++    score_1: int | None
++
++
++@dataclass(frozen=True)
++class BoardSlice:
++    second: int | None
++    clock_ticking: bool | None
++    status: str | None
++    paused: bool | None
++    kills_0: int | None
++    kills_1: int | None
++    series: SeriesScore | None
++    received_at_utc: str | None
++    updated_at: str | None
++    archive_path: Path | None
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class PlayerSummary:
++    nick: str | None
++    nick_compact: str | None
++    hero: str | None
++    hero_compact: str | None
++    net_worth: int | None
++    kills: int | None
++    deaths: int | None
++    assists: int | None
++    level: int | None
++    alive: bool | None
++    respawn: int | None
++    aegis: bool | None
++
++
++@dataclass(frozen=True)
++class SideSlice:
++    label: str
++    team_name: str | None
++    gold: int | None
++    players_gold: int | None
++    players_deaths: int | None
++    players: tuple[PlayerSummary, ...]
++    complete: bool
++
++
++@dataclass(frozen=True)
++class Objectives:
++    towers: int | None
++    barracks: int | None
++    roshans: int | None
++
++
++@dataclass(frozen=True)
++class TableSlice:
++    second: int | None
++    second_reconstructed: bool
++    received_at_utc: str | None
++    updated_at: str | None
++    feed_delay: int | None
++    board_received_at_utc: str | None
++    archive_path: Path | None
++    side_0: SideSlice
++    side_1: SideSlice
++    objectives_0: Objectives | None
++    objectives_1: Objectives | None
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class SourceFacts:
++    continuity: Continuity | None
++    complete: bool
++    evidence: tuple[str, ...]
++    control: tuple[str, ...]
++    rejected: int
++    terminal: bool
++    legacy_replay: bool
++    comparison: Comparison
++
++
++@dataclass(frozen=True)
++class GameSummary:
++    identity: GameIdentity
++    decision: DecisionSlice
++    board: BoardSlice | None
++    table: TableSlice | None
++    source: SourceFacts
++    decision_label: str
++    archive_label: str
++
++
++@dataclass(frozen=True)
++class _MetaEntry:
++    mtime_ns: int
++    size: int
++    doc: dict[str, object] | None
++
++
++@dataclass
++class _MapState:
++    key: tuple[object, ...]
++    last_seen_s: float = 0.0
++    continuity: Continuity | None = None
++    seen: deque[str] = field(default_factory=lambda: deque[str](maxlen=SEEN_LIMIT))
++    feed_key: tuple[str, int, int] | None = None
++    grid: game_grid.GridFold | None = None
++    oddin: game_oddin.OddinFold | None = None
++    cached_key: tuple[object, ...] | None = None
++    cached: GameSummary | None = None
++
++
++@dataclass(frozen=True)
++class _Inputs:
++    signal_source: str | None
++    meta_source: str | None
++    source: str | None
++    feed_file: str | None
++    game: str | None
++    map_number: int | None
++    profile: GameProfile
++
++
++@dataclass(frozen=True)
++class _Slices:
++    board: BoardSlice | None
++    table: TableSlice | None
++    name_0: str | None
++    name_1: str | None
++
++
++def _whole(value: object) -> int | None:
++    number = as_float(value)
++    if number is None or not math.isfinite(number) or number != int(number):
++        return None
++    return int(number)
++
++
++def _finite(value: object) -> float | None:
++    number = as_float(value)
++    if number is None or not math.isfinite(number):
++        return None
++    return number
++
++
++def _compact(value: str | None) -> str | None:
++    if value is None or len(value) <= COMPACT_LIMIT:
++        return value
++    return value[: COMPACT_LIMIT - 1] + "…"
++
++
++def _stamp(tail: RecordTail | None) -> tuple[int, int] | None:
++    if tail is None:
++        return None
++    return (tail.mtime_ns, tail.size)
++
++
++def _last_signal(tail: RecordTail | None) -> Mapping[str, object] | None:
++    if tail is None:
++        return None
++    for record in reversed(tail.records):
++        if record.get("kind") == "signal":
++            return record
++    return None
++
++
++def _fingerprint(record: Mapping[str, object]) -> str:
++    try:
++        return json.dumps(record, sort_keys=True, separators=(",", ":"), default=str)
++    except (TypeError, ValueError):
++        return repr(record)
++
++
++def _note(notes: list[str], text: str) -> None:
++    if len(notes) < NOTES_LIMIT:
++        notes.append(text)
++
++
++def _snap_whole(snap: Mapping[str, object], name: str, notes: list[str]) -> int | None:
++    if name not in snap:
++        _note(notes, f"game_snapshot.{name} missing")
++        return None
++    value = _whole(snap.get(name))
++    if value is None:
++        _note(notes, f"game_snapshot.{name} invalid")
++    return value
++
++
++def _snap_float(snap: Mapping[str, object], name: str, notes: list[str]) -> float | None:
++    if name not in snap:
++        _note(notes, f"game_snapshot.{name} missing")
++        return None
++    value = _finite(snap.get(name))
++    if value is None:
++        _note(notes, f"game_snapshot.{name} invalid")
++    return value
++
++
++def _snap_top(snap: Mapping[str, object], notes: list[str]) -> TopSummary | None:
++    raw = snap.get("top")
++    top = as_map(raw)
++    if top is None:
++        _note(notes, "game_snapshot.top missing" if raw is None else "game_snapshot.top invalid")
++        return None
++    return TopSummary(
++        top1_nw_adv=_snap_whole(top, "top1_nw_adv", notes),
++        radiant_top1_nw_ratio=_snap_float(top, "radiant_top1_nw_ratio", notes),
++        dire_top1_nw_ratio=_snap_float(top, "dire_top1_nw_ratio", notes),
++        top3_nw_adv=_snap_whole(top, "top3_nw_adv", notes),
++        radiant_top3_nw_ratio=_snap_float(top, "radiant_top3_nw_ratio", notes),
++        dire_top3_nw_ratio=_snap_float(top, "dire_top3_nw_ratio", notes),
++    )
++
++
++def _xp_fields(
++    source: str | None, snap: Mapping[str, object] | None, notes: list[str]
++) -> tuple[XpStatus, int | None, str | None]:
++    if snap is None:
++        return "unknown", None, None
++    if "radiant_xp_adv" in snap:
++        xp_raw = _whole(snap.get("radiant_xp_adv"))
++        if xp_raw is None:
++            _note(notes, "game_snapshot.radiant_xp_adv invalid")
++    else:
++        xp_raw = None
++    if source == "oddin":
++        return "not_used", None, XP_NOT_USED_TEXT
++    if "radiant_xp_adv" not in snap:
++        return "unknown", None, None
++    if xp_raw is None:
++        return "unknown", None, None
++    return "available", xp_raw, None
++
++
++def _decision_slice(
++    tail: RecordTail | None, journal_path: Path, source: str | None
++) -> DecisionSlice:
++    notes: list[str] = []
++    record = _last_signal(tail)
++    if record is None:
++        if tail is not None:
++            _note(notes, "no signal in journal tail")
++        return DecisionSlice(
++            provenance="none",
++            second=None,
++            server_timestamp=None,
++            phase=None,
++            paused=None,
++            radiant_nw=None,
++            dire_nw=None,
++            radiant_nw_adv=None,
++            xp_status="unknown",
++            radiant_xp_adv=None,
++            xp_text=None,
++            deaths_radiant=None,
++            deaths_dire=None,
++            top=None,
++            model_evaluated=None,
++            raw_delta=None,
++            reason=None,
++            entry_block=None,
++            feed_source=None,
++            feed_received_at_utc=None,
++            recorded_at_utc=None,
++            journal_path=journal_path,
++            notes=tuple(notes),
++        )
++    snap_raw = record.get("game_snapshot")
++    snap = as_map(snap_raw)
++    if snap is None:
++        provenance: Provenance = "legacy"
++        _note(
++            notes,
++            "missing game_snapshot" if snap_raw is None else "invalid game_snapshot",
++        )
++        second = _whole(record.get("second"))
++        server_timestamp = phase = paused = None
++        radiant_nw = dire_nw = radiant_nw_adv = None
++        deaths_radiant = deaths_dire = None
++        top = None
++        xp_status: XpStatus = "unknown"
++        xp_value = xp_text = None
++    else:
++        provenance = "signal"
++        second = _snap_whole(snap, "second", notes)
++        server_timestamp = _snap_whole(snap, "server_timestamp", notes)
++        phase_raw = snap.get("phase")
++        phase = as_str(phase_raw)
++        if phase is None:
++            _note(
++                notes,
++                "game_snapshot.phase missing"
++                if "phase" not in snap
++                else "game_snapshot.phase invalid",
++            )
++        paused_raw = snap.get("paused")
++        paused = paused_raw if isinstance(paused_raw, bool) else None
++        if paused is None:
++            _note(
++                notes,
++                "game_snapshot.paused missing"
++                if "paused" not in snap
++                else "game_snapshot.paused invalid",
++            )
++        radiant_nw = _snap_whole(snap, "radiant_nw", notes)
++        dire_nw = _snap_whole(snap, "dire_nw", notes)
++        radiant_nw_adv = _snap_whole(snap, "radiant_nw_adv", notes)
++        deaths_radiant = _snap_whole(snap, "deaths_radiant", notes)
++        deaths_dire = _snap_whole(snap, "deaths_dire", notes)
++        top = _snap_top(snap, notes)
++        xp_status, xp_value, xp_text = _xp_fields(source, snap, notes)
++    me_raw = record.get("model_evaluated")
++    model_evaluated = me_raw if isinstance(me_raw, bool) else None
++    if me_raw is not None and model_evaluated is None:
++        _note(notes, "model_evaluated invalid")
++    raw_delta: float | None = None
++    if model_evaluated is True:
++        raw_delta = _finite(record.get("raw_delta"))
++        if raw_delta is None:
++            _note(notes, "model_evaluated without valid raw_delta")
++    return DecisionSlice(
++        provenance=provenance,
++        second=second,
++        server_timestamp=server_timestamp,
++        phase=phase,
++        paused=paused,
++        radiant_nw=radiant_nw,
++        dire_nw=dire_nw,
++        radiant_nw_adv=radiant_nw_adv,
++        xp_status=xp_status,
++        radiant_xp_adv=xp_value,
++        xp_text=xp_text,
++        deaths_radiant=deaths_radiant,
++        deaths_dire=deaths_dire,
++        top=top,
++        model_evaluated=model_evaluated,
++        raw_delta=raw_delta,
++        reason=as_str(record.get("reason")),
++        entry_block=as_str(record.get("entry_block")),
++        feed_source=as_str(record.get("feed_source")),
++        feed_received_at_utc=as_str(record.get("feed_received_at_utc")),
++        recorded_at_utc=as_str(record.get("recorded_at_utc")),
++        journal_path=journal_path,
++        notes=tuple(notes),
++    )
++
++
++def _grid_player(obs: game_grid.GridPlayerObs) -> PlayerSummary:
++    return PlayerSummary(
++        nick=obs.nick,
++        nick_compact=_compact(obs.nick),
++        hero=obs.hero,
++        hero_compact=_compact(obs.hero),
++        net_worth=obs.net_worth,
++        kills=obs.kills,
++        deaths=obs.deaths,
++        assists=obs.assists,
++        level=obs.level,
++        alive=None,
++        respawn=None,
++        aegis=None,
++    )
++
++
++def _oddin_player(obs: game_oddin.OddinPlayerObs) -> PlayerSummary:
++    return PlayerSummary(
++        nick=obs.nick,
++        nick_compact=_compact(obs.nick),
++        hero=obs.hero,
++        hero_compact=_compact(obs.hero),
++        net_worth=obs.net_worth,
++        kills=obs.kills,
++        deaths=obs.deaths,
++        assists=obs.assists,
++        level=None,
++        alive=obs.alive,
++        respawn=obs.respawn,
++        aegis=obs.aegis,
++    )
++
++
++def _side_slice(
++    label: str,
++    team_name: str | None,
++    gold: int | None,
++    players: tuple[PlayerSummary, ...],
++) -> SideSlice:
++    nws = [player.net_worth for player in players]
++    deaths = [player.deaths for player in players]
++    players_gold = (
++        sum(value for value in nws if value is not None)
++        if nws and all(value is not None for value in nws)
++        else None
++    )
++    players_deaths = (
++        sum(value for value in deaths if value is not None)
++        if deaths and all(value is not None for value in deaths)
++        else None
++    )
++    return SideSlice(
++        label=label,
++        team_name=team_name,
++        gold=gold if gold is not None else players_gold,
++        players_gold=players_gold,
++        players_deaths=players_deaths,
++        players=players,
++        complete=len(players) == 5 and all(p.nick is not None for p in players),
++    )
++
++
++def _acceptance_notes(continuity: Continuity | None) -> tuple[str, ...]:
++    if continuity == "warm":
++        return ()
++    return ("archive reconstruction; acceptance unknown",)
++
++
++def _grid_board(obs: game_grid.GridBoardObs, archive_path: Path | None) -> BoardSlice:
++    return BoardSlice(
++        second=obs.clock_seconds,
++        clock_ticking=obs.clock_ticking,
++        status=obs.game_status,
++        paused=not obs.clock_ticking,
++        kills_0=obs.kills_0,
++        kills_1=obs.kills_1,
++        series=SeriesScore(
++            name_0=obs.name_0,
++            name_1=obs.name_1,
++            score_0=obs.series_0,
++            score_1=obs.series_1,
++        ),
++        received_at_utc=obs.received_at_utc,
++        updated_at=obs.occurred_at,
++        archive_path=archive_path,
++        notes=(),
++    )
++
++
++def _grid_table(
++    obs: game_grid.GridTableObs,
++    archive_path: Path | None,
++    labels: tuple[str, str],
++    names: tuple[str | None, str | None],
++    continuity: Continuity | None,
++) -> TableSlice:
++    return TableSlice(
++        second=obs.second,
++        second_reconstructed=True,
++        received_at_utc=obs.received_at_utc,
++        updated_at=obs.board_occurred_at,
++        feed_delay=obs.feed_delay,
++        board_received_at_utc=obs.board_received_at_utc,
++        archive_path=archive_path,
++        side_0=_side_slice(
++            labels[0],
++            names[0],
++            None,
++            tuple(_grid_player(player) for player in obs.players_0),
++        ),
++        side_1=_side_slice(
++            labels[1],
++            names[1],
++            None,
++            tuple(_grid_player(player) for player in obs.players_1),
++        ),
++        objectives_0=None,
++        objectives_1=None,
++        notes=_acceptance_notes(continuity),
++    )
++
++
++def _oddin_board(obs: game_oddin.OddinSliceObs, archive_path: Path | None) -> BoardSlice:
++    return BoardSlice(
++        second=obs.second,
++        clock_ticking=not obs.paused if obs.paused is not None else None,
++        status=obs.match_status,
++        paused=obs.paused,
++        kills_0=obs.kills_0,
++        kills_1=obs.kills_1,
++        series=SeriesScore(
++            name_0=obs.home_name,
++            name_1=obs.away_name,
++            score_0=obs.series_home,
++            score_1=obs.series_away,
++        ),
++        received_at_utc=obs.received_at_utc,
++        updated_at=obs.updated_at,
++        archive_path=archive_path,
++        notes=(),
++    )
++
++
++def _oddin_table(
++    obs: game_oddin.OddinSliceObs,
++    archive_path: Path | None,
++    labels: tuple[str, str],
++    names: tuple[str | None, str | None],
++    continuity: Continuity | None,
++) -> TableSlice:
++    return TableSlice(
++        second=obs.second,
++        second_reconstructed=False,
++        received_at_utc=obs.received_at_utc,
++        updated_at=obs.updated_at,
++        feed_delay=None,
++        board_received_at_utc=obs.received_at_utc,
++        archive_path=archive_path,
++        side_0=_side_slice(
++            labels[0],
++            names[0],
++            obs.gold_0,
++            tuple(_oddin_player(player) for player in obs.players_0),
++        ),
++        side_1=_side_slice(
++            labels[1],
++            names[1],
++            obs.gold_1,
++            tuple(_oddin_player(player) for player in obs.players_1),
++        ),
++        objectives_0=Objectives(obs.towers_0, obs.barracks_0, obs.roshans_0),
++        objectives_1=Objectives(obs.towers_1, obs.barracks_1, obs.roshans_1),
++        notes=_acceptance_notes(continuity),
++    )
++
++
++def _compare(decision: DecisionSlice, table: TableSlice | None) -> Comparison:
++    if decision.provenance != "signal" or table is None:
++        return "unknown"
++    if decision.feed_received_at_utc is None or table.received_at_utc is None:
++        return "unknown"
++    if decision.feed_received_at_utc != table.received_at_utc:
++        return "different"
++    pairs = (
++        (decision.second, table.second),
++        (decision.radiant_nw, table.side_0.players_gold),
++        (decision.dire_nw, table.side_1.players_gold),
++        (decision.deaths_radiant, table.side_0.players_deaths),
++        (decision.deaths_dire, table.side_1.players_deaths),
++    )
++    if any(left is None or right is None for left, right in pairs):
++        return "unknown"
++    return "aligned" if all(left == right for left, right in pairs) else "different"
++
++
++def _block_str(block: dict[str, object] | None, key: str) -> str | None:
++    return as_str((block or {}).get(key))
++
++
++def _profile(game: str | None) -> GameProfile:
++    return GAME_PROFILES.get(game or "dota", GAME_PROFILES["dota"])
++
++
++def _resolve_inputs(
++    entry: ArchiveEntry,
++    meta: dict[str, object] | None,
++    signal: Mapping[str, object] | None,
++) -> _Inputs:
++    signal_source = as_str(signal.get("feed_source")) if signal is not None else None
++    meta_source = _block_str(meta, "feed_source")
++    source = signal_source or meta_source
++    game = entry.game or _block_str(meta, "game")
++    map_number = entry.map_number
++    if map_number is None and meta is not None:
++        map_number = as_int(meta.get("map_number"))
++    return _Inputs(
++        signal_source=signal_source,
++        meta_source=meta_source,
++        source=source,
++        feed_file=FEED_FILES.get(source or ""),
++        game=game,
++        map_number=map_number,
++        profile=_profile(game),
++    )
++
++
++def _tail_notes(label: str, tail: RecordTail) -> tuple[str, ...]:
++    notes: list[str] = []
++    if tail.truncated_start:
++        notes.append(f"{label} tail truncated")
++    if tail.malformed:
++        notes.append(f"{label} malformed {tail.malformed}")
++    if tail.read_error:
++        notes.append(f"{label} read error")
++    return tuple(notes)
++
++
++def _source_note(source: str | None) -> str:
++    if source is None:
++        return "feed source unknown"
++    return f"unsupported feed source {source!r}"
++
++
++def _feed_complete(tail: RecordTail | None) -> bool:
++    return (
++        tail is not None and not tail.truncated_start and not tail.malformed and not tail.read_error
++    )
++
++
++def _feed_path(archive: Path, feed_file: str | None, tail: RecordTail | None) -> Path | None:
++    if tail is not None:
++        return tail.path
++    if feed_file is not None:
++        return archive / feed_file
++    return None
++
++
++def _project_slices(
++    fold: game_grid.GridFold | game_oddin.OddinFold | None,
++    entry: ArchiveEntry,
++    feed_path: Path | None,
++    labels: tuple[str, str],
++    continuity: Continuity | None,
++    evidence: list[str],
++) -> _Slices:
++    name_0 = name_1 = None
++    board: BoardSlice | None = None
++    table: TableSlice | None = None
++    if isinstance(fold, game_grid.GridFold):
++        name_0, name_1 = fold.team_0_name, fold.team_1_name
++        if fold.board is not None:
++            board = _grid_board(fold.board, feed_path)
++        if fold.table is not None:
++            table = _grid_table(fold.table, feed_path, labels, (name_0, name_1), continuity)
++        if fold.orientation is not None and fold.orientation != entry.yes_is_radiant:
++            evidence.append("board orientation conflicts saved yes_is_radiant")
++    elif isinstance(fold, game_oddin.OddinFold) and fold.last is not None:
++        name_0, name_1 = fold.last.name_0, fold.last.name_1
++        board = _oddin_board(fold.last, feed_path)
++        table = _oddin_table(fold.last, feed_path, labels, (name_0, name_1), continuity)
++    return _Slices(board=board, table=table, name_0=name_0, name_1=name_1)
++
++
++def _yes_side_0(entry: ArchiveEntry, market: dict[str, object] | None) -> bool | None:
++    yes_is_side_0 = entry.yes_is_radiant
++    if yes_is_side_0 is None and market is not None:
++        flag = market.get("yes_is_radiant")
++        if isinstance(flag, bool):
++            yes_is_side_0 = flag
++    return yes_is_side_0
++
++
++def _identity(
++    entry: ArchiveEntry,
++    inputs: _Inputs,
++    meta: dict[str, object] | None,
++    labels: tuple[str, str],
++    slices: _Slices,
++) -> GameIdentity:
++    market = market_block(meta) if meta is not None else None
++    return GameIdentity(
++        archive_dir=entry.archive_dir,
++        match_id=entry.match_id,
++        condition_id=entry.condition_id,
++        game=inputs.game,
++        map_number=inputs.map_number,
++        source=inputs.source,
++        side_0_label=labels[0],
++        side_1_label=labels[1],
++        team_0=entry.radiant or slices.name_0,
++        team_1=entry.dire or slices.name_1,
++        yes_is_side_0=_yes_side_0(entry, market),
++        outcome_0_name=entry.outcome_0_name or _block_str(market, "outcome_0_name"),
++        outcome_1_name=entry.outcome_1_name or _block_str(market, "outcome_1_name"),
++    )
++
++
++def build_game_summary(
++    *,
++    identity: GameIdentity,
++    decision: DecisionSlice,
++    board: BoardSlice | None,
++    table: TableSlice | None,
++    continuity: Continuity | None,
++    feed_complete: bool,
++    evidence: tuple[str, ...],
++    fold: game_grid.GridFold | game_oddin.OddinFold | None,
++) -> GameSummary:
++    return GameSummary(
++        identity=identity,
++        decision=decision,
++        board=board,
++        table=table,
++        source=SourceFacts(
++            continuity=continuity,
++            complete=feed_complete,
++            evidence=evidence,
++            control=fold.control if fold is not None else (),
++            rejected=fold.rejected if fold is not None else 0,
++            terminal=fold.terminal if fold is not None else False,
++            legacy_replay=False,
++            comparison=_compare(decision, table),
++        ),
++        decision_label=DECISION_LABEL,
++        archive_label=ARCHIVE_LABEL,
++    )
++
++
++class GameStateReader:
++    def __init__(self, tails: TailCache, *, max_states: int = STATE_LIMIT) -> None:
++        self._tails = tails
++        self._max_states = max_states
++        self._lock = threading.Lock()
++        self._states: dict[tuple[object, ...], _MapState] = {}
++        self._metas: dict[Path, _MetaEntry] = {}
++
++    def read(self, entry: ArchiveEntry, now_s: float) -> GameSummary:
++        with self._lock:
++            return self._read(entry, now_s)
++
++    def _meta(self, archive: Path) -> tuple[dict[str, object] | None, tuple[int, int] | None]:
++        path = archive / MATCH_META_FILENAME
++        try:
++            stat = path.stat()
++        except OSError:
++            self._metas.pop(archive, None)
++            return None, None
++        stamp = (stat.st_mtime_ns, stat.st_size)
++        cached = self._metas.get(archive)
++        if cached is not None and (cached.mtime_ns, cached.size) == stamp:
++            return cached.doc, stamp
++        doc = read_match_document(archive)
++        self._metas[archive] = _MetaEntry(stat.st_mtime_ns, stat.st_size, doc)
++        while len(self._metas) > self._max_states:
++            stale = next(key for key in self._metas if key != archive)
++            del self._metas[stale]
++        return doc, stamp
++
++    def _meta_notes(
++        self, entry: ArchiveEntry, meta: Mapping[str, object] | None
++    ) -> tuple[str, ...]:
++        if meta is None:
++            return ()
++        notes: list[str] = []
++        match_id = as_str(meta.get("match_id"))
++        if match_id is not None and match_id != entry.match_id:
++            notes.append("match.json match_id differs")
++        map_number = as_int(meta.get("map_number"))
++        if (
++            map_number is not None
++            and entry.map_number is not None
++            and map_number != entry.map_number
++        ):
++            notes.append("match.json map_number differs")
++        game = as_str(meta.get("game"))
++        if game is not None and entry.game is not None and game != entry.game:
++            notes.append("match.json game differs")
++        return tuple(notes)
++
++    def _evict(self) -> None:
++        while len(self._states) > self._max_states:
++            oldest = min(self._states, key=lambda key: self._states[key].last_seen_s)
++            del self._states[oldest]
++
++    def _apply(
++        self,
++        state: _MapState,
++        record: Mapping[str, object],
++        *,
++        source: str,
++        entry: ArchiveEntry,
++        profile: GameProfile,
++        map_number: int,
++    ) -> None:
++        if source == "grid":
++            if state.grid is None:
++                state.grid = game_grid.GridFold(
++                    map_number=map_number,
++                    outcome_0_name=entry.outcome_0_name,
++                    outcome_1_name=entry.outcome_1_name,
++                    profile=profile,
++                )
++            state.grid.apply(record)
++        elif source == "oddin":
++            if state.oddin is None:
++                state.oddin = game_oddin.OddinFold(
++                    map_number=map_number,
++                    yes_is_radiant=entry.yes_is_radiant is True,
++                )
++            state.oddin.apply(record)
++
++    def _fold(
++        self,
++        state: _MapState,
++        tail: RecordTail,
++        *,
++        source: str,
++        entry: ArchiveEntry,
++        profile: GameProfile,
++        map_number: int,
++    ) -> None:
++        if not tail.records:
++            state.feed_key = (str(tail.path), tail.mtime_ns, tail.size)
++            return
++        fps = [_fingerprint(record) for record in tail.records]
++        overlap: int | None = None
++        for index in range(len(fps) - 1, -1, -1):
++            if fps[index] in state.seen:
++                overlap = index
++                break
++        replaced = state.feed_key is not None and (
++            tail.size < state.feed_key[2] or str(tail.path) != state.feed_key[0]
++        )
++        if overlap is not None and not replaced:
++            start = overlap + 1
++            state.continuity = "warm"
++        elif state.seen or replaced:
++            state.seen.clear()
++            state.grid = None
++            state.oddin = None
++            state.continuity = "reconstructed"
++            start = 0
++        else:
++            start = 0
++            if state.continuity is None:
++                state.continuity = "cold"
++        for index in range(start, len(tail.records)):
++            self._apply(
++                state,
++                tail.records[index],
++                source=source,
++                entry=entry,
++                profile=profile,
++                map_number=map_number,
++            )
++        state.seen.extend(fps[start:])
++        state.feed_key = (str(tail.path), tail.mtime_ns, tail.size)
++
++    def _map_state(
++        self, entry: ArchiveEntry, archive: Path, inputs: _Inputs, now_s: float
++    ) -> _MapState:
++        key = (
++            str(archive),
++            inputs.source or "-",
++            inputs.game or "-",
++            inputs.map_number or 0,
++            entry.yes_is_radiant,
++            entry.outcome_0_name or "-",
++            entry.outcome_1_name or "-",
++        )
++        state = self._states.get(key)
++        if state is None:
++            state = _MapState(key=key)
++            self._states[key] = state
++        state.last_seen_s = now_s
++        return state
++
++    def _evidence(
++        self,
++        entry: ArchiveEntry,
++        inputs: _Inputs,
++        meta: dict[str, object] | None,
++        journal_tail: RecordTail | None,
++        feed_tail: RecordTail | None,
++    ) -> list[str]:
++        notes = list(self._meta_notes(entry, meta))
++        if (
++            inputs.signal_source is not None
++            and inputs.meta_source is not None
++            and inputs.signal_source != inputs.meta_source
++        ):
++            notes.append("signal feed_source conflicts match.json")
++        if journal_tail is None:
++            notes.append("journal unavailable")
++        else:
++            notes.extend(_tail_notes("journal", journal_tail))
++        if inputs.feed_file is None:
++            notes.append(_source_note(inputs.source))
++        elif inputs.map_number is None:
++            notes.append("map number unknown")
++        elif feed_tail is None:
++            notes.append("feed archive unavailable")
++        else:
++            notes.extend(_tail_notes("feed", feed_tail))
++        return notes
++
++    def _fold_fresh(
++        self,
++        state: _MapState,
++        tail: RecordTail,
++        inputs: _Inputs,
++        entry: ArchiveEntry,
++        map_number: int,
++    ) -> None:
++        tail_key = (str(tail.path), tail.mtime_ns, tail.size)
++        if tail_key == state.feed_key:
++            return
++        self._fold(
++            state,
++            tail,
++            source=inputs.source or "",
++            entry=entry,
++            profile=inputs.profile,
++            map_number=map_number,
++        )
++
++    def _read(self, entry: ArchiveEntry, now_s: float) -> GameSummary:
++        archive = entry.archive_dir
++        journal_tail = self._tails.read_records(archive / SESSION_JOURNAL_FILENAME)
++        meta, meta_stamp = self._meta(archive)
++        inputs = _resolve_inputs(entry, meta, _last_signal(journal_tail))
++        state = self._map_state(entry, archive, inputs, now_s)
++        feed_tail = (
++            self._tails.read_records(archive / inputs.feed_file)
++            if inputs.feed_file is not None and inputs.map_number is not None
++            else None
++        )
++        input_key = (
++            _stamp(journal_tail),
++            _stamp(feed_tail),
++            meta_stamp,
++            entry.match_id,
++            entry.condition_id,
++            entry.radiant,
++            entry.dire,
++        )
++        if state.cached_key == input_key and state.cached is not None:
++            return state.cached
++        evidence = self._evidence(entry, inputs, meta, journal_tail, feed_tail)
++        if feed_tail is not None and inputs.map_number is not None:
++            self._fold_fresh(state, feed_tail, inputs, entry, inputs.map_number)
++        labels = (
++            inputs.profile.side_0_text.capitalize(),
++            inputs.profile.side_1_text.capitalize(),
++        )
++        fold = state.grid or state.oddin
++        feed_path = _feed_path(archive, inputs.feed_file, feed_tail)
++        slices = _project_slices(fold, entry, feed_path, labels, state.continuity, evidence)
++        decision = _decision_slice(journal_tail, archive / SESSION_JOURNAL_FILENAME, inputs.source)
++        summary = build_game_summary(
++            identity=_identity(entry, inputs, meta, labels, slices),
++            decision=decision,
++            board=slices.board,
++            table=slices.table,
++            continuity=state.continuity,
++            feed_complete=_feed_complete(feed_tail),
++            evidence=tuple(evidence[:NOTES_LIMIT]),
++            fold=fold,
++        )
++        state.cached_key = input_key
++        state.cached = summary
++        self._evict()
++        return summary
+diff --git a/src/dashboard/tails.py b/src/dashboard/tails.py
+index b31dc786..5626e5fd 100644
+--- a/src/dashboard/tails.py
++++ b/src/dashboard/tails.py
+@@ -32,6 +32,18 @@ class TailView:
+     last_record: dict[str, object] | None
+ 
+ 
++@dataclass(frozen=True)
++class RecordTail:
++    path: Path
++    mtime_ns: int
++    size: int
++    compressed: bool
++    truncated_start: bool
++    malformed: int
++    read_error: bool
++    records: tuple[dict[str, object], ...]
++
++
+ @dataclass(frozen=True)
+ class _HeadEntry:
+     mtime_ns: int
+@@ -76,22 +88,14 @@ def _tail_records(lines: Iterable[str], limit: int) -> tuple[list[dict[str, obje
+     return list(records), malformed
+ 
+ 
+-def _build_tail(
+-    resolved: Path,
+-    mtime_ns: int,
+-    size: int,
+-    compressed: bool,
+-    truncated: bool,
+-    kept: list[dict[str, object]],
+-    malformed: int,
+-) -> TailView:
++def _build_tail(read: RecordTail) -> TailView:
+     last_signal: dict[str, object] | None = None
+     last_quote: dict[str, object] | None = None
+     last_fill: dict[str, object] | None = None
+     last_error: dict[str, object] | None = None
+     last_record: dict[str, object] | None = None
+     saw_end = False
+-    for record in kept:
++    for record in read.records:
+         last_record = record
+         kind = record.get("kind")
+         if kind == "signal":
+@@ -105,13 +109,13 @@ def _build_tail(
+         elif kind == "session_end":
+             saw_end = True
+     return TailView(
+-        path=resolved,
+-        mtime_ns=mtime_ns,
+-        size=size,
+-        compressed=compressed,
+-        truncated_start=truncated,
+-        records_kept=len(kept),
+-        malformed=malformed,
++        path=read.path,
++        mtime_ns=read.mtime_ns,
++        size=read.size,
++        compressed=read.compressed,
++        truncated_start=read.truncated_start,
++        records_kept=len(read.records),
++        malformed=read.malformed,
+         saw_session_end=saw_end,
+         last_signal=last_signal,
+         last_quote=last_quote,
+@@ -133,6 +137,7 @@ class TailCache:
+         self._tail_bytes = tail_bytes
+         self._max_records = max_records
+         self._tails: dict[Path, TailView] = {}
++        self._record_tails: dict[Path, RecordTail] = {}
+         self._heads: dict[Path, _HeadEntry] = {}
+ 
+     def _evict[T](self, cache: dict[Path, T], keep: Path) -> None:
+@@ -144,33 +149,72 @@ class TailCache:
+             else:
+                 break
+ 
+-    def read(self, path: Path) -> TailView | None:
+-        resolved = resolve_jsonl(path)
+-        previous = self._tails.get(resolved)
+-        for attempt in range(2):
+-            try:
+-                stat = resolved.stat()
+-            except OSError:
+-                self._tails.pop(resolved, None)
+-                self._heads.pop(resolved, None)
+-                return None
++    def _read_tail(self, resolved: Path) -> RecordTail:
++        raw: RecordTail | None = None
++        for _attempt in range(2):
++            stat = resolved.stat()
+             stamp = (stat.st_mtime_ns, stat.st_size)
+-            if previous is not None and (previous.mtime_ns, previous.size) == stamp:
+-                return previous
+-            view = self._read_resolved(resolved, stat.st_mtime_ns, stat.st_size)
++            raw = self._read_resolved(resolved, stat.st_mtime_ns, stat.st_size)
+             try:
+                 after = resolved.stat()
+             except OSError:
+-                return view if previous is None else previous
++                return raw
+             if (after.st_mtime_ns, after.st_size) == stamp:
+-                self._tails[resolved] = view
++                self._record_tails[resolved] = raw
++                self._tails[resolved] = _build_tail(raw)
++                self._evict(self._record_tails, resolved)
+                 self._evict(self._tails, resolved)
+-                return view
+-            if attempt == 1:
+-                return view if previous is None else previous
+-        raise AssertionError("unreachable")
++                return raw
++        assert raw is not None
++        return raw
++
++    def read(self, path: Path) -> TailView | None:
++        resolved = resolve_jsonl(path)
++        previous = self._tails.get(resolved)
++        try:
++            stat = resolved.stat()
++        except OSError:
++            self._tails.pop(resolved, None)
++            self._record_tails.pop(resolved, None)
++            self._heads.pop(resolved, None)
++            return None
++        if previous is not None and (previous.mtime_ns, previous.size) == (
++            stat.st_mtime_ns,
++            stat.st_size,
++        ):
++            return previous
++        try:
++            raw = self._read_tail(resolved)
++        except OSError:
++            return previous
++        if self._record_tails.get(resolved) is not raw:
++            return previous
++        return self._tails.get(resolved)
++
++    def read_records(self, path: Path) -> RecordTail | None:
++        resolved = resolve_jsonl(path)
++        previous = self._record_tails.get(resolved)
++        try:
++            stat = resolved.stat()
++        except OSError:
++            self._tails.pop(resolved, None)
++            self._record_tails.pop(resolved, None)
++            self._heads.pop(resolved, None)
++            return None
++        if previous is not None and (previous.mtime_ns, previous.size) == (
++            stat.st_mtime_ns,
++            stat.st_size,
++        ):
++            return previous
++        try:
++            raw = self._read_tail(resolved)
++        except OSError:
++            return previous
++        if self._record_tails.get(resolved) is not raw:
++            return previous
++        return self._record_tails.get(resolved)
+ 
+-    def _read_resolved(self, resolved: Path, mtime_ns: int, size: int) -> TailView:
++    def _read_resolved(self, resolved: Path, mtime_ns: int, size: int) -> RecordTail:
+         if resolved.suffix == ".gz":
+             return self._read_gz_tail(resolved, mtime_ns, size)
+         try:
+@@ -180,7 +224,7 @@ class TailCache:
+                     handle.seek(size - self._tail_bytes)
+                 data = handle.read()
+         except OSError:
+-            return _build_tail(resolved, mtime_ns, size, False, False, [], 0)
++            return RecordTail(resolved, mtime_ns, size, False, False, 0, True, ())
+         text = data.decode("utf-8", errors="replace")
+         lines = text.split("\n")
+         if truncated:
+@@ -188,15 +232,15 @@ class TailCache:
+         if lines and not text.endswith("\n"):
+             lines = lines[:-1]
+         kept, malformed = _tail_records(lines, self._max_records)
+-        return _build_tail(resolved, mtime_ns, size, False, truncated, kept, malformed)
++        return RecordTail(resolved, mtime_ns, size, False, truncated, malformed, False, tuple(kept))
+ 
+-    def _read_gz_tail(self, resolved: Path, mtime_ns: int, size: int) -> TailView:
++    def _read_gz_tail(self, resolved: Path, mtime_ns: int, size: int) -> RecordTail:
+         try:
+             with gzip.open(resolved, "rt", encoding="utf-8", newline="\n") as handle:
+                 kept, malformed = _tail_records(handle, self._max_records)
+         except OSError:
+-            return _build_tail(resolved, mtime_ns, size, True, False, [], 0)
+-        return _build_tail(resolved, mtime_ns, size, True, False, kept, malformed)
++            return RecordTail(resolved, mtime_ns, size, True, False, 0, True, ())
++        return RecordTail(resolved, mtime_ns, size, True, False, malformed, False, tuple(kept))
+ 
+     def read_head(self, path: Path) -> tuple[dict[str, object], ...] | None:
+         resolved = resolve_jsonl(path)
+diff --git a/tests/dashboard_game_fixtures.py b/tests/dashboard_game_fixtures.py
+new file mode 100644
+index 00000000..e1dd5126
+--- /dev/null
++++ b/tests/dashboard_game_fixtures.py
+@@ -0,0 +1,292 @@
++"""Shared archive builders for dashboard game-state tests."""
++
++import json
++from collections.abc import Iterable
++from pathlib import Path
++
++from dashboard.catalog import ArchiveEntry
++from trader.paths import (
++    GRID_STATE_ARCHIVE_FILENAME,
++    MATCH_META_FILENAME,
++    ODDIN_STATE_ARCHIVE_FILENAME,
++    SESSION_JOURNAL_FILENAME,
++)
++
++DOTA_RADIANT = "Team Lynx"
++DOTA_DIRE = "Klim Sani4"
++LOL_BLUE = "GIANTX"
++LOL_RED = "Natus Vincere"
++ODDIN_HOME = "LGD Gaming"
++ODDIN_AWAY = "Yakult's Brothers"
++
++GRID_BOARD_AT = "2026-08-24T11:07:52.653Z"
++GRID_TABLE_AT = "2026-08-24T11:07:55.000Z"
++GRID_NEXT_AT = "2026-08-24T11:08:00.000Z"
++ODDIN_WS_AT = "2026-09-19T16:57:50.000000Z"
++ODDIN_UPDATED = "2026-09-19 16:57:34.676000000 +0000 UTC"
++ODDIN_UPDATED_NEXT = "2026-09-19 16:57:35.141000000 +0000 UTC"
++
++
++def write_meta(
++    archive_dir: Path,
++    *,
++    match_id: str,
++    game: str = "dota",
++    map_number: int = 1,
++    feed_source: str = "grid",
++    yes_is_radiant: bool = True,
++    radiant: str = DOTA_RADIANT,
++    dire: str = DOTA_DIRE,
++) -> None:
++    archive_dir.mkdir(parents=True, exist_ok=True)
++    doc = {
++        "schema_version": 9,
++        "match_id": match_id,
++        "game": game,
++        "map_number": map_number,
++        "feed_source": feed_source,
++        "teams": {"radiant": radiant, "dire": dire},
++        "market": {
++            "condition_id": f"cond-{match_id}",
++            "yes_is_radiant": yes_is_radiant,
++            "outcome_0_name": radiant,
++            "outcome_1_name": dire,
++        },
++        "model": {"name": "m", "trained_at": "t"},
++        "final": None,
++    }
++    (archive_dir / MATCH_META_FILENAME).write_text(json.dumps(doc), encoding="utf-8")
++
++
++def write_lines(path: Path, records: Iterable[object]) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text("".join(json.dumps(record) + "\n" for record in records), encoding="utf-8")
++
++
++def grid_record(frame: str, received: str) -> dict[str, object]:
++    return {"received_at_utc": received, "frame": frame}
++
++
++def oddin_record(payload: object, received: str, event: str = "ws") -> dict[str, object]:
++    return {"received_at_utc": received, "event": event, "payload": payload}
++
++
++def signal_record(
++    *,
++    second: int,
++    feed_source: str = "grid",
++    feed_received_at_utc: str = GRID_TABLE_AT,
++    recorded_at_utc: str = "2026-08-24T11:07:56.000Z",
++    server_timestamp: int = 1_787_240_875,
++    phase: str = "in_progress",
++    paused: bool = False,
++    radiant_nw: int,
++    dire_nw: int,
++    radiant_xp_adv: int = 1200,
++    deaths_radiant: int = 0,
++    deaths_dire: int = 0,
++    model_evaluated: bool | None = True,
++    raw_delta: float | None = 0.05,
++    reason: str = "model",
++    entry_block: str = "none",
++    with_snapshot: bool = True,
++) -> dict[str, object]:
++    record: dict[str, object] = {
++        "kind": "signal",
++        "second": second,
++        "yes_best_bid": 0.4,
++        "yes_best_ask": 0.45,
++        "yes_mid": 0.42,
++        "reason": reason,
++        "entry_block": entry_block,
++        "feed_source": feed_source,
++        "feed_received_at_utc": feed_received_at_utc,
++        "recorded_at_utc": recorded_at_utc,
++    }
++    if model_evaluated is not None:
++        record["model_evaluated"] = model_evaluated
++    if raw_delta is not None or model_evaluated is not None:
++        record["raw_delta"] = raw_delta
++    if with_snapshot:
++        record["game_snapshot"] = {
++            "second": second,
++            "server_timestamp": server_timestamp,
++            "phase": phase,
++            "paused": paused,
++            "radiant_nw_adv": radiant_nw - dire_nw,
++            "radiant_nw": radiant_nw,
++            "dire_nw": dire_nw,
++            "radiant_xp_adv": radiant_xp_adv,
++            "deaths_radiant": deaths_radiant,
++            "deaths_dire": deaths_dire,
++            "top": {
++                "top1_nw_adv": 500,
++                "radiant_top1_nw_ratio": 0.4,
++                "dire_top1_nw_ratio": 0.3,
++                "top3_nw_adv": 900,
++                "radiant_top3_nw_ratio": 0.6,
++                "dire_top3_nw_ratio": 0.5,
++            },
++        }
++    return record
++
++
++def oddin_player(
++    nickname: str,
++    net_worth: int,
++    deaths: int = 0,
++    *,
++    hero: str | None = "Kez",
++    kills: int | None = 0,
++    assists: int | None = 0,
++    alive: bool | None = True,
++    respawn: int | None = None,
++    aegis: bool | None = False,
++) -> dict[str, object]:
++    row: dict[str, object] = {
++        "player": {"nickname": nickname},
++        "netWorth": net_worth,
++        "deaths": deaths,
++    }
++    if hero is not None:
++        row["hero"] = {"name": hero}
++    if kills is not None:
++        row["kills"] = kills
++    if assists is not None:
++        row["assists"] = assists
++    if alive is not None:
++        row["alive"] = alive
++    if respawn is not None:
++        row["respawnTimer"] = respawn
++    if aegis is not None:
++        row["hasAegis"] = aegis
++    return row
++
++
++def oddin_five(prefix: str, base_nw: int, deaths_base: int = 0) -> list[dict[str, object]]:
++    return [
++        oddin_player(f"{prefix}{index}", base_nw + index, deaths_base + index) for index in range(5)
++    ]
++
++
++def oddin_side(name: str, faction: str, players: list[dict[str, object]]) -> dict[str, object]:
++    team_nw = sum(
++        int(player["netWorth"]) for player in players if isinstance(player["netWorth"], int)
++    )
++    return {
++        "team": {"name": name},
++        "faction": faction,
++        "kills": 3,
++        "netWorth": 0,
++        "netWorthNullable": team_nw,
++        "towers": 4,
++        "barracks": 1,
++        "barracksNullable": 1,
++        "roshans": 1,
++        "players": players,
++    }
++
++
++def oddin_payload(
++    *,
++    map_order: int = 1,
++    game_time: int = 998,
++    status: str = "LIVE",
++    data_status: str = "VALID_DATA",
++    paused: bool = False,
++    updated: str = ODDIN_UPDATED,
++    map_id: str = "map-1",
++    home_faction: str = "DIRE",
++    radiant_players: list[dict[str, object]] | None = None,
++    dire_players: list[dict[str, object]] | None = None,
++    home_score: int = 1,
++    away_score: int = 1,
++    previous: list[dict[str, object]] | None = None,
++) -> dict[str, object]:
++    radiant = radiant_players if radiant_players is not None else oddin_five("R", 5000, 0)
++    dire = dire_players if dire_players is not None else oddin_five("D", 7000, 1)
++    away_faction = "RADIANT" if home_faction == "DIRE" else "DIRE"
++    payload: dict[str, object] = {
++        "matchStatus": status,
++        "dataStatus": data_status,
++        "lastUpdatedAt": updated,
++        "mapPaused": paused,
++        "homeScore": home_score,
++        "awayScore": away_score,
++        "homeTeam": {"name": ODDIN_HOME},
++        "awayTeam": {"name": ODDIN_AWAY},
++        "currentMap": {
++            "id": map_id,
++            "mapOrder": map_order,
++            "gameTime": game_time,
++            "homeTeam": oddin_side(
++                ODDIN_HOME, home_faction, dire if home_faction == "DIRE" else radiant
++            ),
++            "awayTeam": oddin_side(
++                ODDIN_AWAY, away_faction, radiant if away_faction == "RADIANT" else dire
++            ),
++        },
++    }
++    if previous is not None:
++        payload["previousMaps"] = previous
++    return payload
++
++
++def make_entry(
++    archive_dir: Path,
++    *,
++    match_id: str,
++    game: str | None = "dota",
++    map_number: int | None = 1,
++    yes_is_radiant: bool | None = True,
++    radiant: str | None = DOTA_RADIANT,
++    dire: str | None = DOTA_DIRE,
++    outcome_0_name: str | None = None,
++    outcome_1_name: str | None = None,
++    record_only: bool = False,
++) -> ArchiveEntry:
++    return ArchiveEntry(
++        match_id=match_id,
++        archive_dir=archive_dir,
++        tree="test",
++        game=game,
++        slug=None,
++        event_slug=None,
++        joined_at_utc=None,
++        condition_id=f"cond-{match_id}",
++        yes_token=None,
++        no_token=None,
++        yes_is_radiant=yes_is_radiant,
++        radiant=radiant,
++        dire=dire,
++        map_number=map_number,
++        outcome_0_name=outcome_0_name if outcome_0_name is not None else radiant,
++        outcome_1_name=outcome_1_name if outcome_1_name is not None else dire,
++        finished=False,
++        cleanup_proven=False,
++        session_ended=False,
++        has_journal=True,
++        record_only=record_only,
++        on_tape=False,
++        last_write=None,
++        realized=None,
++        imv=None,
++        rebate=None,
++        net=None,
++        fill_count=None,
++        closed_observed_at=None,
++        last_decision=None,
++        params=None,
++    )
++
++
++def journal_path(archive_dir: Path) -> Path:
++    return archive_dir / SESSION_JOURNAL_FILENAME
++
++
++def grid_state_path(archive_dir: Path) -> Path:
++    return archive_dir / GRID_STATE_ARCHIVE_FILENAME
++
++
++def oddin_state_path(archive_dir: Path) -> Path:
++    return archive_dir / ODDIN_STATE_ARCHIVE_FILENAME
+diff --git a/tests/test_dashboard_game_state.py b/tests/test_dashboard_game_state.py
+new file mode 100644
+index 00000000..a6a0022c
+--- /dev/null
++++ b/tests/test_dashboard_game_state.py
+@@ -0,0 +1,1051 @@
++"""Dashboard game-state projection: decision slice + archive-derived slices."""
++
++import gzip
++import json
++import threading
++from collections.abc import Mapping
++from dataclasses import FrozenInstanceError
++from pathlib import Path
++from typing import cast
++
++import dashboard_game_fixtures as fx
++import grid_widget_fixtures as gwf
++import lol_grid_widget_fixtures as lwf
++import pytest
++
++from dashboard import game_grid, game_state
++from dashboard.game_state import GameStateReader, GameSummary
++from dashboard.tails import RecordTail, TailCache
++from trader.grid_widget_types import ScoreboardGame, ScoreboardPayload, TableRow
++from trader.paths import GRID_STATE_ARCHIVE_FILENAME
++from viewer import game_state_replay
++
++DOTA_RADIANT_NW = 23074 + 22479 + 22279 + 10884 + 8641
++DOTA_DIRE_NW = 30784 + 26369 + 14776 + 13263 + 26438
++DOTA_RADIANT_DEATHS = 4 + 4 + 5 + 6 + 5
++DOTA_DIRE_DEATHS = 3 + 4 + 5 + 7 + 3
++DOTA_TABLE_SECOND = 2647 + 2 - 8
++ODDIN_RADIANT_NW = sum(5000 + i for i in range(5))
++ODDIN_DIRE_NW = sum(7000 + i for i in range(5))
++ODDIN_RADIANT_DEATHS = sum(range(5))
++ODDIN_DIRE_DEATHS = sum(i + 1 for i in range(5))
++
++
++def _reader() -> GameStateReader:
++    return GameStateReader(TailCache())
++
++
++def _grid_archive(
++    tmp_path: Path,
++    name: str = "m1",
++    *,
++    journal: list[dict[str, object]] | None = None,
++    feed: list[dict[str, object]] | None = None,
++) -> Path:
++    archive = tmp_path / name
++    fx.write_meta(archive, match_id=name)
++    if journal is not None:
++        fx.write_lines(fx.journal_path(archive), journal)
++    if feed is not None:
++        fx.write_lines(archive / GRID_STATE_ARCHIVE_FILENAME, feed)
++    return archive
++
++
++def _dota_board_frame(
++    *,
++    seconds: int = 2647,
++    ticking: bool = True,
++    status: str = "live",
++    occurred: str = fx.GRID_BOARD_AT,
++    active_index: int = 0,
++    kills_0: int = 22,
++    kills_1: int = 24,
++    extra_game: bool = False,
++) -> str:
++    board = cast(ScoreboardPayload, json.loads(json.dumps(gwf.SCOREBOARD)))
++    board["activeGameIndex"] = active_index
++    game = board["games"][0]
++    game["status"] = status
++    game["teams"][0]["score"] = kills_1
++    game["teams"][1]["score"] = kills_0
++    game["gameClock"]["currentSeconds"] = seconds
++    game["gameClock"]["isTicking"] = ticking
++    game["gameClock"]["occurredAt"] = occurred
++    if extra_game:
++        second_game = cast(ScoreboardGame, json.loads(json.dumps(game)))
++        second_game["status"] = "live"
++        second_game["teams"][0]["score"] = 0
++        second_game["teams"][1]["score"] = 0
++        second_game["gameClock"]["currentSeconds"] = 10
++        board["games"].append(second_game)
++    return gwf.wrap("series_scoreboard_v2", 0, board)
++
++
++def _dota_table_frame(
++    *, sequence: int = 1, delay: int = 8, rows: list[TableRow] | None = None
++) -> str:
++    table = gwf.copy_series_table()
++    table["stateGroups"][1]["states"][0]["sequenceNumber"] = sequence
++    if rows is not None:
++        gwf.table_rows(table)[:] = rows
++    return gwf.wrap("series_table", delay, table)
++
++
++def _dota_signal(
++    *,
++    second: int = DOTA_TABLE_SECOND,
++    feed_source: str = "grid",
++    feed_received_at_utc: str = fx.GRID_TABLE_AT,
++    recorded_at_utc: str = "2026-08-24T11:07:56.000Z",
++    phase: str = "in_progress",
++    paused: bool = False,
++    radiant_nw: int = DOTA_RADIANT_NW,
++    dire_nw: int = DOTA_DIRE_NW,
++    radiant_xp_adv: int = 1200,
++    deaths_radiant: int = DOTA_RADIANT_DEATHS,
++    deaths_dire: int = DOTA_DIRE_DEATHS,
++    model_evaluated: bool | None = True,
++    raw_delta: float | None = 0.05,
++    reason: str = "model",
++    entry_block: str = "none",
++    with_snapshot: bool = True,
++) -> dict[str, object]:
++    return fx.signal_record(
++        second=second,
++        feed_source=feed_source,
++        feed_received_at_utc=feed_received_at_utc,
++        recorded_at_utc=recorded_at_utc,
++        phase=phase,
++        paused=paused,
++        radiant_nw=radiant_nw,
++        dire_nw=dire_nw,
++        radiant_xp_adv=radiant_xp_adv,
++        deaths_radiant=deaths_radiant,
++        deaths_dire=deaths_dire,
++        model_evaluated=model_evaluated,
++        raw_delta=raw_delta,
++        reason=reason,
++        entry_block=entry_block,
++        with_snapshot=with_snapshot,
++    )
++
++
++def _dota_feed(
++    *,
++    board_at: str = fx.GRID_BOARD_AT,
++    table_at: str = fx.GRID_TABLE_AT,
++    board: str | None = None,
++    table: str | None = None,
++) -> list[dict[str, object]]:
++    return [
++        fx.grid_record(board or _dota_board_frame(), board_at),
++        fx.grid_record(table or _dota_table_frame(), table_at),
++    ]
++
++
++def _oddin_archive(
++    tmp_path: Path,
++    name: str = "m2",
++    *,
++    journal: list[dict[str, object]] | None = None,
++    feed: list[dict[str, object]] | None = None,
++) -> Path:
++    archive = tmp_path / name
++    fx.write_meta(
++        archive,
++        match_id=name,
++        feed_source="oddin",
++        radiant=fx.ODDIN_AWAY,
++        dire=fx.ODDIN_HOME,
++    )
++    if journal is not None:
++        fx.write_lines(fx.journal_path(archive), journal)
++    if feed is not None:
++        fx.write_lines(fx.oddin_state_path(archive), feed)
++    return archive
++
++
++def _oddin_signal(
++    *,
++    second: int = 998,
++    feed_source: str = "oddin",
++    feed_received_at_utc: str = fx.ODDIN_WS_AT,
++    recorded_at_utc: str = "2026-09-19T16:57:50.100Z",
++    phase: str = "in_progress",
++    paused: bool = False,
++    radiant_nw: int = ODDIN_RADIANT_NW,
++    dire_nw: int = ODDIN_DIRE_NW,
++    radiant_xp_adv: int = 0,
++    deaths_radiant: int = ODDIN_RADIANT_DEATHS,
++    deaths_dire: int = ODDIN_DIRE_DEATHS,
++    model_evaluated: bool | None = True,
++    raw_delta: float | None = 0.05,
++    reason: str = "model",
++    entry_block: str = "none",
++    with_snapshot: bool = True,
++) -> dict[str, object]:
++    return fx.signal_record(
++        second=second,
++        feed_source=feed_source,
++        feed_received_at_utc=feed_received_at_utc,
++        recorded_at_utc=recorded_at_utc,
++        phase=phase,
++        paused=paused,
++        radiant_nw=radiant_nw,
++        dire_nw=dire_nw,
++        radiant_xp_adv=radiant_xp_adv,
++        deaths_radiant=deaths_radiant,
++        deaths_dire=deaths_dire,
++        model_evaluated=model_evaluated,
++        raw_delta=raw_delta,
++        reason=reason,
++        entry_block=entry_block,
++        with_snapshot=with_snapshot,
++    )
++
++
++def _oddin_feed(*records: dict[str, object]) -> list[dict[str, object]]:
++    return list(records)
++
++
++def test_grid_dota_aligned_decision_board_table(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal()],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    decision = summary.decision
++    assert decision.provenance == "signal"
++    assert decision.second == DOTA_TABLE_SECOND
++    assert decision.radiant_nw == DOTA_RADIANT_NW
++    assert decision.dire_nw == DOTA_DIRE_NW
++    assert decision.deaths_radiant == DOTA_RADIANT_DEATHS
++    assert decision.deaths_dire == DOTA_DIRE_DEATHS
++    assert decision.model_evaluated is True
++    assert decision.raw_delta == 0.05
++    assert decision.feed_source == "grid"
++    assert decision.feed_received_at_utc == fx.GRID_TABLE_AT
++    assert decision.phase == "in_progress"
++    assert decision.paused is False
++    assert decision.xp_status == "available"
++    assert decision.radiant_xp_adv == 1200
++    assert decision.top is not None and decision.top.top1_nw_adv == 500
++    board = summary.board
++    assert board is not None
++    assert board.second == 2647
++    assert board.clock_ticking is True
++    assert board.paused is False
++    assert board.status == "live"
++    assert board.kills_0 == 22
++    assert board.kills_1 == 24
++    assert board.series == game_state.SeriesScore(
++        name_0="Team Lynx", name_1="Klim Sani4", score_0=0, score_1=1
++    )
++    assert board.received_at_utc == fx.GRID_BOARD_AT
++    assert board.updated_at == "2026-08-24T11:07:52.653Z"
++    table = summary.table
++    assert table is not None
++    assert table.second == DOTA_TABLE_SECOND
++    assert table.second_reconstructed is True
++    assert table.received_at_utc == fx.GRID_TABLE_AT
++    assert table.feed_delay == 8
++    side_0 = table.side_0
++    side_1 = table.side_1
++    assert side_0.label == "Radiant"
++    assert side_0.team_name == "Team Lynx"
++    assert side_0.gold == DOTA_RADIANT_NW
++    assert side_0.complete is True
++    assert [p.nick for p in side_0.players] == [
++        "naive-",
++        "mellojul",
++        "htiviy_vladik",
++        "QBFY",
++        "kreker",
++    ]
++    assert side_0.players[0].hero == "juggernaut"
++    assert side_0.players[0].level == 20
++    assert side_0.players[0].net_worth == 23074
++    assert side_1.label == "Dire"
++    assert side_1.team_name == "Klim Sani4"
++    assert side_1.gold == DOTA_DIRE_NW
++    assert summary.source.comparison == "aligned"
++    assert summary.source.continuity == "cold"
++    assert summary.identity.yes_is_side_0 is True
++    assert summary.decision_label == "игровой снимок решения"
++    assert summary.archive_label == "данные игры"
++
++
++def test_grid_board_and_table_age_independently(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal()],
++        feed=[
++            *_dota_feed(),
++            fx.grid_record(_dota_board_frame(seconds=3000), fx.GRID_NEXT_AT),
++        ],
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.board is not None
++    assert summary.board.received_at_utc == fx.GRID_NEXT_AT
++    assert summary.board.second == 3000
++    assert summary.table is not None
++    assert summary.table.received_at_utc == fx.GRID_TABLE_AT
++    assert summary.table.second == DOTA_TABLE_SECOND
++
++
++def test_grid_new_table_does_not_renew_board(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal()],
++        feed=[
++            fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++            fx.grid_record(_dota_table_frame(), fx.GRID_TABLE_AT),
++        ],
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    reader = _reader()
++    first = reader.read(entry, 0.0)
++    assert first.table is not None
++    rows2 = gwf.table_rows(gwf.copy_series_table())
++    cell = rows2[0]["NetWorth"]
++    cell["value"] = (cell["value"] or 0) + 200
++    feed = [
++        fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++        fx.grid_record(_dota_table_frame(rows=rows2), fx.GRID_NEXT_AT),
++    ]
++    fx.write_lines(fx.grid_state_path(archive), feed)
++    second = reader.read(entry, 1.0)
++    assert second.table is not None
++    assert second.table.received_at_utc == fx.GRID_NEXT_AT
++    assert second.board is not None
++    assert second.board.received_at_utc == fx.GRID_BOARD_AT
++
++
++def test_grid_duplicate_table_keeps_original_receipt(tmp_path: Path) -> None:
++    feed = [
++        *_dota_feed(),
++        fx.grid_record(_dota_table_frame(), fx.GRID_NEXT_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.received_at_utc == fx.GRID_TABLE_AT
++
++
++def test_grid_portraitless_substitute_keeps_roster(tmp_path: Path) -> None:
++    table = gwf.table_with_extra_row(gwf.make_portraitless_row(gwf.KLIM, "coach", 0))
++    frame = gwf.wrap("series_table", 8, table)
++    feed = [
++        fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++        fx.grid_record(frame, fx.GRID_TABLE_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert len(summary.table.side_1.players) == 5
++    assert summary.table.side_1.complete is True
++
++
++def test_grid_extra_portrait_row_rejected(tmp_path: Path) -> None:
++    table = gwf.table_with_extra_row(gwf.make_row(gwf.KLIM, "sixth", "axe", 100, 0, 0, 0, 5))
++    frame = gwf.wrap("series_table", 8, table)
++    feed = [
++        fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++        fx.grid_record(frame, fx.GRID_TABLE_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is None
++    assert summary.source.rejected == 1
++    assert "incomplete roster" in summary.source.control
++
++
++def test_grid_foreign_map_table_rejected(tmp_path: Path) -> None:
++    feed = [
++        fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++        fx.grid_record(_dota_table_frame(sequence=2), fx.GRID_TABLE_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is None
++    assert summary.source.rejected == 1
++    assert "table for map 2" in summary.source.control
++
++
++def test_grid_table_before_board_rejected(tmp_path: Path) -> None:
++    feed = [
++        fx.grid_record(_dota_table_frame(), fx.GRID_TABLE_AT),
++        fx.grid_record(_dota_board_frame(), fx.GRID_NEXT_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.board is not None
++    assert summary.table is None
++    assert summary.source.rejected == 1
++
++
++def test_grid_table_rejected_after_active_map_moved(tmp_path: Path) -> None:
++    feed = [
++        fx.grid_record(_dota_board_frame(active_index=1, extra_game=True), fx.GRID_BOARD_AT),
++        fx.grid_record(_dota_table_frame(), fx.GRID_TABLE_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is None
++    assert "table while other map active" in summary.source.control
++
++
++def test_grid_feed_gone_is_terminal_evidence(tmp_path: Path) -> None:
++    feed = [
++        *_dota_feed(),
++        fx.grid_record(
++            '{"service":"live_paper_feed_gone","delay":0,"data":[]}',
++            fx.GRID_NEXT_AT,
++        ),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.terminal is True
++    assert any("feed gone" in note for note in summary.source.control)
++    assert summary.table is not None
++    assert summary.board is not None
++
++
++def test_grid_finished_board_is_terminal(tmp_path: Path) -> None:
++    feed = _dota_feed(board=_dota_board_frame(status="finished", ticking=False))
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.board is not None
++    assert summary.board.status == "finished"
++    assert summary.board.paused is True
++    assert summary.source.terminal is True
++
++
++def test_grid_paused_clock_stays_fixed(tmp_path: Path) -> None:
++    feed = _dota_feed(board=_dota_board_frame(seconds=1500, ticking=False))
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    reader = _reader()
++    first = reader.read(entry, 0.0)
++    later = reader.read(entry, 500.0)
++    assert first.board is not None and first.board.second == 1500
++    assert first.board.paused is True
++    assert later is first
++
++
++def test_grid_missing_level_cells_leave_level_unknown(tmp_path: Path) -> None:
++    rows = gwf.table_rows(gwf.copy_series_table())
++    for row in rows:
++        del row["increaseLevel"]
++    feed = [
++        fx.grid_record(_dota_board_frame(), fx.GRID_BOARD_AT),
++        fx.grid_record(_dota_table_frame(rows=rows), fx.GRID_TABLE_AT),
++    ]
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert all(p.level is None for p in summary.table.side_0.players)
++
++
++def test_grid_orientation_conflict_noted(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1", yes_is_radiant=False)
++    summary = _reader().read(entry, 0.0)
++    assert "board orientation conflicts saved yes_is_radiant" in summary.source.evidence
++
++
++def test_lol_grid_map2_blue_red_uuid_heroes(tmp_path: Path) -> None:
++    archive = tmp_path / "lol1"
++    fx.write_meta(
++        archive,
++        match_id="lol1",
++        game="lol",
++        map_number=2,
++        yes_is_radiant=False,
++        radiant=fx.LOL_BLUE,
++        dire=fx.LOL_RED,
++    )
++    signal = fx.signal_record(
++        second=145,
++        feed_source="grid",
++        feed_received_at_utc="2026-08-29T18:17:50.000Z",
++        radiant_nw=776 + 620 + 910 + 862 + 602,
++        dire_nw=829 + 836 + 904 + 1013 + 708,
++        deaths_radiant=0,
++        deaths_dire=0,
++    )
++    fx.write_lines(fx.journal_path(archive), [signal])
++    feed = [
++        fx.grid_record(
++            lwf.wrap("series_scoreboard_v2", 0, lwf.LEC_SCOREBOARD, lwf.LEC_SERIES_ID),
++            "2026-08-29T18:17:46.000Z",
++        ),
++        fx.grid_record(
++            lwf.wrap("series_table", 4, lwf.LEC_SERIES_TABLE, lwf.LEC_SERIES_ID),
++            "2026-08-29T18:17:50.000Z",
++        ),
++    ]
++    fx.write_lines(fx.grid_state_path(archive), feed)
++    entry = fx.make_entry(
++        archive,
++        match_id="lol1",
++        game="lol",
++        map_number=2,
++        yes_is_radiant=False,
++        radiant=fx.LOL_BLUE,
++        dire=fx.LOL_RED,
++        outcome_0_name=fx.LOL_RED,
++        outcome_1_name=fx.LOL_BLUE,
++    )
++    summary = _reader().read(entry, 0.0)
++    board = summary.board
++    assert board is not None
++    assert board.status == "live"
++    assert board.kills_0 == 0
++    assert board.kills_1 == 0
++    assert board.series == game_state.SeriesScore(
++        name_0="GIANTX", name_1="Natus Vincere", score_0=0, score_1=1
++    )
++    table = summary.table
++    assert table is not None
++    assert table.side_0.label == "Blue"
++    assert table.side_0.team_name == "GIANTX"
++    assert table.side_1.label == "Red"
++    assert table.side_1.team_name == "Natus Vincere"
++    assert all(p.hero is None for p in table.side_0.players + table.side_1.players)
++    nicks = [p.nick for p in table.side_0.players]
++    assert nicks == ["Jackies", "TH Flakked", "ISMA", "Oscarinin", "Jun"]
++    assert table.side_0.players[-1].level is None
++    assert summary.identity.yes_is_side_0 is False
++    assert summary.source.comparison == "aligned"
++
++
++def test_lol_finished_map_shows_board_rejects_map2_table(tmp_path: Path) -> None:
++    archive = tmp_path / "lol2"
++    fx.write_meta(
++        archive,
++        match_id="lol2",
++        game="lol",
++        map_number=1,
++        radiant=fx.LOL_BLUE,
++        dire=fx.LOL_RED,
++    )
++    fx.write_lines(
++        fx.journal_path(archive),
++        [_oddin_signal(feed_source="grid", feed_received_at_utc="2026-08-29T18:17:50.000Z")],
++    )
++    feed = [
++        fx.grid_record(
++            lwf.wrap("series_scoreboard_v2", 0, lwf.LEC_SCOREBOARD, lwf.LEC_SERIES_ID),
++            "2026-08-29T18:17:46.000Z",
++        ),
++        fx.grid_record(
++            lwf.wrap("series_table", 4, lwf.LEC_SERIES_TABLE, lwf.LEC_SERIES_ID),
++            "2026-08-29T18:17:50.000Z",
++        ),
++    ]
++    fx.write_lines(fx.grid_state_path(archive), feed)
++    entry = fx.make_entry(
++        archive,
++        match_id="lol2",
++        game="lol",
++        map_number=1,
++        radiant=fx.LOL_BLUE,
++        dire=fx.LOL_RED,
++        outcome_0_name=fx.LOL_RED,
++        outcome_1_name=fx.LOL_BLUE,
++    )
++    summary = _reader().read(entry, 0.0)
++    assert summary.board is not None
++    assert summary.board.status == "finished"
++    assert summary.board.second == 1999
++    assert summary.table is None
++    assert summary.source.terminal is True
++
++
++def test_oddin_home_dire_factions_and_no_xp(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(fx.oddin_payload(), "2026-09-19T16:57:49.000000Z", event="snapshot"),
++        fx.oddin_record(fx.oddin_payload(), fx.ODDIN_WS_AT),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2", radiant=None, dire=None)
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.xp_status == "not_used"
++    assert summary.decision.xp_text == "не используется этой моделью"
++    assert summary.decision.radiant_xp_adv is None
++    board = summary.board
++    assert board is not None
++    assert board.series is not None
++    assert board.series.name_0 == "LGD Gaming"
++    assert board.series.name_1 == "Yakult's Brothers"
++    assert board.series.score_0 == 1
++    assert board.series.score_1 == 1
++    assert board.updated_at == fx.ODDIN_UPDATED
++    table = summary.table
++    assert table is not None
++    assert table.side_0.team_name == "Yakult's Brothers"
++    assert table.side_1.team_name == "LGD Gaming"
++    assert [p.nick for p in table.side_0.players] == [f"R{i}" for i in range(5)]
++    assert [p.nick for p in table.side_1.players] == [f"D{i}" for i in range(5)]
++    assert table.side_0.gold == ODDIN_RADIANT_NW
++    assert table.side_1.gold == ODDIN_DIRE_NW
++    assert table.objectives_0 == game_state.Objectives(towers=4, barracks=1, roshans=1)
++    assert table.side_0.players[0].alive is True
++    assert table.side_0.players[0].aegis is False
++    assert table.side_0.players[0].level is None
++    assert summary.source.comparison == "aligned"
++    assert any("seed" in note for note in summary.source.control)
++    assert summary.identity.team_0 == "Yakult's Brothers"
++
++
++def test_oddin_reconnect_then_duplicate_rejected(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(fx.oddin_payload(), "2026-09-19T16:57:50.000000Z"),
++        fx.oddin_record(None, "2026-09-19T16:57:50.500000Z", event="reconnect"),
++        fx.oddin_record(fx.oddin_payload(), "2026-09-19T16:57:51.000000Z"),
++        fx.oddin_record(
++            fx.oddin_payload(game_time=1004, updated=fx.ODDIN_UPDATED_NEXT),
++            "2026-09-19T16:57:52.000000Z",
++        ),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.second == 1004
++    assert any("reconnect" in note for note in summary.source.control)
++    assert summary.source.rejected == 1
++
++
++def test_oddin_out_of_order_rejected(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(
++            fx.oddin_payload(game_time=1004, updated=fx.ODDIN_UPDATED_NEXT),
++            "2026-09-19T16:57:51.000000Z",
++        ),
++        fx.oddin_record(fx.oddin_payload(), "2026-09-19T16:57:52.000000Z"),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.second == 1004
++    assert summary.source.rejected == 1
++
++
++def test_oddin_invalid_data_rejected(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(
++            fx.oddin_payload(data_status="DELAYED_DATA"), "2026-09-19T16:57:49.000000Z"
++        ),
++        fx.oddin_record(fx.oddin_payload(), fx.ODDIN_WS_AT),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.second == 998
++    assert summary.source.rejected == 1
++
++
++def test_oddin_terminal_keeps_live_slice(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(fx.oddin_payload(), fx.ODDIN_WS_AT),
++        fx.oddin_record(fx.oddin_payload(status="FINISHED"), "2026-09-19T16:57:51.000000Z"),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.terminal is True
++    assert summary.table is not None
++    assert summary.table.second == 998
++    assert summary.table.side_0.gold == ODDIN_RADIANT_NW
++    assert any("terminal" in note for note in summary.source.control)
++
++
++def test_oddin_next_map_is_terminal_not_players(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(fx.oddin_payload(), fx.ODDIN_WS_AT),
++        fx.oddin_record(
++            fx.oddin_payload(
++                map_order=2,
++                map_id="map-2",
++                game_time=-30,
++                radiant_players=fx.oddin_five("N", 100),
++            ),
++            "2026-09-19T16:57:51.000000Z",
++        ),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.terminal is True
++    assert summary.table is not None
++    assert [p.nick for p in summary.table.side_0.players] == [f"R{i}" for i in range(5)]
++
++
++def test_oddin_incomplete_side_rejected(tmp_path: Path) -> None:
++    feed = _oddin_feed(
++        fx.oddin_record(
++            fx.oddin_payload(radiant_players=fx.oddin_five("R", 5000)[:4]),
++            fx.ODDIN_WS_AT,
++        ),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is None
++    assert summary.source.rejected == 1
++
++
++def test_oddin_missing_fields_stay_none_zeros_survive(tmp_path: Path) -> None:
++    players = fx.oddin_five("R", 5000)
++    players[0] = fx.oddin_player("R0", 5000, 0, hero=None, alive=None, aegis=None)
++    players[1] = fx.oddin_player("R1", 5001, 0, kills=0, aegis=False)
++    feed = _oddin_feed(
++        fx.oddin_record(fx.oddin_payload(radiant_players=players), fx.ODDIN_WS_AT),
++    )
++    archive = _oddin_archive(tmp_path, journal=[_oddin_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m2")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    first = summary.table.side_0.players[0]
++    second = summary.table.side_0.players[1]
++    assert first.hero is None
++    assert first.alive is None
++    assert first.aegis is None
++    assert first.net_worth == 5000
++    assert second.kills == 0
++    assert second.aegis is False
++
++
++def test_legacy_signal_projection(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal(with_snapshot=False)],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    decision = summary.decision
++    assert decision.provenance == "legacy"
++    assert decision.second == DOTA_TABLE_SECOND
++    assert decision.radiant_nw is None
++    assert decision.xp_status == "unknown"
++    assert "missing game_snapshot" in decision.notes
++    assert summary.source.comparison == "unknown"
++
++
++def test_no_journal_decision_only(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1", record_only=True)
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.provenance == "none"
++    assert "journal unavailable" in summary.source.evidence
++    assert summary.board is not None
++    assert summary.table is not None
++    assert summary.source.comparison == "unknown"
++
++
++def test_unevaluated_signal_hides_residual_delta(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[
++            _dota_signal(model_evaluated=False, raw_delta=0.5, reason="cooldown"),
++        ],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.model_evaluated is False
++    assert summary.decision.raw_delta is None
++    assert summary.decision.reason == "cooldown"
++
++
++def test_missing_model_evaluated_is_unknown(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal(model_evaluated=None, raw_delta=None)],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.model_evaluated is None
++    assert summary.decision.raw_delta is None
++
++
++def test_terminal_signal_zeros_preserved(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[
++            _dota_signal(
++                second=2900,
++                phase="finished",
++                radiant_nw=0,
++                dire_nw=0,
++                radiant_xp_adv=0,
++                deaths_radiant=0,
++                deaths_dire=0,
++                reason="finished",
++            )
++        ],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.phase == "finished"
++    assert summary.decision.radiant_nw == 0
++    assert summary.decision.dire_nw == 0
++    assert summary.decision.model_evaluated is True
++    assert summary.decision.raw_delta == 0.05
++
++
++def test_signal_ahead_of_archive_is_different(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal(feed_received_at_utc=fx.GRID_NEXT_AT)],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.comparison == "different"
++    assert summary.table is not None
++    assert summary.decision.feed_received_at_utc == fx.GRID_NEXT_AT
++
++
++def test_archive_ahead_of_signal_is_different(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal(feed_received_at_utc="2026-08-24T11:07:54.000Z")],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.comparison == "different"
++
++
++def test_mismatched_values_is_different(tmp_path: Path) -> None:
++    archive = _grid_archive(
++        tmp_path,
++        journal=[_dota_signal(radiant_nw=1, dire_nw=2, deaths_radiant=0, deaths_dire=0)],
++        feed=_dota_feed(),
++    )
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.source.comparison == "different"
++
++
++def test_unsupported_source_keeps_decision_only(tmp_path: Path) -> None:
++    archive = tmp_path / "steam1"
++    fx.write_meta(archive, match_id="steam1", feed_source="steam")
++    fx.write_lines(
++        fx.journal_path(archive),
++        [_dota_signal(feed_source="steam")],
++    )
++    entry = fx.make_entry(archive, match_id="steam1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.decision.provenance == "signal"
++    assert summary.board is None
++    assert summary.table is None
++    assert summary.identity.source == "steam"
++    assert any("unsupported feed source" in e for e in summary.source.evidence)
++
++
++def test_bounded_tail_stays_bounded(tmp_path: Path) -> None:
++    feed = [
++        fx.grid_record(
++            _dota_board_frame(seconds=100 + i),
++            f"2026-08-24T11:{i // 60:02d}:{i % 60:02d}.000Z",
++        )
++        for i in range(600)
++    ]
++    feed.append(fx.grid_record(_dota_table_frame(), fx.GRID_TABLE_AT))
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=feed)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    tails = TailCache()
++    tail = tails.read_records(fx.grid_state_path(archive))
++    assert tail is not None
++    assert tail.truncated_start is True
++    assert len(tail.records) <= 512
++    assert summary.board is not None
++    assert summary.table is not None
++    assert "feed tail truncated" in summary.source.evidence
++
++
++def test_unchanged_scan_skips_parse(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    calls = 0
++    original = TailCache._read_resolved  # pyright: ignore[reportPrivateUsage]
++
++    def spy(self: TailCache, resolved: Path, mtime_ns: int, size: int) -> RecordTail:
++        nonlocal calls
++        calls += 1
++        return original(self, resolved, mtime_ns, size)
++
++    monkeypatch.setattr(TailCache, "_read_resolved", spy)
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1")
++    tails = TailCache()
++    reader = GameStateReader(tails)
++    first = reader.read(entry, 0.0)
++    journal_calls = calls
++    second = reader.read(entry, 1.0)
++    assert calls == journal_calls
++    assert second is first
++
++
++def test_changed_tail_reduced_once_for_two_callers(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    applies = 0
++    original = game_grid.GridFold.apply
++
++    def spy(self: game_grid.GridFold, record: Mapping[str, object]) -> None:
++        nonlocal applies
++        applies += 1
++        original(self, record)
++
++    monkeypatch.setattr(game_grid.GridFold, "apply", spy)
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1")
++    reader = _reader()
++    results: list[GameSummary] = []
++
++    def work() -> None:
++        results.append(reader.read(entry, 0.0))
++
++    threads = [threading.Thread(target=work) for _ in range(2)]
++    for thread in threads:
++        thread.start()
++    for thread in threads:
++        thread.join()
++    assert applies == 2
++    assert results[0] is results[1]
++
++
++def test_gzip_tail(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()])
++    records = _dota_feed()
++    payload = "".join(json.dumps(record) + "\n" for record in records)
++    gz_path = fx.grid_state_path(archive).with_name(fx.grid_state_path(archive).name + ".gz")
++    with gzip.open(gz_path, "wt") as handle:
++        handle.write(payload)
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.side_0.complete is True
++    assert summary.table.archive_path == gz_path
++
++
++def test_torn_tail_keeps_last_valid(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    path = fx.grid_state_path(archive)
++    with path.open("a", encoding="utf-8") as handle:
++        handle.write('{"received_at_utc": "2026-08-24T11:08:01.000Z", "frame": "{\\"ser')
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    assert summary.table.received_at_utc == fx.GRID_TABLE_AT
++
++
++def test_same_match_id_two_roots_no_leak(tmp_path: Path) -> None:
++    a = _grid_archive(tmp_path, "same", journal=[_dota_signal()], feed=_dota_feed())
++    b_root = tmp_path / "other"
++    b = b_root / "same"
++    fx.write_meta(b, match_id="same")
++    fx.write_lines(fx.journal_path(b), [_oddin_signal(feed_source="grid")])
++    reader = _reader()
++    entry_a = fx.make_entry(a, match_id="same")
++    entry_b = fx.make_entry(b, match_id="same")
++    summary_a = reader.read(entry_a, 0.0)
++    summary_b = reader.read(entry_b, 0.0)
++    assert summary_a.table is not None
++    assert summary_b.table is None
++    assert summary_a.identity.archive_dir == a
++    assert summary_b.identity.archive_dir == b
++
++
++def test_file_replaced_reconstructs(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1")
++    reader = _reader()
++    first = reader.read(entry, 0.0)
++    assert first.source.continuity == "cold"
++    fx.write_lines(
++        fx.grid_state_path(archive),
++        [fx.grid_record(_dota_table_frame(), fx.GRID_TABLE_AT)],
++    )
++    second = reader.read(entry, 1.0)
++    assert second.source.continuity == "reconstructed"
++    assert second.table is None
++
++
++def test_reader_eviction_rebuilds_state(tmp_path: Path) -> None:
++    a = _grid_archive(tmp_path, "a", journal=[_dota_signal()], feed=_dota_feed())
++    b = _grid_archive(tmp_path, "b", journal=[_dota_signal()], feed=_dota_feed())
++    reader = GameStateReader(TailCache(), max_states=1)
++    entry_a = fx.make_entry(a, match_id="a")
++    entry_b = fx.make_entry(b, match_id="b")
++    first_a = reader.read(entry_a, 0.0)
++    reader.read(entry_b, 1.0)
++    second_a = reader.read(entry_a, 2.0)
++    assert first_a.table is not None
++    assert second_a.table is not None
++    assert second_a.source.continuity == "cold"
++
++
++def test_read_only_selected_archive(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    a = _grid_archive(tmp_path, "a", journal=[_dota_signal()], feed=_dota_feed())
++    b = _grid_archive(tmp_path, "b", journal=[_dota_signal()], feed=_dota_feed())
++    touched: list[Path] = []
++    tails = TailCache()
++    original = tails.read_records
++
++    def spy(path: Path) -> RecordTail | None:
++        touched.append(path)
++        return original(path)
++
++    monkeypatch.setattr(tails, "read_records", spy)
++    reader = GameStateReader(tails)
++    entry_a = fx.make_entry(a, match_id="a")
++    reader.read(entry_a, 0.0)
++    assert all(str(path).startswith(str(a)) for path in touched)
++    assert not any(str(path).startswith(str(b)) for path in touched)
++
++
++def test_no_full_replay_on_fast_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    def raiser(*args: object, **kwargs: object) -> None:
++        raise AssertionError("full replay on fast path")
++
++    monkeypatch.setattr(game_state_replay, "load_live_replay", raiser)
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++
++
++def test_summary_is_immutable(tmp_path: Path) -> None:
++    archive = _grid_archive(tmp_path, journal=[_dota_signal()], feed=_dota_feed())
++    entry = fx.make_entry(archive, match_id="m1")
++    summary = _reader().read(entry, 0.0)
++    assert summary.table is not None
++    with pytest.raises(FrozenInstanceError):
++        summary.decision.second = 1  # type: ignore[misc]
++    assert isinstance(summary.decision.notes, tuple)
++    assert isinstance(summary.table.side_0.players, tuple)
++    player = summary.table.side_0.players[0]
++    with pytest.raises(FrozenInstanceError):
++        player.net_worth = 1  # type: ignore[misc]

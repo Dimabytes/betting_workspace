@@ -1,0 +1,4746 @@
+diff --git a/.streamlit/config.toml b/.streamlit/config.toml
+new file mode 100644
+index 00000000..06bd28ec
+--- /dev/null
++++ b/.streamlit/config.toml
+@@ -0,0 +1,27 @@
++[server]
++address = "127.0.0.1"
++port = 8501
++headless = true
++
++[browser]
++gatherUsageStats = false
++
++[theme]
++base = "dark"
++primaryColor = "#4F9D7E"
++backgroundColor = "#17212C"
++secondaryBackgroundColor = "#1F2B38"
++textColor = "#E6EAEE"
++font = "Barlow Semi Condensed, sans-serif"
++
++[[theme.fontFaces]]
++family = "Barlow Semi Condensed"
++url = "https://cdn.jsdelivr.net/fontsource/fonts/barlow-semi-condensed@latest/latin-400-normal.woff2"
++weight = "400"
++style = "normal"
++
++[[theme.fontFaces]]
++family = "Barlow Semi Condensed"
++url = "https://cdn.jsdelivr.net/fontsource/fonts/barlow-semi-condensed@latest/latin-600-normal.woff2"
++weight = "600"
++style = "normal"
+diff --git a/Makefile b/Makefile
+index 352f73e6..7e52bb1f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -11,7 +11,7 @@ BACKTEST_FRAMEWORK_COMMIT ?= c76e77af00ef53472a9da8f66dae7fdd2d3e5928
+ .PHONY: help install lock test lint lint-all collect collect-dry-run catalog \
+         universe link link-archive link-report grid opendota prices stratz run trader \
+         parity backtest-install backtest lol-backtest promote-backtest inspect-backtest \
+-        inspect-live market-data prepare train \
++        inspect-live market-data prepare train dashboard \
+         lol-universe lol-link lol-fetch lol-compact-windows lol-prepare lol-train lol-collect
+ 
+ help:  ## Show this help
+@@ -142,3 +142,6 @@ inspect-backtest:  ## Streamlit backtest match inspector
+ 
+ inspect-live:  ## Streamlit live match inspector
+ 	PYTHONPATH=src uv run --group backtest streamlit run src/viewer/live_app.py
++
++dashboard:  ## Read-only live trader dashboard on 127.0.0.1:8501
++	PYTHONPATH=src nice -n 10 uv run --group dashboard streamlit run src/dashboard/app.py
+diff --git a/pyproject.toml b/pyproject.toml
+index 3f555b0c..d9fb9e45 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -50,6 +50,10 @@ backtest = [
+     "python-dotenv>=1.0.0",
+     "streamlit>=1.30.0",
+ ]
++dashboard = [
++    "plotly>=5.0.0",
++    "streamlit>=1.63.0",
++]
+ 
+ [tool.pytest.ini_options]
+ testpaths = ["tests"]
+diff --git a/src/dashboard/app.py b/src/dashboard/app.py
+new file mode 100644
+index 00000000..4077c319
+--- /dev/null
++++ b/src/dashboard/app.py
+@@ -0,0 +1,71 @@
++"""Read-only Streamlit home screen over the process-wide LiveHub."""
++
++import sys
++import time
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++
++import streamlit as st
++
++from dashboard import home
++from dashboard.home import (
++    SellWatcher,
++    build_diagnostics,
++    build_lists,
++    build_strip,
++    find_match,
++)
++from dashboard.home_view import render_diagnostics, render_lists, render_strip
++from dashboard.live_hub import LiveHub, get_live_hub
++
++if __name__ == "__main__":
++    st.set_page_config(page_title="esports-trader", layout="wide")
++
++
++@st.cache_resource(on_release=lambda hub: hub.close())
++def _hub() -> LiveHub:
++    return get_live_hub()
++
++
++@st.cache_resource
++def _sell_watcher() -> SellWatcher:
++    return SellWatcher()
++
++
++@st.fragment(run_every=1)
++def _fast() -> None:
++    snap = _hub().get_snapshot()
++    now_s = time.time()
++    render_strip(build_strip(snap, now_s))
++    render_diagnostics(build_diagnostics(snap, _sell_watcher(), now_s))
++
++
++@st.fragment(run_every=60)
++def _lists() -> None:
++    snap = _hub().get_snapshot()
++    render_lists(build_lists(snap, time.time()))
++
++
++def _match_page(match_id: str) -> None:
++    snap = _hub().get_snapshot()
++    matches = find_match(snap, match_id)
++    if len(matches) == 1:
++        st.title(home.map_title(matches[0].entry))
++        st.caption(f"match {match_id} · детальный экран — следующий шаг разработки")
++    elif matches:
++        st.title(match_id)
++        st.warning("несколько архивов с этим match id — выбор неоднозначен")
++    else:
++        st.title(match_id)
++        st.warning("карта не найдена в каталоге")
++    st.link_button("← на главную", "/")
++
++
++if __name__ == "__main__":
++    _match = st.query_params.get("match")
++    if _match:
++        _match_page(_match)
++    else:
++        _fast()
++        _lists()
+diff --git a/src/dashboard/catalog.py b/src/dashboard/catalog.py
+index b8840ecc..13f40a97 100644
+--- a/src/dashboard/catalog.py
++++ b/src/dashboard/catalog.py
+@@ -1,16 +1,21 @@
+ import gzip
+ import json
+ import math
++from collections.abc import Mapping
+ from dataclasses import dataclass
+ from pathlib import Path
+ from typing import Literal, cast
+ 
+ from dashboard import summarize
+-from dashboard.diagnostics import signal_freshness
++from dashboard.diagnostics import stamp_age_s
+ from dashboard.tails import TailView
+ from shared.utils.jsonl_io import resolve_jsonl
+-from trader.paths import EXECUTION_CLEANUP_FILENAME, SESSION_JOURNAL_FILENAME
+-from viewer.archive_read import as_float, as_str, market_block, read_match_document
++from trader.paths import (
++    CORE_TRACE_FILENAME,
++    EXECUTION_CLEANUP_FILENAME,
++    SESSION_JOURNAL_FILENAME,
++)
++from viewer.archive_read import as_float, as_int, as_str, market_block, read_match_document
+ from viewer.live_tape import list_live_matches
+ 
+ CATALOG_REFRESH_S = 60.0
+@@ -19,6 +24,31 @@ STALE_WRITE_SECONDS = 900.0
+ MapStatus = Literal["live", "stale", "terminal", "final", "incomplete"]
+ 
+ 
++@dataclass(frozen=True)
++class SessionParams:
++    min_abs_delta: float | None
++    buy_cutoff_second: int | None
++    min_order_size: float | None
++    entry_stale_s: float | None
++    exit_stale_s: float | None
++
++
++@dataclass(frozen=True)
++class DecisionFacts:
++    second: float | None
++    snapshot_second: float | None
++    phase: str | None
++    paused: bool | None
++    reason: str | None
++    entry_block: str | None
++    model_evaluated: bool | None
++    raw_delta: float | None
++    feed_source: str | None
++    recorded_at_utc: str | None
++    feed_received_at_utc: str | None
++    path: Path
++
++
+ @dataclass(frozen=True)
+ class ArchiveEntry:
+     match_id: str
+@@ -26,11 +56,17 @@ class ArchiveEntry:
+     tree: str
+     game: str | None
+     slug: str | None
++    event_slug: str | None
+     joined_at_utc: str | None
+     condition_id: str | None
+     yes_token: str | None
+     no_token: str | None
+     yes_is_radiant: bool | None
++    radiant: str | None
++    dire: str | None
++    map_number: int | None
++    outcome_0_name: str | None
++    outcome_1_name: str | None
+     finished: bool
+     cleanup_proven: bool
+     session_ended: bool
+@@ -39,7 +75,13 @@ class ArchiveEntry:
+     on_tape: bool
+     last_write: float | None
+     realized: float | None
++    imv: float | None
+     rebate: float | None
++    net: float | None
++    fill_count: int | None
++    closed_observed_at: float | None
++    last_decision: DecisionFacts | None
++    params: SessionParams | None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -55,6 +97,7 @@ class MapView:
+     write_age_s: float | None
+     decision_age_s: float | None
+     feed_age_s: float | None
++    decision: DecisionFacts | None
+     evidence: tuple[str, ...]
+ 
+ 
+@@ -64,6 +107,11 @@ class _JournalFacts:
+     ended: bool
+     realized: float | None
+     rebate: float
++    imv: float | None
++    net: float | None
++    fill_count: int | None
++    closed_observed_at: float | None
++    last_decision: DecisionFacts | None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -73,6 +121,82 @@ class _CachedFacts:
+     facts: _JournalFacts
+ 
+ 
++@dataclass(frozen=True)
++class _CachedParams:
++    mtime_ns: int
++    size: int
++    params: SessionParams | None
++
++
++def _as_bool(value: object) -> bool | None:
++    return value if isinstance(value, bool) else None
++
++
++def decision_facts(record: Mapping[str, object] | None, *, path: Path) -> DecisionFacts | None:
++    if record is None:
++        return None
++    snap = record.get("game_snapshot")
++    snapshot = cast(dict[str, object], snap) if isinstance(snap, dict) else {}
++    return DecisionFacts(
++        second=as_float(record.get("second")),
++        snapshot_second=as_float(snapshot.get("second")),
++        phase=as_str(snapshot.get("phase")),
++        paused=_as_bool(snapshot.get("paused")),
++        reason=as_str(record.get("reason")),
++        entry_block=as_str(record.get("entry_block")),
++        model_evaluated=_as_bool(record.get("model_evaluated")),
++        raw_delta=as_float(record.get("raw_delta")),
++        feed_source=as_str(record.get("feed_source")),
++        recorded_at_utc=as_str(record.get("recorded_at_utc")),
++        feed_received_at_utc=as_str(record.get("feed_received_at_utc")),
++        path=path,
++    )
++
++
++def session_params(
++    path: Path, *, match_id: str, yes_token: str | None, no_token: str | None
++) -> SessionParams | None:
++    header = read_trace_header(path)
++    if header is None:
++        return None
++    if as_str(header.get("match_id")) != match_id:
++        return None
++    if yes_token is not None and as_str(header.get("yes_token")) != yes_token:
++        return None
++    if no_token is not None and as_str(header.get("no_token")) != no_token:
++        return None
++    policy = header.get("policy")
++    policy_block = cast(dict[str, object], policy) if isinstance(policy, dict) else {}
++    limits = header.get("limits")
++    limits_block = cast(dict[str, object], limits) if isinstance(limits, dict) else {}
++    freshness = header.get("freshness")
++    freshness_block = cast(dict[str, object], freshness) if isinstance(freshness, dict) else {}
++    return SessionParams(
++        min_abs_delta=as_float(policy_block.get("min_abs_delta")),
++        buy_cutoff_second=as_int(policy_block.get("buy_cutoff_second")),
++        min_order_size=as_float(limits_block.get("min_order_size")),
++        entry_stale_s=as_float(freshness_block.get("entry_stale_s")),
++        exit_stale_s=as_float(freshness_block.get("exit_stale_s")),
++    )
++
++
++def _closed_observed_at(record: Mapping[str, object] | None) -> float | None:
++    if record is None:
++        return None
++    snap = record.get("game_snapshot")
++    phase = (
++        as_str(cast(Mapping[str, object], snap).get("phase")) if isinstance(snap, dict) else None
++    )
++    terminal = record.get("reason") == "finished" or phase == "finished"
++    if not terminal:
++        return None
++    stamp = as_str(record.get("recorded_at_utc"))
++    if stamp is None:
++        return None
++    parsed = summarize.parse_utc(stamp)
++    return parsed.timestamp() if parsed is not None else None
++
++
+ def _cleanup_proven(archive_dir: Path, match_id: str, condition_id: str | None) -> bool:
+     if condition_id is None:
+         return False
+@@ -99,6 +223,7 @@ class MatchCatalog:
+         self._snapshot: CatalogSnapshot | None = None
+         self._built_mono: float | None = None
+         self._summaries: dict[Path, _CachedFacts] = {}
++        self._params: dict[Path, _CachedParams] = {}
+ 
+     def snapshot(self, *, now_mono: float, now_wall: float) -> CatalogSnapshot:
+         if (
+@@ -112,6 +237,32 @@ class MatchCatalog:
+         self._built_mono = now_mono
+         return snap
+ 
++    def _params_for(
++        self,
++        archive_dir: Path,
++        *,
++        match_id: str,
++        yes_token: str | None,
++        no_token: str | None,
++        keep: dict[Path, _CachedParams],
++    ) -> SessionParams | None:
++        trace = resolve_jsonl(archive_dir / CORE_TRACE_FILENAME)
++        try:
++            stat = trace.stat()
++        except OSError:
++            return None
++        cached = self._params.get(archive_dir)
++        if (
++            cached is not None
++            and cached.mtime_ns == stat.st_mtime_ns
++            and cached.size == stat.st_size
++        ):
++            keep[archive_dir] = cached
++            return cached.params
++        params = session_params(trace, match_id=match_id, yes_token=yes_token, no_token=no_token)
++        keep[archive_dir] = _CachedParams(stat.st_mtime_ns, stat.st_size, params)
++        return params
++
+     def _facts(self, archive_dir: Path, keep: dict[Path, _CachedFacts]) -> _JournalFacts | None:
+         journal = resolve_jsonl(archive_dir / SESSION_JOURNAL_FILENAME)
+         try:
+@@ -132,6 +283,11 @@ class MatchCatalog:
+             ended=summary.end is not None,
+             realized=summary.realized,
+             rebate=summary.rebate,
++            imv=summary.imv,
++            net=summary.net,
++            fill_count=summary.fill_count,
++            closed_observed_at=_closed_observed_at(summary.last_signal),
++            last_decision=decision_facts(summary.last_signal, path=journal),
+         )
+         keep[archive_dir] = _CachedFacts(stat.st_mtime_ns, stat.st_size, facts)
+         return facts
+@@ -143,6 +299,7 @@ class MatchCatalog:
+         entries: list[ArchiveEntry] = []
+         children = sorted(self._root.iterdir()) if self._root.is_dir() else []
+         keep: dict[Path, _CachedFacts] = {}
++        keep_params: dict[Path, _CachedParams] = {}
+         for child in children:
+             if not child.is_dir() or child.name == "wallet":
+                 continue
+@@ -150,13 +307,24 @@ class MatchCatalog:
+             meta = read_match_document(child)
+             market = market_block(meta) if meta is not None else None
+             condition_id = as_str(market.get("condition_id")) if market else None
++            yes_token = as_str(market.get("yes_token_id")) if market else None
++            no_token = as_str(market.get("no_token_id")) if market else None
+             facts = self._facts(child, keep)
++            params = self._params_for(
++                child,
++                match_id=match_id,
++                yes_token=yes_token,
++                no_token=no_token,
++                keep=keep_params,
++            )
+             final = meta.get("final") if meta is not None else None
+             finished = final is not None
+             cleanup = _cleanup_proven(child, match_id, condition_id)
+             writes = [entry.stat().st_mtime for entry in child.glob("*") if entry.is_file()]
+             last_write = max(writes) if writes else None
+             yes_flag = market.get("yes_is_radiant") if market else None
++            teams_raw = meta.get("teams") if meta is not None else None
++            teams = cast(dict[str, object], teams_raw) if isinstance(teams_raw, dict) else {}
+             entries.append(
+                 ArchiveEntry(
+                     match_id=match_id,
+@@ -164,11 +332,17 @@ class MatchCatalog:
+                     tree=self._tree,
+                     game=as_str(meta.get("game")) if meta is not None else None,
+                     slug=as_str(market.get("market_slug")) if market else None,
++                    event_slug=as_str(market.get("event_slug")) if market else None,
+                     joined_at_utc=as_str(meta.get("joined_at_utc")) if meta is not None else None,
+                     condition_id=condition_id,
+-                    yes_token=as_str(market.get("yes_token_id")) if market else None,
+-                    no_token=as_str(market.get("no_token_id")) if market else None,
++                    yes_token=yes_token,
++                    no_token=no_token,
+                     yes_is_radiant=yes_flag if isinstance(yes_flag, bool) else None,
++                    radiant=as_str(teams.get("radiant")),
++                    dire=as_str(teams.get("dire")),
++                    map_number=as_int(meta.get("map_number")) if meta is not None else None,
++                    outcome_0_name=as_str(market.get("outcome_0_name")) if market else None,
++                    outcome_1_name=as_str(market.get("outcome_1_name")) if market else None,
+                     finished=finished,
+                     cleanup_proven=cleanup,
+                     session_ended=facts.ended if facts is not None else False,
+@@ -177,10 +351,17 @@ class MatchCatalog:
+                     on_tape=match_id in tape_ids,
+                     last_write=last_write,
+                     realized=facts.realized if facts is not None else None,
++                    imv=facts.imv if facts is not None else None,
+                     rebate=facts.rebate if facts is not None else None,
++                    net=facts.net if facts is not None else None,
++                    fill_count=facts.fill_count if facts is not None else None,
++                    closed_observed_at=(facts.closed_observed_at if facts is not None else None),
++                    last_decision=facts.last_decision if facts is not None else None,
++                    params=params,
+                 )
+             )
+         self._summaries = keep
++        self._params = keep_params
+         return CatalogSnapshot(built_at=now_wall, entries=tuple(entries))
+ 
+ 
+@@ -193,9 +374,14 @@ def classify_entry(
+ ) -> MapView:
+     evidence: list[str] = []
+     write_age = None if entry.last_write is None else max(0.0, now_wall - entry.last_write)
+-    decision_age, feed_age = signal_freshness(
+-        tail.last_signal if tail is not None else None, now_s=now_wall
++    tail_record = tail.last_signal if tail is not None else None
++    decision = (
++        decision_facts(tail_record, path=tail.path)
++        if tail is not None and tail_record is not None
++        else entry.last_decision
+     )
++    decision_age = stamp_age_s(now_wall, decision.recorded_at_utc) if decision else None
++    feed_age = stamp_age_s(now_wall, decision.feed_received_at_utc) if decision else None
+     if entry.cleanup_proven:
+         evidence.append("execution_cleanup")
+         status: MapStatus = "final"
+@@ -220,6 +406,7 @@ def classify_entry(
+         write_age_s=write_age,
+         decision_age_s=decision_age,
+         feed_age_s=feed_age,
++        decision=decision,
+         evidence=tuple(evidence),
+     )
+ 
+diff --git a/src/dashboard/fresh_view.py b/src/dashboard/fresh_view.py
+new file mode 100644
+index 00000000..4a10e6af
+--- /dev/null
++++ b/src/dashboard/fresh_view.py
+@@ -0,0 +1,78 @@
++"""Aria-live freshness status dot: one declared CCv2 component, text-only updates."""
++
++from streamlit.components.v2 import component
++
++_HTML = """
++<span class="fv" data-state="no_data" role="status" aria-live="polite">
++  <span class="fv-dot" aria-hidden="true"></span>
++  <span class="fv-body">
++    <span class="fv-label"></span>
++    <span class="fv-note"></span>
++  </span>
++</span>
++"""
++
++_CSS = """
++.fv {
++  display: inline-flex;
++  align-items: baseline;
++  gap: 0.45rem;
++  font-variant-numeric: tabular-nums;
++  font-size: 0.95rem;
++  color: #E6EAEE;
++}
++.fv-dot {
++  width: 0.55rem;
++  height: 0.55rem;
++  border-radius: 50%;
++  flex: none;
++  transform: translateY(-0.05rem);
++  background: #8B98A5;
++}
++.fv-note { color: #8B98A5; margin-left: 0.4rem; font-size: 0.85rem; }
++.fv[data-state="fresh"] .fv-dot { background: #4F9D7E; }
++.fv[data-state="updating"] .fv-dot {
++  background: #8B98A5;
++  animation: fv-pulse 1.2s ease-in-out infinite;
++}
++.fv[data-state="stale"] .fv-dot { background: #8B98A5; }
++.fv[data-state="stale"] .fv-label {
++  color: #8B98A5;
++  text-decoration: underline dashed;
++  text-underline-offset: 0.18rem;
++}
++.fv[data-state="no_data"] .fv-label { color: #8B98A5; }
++@keyframes fv-pulse {
++  0%, 100% { opacity: 1; }
++  50% { opacity: 0.25; }
++}
++@media (prefers-reduced-motion: reduce) {
++  .fv[data-state="updating"] .fv-dot { animation: none; }
++}
++"""
++
++_JS = """
++export default function(component) {
++  const { data, parentElement } = component;
++  const root = parentElement.querySelector(".fv");
++  if (!root || !data) return;
++  const label = root.querySelector(".fv-label");
++  const note = root.querySelector(".fv-note");
++  const state = String(data.state || "no_data");
++  const text = String(data.label || "— · нет данных");
++  const noteText = data.note ? String(data.note) : "";
++  if (root.dataset.state !== state) root.dataset.state = state;
++  if (label.textContent !== text) label.textContent = text;
++  if (note.textContent !== noteText) note.textContent = noteText;
++}
++"""
++
++_fresh = component("trader_fresh", html=_HTML, css=_CSS, js=_JS, isolate_styles=True)
++
++
++def render_fresh(key: str, label: str, state: str, note: str | None) -> None:
++    _fresh(
++        key=f"fresh-{key}",
++        data={"label": label, "state": state, "note": note or ""},
++        height="content",
++    )
+diff --git a/src/dashboard/health.py b/src/dashboard/health.py
+new file mode 100644
+index 00000000..d1f5c67a
+--- /dev/null
++++ b/src/dashboard/health.py
+@@ -0,0 +1,293 @@
++import re
++import time
++from collections.abc import Callable
++from dataclasses import dataclass
++from datetime import UTC, datetime
++from pathlib import Path
++
++from dashboard.logs import LOG_MAX_BYTES, LOG_TIMEOUT_S, LogRunner, log_ts
++from shared.utils.match_time import parse_utc
++
++HEALTH_LOG_TAIL = 10000
++_HEALTH_EVIDENCE = 8
++
++
++@dataclass(frozen=True)
++class HealthFacts:
++    ok: bool
++    error: str | None
++    attempt_at: float | None
++    read_at: float | None
++    container_id: str | None
++    container_name: str | None
++    container_state: str | None
++    started_at: float | None
++    consistent: bool
++    halted: bool | None
++    halt_label: str | None
++    halt_at: float | None
++    cleared_at: float | None
++    history_complete: bool
++    evidence: tuple[str, ...]
++
++
++EMPTY_HEALTH = HealthFacts(
++    ok=False,
++    error=None,
++    attempt_at=None,
++    read_at=None,
++    container_id=None,
++    container_name=None,
++    container_state=None,
++    started_at=None,
++    consistent=False,
++    halted=None,
++    halt_label=None,
++    halt_at=None,
++    cleared_at=None,
++    history_complete=False,
++    evidence=(),
++)
++
++
++@dataclass(frozen=True)
++class RunFacts:
++    halted: bool | None
++    halt_label: str | None
++    halt_at: float | None
++    cleared_at: float | None
++    evidence: tuple[str, ...]
++
++
++_CLEARED = re.compile(r"alert cleared key=(\S+)")
++_ALERT_KEY = re.compile(r"key=(\S+)")
++_RISK_SCOPE = re.compile(r"risk_halt[:=](\S+)")
++
++
++def _scope(line: str) -> str | None:
++    key = _ALERT_KEY.search(line)
++    if key is not None:
++        return key.group(1)
++    scoped = _RISK_SCOPE.search(line)
++    if scoped is not None:
++        return f"risk_halt:{scoped.group(1)}"
++    if "risk_halt" in line:
++        return "risk_halt"
++    if "HALTED" in line:
++        return "HALTED"
++    return None
++
++
++def reduce_run(text: str, *, started_at: float | None, history_complete: bool) -> RunFacts:
++    latched: set[str] = set()
++    halt_label: str | None = None
++    halt_at: float | None = None
++    cleared_at: float | None = None
++    evidence: list[str] = []
++    for raw in text.splitlines():
++        line = raw.strip()
++        ts = log_ts(line)
++        if started_at is not None and ts is not None and ts < started_at:
++            continue
++        cleared = _CLEARED.search(line)
++        if cleared is not None:
++            scope = cleared.group(1)
++            latched.discard(scope)
++            cleared_at = ts if ts is not None else cleared_at
++            evidence.append(line)
++            continue
++        if "risk_halt" not in line and "HALTED" not in line:
++            continue
++        scope = _scope(line)
++        if scope is None:
++            continue
++        latched.add(scope)
++        halt_label = scope
++        halt_at = ts if ts is not None else halt_at
++        evidence.append(line)
++    return RunFacts(
++        halted=bool(latched) if history_complete else None,
++        halt_label=halt_label,
++        halt_at=halt_at,
++        cleared_at=cleared_at,
++        evidence=tuple(evidence[-_HEALTH_EVIDENCE:]),
++    )
++
++
++def _ps_id(compose_file: Path, service: str, runner: LogRunner, timeout_s: float) -> str | None:
++    argv = ["docker", "compose", "-f", str(compose_file), "ps", "-q", service]
++    raw = runner(argv, timeout_s)
++    text = raw.decode("utf-8", errors="replace")
++    for line in text.splitlines():
++        if line.strip():
++            return line.strip()
++    return None
++
++
++@dataclass(frozen=True)
++class _Inspect:
++    state: str | None
++    started_at: float | None
++    name: str | None
++
++
++def _inspect(container_id: str, runner: LogRunner, timeout_s: float) -> _Inspect:
++    argv = [
++        "docker",
++        "inspect",
++        "--format",
++        "{{.State.Status}}|{{.State.StartedAt}}|{{.Name}}",
++        container_id,
++    ]
++    raw = runner(argv, timeout_s)
++    text = raw.decode("utf-8", errors="replace").strip()
++    state, _, rest = text.partition("|")
++    started_raw, _, name = rest.partition("|")
++    started_at: float | None = None
++    try:
++        started_at = parse_utc(started_raw).timestamp()
++    except ValueError:
++        started_at = None
++    return _Inspect(
++        state=state or None,
++        started_at=started_at,
++        name=name.lstrip("/") or None,
++    )
++
++
++def _run_logs(
++    container_id: str,
++    *,
++    started_at: float | None,
++    tail: int,
++    runner: LogRunner,
++    timeout_s: float,
++) -> bytes:
++    argv = ["docker", "logs", "--timestamps"]
++    if started_at is not None:
++        since = datetime.fromtimestamp(started_at, UTC).isoformat()
++        argv += ["--since", since]
++    argv += ["--tail", str(tail), container_id]
++    return runner(argv, timeout_s)
++
++
++def _read_result(
++    *,
++    ok: bool,
++    error: str | None,
++    read_at: float,
++    container_id: str | None = None,
++    container_name: str | None = None,
++    container_state: str | None = None,
++    started_at: float | None = None,
++    consistent: bool,
++    halted: bool | None = None,
++    halt_label: str | None = None,
++    halt_at: float | None = None,
++    cleared_at: float | None = None,
++    history_complete: bool,
++    evidence: tuple[str, ...] = (),
++) -> HealthFacts:
++    return HealthFacts(
++        ok=ok,
++        error=error,
++        attempt_at=None,
++        read_at=read_at,
++        container_id=container_id,
++        container_name=container_name,
++        container_state=container_state,
++        started_at=started_at,
++        consistent=consistent,
++        halted=halted,
++        halt_label=halt_label,
++        halt_at=halt_at,
++        cleared_at=cleared_at,
++        history_complete=history_complete,
++        evidence=evidence,
++    )
++
++
++def read_health(
++    *,
++    compose_file: Path,
++    service: str,
++    runner: LogRunner,
++    timeout_s: float = LOG_TIMEOUT_S,
++    tail: int = HEALTH_LOG_TAIL,
++    max_bytes: int = LOG_MAX_BYTES,
++    wall: Callable[[], float] = time.time,
++) -> HealthFacts:
++    read_at = wall()
++    if not compose_file.is_file():
++        return _read_result(
++            ok=False,
++            error="compose file missing",
++            read_at=read_at,
++            consistent=False,
++            history_complete=False,
++        )
++    try:
++        container_id = _ps_id(compose_file, service, runner, timeout_s)
++    except Exception as exc:
++        return _read_result(
++            ok=False,
++            error=type(exc).__name__,
++            read_at=read_at,
++            consistent=False,
++            history_complete=False,
++        )
++    if container_id is None:
++        return _read_result(
++            ok=True,
++            error=None,
++            read_at=read_at,
++            consistent=True,
++            history_complete=True,
++        )
++    try:
++        info = _inspect(container_id, runner, timeout_s)
++        raw = _run_logs(
++            container_id,
++            started_at=info.started_at,
++            tail=tail,
++            runner=runner,
++            timeout_s=timeout_s,
++        )
++        second_id = _ps_id(compose_file, service, runner, timeout_s)
++    except Exception as exc:
++        return _read_result(
++            ok=False,
++            error=type(exc).__name__,
++            read_at=read_at,
++            container_id=container_id,
++            consistent=False,
++            history_complete=False,
++        )
++    consistent = second_id == container_id
++    byte_truncated = len(raw) > max_bytes
++    text = (
++        raw[-max_bytes:].decode("utf-8", errors="replace")
++        if byte_truncated
++        else raw.decode("utf-8", errors="replace")
++    )
++    lines = text.splitlines()
++    tail_limited = len(lines) >= tail
++    complete = consistent and not byte_truncated and not tail_limited
++    running = info.state == "running"
++    run = reduce_run(text, started_at=info.started_at, history_complete=complete)
++    return _read_result(
++        ok=True,
++        error=None,
++        read_at=read_at,
++        container_id=container_id,
++        container_name=info.name,
++        container_state=info.state,
++        started_at=info.started_at,
++        consistent=consistent,
++        halted=run.halted if running and consistent else None,
++        halt_label=run.halt_label,
++        halt_at=run.halt_at,
++        cleared_at=run.cleared_at,
++        history_complete=complete,
++        evidence=run.evidence,
++    )
+diff --git a/src/dashboard/home.py b/src/dashboard/home.py
+new file mode 100644
+index 00000000..e7087406
+--- /dev/null
++++ b/src/dashboard/home.py
+@@ -0,0 +1,1416 @@
++import math
++from collections.abc import Iterable, Mapping, Sequence
++from dataclasses import dataclass
++from datetime import datetime
++from typing import Literal
++from urllib.parse import quote
++
++from dashboard import diagnostics, summarize
++from dashboard.catalog import ArchiveEntry, DecisionFacts, MapView
++from dashboard.diagnostics import (
++    FreshnessInput,
++    FreshnessVerdict,
++    SellObservation,
++    SellWatchState,
++    freshness,
++    observe_sell,
++)
++from dashboard.health import HealthFacts
++from dashboard.hub_types import HubSnapshot, SessionFacts
++from dashboard.market_books import BookSnapshot
++from dashboard.summarize import PositionEntry
++from dashboard.wallet import WalletPosition
++from trader.core_persistence import CoreCommand, UnsettledBuy
++
++WALLET_STALE_S = 15.0
++_DIAG_CAP = 24
++
++
++@dataclass(frozen=True)
++class FreshMetric:
++    title: str
++    text: str
++    note: str | None
++    verdict: FreshnessVerdict
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class HealthLine:
++    state: Literal["ok", "warn", "error", "unknown"]
++    text: str
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class StripView:
++    collateral: FreshMetric
++    available: FreshMetric
++    pnl: FreshMetric
++    rebate: FreshMetric
++    health: HealthLine
++
++
++@dataclass(frozen=True)
++class PositionLine:
++    token_id: str
++    outcome: str
++    size: float
++    avg_price: float
++    mark: float | None
++    mark_state: Literal["book", "book_stale", "unknown"]
++    unrealized: float | None
++
++
++@dataclass(frozen=True)
++class ActiveRow:
++    match_id: str
++    title: str
++    game: str | None
++    second: float | None
++    phase: str | None
++    window: str | None
++    paused: bool | None
++    positions: tuple[PositionLine, ...]
++    position_state: Literal["known", "empty", "unknown"]
++    state_lines: tuple[str, ...]
++    unrealized_total: float | None
++    reason: str
++    decision_age_s: float | None
++    feed_age_s: float | None
++    stale: bool
++    match_url: str
++    polymarket_url: str | None
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class IdleRow:
++    key: str
++    title: str
++    game: str | None
++    reason: str
++    reason_source: str | None
++    reason_age_s: float | None
++    source: str
++    match_url: str | None
++    polymarket_url: str | None
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class ClosedRow:
++    match_id: str
++    title: str
++    game: str | None
++    closed_observed_at: float | None
++    closed_age_s: float | None
++    net: float | None
++    realized: float | None
++    imv: float | None
++    rebate: float | None
++    fill_count: int | None
++    match_url: str
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class UnsettledLine:
++    venue_id: str | None
++    core_order_id: str | None
++    session_id: str | None
++    token_id: str | None
++    qty: float | None
++    remaining_notional: float | None
++    age_s: float | None
++    status: str
++    source: str
++
++
++@dataclass(frozen=True)
++class ResidualLeg:
++    token_id: str | None
++    outcome: str
++    api_size: float | None
++    api_price: float | None
++    api_redeemable: bool | None
++    local_size: float | None
++    local_avg: float | None
++    mark: float | None
++    mark_state: Literal["api", "book", "book_stale", "unknown"]
++    value: float | None
++
++
++@dataclass(frozen=True)
++class ResidualRow:
++    key: str
++    match_id: str | None
++    title: str
++    game: str | None
++    redeem_state: str
++    legs: tuple[ResidualLeg, ...]
++    commitments: tuple[UnsettledLine, ...]
++    positions_state: Literal["complete", "incomplete", "error", "unknown"]
++    match_url: str | None
++    polymarket_url: str | None
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class ListsView:
++    active: tuple[ActiveRow, ...]
++    idle: tuple[IdleRow, ...]
++    closed_dated: tuple[ClosedRow, ...]
++    closed_undated: tuple[ClosedRow, ...]
++    residuals: tuple[ResidualRow, ...]
++    positions_state: Literal["complete", "incomplete", "error", "unknown"]
++    nontrading_note: str | None
++
++
++Severity = Literal["fatal", "error", "warn", "info"]
++
++_SEVERITY_RANK: dict[Severity, int] = {"fatal": 0, "error": 1, "warn": 2, "info": 3}
++
++
++@dataclass(frozen=True)
++class Diagnostic:
++    severity: Severity
++    label: str
++    source: str
++    ts: float | None
++    details: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class DiagnosticsView:
++    line: str
++    headline: Diagnostic | None
++    findings: tuple[Diagnostic, ...]
++    observed: str | None
++
++
++@dataclass(frozen=True)
++class HomeView:
++    strip: StripView
++    diagnostics: DiagnosticsView
++    lists: ListsView
++
++
++def fmt_money(value: float | None, *, signed: bool = False) -> str:
++    if value is None or not math.isfinite(value):
++        return "—"
++    if signed:
++        return f"{value:+.2f}"
++    return f"{value:.2f}"
++
++
++def fmt_usd(value: float | None, *, signed: bool = False) -> str:
++    text = fmt_money(value, signed=signed)
++    return text if text == "—" else f"${text}"
++
++
++def fmt_age(age_s: float | None) -> str:
++    if age_s is None:
++        return "возраст ?"
++    seconds = int(age_s)
++    if seconds < 60:
++        return f"{seconds}с"
++    minutes, sec = divmod(seconds, 60)
++    if minutes < 60:
++        return f"{minutes}м{sec:02d}с"
++    hours, minute = divmod(minutes, 60)
++    return f"{hours}ч{minute:02d}м"
++
++
++def fmt_second(second: float | None) -> str:
++    if second is None:
++        return "—"
++    total = int(second)
++    sign = "-" if total < 0 else ""
++    minutes, sec = divmod(abs(total), 60)
++    return f"{sign}{minutes}:{sec:02d}"
++
++
++def match_url(match_id: str) -> str:
++    return f"?match={quote(match_id, safe='')}"
++
++
++def polymarket_url(event_slug: str | None, market_slug: str | None) -> str | None:
++    slug = event_slug or market_slug
++    if slug is None:
++        return None
++    return f"https://polymarket.com/event/{quote(slug, safe='')}"
++
++
++def map_title(entry: ArchiveEntry) -> str:
++    teams = f"{entry.radiant} vs {entry.dire}" if entry.radiant and entry.dire else None
++    if teams is None:
++        base = entry.slug or entry.match_id
++    elif entry.map_number is not None:
++        base = f"{teams} · карта {entry.map_number}"
++    else:
++        base = teams
++    return base
++
++
++def _berlin_day(now_s: float) -> str:
++    return datetime.fromtimestamp(now_s, summarize.BERLIN).date().isoformat()
++
++
++def _verdict(
++    *,
++    now_s: float,
++    threshold_s: float,
++    has_value: bool,
++    value_ts: float | None,
++    attempt_failed: bool,
++    coverage_complete: bool,
++    pending: bool,
++    error: str | None,
++) -> FreshnessVerdict:
++    age = None if value_ts is None else max(0.0, now_s - value_ts)
++    return freshness(
++        FreshnessInput(
++            now_s=now_s,
++            threshold_s=threshold_s,
++            has_value=has_value,
++            value_age_s=age,
++            attempt_failed=attempt_failed,
++            coverage_complete=coverage_complete,
++            pending=pending,
++            book_connected=None,
++            awaiting_book=False,
++            error=error,
++        )
++    )
++
++
++def _collateral_metric(snap: HubSnapshot, now_s: float) -> FreshMetric:
++    balance = snap.balance
++    value = balance.collateral_usdc
++    details: list[str] = []
++    if balance.funder is not None:
++        details.append(f"funder {balance.funder}")
++    if balance.funder_mismatch:
++        details.append("funder кошелька не совпадает с аккаунтом: collateral скрыт")
++    if balance.evidence_gaps:
++        details.append(f"пробелы fill-evidence: {balance.evidence_gaps}")
++    if balance.pending:
++        expected = [e for e in balance.pending if e.expected_cash is not None]
++        cash = sum(e.expected_cash for e in expected if e.expected_cash is not None)
++        details.append(
++            f"ожидаем подтверждения {len(balance.pending)} fills · ожидаемое движение {cash:+.2f}"
++        )
++    if balance.pending_dropped:
++        details.append(f"отброшено старых fills: {balance.pending_dropped}")
++    verdict = _verdict(
++        now_s=now_s,
++        threshold_s=diagnostics.BALANCE_STALE_S,
++        has_value=value is not None,
++        value_ts=balance.response_at,
++        attempt_failed=balance.last_error is not None,
++        coverage_complete=balance.evidence_gaps == 0 and not balance.funder_mismatch,
++        pending=(
++            balance.queued
++            or balance.inflight
++            or (
++                balance.significant_seq is not None
++                and (balance.covered_seq is None or balance.significant_seq > balance.covered_seq)
++            )
++        ),
++        error=balance.last_error,
++    )
++    return FreshMetric(
++        title="Кэш",
++        text=fmt_usd(value),
++        note=verdict.detail,
++        verdict=verdict,
++        details=tuple(details),
++    )
++
++
++def _available_metric(snap: HubSnapshot, now_s: float) -> FreshMetric:
++    reserve = snap.reserve
++    balance = snap.balance
++    value = reserve.available_cash if reserve is not None else None
++    details: list[str] = []
++    if reserve is not None:
++        details.append(
++            f"резерв BUY {reserve.total_known:.2f}"
++            f" (core {reserve.core_buy:.2f} · команды {reserve.command_buy:.2f}"
++            f" · unsettled {reserve.unsettled_buy:.2f} · orphan {reserve.observed_orphan_buy:.2f})"
++        )
++        details.extend(reserve.limitations)
++    wallet_error = None if snap.wallet.ok else snap.wallet.error
++    verdict = _verdict(
++        now_s=now_s,
++        threshold_s=diagnostics.BALANCE_STALE_S,
++        has_value=value is not None,
++        value_ts=balance.response_at,
++        attempt_failed=balance.last_error is not None or wallet_error is not None,
++        coverage_complete=snap.wallet.ok,
++        pending=balance.queued or balance.inflight,
++        error=wallet_error or balance.last_error,
++    )
++    note = "оценка" if reserve is None or reserve.incomplete else None
++    return FreshMetric(
++        title="Доступно",
++        text=fmt_usd(value),
++        note=note or verdict.detail,
++        verdict=verdict,
++        details=tuple(details),
++    )
++
++
++def _pnl_metric(snap: HubSnapshot, now_s: float) -> FreshMetric:
++    day = snap.day
++    today = _berlin_day(now_s)
++    fold_today = day.fold if day.day == today else None
++    value = fold_today.pnl if fold_today is not None else None
++    details: list[str] = [f"день Europe/Berlin: {day.day or '—'}"]
++    if day.fold is not None:
++        fold = day.fold
++        details.append(
++            f"cash {fold.cash:+.2f} · open mark {fold.open_mark:+.2f} · ребейт {fold.rebate:+.2f}"
++        )
++    if day.day is not None and day.day != today:
++        details.append("сохранённый фолд за прошлый день — сегодня не показываем")
++    if not day.complete:
++        details.append("последнее чтение дня неполное")
++    verdict = _verdict(
++        now_s=now_s,
++        threshold_s=diagnostics.DAY_PNL_STALE_S,
++        has_value=fold_today is not None,
++        value_ts=day.fold_at,
++        attempt_failed=day.error is not None,
++        coverage_complete=day.complete,
++        pending=day.inflight,
++        error=day.error,
++    )
++    return FreshMetric(
++        title="PnL сегодня",
++        text=fmt_usd(value, signed=True),
++        note=verdict.detail,
++        verdict=verdict,
++        details=tuple(details),
++    )
++
++
++def _rebate_metric(snap: HubSnapshot, now_s: float) -> FreshMetric:
++    day = snap.day
++    details: list[str] = ["оценка maker-ребейта с последней выплаты"]
++    if day.payout_known and day.payout_ts is not None:
++        details.append(f"последняя выплата: {fmt_age(now_s - day.payout_ts)} назад")
++    elif not day.payout_known:
++        details.append("выплата не найдена или поиск не завершён — оценки нет")
++    if day.accrual_fills is not None:
++        details.append(f"fills {day.accrual_fills} · карт {day.accrual_matches}")
++    verdict = _verdict(
++        now_s=now_s,
++        threshold_s=diagnostics.DAY_PNL_STALE_S,
++        has_value=day.accrual_total is not None,
++        value_ts=day.accrual_at,
++        attempt_failed=day.accrual_error is not None,
++        coverage_complete=day.payout_known,
++        pending=day.inflight,
++        error=day.accrual_error,
++    )
++    return FreshMetric(
++        title="Ребейт",
++        text=fmt_usd(day.accrual_total),
++        note="оценка" if day.accrual_total is not None else verdict.detail,
++        verdict=verdict,
++        details=tuple(details),
++    )
++
++
++def _health_line(health_facts: HealthFacts, now_s: float) -> HealthLine:
++    details: list[str] = []
++    if health_facts.container_name is not None:
++        details.append(f"контейнер {health_facts.container_name}")
++    if health_facts.container_id is not None:
++        details.append(f"id {health_facts.container_id[:12]}")
++    if health_facts.started_at is not None:
++        details.append(f"старт {fmt_age(now_s - health_facts.started_at)} назад")
++    details.extend(health_facts.evidence)
++    if not health_facts.ok:
++        return HealthLine("unknown", "состояние трейдера неизвестно", tuple(details))
++    if not health_facts.consistent:
++        return HealthLine("unknown", "контейнер сменился во время чтения", tuple(details))
++    if health_facts.container_id is None:
++        return HealthLine("error", "контейнер трейдера не найден", tuple(details))
++    if health_facts.container_state != "running":
++        return HealthLine(
++            "error",
++            f"контейнер {health_facts.container_state or 'неизвестно'}",
++            tuple(details),
++        )
++    if health_facts.halted:
++        return HealthLine(
++            "error",
++            f"HALT {health_facts.halt_label or 'risk_halt'}",
++            tuple(details),
++        )
++    if health_facts.halted is None:
++        return HealthLine("warn", "работает · halt-статус неизвестен (лог обрезан)", tuple(details))
++    return HealthLine("ok", "работает · риск чист", tuple(details))
++
++
++def build_strip(snap: HubSnapshot, now_s: float) -> StripView:
++    return StripView(
++        collateral=_collateral_metric(snap, now_s),
++        available=_available_metric(snap, now_s),
++        pnl=_pnl_metric(snap, now_s),
++        rebate=_rebate_metric(snap, now_s),
++        health=_health_line(snap.health, now_s),
++    )
++
++
++class SellWatcher:
++    def __init__(self) -> None:
++        self._states: dict[tuple[str, str, str, str], SellWatchState] = {}
++        self._generation: int | None = None
++
++    def observe(
++        self,
++        sessions: Sequence[SessionFacts],
++        *,
++        wallet_read_at: float | None,
++        generation: int,
++        now_s: float,
++    ) -> Mapping[str, diagnostics.SellWedgeVerdict]:
++        input_stale = wallet_read_at is None or (now_s - wallet_read_at) > WALLET_STALE_S
++        if generation != self._generation or input_stale:
++            self._states = {}
++            self._generation = generation
++        current: dict[tuple[str, str, str, str], SellWatchState] = {}
++        verdicts: dict[str, diagnostics.SellWedgeVerdict] = {}
++        if input_stale:
++            return verdicts
++        for sess in sessions:
++            for sell in sess.sells:
++                if sell.token_id is None:
++                    continue
++                obs = SellObservation(
++                    session_key=sess.session_id,
++                    token_id=sell.token_id,
++                    order_id=sell.order_id,
++                    status=sell.status,
++                    price=sell.price,
++                    remaining_qty=sell.remaining_qty,
++                    venue_id=sell.venue_id,
++                    held_qty=sell.held_qty,
++                )
++                state, verdict = observe_sell(
++                    self._states.get(_sell_key(obs), SellWatchState(None, None)),
++                    obs,
++                    now_s,
++                )
++                if state.key is not None:
++                    current[state.key] = state
++                if verdict.order_id is not None:
++                    verdicts[f"{sess.session_id}:{sell.order_id}"] = verdict
++        self._states = current
++        return verdicts
++
++
++def _sell_key(obs: SellObservation) -> tuple[str, str, str, str]:
++    return (obs.session_key, obs.token_id, obs.order_id, obs.status)
++
++
++def _book_mark(
++    book: BookSnapshot | None,
++) -> tuple[float | None, Literal["book", "book_stale", "unknown"]]:
++    if book is None or not book.initialized or not book.ready:
++        return None, "unknown"
++    if not book.bids or not book.asks:
++        return None, "unknown"
++    bid = book.bids[0].price
++    ask = book.asks[0].price
++    if not (math.isfinite(bid) and math.isfinite(ask)) or bid > ask:
++        return None, "unknown"
++    mark = (bid + ask) / 2.0
++    if not (0.0 < mark < 1.0):
++        return None, "unknown"
++    return mark, "book" if book.connected else "book_stale"
++
++
++def _position_lines(
++    entry: ArchiveEntry,
++    positions: Mapping[str, WalletPosition],
++    books: Mapping[str, BookSnapshot],
++) -> tuple[PositionLine, ...]:
++    legs: list[PositionLine] = []
++    sides = (
++        ("YES", entry.yes_token, entry.radiant if entry.yes_is_radiant else entry.dire),
++        ("NO", entry.no_token, entry.dire if entry.yes_is_radiant else entry.radiant),
++    )
++    for side, token_id, team in sides:
++        if token_id is None:
++            continue
++        position = positions.get(token_id)
++        if position is None or position.size == 0.0:
++            continue
++        mark, mark_state = _book_mark(books.get(token_id))
++        outcome = f"{side} {team}" if team else side
++        legs.append(
++            PositionLine(
++                token_id=token_id,
++                outcome=outcome,
++                size=position.size,
++                avg_price=position.avg_price,
++                mark=mark,
++                mark_state=mark_state,
++                unrealized=(None if mark is None else position.size * (mark - position.avg_price)),
++            )
++        )
++    return tuple(legs)
++
++
++def _decision_second(decision: DecisionFacts | None) -> float | None:
++    if decision is None:
++        return None
++    return decision.second if decision.second is not None else decision.snapshot_second
++
++
++def _row_reason(decision: DecisionFacts | None, entry: ArchiveEntry) -> str:
++    if decision is None:
++        return "нет данных"
++    min_delta = entry.params.min_abs_delta if entry.params is not None else None
++    if decision.model_evaluated and decision.entry_block:
++        return diagnostics.entry_block_label(
++            decision.entry_block,
++            model_evaluated=decision.model_evaluated,
++            raw_delta=decision.raw_delta,
++            min_abs_delta=min_delta,
++        )
++    if decision.reason:
++        return diagnostics.reason_label(decision.reason)
++    if decision.entry_block:
++        return diagnostics.entry_block_label(
++            decision.entry_block,
++            model_evaluated=decision.model_evaluated,
++            raw_delta=decision.raw_delta,
++            min_abs_delta=min_delta,
++        )
++    return "нет данных"
++
++
++def _row_window(decision: DecisionFacts | None, entry: ArchiveEntry) -> str | None:
++    cutoff = entry.params.buy_cutoff_second if entry.params is not None else None
++    second = _decision_second(decision)
++    if cutoff is None:
++        return None
++    if second is None:
++        return f"вход до {cutoff:g}с"
++    return f"вход до {cutoff:g}с" if second <= cutoff else f"после cutoff {cutoff:g}с"
++
++
++def _session_state_lines(
++    session: SessionFacts | None,
++    open_buys: Sequence[CoreCommand],
++    unsettled: Sequence[UnsettledBuy],
++) -> tuple[str, ...]:
++    lines: list[str] = []
++    if session is not None:
++        if session.sell_only:
++            lines.append("режим: только SELL")
++        if session.recovery_pending:
++            lines.append("recovery pending")
++        if session.winding_down:
++            lines.append("winding down")
++        for sell in session.sells:
++            lines.append(
++                f"SELL {sell.remaining_qty:g}/{sell.submitted_qty:g}"
++                f" @ {sell.price:g} · {sell.status}"
++            )
++        if session.unconfirmed or session.pending_ownership:
++            lines.append(f"unconfirmed {session.unconfirmed} · pending {session.pending_ownership}")
++    for cmd in open_buys:
++        lines.append(
++            f"BUY open {cmd.quantity if cmd.quantity is not None else '?'}"
++            f" @ {cmd.price if cmd.price is not None else '?'}"
++        )
++    for row in unsettled:
++        lines.append(f"BUY unsettled {row.qty:g} · venue {row.venue_id}")
++    return tuple(lines)
++
++
++def _active_row(
++    view: MapView,
++    positions: Mapping[str, WalletPosition],
++    books: Mapping[str, BookSnapshot],
++    wallet_ok: bool,
++    session: SessionFacts | None,
++    open_buys: Sequence[CoreCommand],
++    unsettled: Sequence[UnsettledBuy],
++) -> ActiveRow:
++    entry = view.entry
++    decision = view.decision
++    legs = _position_lines(entry, positions, books)
++    if not wallet_ok:
++        position_state: Literal["known", "empty", "unknown"] = "unknown"
++    elif legs:
++        position_state = "known"
++    else:
++        position_state = "empty"
++    marks_known = [leg.unrealized for leg in legs if leg.unrealized is not None]
++    stale = view.status != "live"
++    details: list[str] = [
++        f"match {entry.match_id}",
++        f"condition {entry.condition_id or '—'}",
++        f"дерево {entry.tree}",
++    ]
++    if decision is not None:
++        details.append(f"signal {decision.path.name} · feed {decision.feed_source or '?'}")
++        if decision.model_evaluated and decision.raw_delta is not None:
++            details.append(f"raw Δ {decision.raw_delta:g}")
++    details.extend(view.evidence)
++    return ActiveRow(
++        match_id=entry.match_id,
++        title=map_title(entry),
++        game=entry.game,
++        second=_decision_second(decision),
++        phase=decision.phase if decision is not None else None,
++        window=_row_window(decision, entry),
++        paused=decision.paused if decision is not None else None,
++        positions=legs,
++        position_state=position_state,
++        state_lines=_session_state_lines(session, open_buys, unsettled),
++        unrealized_total=sum(marks_known) if marks_known else None,
++        reason=_row_reason(decision, entry),
++        decision_age_s=view.decision_age_s,
++        feed_age_s=view.feed_age_s,
++        stale=stale,
++        match_url=match_url(entry.match_id),
++        polymarket_url=polymarket_url(entry.event_slug, entry.slug),
++        details=tuple(details),
++    )
++
++
++_IDLE_REASONS: dict[str, str] = {
++    "market closed": "рынок закрыт",
++    "market inactive": "рынок неактивен",
++    "not accepting orders": "не принимает ордера",
++    "order book disabled": "стакан отключён",
++    "reason unknown": "причина неизвестна",
++}
++
++
++def _idle_rows(snap: HubSnapshot, now_s: float) -> tuple[IdleRow, ...]:
++    rows: list[IdleRow] = []
++    for market in snap.nontrading.markets:
++        title_bits = [market.market_slug]
++        if market.map_number is not None:
++            title_bits.append(f"карта {market.map_number}")
++        outcomes = " / ".join(name for name in market.outcome_names if name)
++        if outcomes:
++            title_bits.append(outcomes)
++        rows.append(
++            IdleRow(
++                key=f"sidecar:{market.condition_id}",
++                title=" · ".join(title_bits),
++                game=market.game,
++                reason=_IDLE_REASONS.get(market.reason, market.reason),
++                reason_source=market.reason_source,
++                reason_age_s=(
++                    None if market.reason_ts is None else max(0.0, now_s - market.reason_ts)
++                ),
++                source="sidecar",
++                match_url=None,
++                polymarket_url=polymarket_url(market.event_slug, market.market_slug),
++                details=(f"condition {market.condition_id}", f"игра {market.game}"),
++            )
++        )
++    for view in snap.maps:
++        entry = view.entry
++        if view.status != "incomplete" and not entry.record_only:
++            continue
++        rows.append(
++            IdleRow(
++                key=f"archive:{entry.match_id}",
++                title=map_title(entry),
++                game=entry.game,
++                reason=("только запись" if entry.record_only else "данные неполные"),
++                reason_source="archive",
++                reason_age_s=view.write_age_s,
++                source="archive",
++                match_url=match_url(entry.match_id),
++                polymarket_url=polymarket_url(entry.event_slug, entry.slug),
++                details=(
++                    f"match {entry.match_id}",
++                    f"condition {entry.condition_id or '—'}",
++                    *view.evidence,
++                ),
++            )
++        )
++    return tuple(rows)
++
++
++def _terminal_views(snap: HubSnapshot) -> tuple[MapView, ...]:
++    seen: dict[str, MapView] = {}
++    for view in (*snap.maps, *snap.legacy_maps):
++        entry = view.entry
++        if view.status not in ("terminal", "final") and not entry.session_ended:
++            continue
++        prev = seen.get(entry.match_id)
++        if prev is None or (prev.entry.tree != "live" and entry.tree == "live"):
++            seen[entry.match_id] = view
++    return tuple(seen.values())
++
++
++def _closed_rows(
++    snap: HubSnapshot, now_s: float
++) -> tuple[tuple[ClosedRow, ...], tuple[ClosedRow, ...]]:
++    today = _berlin_day(now_s)
++    dated: list[ClosedRow] = []
++    undated: list[ClosedRow] = []
++    for view in _terminal_views(snap):
++        entry = view.entry
++        closed_day = (
++            None
++            if entry.closed_observed_at is None
++            else datetime.fromtimestamp(entry.closed_observed_at, summarize.BERLIN)
++            .date()
++            .isoformat()
++        )
++        details: list[str] = [
++            f"match {entry.match_id}",
++            f"condition {entry.condition_id or '—'}",
++            f"дерево {entry.tree}",
++            f"realized {fmt_money(entry.realized)} · imv {fmt_money(entry.imv)} · ребейт {fmt_money(entry.rebate)}",
++        ]
++        row = ClosedRow(
++            match_id=entry.match_id,
++            title=map_title(entry),
++            game=entry.game,
++            closed_observed_at=entry.closed_observed_at,
++            closed_age_s=(
++                None
++                if entry.closed_observed_at is None
++                else max(0.0, now_s - entry.closed_observed_at)
++            ),
++            net=entry.net,
++            realized=entry.realized,
++            imv=entry.imv,
++            rebate=entry.rebate,
++            fill_count=entry.fill_count,
++            match_url=match_url(entry.match_id),
++            details=tuple(details),
++        )
++        if closed_day == today:
++            dated.append(row)
++        elif entry.closed_observed_at is None:
++            undated.append(row)
++    dated.sort(key=lambda r: r.closed_observed_at or 0.0, reverse=True)
++    return tuple(dated), tuple(undated)
++
++
++def _api_positions(snap: HubSnapshot) -> tuple[PositionEntry, ...]:
++    result = snap.day.positions_candidate or snap.day.positions
++    if result is None:
++        return ()
++    return result.positions
++
++
++def _positions_state(snap: HubSnapshot) -> Literal["complete", "incomplete", "error", "unknown"]:
++    result = snap.day.positions_candidate or snap.day.positions
++    if result is None:
++        return "unknown"
++    if result.error is not None:
++        return "error"
++    if not result.traversal_complete:
++        return "incomplete"
++    return "complete"
++
++
++def _unsettled_lines(snap: HubSnapshot, now_s: float, cid: str | None) -> tuple[UnsettledLine, ...]:
++    token_cid = {row.token_id: row.condition_id for row in snap.wallet.token_cids}
++    session_cid = {s.session_id: s.condition_id for s in snap.wallet.sessions}
++    reserve_by_venue = (
++        {d.venue_id: d for d in snap.reserve.details if d.source == "unsettled" and d.venue_id}
++        if snap.reserve is not None
++        else {}
++    )
++    lines: list[UnsettledLine] = []
++    for row in snap.wallet.unsettled:
++        row_cid = token_cid.get(row.token_id) or session_cid.get(row.session_id)
++        if row_cid != cid:
++            continue
++        detail = reserve_by_venue.get(row.venue_id)
++        lines.append(
++            UnsettledLine(
++                venue_id=row.venue_id,
++                core_order_id=None,
++                session_id=row.session_id,
++                token_id=row.token_id,
++                qty=row.qty,
++                remaining_notional=detail.notional if detail is not None else None,
++                age_s=max(0.0, now_s - row.created_at),
++                status="proven" if row.proven else "не подтверждён на venue",
++                source="unsettled_buys",
++            )
++        )
++    if snap.reserve is not None:
++        for detail in snap.reserve.details:
++            if detail.source not in ("command", "core") or detail.condition_id != cid:
++                continue
++            if detail.notional <= 0.0 and detail.remaining_qty <= 0.0:
++                continue
++            lines.append(
++                UnsettledLine(
++                    venue_id=detail.venue_id,
++                    core_order_id=detail.core_order_id,
++                    session_id=detail.session_id,
++                    token_id=None,
++                    qty=detail.remaining_qty,
++                    remaining_notional=detail.notional,
++                    age_s=None,
++                    status=detail.note or "open order",
++                    source=detail.source,
++                )
++            )
++    return tuple(lines)
++
++
++def _redeem_state(
++    legs: Sequence[ResidualLeg],
++    positions_state: Literal["complete", "incomplete", "error", "unknown"],
++) -> str:
++    redeemables = {leg.api_redeemable for leg in legs if leg.api_redeemable is not None}
++    if True in redeemables:
++        return "доступен redeem"
++    if not legs or positions_state != "complete":
++        return "статус неизвестен"
++    return "ожидаем разрешения"
++
++
++def _residual_legs(
++    entry: ArchiveEntry,
++    api_rows: Sequence[PositionEntry],
++    positions: Mapping[str, WalletPosition],
++    books: Mapping[str, BookSnapshot],
++) -> tuple[ResidualLeg, ...]:
++    api_by_token = {pos.asset: pos for pos in api_rows}
++    tokens = (
++        ("YES", entry.yes_token, entry.radiant if entry.yes_is_radiant else entry.dire),
++        ("NO", entry.no_token, entry.dire if entry.yes_is_radiant else entry.radiant),
++    )
++    legs: list[ResidualLeg] = []
++    for side, token_id, team in tokens:
++        if token_id is None:
++            continue
++        api_pos = api_by_token.get(token_id)
++        local = positions.get(token_id)
++        local_size = local.size if local is not None and local.size != 0.0 else None
++        api_size = api_pos.size if api_pos is not None and api_pos.size != 0.0 else None
++        if api_size is None and local_size is None:
++            continue
++        mark, mark_state = _book_mark(books.get(token_id))
++        if api_pos is not None:
++            leg_mark: float | None = api_pos.cur_price
++            leg_mark_state: Literal["api", "book", "book_stale", "unknown"] = "api"
++        else:
++            leg_mark = mark
++            leg_mark_state = mark_state
++        size = api_size if api_size is not None else local_size
++        legs.append(
++            ResidualLeg(
++                token_id=token_id,
++                outcome=f"{side} {team}" if team else side,
++                api_size=api_size,
++                api_price=api_pos.cur_price if api_pos is not None else None,
++                api_redeemable=api_pos.redeemable if api_pos is not None else None,
++                local_size=local_size,
++                local_avg=local.avg_price if local is not None else None,
++                mark=leg_mark,
++                mark_state=leg_mark_state,
++                value=None if size is None or leg_mark is None else size * leg_mark,
++            )
++        )
++    return tuple(legs)
++
++
++def _unmatched_api_rows(
++    snap: HubSnapshot,
++    api: Sequence[PositionEntry],
++    used_api: set[int],
++    positions_state: Literal["complete", "incomplete", "error", "unknown"],
++    now_s: float,
++) -> list[ResidualRow]:
++    known_cids = {
++        view.entry.condition_id
++        for view in (*snap.maps, *snap.legacy_maps)
++        if view.entry.condition_id is not None
++    }
++    rows: list[ResidualRow] = []
++    for pos in api:
++        if id(pos) in used_api or pos.size == 0.0 or pos.redeemable is not True:
++            continue
++        if pos.condition_id in known_cids:
++            continue
++        rows.append(
++            ResidualRow(
++                key=f"api:{pos.asset}",
++                match_id=None,
++                title=pos.title or f"позиция {pos.asset[:12]}…",
++                game=None,
++                redeem_state="доступен redeem",
++                legs=(
++                    ResidualLeg(
++                        token_id=pos.asset,
++                        outcome="—",
++                        api_size=pos.size,
++                        api_price=pos.cur_price,
++                        api_redeemable=pos.redeemable,
++                        local_size=None,
++                        local_avg=None,
++                        mark=pos.cur_price,
++                        mark_state="api",
++                        value=pos.size * pos.cur_price,
++                    ),
++                ),
++                commitments=_unsettled_lines(snap, now_s, pos.condition_id),
++                positions_state=positions_state,
++                match_url=None,
++                polymarket_url=None,
++                details=(
++                    f"condition {pos.condition_id or '—'}",
++                    "позиция API вне каталога карт",
++                ),
++            )
++        )
++    return rows
++
++
++def _residual_rows(snap: HubSnapshot, now_s: float) -> tuple[ResidualRow, ...]:
++    books = {book.token_id: book for book in snap.books}
++    positions = {pos.token_id: pos for pos in snap.wallet.positions}
++    api = _api_positions(snap)
++    positions_state = _positions_state(snap)
++    api_by_cid: dict[str, list[PositionEntry]] = {}
++    for pos in api:
++        if pos.condition_id is not None and pos.size != 0.0:
++            api_by_cid.setdefault(pos.condition_id, []).append(pos)
++    rows: list[ResidualRow] = []
++    used_api: set[int] = set()
++    for view in _terminal_views(snap):
++        entry = view.entry
++        cid = entry.condition_id
++        api_rows = api_by_cid.get(cid, []) if cid is not None else []
++        used_api.update(id(pos) for pos in api_rows)
++        legs = _residual_legs(entry, api_rows, positions, books)
++        commitments = _unsettled_lines(snap, now_s, cid)
++        if not legs and not commitments:
++            continue
++        rows.append(
++            ResidualRow(
++                key=f"map:{entry.match_id}",
++                match_id=entry.match_id,
++                title=map_title(entry),
++                game=entry.game,
++                redeem_state=_redeem_state(legs, positions_state),
++                legs=legs,
++                commitments=commitments,
++                positions_state=positions_state,
++                match_url=match_url(entry.match_id),
++                polymarket_url=polymarket_url(entry.event_slug, entry.slug),
++                details=(
++                    f"condition {cid or '—'}",
++                    f"статус карты {view.status}",
++                    f"positions {positions_state}",
++                ),
++            )
++        )
++    rows.extend(_unmatched_api_rows(snap, api, used_api, positions_state, now_s))
++    return tuple(rows)
++
++
++def build_lists(snap: HubSnapshot, now_s: float) -> ListsView:
++    books = {book.token_id: book for book in snap.books}
++    positions = {pos.token_id: pos for pos in snap.wallet.positions}
++    sessions_by_cid = {s.condition_id: s for s in snap.wallet.sessions}
++    session_ids = {s.session_id: s for s in snap.wallet.sessions}
++    token_cid = {row.token_id: row.condition_id for row in snap.wallet.token_cids}
++    buys_by_session: dict[str, list[CoreCommand]] = {}
++    for cmd in snap.wallet.open_buys:
++        buys_by_session.setdefault(cmd.session_id, []).append(cmd)
++    unsettled_by_cid: dict[str, list[UnsettledBuy]] = {}
++    for row in snap.wallet.unsettled:
++        cid = token_cid.get(row.token_id)
++        if cid is None and row.session_id in session_ids:
++            cid = session_ids[row.session_id].condition_id
++        if cid is not None:
++            unsettled_by_cid.setdefault(cid, []).append(row)
++    active: list[ActiveRow] = []
++    for view in snap.maps:
++        if view.status not in ("live", "stale") or view.entry.record_only:
++            continue
++        session = sessions_by_cid.get(view.entry.condition_id or "")
++        active.append(
++            _active_row(
++                view,
++                positions,
++                books,
++                snap.wallet.ok,
++                session,
++                buys_by_session.get(session.session_id, ()) if session is not None else (),
++                unsettled_by_cid.get(view.entry.condition_id or "", ()),
++            )
++        )
++    dated, undated = _closed_rows(snap, now_s)
++    nontrading_note: str | None = None
++    if not snap.nontrading.ok:
++        nontrading_note = snap.nontrading.error or "сканирование не выполнялось"
++    elif snap.nontrading.missing_roots or snap.nontrading.root_errors:
++        missing = ", ".join((*snap.nontrading.missing_roots, *snap.nontrading.root_errors))
++        nontrading_note = f"неполный обход: {missing}"
++    return ListsView(
++        active=tuple(active),
++        idle=_idle_rows(snap, now_s),
++        closed_dated=dated,
++        closed_undated=undated,
++        residuals=_residual_rows(snap, now_s),
++        positions_state=_positions_state(snap),
++        nontrading_note=nontrading_note,
++    )
++
++
++def _finding(
++    severity: Severity,
++    label: str,
++    source: str,
++    ts: float | None,
++    *details: str,
++) -> Diagnostic:
++    return Diagnostic(severity=severity, label=label, source=source, ts=ts, details=tuple(details))
++
++
++def _exit_findings(
++    sessions: Sequence[SessionFacts],
++    wedge: Mapping[str, diagnostics.SellWedgeVerdict],
++    params_by_cid: Mapping[str, float | None],
++    now_s: float,
++) -> Iterable[Diagnostic]:
++    for sess in sessions:
++        held = max((q for q in sess.held if q is not None), default=0.0)
++        if held <= 0.0 and not sess.sells:
++            continue
++        sells = tuple(
++            SellObservation(
++                session_key=sess.session_id,
++                token_id=sell.token_id or "?",
++                order_id=sell.order_id,
++                status=sell.status,
++                price=sell.price,
++                remaining_qty=sell.remaining_qty,
++                venue_id=sell.venue_id,
++                held_qty=sell.held_qty,
++            )
++            for sell in sess.sells
++        )
++        wedged = next(
++            (v for k, v in wedge.items() if k.startswith(f"{sess.session_id}:") and v.wedged),
++            None,
++        )
++        assessment = diagnostics.explain_exit(
++            held_qty=held,
++            min_order_size=params_by_cid.get(sess.condition_id),
++            sells=sells,
++            sell_only=sess.sell_only,
++            recovery_pending=sess.recovery_pending,
++            unconfirmed=sess.unconfirmed,
++            pending_ownership=sess.pending_ownership,
++            wedge=wedged,
++        )
++        source = "live.db core_sessions"
++        ids = (
++            f"session {sess.session_id}",
++            f"condition {sess.condition_id}",
++            f"rev {sess.revision} · обновлено {fmt_age(now_s - sess.updated_at)} назад",
++        )
++        if assessment.kind == "wedge":
++            yield _finding(
++                "warn",
++                f"возможное зависание SELL: {assessment.detail}",
++                source,
++                sess.updated_at,
++                *ids,
++                assessment.label,
++            )
++        elif assessment.kind == "unknown":
++            yield _finding(
++                "info",
++                f"нет SELL: причина не установлена ({sess.session_id})",
++                source,
++                sess.updated_at,
++                *ids,
++            )
++
++
++def _health_findings(health_facts: HealthFacts) -> list[Diagnostic]:
++    findings: list[Diagnostic] = []
++    if not health_facts.ok:
++        findings.append(
++            _finding(
++                "warn",
++                f"состояние контейнера неизвестно: {health_facts.error or '?'}",
++                "docker",
++                health_facts.attempt_at,
++            )
++        )
++        return findings
++    if not health_facts.consistent:
++        return findings
++    if health_facts.container_id is None:
++        findings.append(
++            _finding(
++                "error", "контейнер трейдера не найден", "docker compose", health_facts.read_at
++            )
++        )
++    elif health_facts.container_state != "running":
++        findings.append(
++            _finding(
++                "error",
++                f"контейнер {health_facts.container_state or 'неизвестно'}",
++                "docker inspect",
++                health_facts.read_at,
++            )
++        )
++    elif health_facts.halted:
++        findings.append(
++            _finding(
++                "error",
++                f"halt: {health_facts.halt_label or 'risk_halt'}",
++                "docker logs",
++                health_facts.halt_at or health_facts.read_at,
++                *health_facts.evidence[:2],
++            )
++        )
++    elif health_facts.halted is None:
++        findings.append(
++            _finding(
++                "warn",
++                "текущий halt-статус неизвестен (лог обрезан/неполный)",
++                "docker logs",
++                health_facts.read_at,
++            )
++        )
++    return findings
++
++
++def _source_findings(snap: HubSnapshot) -> list[Diagnostic]:
++    findings: list[Diagnostic] = []
++    if snap.error is not None:
++        findings.append(
++            _finding("fatal", f"источник дашборда упал: {snap.error}", "live hub", None)
++        )
++    if not snap.wallet.ok:
++        findings.append(
++            _finding(
++                "error",
++                f"чтение кошелька: {snap.wallet.error or 'нет данных'}",
++                "wallet live.db",
++                snap.wallet.read_at,
++            )
++        )
++    if snap.balance.funder_mismatch:
++        findings.append(
++            _finding(
++                "error",
++                "funder кошелька не совпадает с аккаунтом",
++                "wallet_identity/config",
++                snap.wallet.read_at,
++            )
++        )
++    elif snap.balance.last_error is not None:
++        findings.append(
++            _finding(
++                "error",
++                f"collateral: {snap.balance.last_error}",
++                "balance allowance",
++                snap.balance.last_attempt_at,
++            )
++        )
++    findings.extend(_health_findings(snap.health))
++    if snap.subscriptions.error is not None:
++        findings.append(
++            _finding(
++                "warn",
++                f"каталог/подписки: {snap.subscriptions.error}",
++                "catalog lane",
++                snap.subscriptions.catalog_built_at,
++            )
++        )
++    if not snap.nontrading.ok:
++        findings.append(
++            _finding(
++                "warn",
++                f"не-торговые рынки: {snap.nontrading.error or 'нет чтения'}",
++                "sidecar scan",
++                snap.nontrading.attempt_at,
++            )
++        )
++    if not snap.service_logs.ok and snap.service_logs.error is not None:
++        findings.append(
++            _finding(
++                "warn",
++                f"логи сервиса: {snap.service_logs.error}",
++                "docker logs",
++                snap.service_logs.attempt_at,
++            )
++        )
++    if snap.day.error is not None:
++        findings.append(
++            _finding(
++                "info",
++                f"дневной PnL: последнее чтение — {snap.day.error}",
++                "data-api /activity",
++                snap.day.attempt_at,
++            )
++        )
++    return findings
++
++
++def _session_findings(
++    sessions: Sequence[SessionFacts],
++    wedge: Mapping[str, diagnostics.SellWedgeVerdict],
++    params_by_cid: Mapping[str, float | None],
++    now_s: float,
++) -> list[Diagnostic]:
++    findings = list(_exit_findings(sessions, wedge, params_by_cid, now_s))
++    for sess in sessions:
++        if sess.unconfirmed or sess.pending_ownership:
++            findings.append(
++                _finding(
++                    "warn",
++                    f"неподтверждённые сделки: unconfirmed={sess.unconfirmed} pending={sess.pending_ownership}",
++                    "live.db core_sessions",
++                    sess.updated_at,
++                    f"session {sess.session_id}",
++                )
++            )
++        if sess.checkpoint_error is not None:
++            findings.append(
++                _finding(
++                    "warn",
++                    f"checkpoint не декодируется: {sess.checkpoint_error}",
++                    "live.db core_sessions",
++                    sess.updated_at,
++                    f"session {sess.session_id}",
++                )
++            )
++    return findings
++
++
++_NEUTRAL_BLOCKS = frozenset({"no_edge", "position_open", "position_cap", "min_delta"})
++
++
++def _map_findings(snap: HubSnapshot, params_by_cid: Mapping[str, float | None]) -> list[Diagnostic]:
++    findings: list[Diagnostic] = []
++    for view in snap.maps:
++        if view.status == "stale":
++            findings.append(
++                _finding(
++                    "warn",
++                    f"карта {view.entry.match_id}: запись остановилась",
++                    "session journal",
++                    view.entry.last_write,
++                    f"возраст {fmt_age(view.write_age_s)}",
++                )
++            )
++            continue
++        if view.status != "live" or view.decision is None:
++            continue
++        decision = view.decision
++        if decision.reason in ("model_error", "trading_error", "sidecar_fault"):
++            findings.append(
++                _finding(
++                    "warn",
++                    f"карта {view.entry.match_id}: {diagnostics.reason_label(decision.reason)}",
++                    str(decision.path),
++                    None,
++                    f"решение {fmt_age(view.decision_age_s)} назад",
++                )
++            )
++        elif decision.entry_block in _NEUTRAL_BLOCKS:
++            params = (
++                params_by_cid.get(view.entry.condition_id)
++                if view.entry.condition_id is not None
++                else None
++            )
++            findings.append(
++                _finding(
++                    "info",
++                    f"карта {view.entry.match_id}: "
++                    + diagnostics.entry_block_label(
++                        decision.entry_block,
++                        model_evaluated=decision.model_evaluated,
++                        raw_delta=decision.raw_delta,
++                        min_abs_delta=params,
++                    ),
++                    "decision tail",
++                    None,
++                )
++            )
++    return findings
++
++
++def build_diagnostics(
++    snap: HubSnapshot,
++    watcher: SellWatcher | None,
++    now_s: float,
++) -> DiagnosticsView:
++    sessions = snap.wallet.sessions
++    wedge: Mapping[str, diagnostics.SellWedgeVerdict] = {}
++    if watcher is not None:
++        wedge = watcher.observe(
++            sessions,
++            wallet_read_at=snap.wallet.read_at,
++            generation=snap.generation,
++            now_s=now_s,
++        )
++    params_by_cid = {
++        view.entry.condition_id: (
++            view.entry.params.min_order_size if view.entry.params is not None else None
++        )
++        for view in (*snap.maps, *snap.legacy_maps)
++        if view.entry.condition_id is not None
++    }
++    findings = (
++        _source_findings(snap)
++        + _session_findings(sessions, wedge, params_by_cid, now_s)
++        + _map_findings(snap, params_by_cid)
++    )
++    findings.sort(key=lambda f: (_SEVERITY_RANK[f.severity], -(f.ts or 0.0)))
++    capped = tuple(findings[:_DIAG_CAP])
++    headline = capped[0] if capped else None
++    observed: str | None = None
++    health_facts = snap.health
++    if health_facts.ok and health_facts.consistent:
++        if health_facts.container_id is None:
++            observed = "контейнер не запущен"
++        elif health_facts.container_state == "running":
++            observed = "контейнер работает" + (
++                " · halt чист" if health_facts.halted is False else ""
++            )
++        else:
++            observed = f"контейнер {health_facts.container_state}"
++    if headline is not None:
++        line = f"{headline.label} · {headline.source}"
++    elif observed is not None:
++        line = f"проблем не видно · {observed}"
++    else:
++        line = "текущее состояние неизвестно"
++    return DiagnosticsView(
++        line=line,
++        headline=headline,
++        findings=capped,
++        observed=observed,
++    )
++
++
++def find_match(snap: HubSnapshot, match_id: str) -> tuple[MapView, ...]:
++    return tuple(
++        view for view in (*snap.maps, *snap.legacy_maps) if view.entry.match_id == match_id
++    )
+diff --git a/src/dashboard/home_view.py b/src/dashboard/home_view.py
+new file mode 100644
+index 00000000..83067ded
+--- /dev/null
++++ b/src/dashboard/home_view.py
+@@ -0,0 +1,252 @@
++"""Streamlit rendering for the home screen; consumes pure home DTOs."""
++
++from collections.abc import Callable
++from typing import Any, cast
++
++import streamlit as st
++from streamlit.delta_generator import DeltaGenerator
++
++from dashboard import home
++from dashboard.fresh_view import render_fresh
++from dashboard.home import (
++    ActiveRow,
++    ClosedRow,
++    Diagnostic,
++    DiagnosticsView,
++    FreshMetric,
++    HealthLine,
++    IdleRow,
++    ListsView,
++    ResidualRow,
++    StripView,
++)
++
++_SEVERITY_TEXT = {"fatal": "FATAL", "error": "ОШИБКА", "warn": "ВНИМ", "info": "инфо"}
++
++# streamlit dataframe overloads leak Unknown into strict basedpyright.
++_dataframe: Callable[..., DeltaGenerator] = cast(Any, st).dataframe
++
++
++def _metric(key: str, metric: FreshMetric) -> None:
++    st.caption(metric.title)
++    note = metric.note if metric.note is not None else metric.verdict.label
++    if metric.note is not None:
++        note = f"{metric.verdict.label} · {metric.note}"
++    render_fresh(key, metric.text, metric.verdict.state, note)
++    with st.popover("детали"):
++        if metric.verdict.age_s is not None:
++            st.caption(f"данные {home.fmt_age(metric.verdict.age_s)} назад")
++        for line in metric.details:
++            st.write(f"· {line}")
++
++
++def _health(health_facts: HealthLine) -> None:
++    st.caption("Трейдер")
++    st.markdown(f"**{health_facts.text}**")
++    with st.popover("детали"):
++        for line in health_facts.details:
++            st.write(f"· {line}")
++
++
++def render_strip(strip: StripView) -> None:
++    cols = st.columns(5)
++    with cols[0]:
++        _metric("cash", strip.collateral)
++    with cols[1]:
++        _metric("available", strip.available)
++    with cols[2]:
++        _metric("pnl", strip.pnl)
++    with cols[3]:
++        _metric("rebate", strip.rebate)
++    with cols[4]:
++        _health(strip.health)
++
++
++def _finding_block(finding: Diagnostic) -> None:
++    age = home.fmt_age(finding.ts) if finding.ts is not None else "время ?"
++    st.write(f"**{_SEVERITY_TEXT[finding.severity]}** · {finding.label}")
++    st.caption(f"{finding.source} · {age} назад")
++    for detail in finding.details:
++        st.write(f"· {detail}")
++
++
++def render_diagnostics(view: DiagnosticsView) -> None:
++    st.caption(f"диагностика: {view.line}")
++    if not view.findings:
++        return
++    with st.expander(f"Диагностика ({len(view.findings)})"):
++        for finding in view.findings:
++            _finding_block(finding)
++            st.divider()
++
++
++def _links(match_url: str | None, polymarket_url: str | None) -> None:
++    cols = st.columns(2)
++    if match_url is not None:
++        cols[0].link_button("карта", match_url)
++    if polymarket_url is not None:
++        cols[1].link_button("polymarket", polymarket_url)
++
++
++def _active_label(row: ActiveRow) -> str:
++    bits = [
++        row.title,
++        f"t={home.fmt_second(row.second)}",
++        row.phase or "?",
++        f"uPnL {home.fmt_usd(row.unrealized_total, signed=True)}",
++        row.reason,
++    ]
++    if row.paused:
++        bits.append("пауза")
++    if row.stale:
++        bits.append("устарело")
++    return " · ".join(bits)
++
++
++def _active_block(row: ActiveRow) -> None:
++    st.caption(
++        f"{row.game or '?'} · {row.window or 'окно неизвестно'}"
++        f" · решение {home.fmt_age(row.decision_age_s)} назад"
++        f" · фид {home.fmt_age(row.feed_age_s)} назад"
++    )
++    if row.position_state == "unknown":
++        st.write("позиция: кошелёк не читался — неизвестно")
++    elif row.position_state == "empty":
++        st.write("позиция: нет")
++    else:
++        _dataframe(
++            [
++                {
++                    "исход": leg.outcome,
++                    "размер": f"{leg.size:g}",
++                    "ср.": f"{leg.avg_price:g}",
++                    "марка": f"{leg.mark:g}" if leg.mark is not None else "—",
++                    "источник": leg.mark_state,
++                    "uPnL": home.fmt_usd(leg.unrealized, signed=True),
++                }
++                for leg in row.positions
++            ],
++            hide_index=True,
++        )
++    for line in row.state_lines:
++        st.write(f"· {line}")
++    with st.popover("evidence"):
++        for line in row.details:
++            st.write(f"· {line}")
++    _links(row.match_url, row.polymarket_url)
++
++
++def _idle_block(row: IdleRow) -> None:
++    st.caption(
++        f"{row.game or '?'} · источник {row.reason_source or row.source}"
++        f" · {home.fmt_age(row.reason_age_s)} назад"
++    )
++    for line in row.details:
++        st.write(f"· {line}")
++    _links(row.match_url, row.polymarket_url)
++
++
++def _closed_block(rows: tuple[ClosedRow, ...]) -> None:
++    _dataframe(
++        [
++            {
++                "карта": row.title,
++                "игра": row.game or "?",
++                "net": home.fmt_usd(row.net, signed=True),
++                "realized": home.fmt_usd(row.realized, signed=True),
++                "imv": home.fmt_usd(row.imv, signed=True),
++                "rebate": home.fmt_usd(row.rebate, signed=True),
++                "fills": row.fill_count if row.fill_count is not None else "—",
++                "замечена": (
++                    home.fmt_age(row.closed_age_s)
++                    if row.closed_age_s is not None
++                    else "дата неизвестна"
++                ),
++                "ссылка": row.match_url,
++            }
++            for row in rows
++        ],
++        hide_index=True,
++        column_config={
++            "карта": st.column_config.TextColumn(width="large"),
++            "ссылка": st.column_config.LinkColumn("карта", display_text="открыть"),
++        },
++    )
++
++
++def _residual_block(row: ResidualRow) -> None:
++    st.caption(f"{row.redeem_state} · positions {row.positions_state}")
++    if row.legs:
++        _dataframe(
++            [
++                {
++                    "исход": leg.outcome,
++                    "API": f"{leg.api_size:g}" if leg.api_size is not None else "—",
++                    "локально": (f"{leg.local_size:g}" if leg.local_size is not None else "—"),
++                    "ср.": f"{leg.local_avg:g}" if leg.local_avg is not None else "—",
++                    "марка": f"{leg.mark:g}" if leg.mark is not None else "—",
++                    "источник": leg.mark_state,
++                    "оценка": home.fmt_usd(leg.value),
++                }
++                for leg in row.legs
++            ],
++            hide_index=True,
++        )
++    for line in row.commitments:
++        bits = [
++            f"{line.source}",
++            f"qty {line.qty:g}" if line.qty is not None else "qty ?",
++            f"резерв {home.fmt_usd(line.remaining_notional)}",
++            line.status,
++        ]
++        if line.age_s is not None:
++            bits.append(f"возраст {home.fmt_age(line.age_s)}")
++        ids = " · ".join(
++            part
++            for part in (
++                line.venue_id,
++                line.core_order_id,
++                line.token_id,
++            )
++            if part
++        )
++        st.write(" · ".join(bits))
++        st.caption(ids or "—")
++    for line in row.details:
++        st.write(f"· {line}")
++    _links(row.match_url, row.polymarket_url)
++
++
++def render_lists(view: ListsView) -> None:
++    st.subheader("Торгуем сейчас")
++    if not view.active:
++        st.caption("нет активных карт")
++    for row in view.active:
++        with st.expander(_active_label(row)):
++            _active_block(row)
++
++    st.subheader("Скоро / не торгуем")
++    if view.nontrading_note is not None:
++        st.caption(f"сканирование: {view.nontrading_note}")
++    if not view.idle:
++        st.caption("нет наблюдаемых не-торговых рынков")
++    for row in view.idle:
++        with st.expander(f"{row.title} — {row.reason}"):
++            _idle_block(row)
++
++    st.subheader("Закрытые сегодня")
++    if not view.closed_dated:
++        st.caption("сегодня карты не закрывались")
++    else:
++        _closed_block(view.closed_dated)
++    if view.closed_undated:
++        with st.expander(f"Завершённые без даты закрытия ({len(view.closed_undated)})"):
++            st.caption("момент закрытия неизвестен — в «сегодня» не входят")
++            _closed_block(view.closed_undated)
++
++    st.subheader("Остатки завершённых карт")
++    if not view.residuals:
++        st.caption("открытых остатков нет")
++    for row in view.residuals:
++        with st.expander(f"{row.title} — {row.redeem_state}"):
++            _residual_block(row)
+diff --git a/src/dashboard/hub_types.py b/src/dashboard/hub_types.py
+index 48e975b7..1c93bc2a 100644
+--- a/src/dashboard/hub_types.py
++++ b/src/dashboard/hub_types.py
+@@ -6,7 +6,8 @@ from types import MappingProxyType
+ from dashboard import reserve, summarize
+ from dashboard.balance import BalanceSnapshot
+ from dashboard.catalog import CatalogSnapshot, MapView, classify_entry
+-from dashboard.logs import ServiceLogs
++from dashboard.health import HealthFacts
++from dashboard.logs import NontradingResult, ServiceLogs, SkippedMarket
+ from dashboard.market_books import BookSnapshot, DesiredMarket
+ from dashboard.reserve import ReserveReport
+ from dashboard.summarize import (
+@@ -17,12 +18,33 @@ from dashboard.summarize import (
+     RebateAccrual,
+ )
+ from dashboard.tails import TailView
+-from dashboard.wallet import TokenCid, WalletPosition, WalletSnapshot
++from dashboard.wallet import (
++    SessionSnapshot,
++    TokenCid,
++    WalletPosition,
++    WalletSnapshot,
++)
++from trader.core_persistence import CoreCommand, OrderBinding, UnsettledBuy
+ from trader.paths import SESSION_JOURNAL_FILENAME
+ 
+ TAIL_TRACK_LIMIT = 64
+ 
+ 
++@dataclass(frozen=True)
++class SellOrderFacts:
++    order_id: str
++    token_index: int
++    token_id: str | None
++    status: str
++    price: float
++    submitted_qty: float
++    filled_qty: float
++    remaining_qty: float
++    held_qty: float
++    venue_id: str | None
++    cancel_reason: str
++
++
+ @dataclass(frozen=True)
+ class SessionFacts:
+     session_id: str
+@@ -30,10 +52,20 @@ class SessionFacts:
+     game: str
+     yes_token: str
+     no_token: str
++    yes_is_radiant: bool
+     revision: int
+     recovery: bool
+     created_at: float
+     updated_at: float
++    checkpoint_error: str | None
++    sell_only: bool | None
++    recovery_pending: bool | None
++    winding_down: bool | None
++    unconfirmed: int
++    pending_ownership: int
++    has_buy_fill: bool | None
++    held: tuple[float | None, float | None]
++    sells: tuple[SellOrderFacts, ...]
+ 
+ 
+ @dataclass(frozen=True)
+@@ -45,6 +77,10 @@ class WalletFacts:
+     max_outbox_seq: int
+     sessions: tuple[SessionFacts, ...]
+     positions: tuple[WalletPosition, ...]
++    bindings: tuple[OrderBinding, ...]
++    open_buys: tuple[CoreCommand, ...]
++    unsettled: tuple[UnsettledBuy, ...]
++    token_cids: tuple[TokenCid, ...]
+     notes: tuple[str, ...]
+ 
+ 
+@@ -54,9 +90,12 @@ class DaySnapshot:
+     fold: DayFold | None
+     fold_at: float | None
+     complete: bool
++    inflight: bool
++    attempt_started_at: float | None
+     attempt_at: float | None
+     error: str | None
+     positions: PositionsResult | None
++    positions_candidate: PositionsResult | None
+     payout_ts: float | None
+     payout_known: bool
+     accrual_per_game: Mapping[str, float]
+@@ -72,9 +111,12 @@ EMPTY_DAY_SNAPSHOT = DaySnapshot(
+     fold=None,
+     fold_at=None,
+     complete=False,
++    inflight=False,
++    attempt_started_at=None,
+     attempt_at=None,
+     error=None,
+     positions=None,
++    positions_candidate=None,
+     payout_ts=None,
+     payout_known=False,
+     accrual_per_game=MappingProxyType({}),
+@@ -126,6 +168,30 @@ class LogsFacts:
+     truncated: bool
+ 
+ 
++@dataclass(frozen=True)
++class NontradingFacts:
++    ok: bool
++    error: str | None
++    attempt_at: float | None
++    scanned_at: float | None
++    markets: tuple[SkippedMarket, ...]
++    invalid_sidecars: int
++    missing_roots: tuple[str, ...]
++    root_errors: tuple[str, ...]
++
++
++EMPTY_NONTRADING = NontradingFacts(
++    ok=False,
++    error=None,
++    attempt_at=None,
++    scanned_at=None,
++    markets=(),
++    invalid_sidecars=0,
++    missing_roots=(),
++    root_errors=(),
++)
++
++
+ @dataclass(frozen=True)
+ class HubSnapshot:
+     generation: int
+@@ -139,6 +205,9 @@ class HubSnapshot:
+     day: DaySnapshot
+     subscriptions: SubscriptionFacts
+     maps: tuple[MapView, ...]
++    legacy_maps: tuple[MapView, ...]
++    nontrading: NontradingFacts
++    health: HealthFacts
+     service_logs: LogsFacts
+ 
+ 
+@@ -153,6 +222,7 @@ class DesiredSubs:
+ class DayJob:
+     funder: str
+     generation: int
++    started_at: float
+     finished_at: float
+     day: DayResult
+     payout_known: bool
+@@ -161,6 +231,93 @@ class DayJob:
+     accrual_error: str | None
+ 
+ 
++def _sell_facts(
++    sess: SessionSnapshot, venues: Mapping[str, str | None]
++) -> tuple[SellOrderFacts, ...]:
++    checkpoint = sess.checkpoint
++    if checkpoint is None:
++        return ()
++    tokens = (sess.yes_token, sess.no_token)
++    out: list[SellOrderFacts] = []
++    for order in checkpoint.orders:
++        if order.side != "SELL":
++            continue
++        remaining = order.submitted_qty - order.filled_qty
++        if remaining <= 0.0:
++            continue
++        idx = order.token_index
++        held = checkpoint.inventory[idx].qty if 0 <= idx < len(checkpoint.inventory) else None
++        out.append(
++            SellOrderFacts(
++                order_id=order.order_id,
++                token_index=idx,
++                token_id=tokens[idx] if 0 <= idx < len(tokens) else None,
++                status=order.status,
++                price=order.price,
++                submitted_qty=order.submitted_qty,
++                filled_qty=order.filled_qty,
++                remaining_qty=remaining,
++                held_qty=held if held is not None else 0.0,
++                venue_id=venues.get(order.order_id),
++                cancel_reason=order.cancel_reason,
++            )
++        )
++    return tuple(out)
++
++
++def _session_facts(snap: WalletSnapshot) -> tuple[SessionFacts, ...]:
++    venues: dict[str, str | None] = {}
++    for binding in snap.bindings:
++        if binding.core_order_id not in venues or not binding.terminal:
++            venues[binding.core_order_id] = binding.venue_id
++    out: list[SessionFacts] = []
++    for sess in snap.sessions:
++        checkpoint = sess.checkpoint
++        if checkpoint is None:
++            sells: tuple[SellOrderFacts, ...] = ()
++            held: tuple[float | None, float | None] = (None, None)
++            sell_only: bool | None = None
++            recovery_pending: bool | None = None
++            winding_down: bool | None = None
++            unconfirmed = 0
++            pending_ownership = 0
++            has_buy_fill: bool | None = None
++        else:
++            sells = _sell_facts(sess, venues)
++            inventory = checkpoint.inventory
++            held = (inventory[0].qty, inventory[1].qty)
++            sell_only = checkpoint.sell_only
++            recovery_pending = checkpoint.recovery_pending
++            winding_down = checkpoint.winding_down
++            unconfirmed = len(checkpoint.unconfirmed_keys)
++            pending_ownership = len(checkpoint.pending_ownership)
++            has_buy_fill = checkpoint.has_buy_fill
++        out.append(
++            SessionFacts(
++                session_id=sess.session_id,
++                condition_id=sess.condition_id,
++                game=sess.game,
++                yes_token=sess.yes_token,
++                no_token=sess.no_token,
++                yes_is_radiant=sess.yes_is_radiant,
++                revision=sess.revision,
++                recovery=sess.recovery,
++                created_at=sess.created_at,
++                updated_at=sess.updated_at,
++                checkpoint_error=sess.checkpoint_error,
++                sell_only=sell_only,
++                recovery_pending=recovery_pending,
++                winding_down=winding_down,
++                unconfirmed=unconfirmed,
++                pending_ownership=pending_ownership,
++                has_buy_fill=has_buy_fill,
++                held=held,
++                sells=sells,
++            )
++        )
++    return tuple(out)
++
++
+ def wallet_facts(snap: WalletSnapshot | None, *, read_ok: bool, error: str | None) -> WalletFacts:
+     if snap is None:
+         return WalletFacts(
+@@ -171,6 +328,10 @@ def wallet_facts(snap: WalletSnapshot | None, *, read_ok: bool, error: str | Non
+             max_outbox_seq=0,
+             sessions=(),
+             positions=(),
++            bindings=(),
++            open_buys=(),
++            unsettled=(),
++            token_cids=(),
+             notes=(),
+         )
+     notes = snap.notes + (() if error is None else (f"latest read: {error}",))
+@@ -180,21 +341,12 @@ def wallet_facts(snap: WalletSnapshot | None, *, read_ok: bool, error: str | Non
+         read_at=snap.read_at,
+         funder=snap.funder,
+         max_outbox_seq=snap.max_outbox_seq,
+-        sessions=tuple(
+-            SessionFacts(
+-                session_id=s.session_id,
+-                condition_id=s.condition_id,
+-                game=s.game,
+-                yes_token=s.yes_token,
+-                no_token=s.no_token,
+-                revision=s.revision,
+-                recovery=s.recovery,
+-                created_at=s.created_at,
+-                updated_at=s.updated_at,
+-            )
+-            for s in snap.sessions
+-        ),
++        sessions=_session_facts(snap),
+         positions=snap.positions,
++        bindings=snap.bindings,
++        open_buys=snap.open_buy_commands,
++        unsettled=snap.unsettled_buys,
++        token_cids=snap.token_cids,
+         notes=notes,
+     )
+ 
+@@ -290,7 +442,8 @@ def run_day_job(
+     fetch: FetchJson,
+     wall: Callable[[], float],
+ ) -> DayJob:
+-    day = summarize.fetch_day(funder, now=wall(), fetch=fetch, wall=wall)
++    started_at = wall()
++    day = summarize.fetch_day(funder, now=started_at, fetch=fetch, wall=wall)
+     payout_known = False
+     payout_ts: float | None = None
+     accrual: RebateAccrual | None = None
+@@ -315,6 +468,7 @@ def run_day_job(
+     return DayJob(
+         funder=funder,
+         generation=generation,
++        started_at=started_at,
+         finished_at=wall(),
+         day=day,
+         payout_known=payout_known,
+@@ -328,7 +482,9 @@ def merge_day_state(
+     prev: DayState, job: DayJob, *, generation: int, funder: str | None
+ ) -> DayState:
+     if job.generation != generation or funder is None or job.funder != funder:
+-        return prev
++        if not prev.snapshot.inflight:
++            return prev
++        return DayState(result=prev.result, snapshot=replace(prev.snapshot, inflight=False))
+     result = summarize.publish_day(prev.result, job.day)
+     snapshot = prev.snapshot
+     positions = job.day.positions
+@@ -336,6 +492,10 @@ def merge_day_state(
+         kept_positions: PositionsResult | None = positions
+     else:
+         kept_positions = snapshot.positions
++    if positions is not None:
++        kept_candidate: PositionsResult | None = positions
++    else:
++        kept_candidate = snapshot.positions_candidate
+     payout_known = snapshot.payout_known or job.payout_known
+     payout_ts = job.payout_ts if job.payout_known else snapshot.payout_ts
+     if job.accrual is not None:
+@@ -361,9 +521,12 @@ def merge_day_state(
+             fold=result.fold,
+             fold_at=result.fetched_at,
+             complete=result.complete,
++            inflight=False,
++            attempt_started_at=job.started_at,
+             attempt_at=job.finished_at,
+             error=job.day.error,
+             positions=kept_positions,
++            positions_candidate=kept_candidate,
+             payout_ts=payout_ts,
+             payout_known=payout_known,
+             accrual_per_game=per_game,
+@@ -376,11 +539,19 @@ def merge_day_state(
+     )
+ 
+ 
++def mark_day_inflight(prev: DayState, *, started_at: float) -> DayState:
++    return DayState(
++        result=prev.result,
++        snapshot=replace(prev.snapshot, inflight=True, attempt_started_at=started_at),
++    )
++
++
+ def fail_day_state(prev: DayState, error: str, *, attempt_at: float | None) -> DayState:
+     return DayState(
+         result=prev.result,
+         snapshot=replace(
+             prev.snapshot,
++            inflight=False,
+             attempt_at=prev.snapshot.attempt_at if attempt_at is None else attempt_at,
+             error=error,
+         ),
+@@ -403,3 +574,36 @@ def merge_service_logs(prev: LogsFacts, result: ServiceLogs, *, attempt_at: floa
+ 
+ def fail_service_logs(prev: LogsFacts, error: str, *, attempt_at: float) -> LogsFacts:
+     return replace(prev, ok=False, error=error, attempt_at=attempt_at)
++
++
++def merge_nontrading(
++    result: NontradingResult, *, attempt_at: float, root_errors: tuple[str, ...]
++) -> NontradingFacts:
++    return NontradingFacts(
++        ok=True,
++        error=None,
++        attempt_at=attempt_at,
++        scanned_at=result.scanned_at,
++        markets=result.markets,
++        invalid_sidecars=result.invalid_sidecars,
++        missing_roots=result.missing_roots,
++        root_errors=root_errors,
++    )
++
++
++def fail_nontrading(
++    prev: NontradingFacts,
++    error: str,
++    *,
++    attempt_at: float,
++    root_errors: tuple[str, ...] = (),
++) -> NontradingFacts:
++    return replace(prev, ok=False, error=error, attempt_at=attempt_at, root_errors=root_errors)
++
++
++def merge_health(result: HealthFacts, *, attempt_at: float) -> HealthFacts:
++    return replace(result, attempt_at=attempt_at)
++
++
++def fail_health(prev: HealthFacts, error: str, *, attempt_at: float) -> HealthFacts:
++    return replace(prev, ok=False, error=error, attempt_at=attempt_at)
+diff --git a/src/dashboard/live_hub.py b/src/dashboard/live_hub.py
+index 994a530e..5ec8ef8c 100644
+--- a/src/dashboard/live_hub.py
++++ b/src/dashboard/live_hub.py
+@@ -4,14 +4,14 @@ import functools
+ import itertools
+ import threading
+ import time
+-from collections.abc import Callable, Coroutine
++from collections.abc import Callable, Coroutine, Mapping
+ from concurrent.futures import Future, ThreadPoolExecutor, wait
+ from contextlib import suppress
+ from dataclasses import dataclass, replace
+ from pathlib import Path
+ from typing import Any, Protocol, Self
+ 
+-from dashboard import catalog, logs, reserve, summarize, wallet
++from dashboard import catalog, health, logs, reserve, summarize, wallet
+ from dashboard.balance import (
+     BalanceAccount,
+     BalanceRead,
+@@ -20,25 +20,33 @@ from dashboard.balance import (
+ )
+ from dashboard.catalog import CatalogSnapshot, MapView
+ from dashboard.collateral import CollateralReader
++from dashboard.health import EMPTY_HEALTH, HealthFacts
+ from dashboard.hub_types import (
+     EMPTY_DAY_STATE,
++    EMPTY_NONTRADING,
+     EMPTY_SUBSCRIPTION_FACTS,
+     DesiredSubs,
+     HubSnapshot,
+     LogsFacts,
++    NontradingFacts,
+     SubscriptionFacts,
+     classify_map_views,
+     desired_subscriptions,
+     fail_day_state,
++    fail_health,
++    fail_nontrading,
+     fail_service_logs,
++    mark_day_inflight,
+     merge_day_state,
++    merge_health,
++    merge_nontrading,
+     merge_service_logs,
+     reserve_snapshot,
+     run_day_job,
+     tail_paths,
+     wallet_facts,
+ )
+-from dashboard.logs import LogRunner
++from dashboard.logs import LogRunner, NontradingResult, SkipNote, latest_skip_reasons
+ from dashboard.market_books import (
+     DEFAULT_WS_URL,
+     BooksCallback,
+@@ -53,6 +61,8 @@ from dashboard.tails import TailCache, TailView
+ from dashboard.wallet import OutboxPage, WalletSnapshot
+ from shared.utils.environment import env_value
+ from shared.utils.log import get_logger
++from trader.collector_sidecars import load_archive_root
++from trader.game_profile import GAME_PROFILES
+ 
+ OUTBOX_PAGE_LIMIT = 256
+ LOG_FAIL_PAUSE_CAP_S = 300.0
+@@ -108,6 +118,8 @@ class HubConfig:
+     proxy: str | None
+     account: BalanceAccount | None
+     account_error: str | None
++    sidecar_roots: Mapping[str, Path]
++    sidecar_root_errors: tuple[str, ...]
+     timing: HubTiming
+     fetch: FetchJson
+     log_runner: LogRunner
+@@ -124,6 +136,17 @@ def _default_books_factory(ws_url: str, proxy: str | None) -> BooksFactory:
+     return build
+ 
+ 
++def _sidecar_roots() -> tuple[dict[str, Path], list[str]]:
++    roots: dict[str, Path] = {}
++    errors: list[str] = []
++    for game, profile in GAME_PROFILES.items():
++        try:
++            roots[game] = load_archive_root(profile)
++        except RuntimeError:
++            errors.append(f"{game}: {profile.archive_root_env} unset")
++    return roots, errors
++
++
+ def default_hub_config() -> HubConfig:
+     root = summarize.ESPORTS_TRADER
+     trading_toml = root / "config" / "trading.toml"
+@@ -138,6 +161,7 @@ def default_hub_config() -> HubConfig:
+     reader = None if account is None else CollateralReader(account).read
+     ws_url = DEFAULT_WS_URL
+     proxy = env_value("ALL_PROXY") or env_value("HTTPS_PROXY")
++    sidecar_roots, sidecar_errors = _sidecar_roots()
+     return HubConfig(
+         wallet_db=root / "data" / "trader_live" / "wallet" / "live.db",
+         live_root=root / "data" / "trader_live",
+@@ -148,6 +172,8 @@ def default_hub_config() -> HubConfig:
+         proxy=proxy,
+         account=account,
+         account_error=account_error,
++        sidecar_roots=sidecar_roots,
++        sidecar_root_errors=tuple(sidecar_errors),
+         timing=PRODUCTION_TIMING,
+         fetch=summarize.fetch_json,
+         log_runner=logs.docker_runner,
+@@ -206,18 +232,55 @@ class _DiskLane:
+         )
+ 
+ 
++@dataclass(frozen=True)
++class _CatalogResult:
++    live: CatalogSnapshot
++    legacy: CatalogSnapshot
++    nontrading: NontradingResult
++
++
+ class _CatalogLane:
+-    def __init__(self, live_root: Path, legacy_root: Path) -> None:
+-        self._live = catalog.MatchCatalog(live_root, "live")
+-        self._legacy = catalog.MatchCatalog(legacy_root, "legacy")
++    def __init__(
++        self,
++        live_root: Path,
++        legacy_root: Path,
++        sidecar_roots: Mapping[str, Path],
++        refresh_s: float = catalog.CATALOG_REFRESH_S,
++    ) -> None:
++        self._live = catalog.MatchCatalog(live_root, "live", refresh_s=refresh_s)
++        self._legacy = catalog.MatchCatalog(legacy_root, "legacy", refresh_s=refresh_s)
++        self._sidecar_roots = sidecar_roots
+ 
+     def __call__(
+-        self, *, now_mono: float, now_wall: float
+-    ) -> tuple[CatalogSnapshot, CatalogSnapshot]:
+-        return (
+-            self._live.snapshot(now_mono=now_mono, now_wall=now_wall),
+-            self._legacy.snapshot(now_mono=now_mono, now_wall=now_wall),
++        self, *, now_mono: float, now_wall: float, skips: Mapping[str, SkipNote]
++    ) -> _CatalogResult:
++        live = self._live.snapshot(now_mono=now_mono, now_wall=now_wall)
++        legacy = self._legacy.snapshot(now_mono=now_mono, now_wall=now_wall)
++        traded = frozenset(
++            entry.condition_id
++            for entry in itertools.chain(live.entries, legacy.entries)
++            if entry.condition_id is not None
+         )
++        nontrading = logs.list_nontrading(
++            roots=self._sidecar_roots,
++            traded_cids=traded,
++            skips=skips,
++            now_epoch=now_wall,
++        )
++        return _CatalogResult(live=live, legacy=legacy, nontrading=nontrading)
++
++
++@dataclass(frozen=True)
++class _LogsResult:
++    service: logs.ServiceLogs
++    health: HealthFacts
++
++
++def _run_logs_job(compose_file: Path, service: str, runner: LogRunner) -> _LogsResult:
++    return _LogsResult(
++        service=logs.read_service_logs(compose_file=compose_file, service=service, runner=runner),
++        health=health.read_health(compose_file=compose_file, service=service, runner=runner),
++    )
+ 
+ 
+ _GENERATIONS = itertools.count(1)
+@@ -259,7 +322,12 @@ class LiveHub:
+             period_s=config.timing.balance_period_s,
+         )
+         self._disk = _DiskLane(config.wallet_db)
+-        self._catalogs = _CatalogLane(config.live_root, config.legacy_root)
++        self._catalogs = _CatalogLane(
++            config.live_root,
++            config.legacy_root,
++            config.sidecar_roots,
++            refresh_s=config.timing.catalog_s,
++        )
+         self._books: tuple[BookSnapshot, ...] = ()
+         self._disk_error: str | None = None
+         self._wallet_snap: WalletSnapshot | None = None
+@@ -272,6 +340,9 @@ class LiveHub:
+         self._catalog_legacy: CatalogSnapshot | None = None
+         self._catalog_error: str | None = None
+         self._map_views: tuple[MapView, ...] = ()
++        self._legacy_views: tuple[MapView, ...] = ()
++        self._nontrading: NontradingFacts = EMPTY_NONTRADING
++        self._health: HealthFacts = EMPTY_HEALTH
+         self._tail_views: dict[Path, TailView] = {}
+         self._subs_error: str | None = None
+         self._subs = EMPTY_SUBSCRIPTION_FACTS
+@@ -478,13 +549,24 @@ class LiveHub:
+         lane = self._catalogs
+         interval = self._cfg.timing.catalog_s
+         while not self._stopping:
+-            job = functools.partial(lane, now_mono=self._mono(), now_wall=self._wall())
++            job = functools.partial(
++                lane,
++                now_mono=self._mono(),
++                now_wall=self._wall(),
++                skips=latest_skip_reasons(self._log.text),
++            )
+             try:
+-                live, legacy = await self._submit(self._pool_slow, job)
+-                self._apply_catalog(live, legacy)
++                result = await self._submit(self._pool_slow, job)
++                self._apply_catalog(result)
+             except Exception as exc:
+                 self._catalog_error = type(exc).__name__
+                 self._update_subs_error()
++                self._nontrading = fail_nontrading(
++                    self._nontrading,
++                    self._catalog_error,
++                    attempt_at=self._wall(),
++                    root_errors=self._cfg.sidecar_root_errors,
++                )
+             self._publish()
+             await asyncio.sleep(interval)
+ 
+@@ -578,6 +660,8 @@ class LiveHub:
+                     fetch=self._cfg.fetch,
+                     wall=self._wall,
+                 )
++                self._day_state = mark_day_inflight(self._day_state, started_at=self._wall())
++                self._publish()
+                 try:
+                     result = await self._submit(self._pool_day, job)
+                     self._day_state = merge_day_state(
+@@ -600,18 +684,22 @@ class LiveHub:
+             if pause > 0.0:
+                 await asyncio.sleep(pause)
+             job = functools.partial(
+-                logs.read_service_logs,
+-                compose_file=self._cfg.compose_file,
+-                service=self._cfg.service,
+-                runner=self._cfg.log_runner,
++                _run_logs_job,
++                self._cfg.compose_file,
++                self._cfg.service,
++                self._cfg.log_runner,
+             )
+             try:
+                 result = await self._submit(self._pool_logs, job)
+-                self._log = merge_service_logs(self._log, result, attempt_at=self._wall())
++                self._log = merge_service_logs(self._log, result.service, attempt_at=self._wall())
++                self._health = merge_health(result.health, attempt_at=self._wall())
+             except Exception as exc:
+                 self._log = fail_service_logs(
+                     self._log, type(exc).__name__, attempt_at=self._wall()
+                 )
++                self._health = fail_health(
++                    self._health, type(exc).__name__, attempt_at=self._wall()
++                )
+             pause = (
+                 interval if self._log.ok else min(max(pause, interval) * 2.0, LOG_FAIL_PAUSE_CAP_S)
+             )
+@@ -646,12 +734,20 @@ class LiveHub:
+             None if self._funder_mismatch() else self._tracker.collateral,
+         )
+ 
+-    def _apply_catalog(self, live: CatalogSnapshot, legacy: CatalogSnapshot) -> None:
++    def _apply_catalog(self, result: _CatalogResult) -> None:
+         self._catalog_error = None
+-        self._catalog_live = live
+-        self._catalog_legacy = legacy
+-        self._map_views = classify_map_views(live, self._tail_views, now_wall=self._wall())
+-        self._subs = replace(self._subs, catalog_built_at=live.built_at, error=self._subs_error)
++        self._catalog_live = result.live
++        self._catalog_legacy = result.legacy
++        self._map_views = classify_map_views(result.live, self._tail_views, now_wall=self._wall())
++        self._legacy_views = classify_map_views(result.legacy, {}, now_wall=self._wall())
++        self._nontrading = merge_nontrading(
++            result.nontrading,
++            attempt_at=self._wall(),
++            root_errors=self._cfg.sidecar_root_errors,
++        )
++        self._subs = replace(
++            self._subs, catalog_built_at=result.live.built_at, error=self._subs_error
++        )
+ 
+     def _store_wallet_facts(self) -> None:
+         self._wallet = wallet_facts(
+@@ -705,6 +801,9 @@ class LiveHub:
+             day=self._day_state.snapshot,
+             subscriptions=self._subs,
+             maps=self._map_views,
++            legacy_maps=self._legacy_views,
++            nontrading=self._nontrading,
++            health=self._health,
+             service_logs=self._log,
+         )
+ 
+diff --git a/src/dashboard/logs.py b/src/dashboard/logs.py
+index 1540db60..43083902 100644
+--- a/src/dashboard/logs.py
++++ b/src/dashboard/logs.py
+@@ -65,7 +65,7 @@ _LOG_TS = re.compile(r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d
+ _HALT_MARKERS = ("risk_halt", "HALTED")
+ 
+ 
+-def _log_ts(line: str) -> float | None:
++def log_ts(line: str) -> float | None:
+     match = _LOG_TS.search(line)
+     if match is None:
+         return None
+@@ -88,7 +88,7 @@ def latest_skip_reasons(log_text: str) -> dict[str, SkipNote]:
+         notes[cid] = SkipNote(
+             condition_id=cid,
+             reason=reason,
+-            ts=_log_ts(line),
++            ts=log_ts(line),
+             line=line.strip(),
+         )
+     return notes
+@@ -98,7 +98,7 @@ def halt_events(log_text: str) -> tuple[HaltLine, ...]:
+     out: list[HaltLine] = []
+     for line in log_text.splitlines():
+         if any(marker in line for marker in _HALT_MARKERS):
+-            out.append(HaltLine(ts=_log_ts(line), line=line.strip()))
++            out.append(HaltLine(ts=log_ts(line), line=line.strip()))
+     return tuple(out)
+ 
+ 
+diff --git a/tests/dashboard_fixture.py b/tests/dashboard_fixture.py
+new file mode 100644
+index 00000000..d61d6927
+--- /dev/null
++++ b/tests/dashboard_fixture.py
+@@ -0,0 +1,561 @@
++# pyright: reportPrivateUsage=false
++"""Shared offline world for dashboard tests and the fixture browser app.
++
++Builds a temporary live.db through WalletStateStore plus synthetic archives and
++sidecars, then wires a HubConfig whose network/subprocess callbacks are fakes
++that fail closed on anything unexpected. Never calls default_hub_config.
++"""
++
++import asyncio
++import json
++import sqlite3
++import time
++from collections.abc import Callable, Sequence
++from dataclasses import dataclass, replace
++from datetime import UTC, datetime
++from pathlib import Path
++from typing import Any
++
++from polymaker.marketdata.orderbook import BookLevel
++
++from dashboard.balance import BalanceAccount, BalanceRead
++from dashboard.live_hub import (
++    BooksCallback,
++    HubConfig,
++    HubTiming,
++    LiveHub,
++    ScheduleFn,
++)
++from dashboard.market_books import BookSnapshot, DesiredMarket
++from strategy.lifecycle import empty_state
++from strategy.types import (
++    Budget,
++    FreshnessLimits,
++    GameClock,
++    MarketLimits,
++    Permissions,
++    RestingOrder,
++    TokenInventory,
++)
++from trader.core_persistence import CoreSessionKey, snapshot_checkpoint, upsert_session
++from trader.wallet_store import WalletStateStore
++
++YES = "yes-token-1"
++NO = "no-token-1"
++YES2 = "yes-token-2"
++NO2 = "no-token-2"
++CID = "0xcond1"
++CID2 = "0xcond2"
++CID3 = "0xcond3"
++SID = "sess-1"
++FUNDER = "0xfixture"
++NOW = time.time()
++
++FIXTURE_TIMING = HubTiming(
++    disk_s=0.05,
++    order_log_s=0.1,
++    catalog_s=0.1,
++    subs_s=0.05,
++    day_s=0.2,
++    logs_s=0.2,
++    drain_timeout_s=2.0,
++    balance_min_s=0.05,
++    balance_period_s=0.2,
++)
++
++
++def utc_now_iso() -> str:
++    return datetime.now(UTC).isoformat()
++
++
++class FakeBooks:
++    def __init__(self, schedule: ScheduleFn, on_books: BooksCallback) -> None:
++        self._schedule = schedule
++        self._on_books = on_books
++        self._stop = asyncio.Event()
++        self.calls: list[tuple[DesiredMarket, ...]] = []
++        self.stopped = False
++
++    @property
++    def applied_at(self) -> float | None:
++        return time.time() if self.calls else None
++
++    async def run(self) -> None:
++        await self._stop.wait()
++
++    async def apply_subscriptions(self, markets: tuple[DesiredMarket, ...]) -> bool:
++        self.calls.append(markets)
++        return True
++
++    def emit(self, books: tuple[BookSnapshot, ...]) -> None:
++        self._schedule(lambda: self._on_books(books))
++
++    async def shutdown(self) -> None:
++        self.stopped = True
++        self._stop.set()
++
++
++@dataclass
++class FixtureState:
++    """Mutable fixture answers: tests and the browser driver change these."""
++
++    activity: object
++    positions: object
++    balance: BalanceRead
++    logs: bytes
++    container_id: str | None
++    container_state: str
++    container_started: str
++    fetch_error: str | None
++    fetch_sleep_s: float = 0.0
++
++
++@dataclass(frozen=True)
++class DashboardFixture:
++    config: HubConfig
++    state: FixtureState
++    wallet_db: Path
++    live_root: Path
++    legacy_root: Path
++    sidecar_root: Path
++    compose_file: Path
++    counters: dict[str, int]
++    books: list[FakeBooks]
++
++    def start_hub(self) -> LiveHub:
++        return LiveHub(self.config).start()
++
++
++def _signal(
++    second: float,
++    *,
++    reason: str | None = "min_delta",
++    phase: str = "playing",
++    entry_block: str | None = None,
++    model_evaluated: bool = True,
++    raw_delta: float | None = 0.01,
++    recorded_at_utc: str | None = None,
++) -> dict[str, Any]:
++    rec: dict[str, Any] = {
++        "kind": "signal",
++        "second": second,
++        "reason": reason,
++        "model_evaluated": model_evaluated,
++        "raw_delta": raw_delta,
++        "feed_source": "grid",
++        "recorded_at_utc": recorded_at_utc or utc_now_iso(),
++        "feed_received_at_utc": recorded_at_utc or utc_now_iso(),
++        "game_snapshot": {"second": second, "phase": phase, "paused": False},
++    }
++    if entry_block is not None:
++        rec["entry_block"] = entry_block
++    return rec
++
++
++def _write_match(
++    archive: Path,
++    match_id: str,
++    *,
++    cid: str,
++    yes: str,
++    no: str,
++    teams: tuple[str, str] = ("Team Radiant", "Team Dire"),
++    map_number: int = 1,
++    event_slug: str | None = "fixture-event",
++    final: dict[str, Any] | None = None,
++    record_only: bool = False,
++) -> Path:
++    archive.mkdir(parents=True, exist_ok=True)
++    meta: dict[str, Any] = {
++        "match_id": match_id,
++        "game": "dota",
++        "joined_at_utc": utc_now_iso(),
++        "teams": {"radiant": teams[0], "dire": teams[1]},
++        "map_number": map_number,
++        "market": {
++            "condition_id": cid,
++            "market_slug": f"dota-map-{match_id}",
++            "event_slug": event_slug,
++            "yes_token_id": yes,
++            "no_token_id": no,
++            "yes_is_radiant": True,
++            "outcome_0_name": teams[0],
++            "outcome_1_name": teams[1],
++        },
++    }
++    if final is not None:
++        meta["final"] = final
++    if record_only:
++        meta["record_only"] = True
++    (archive / "match.json").write_text(json.dumps(meta))
++    return archive
++
++
++def _write_journal(archive: Path, records: list[dict[str, Any]]) -> None:
++    (archive / "session.jsonl").write_text("".join(json.dumps(rec) + "\n" for rec in records))
++
++
++def _write_trace(archive: Path, match_id: str, *, yes: str, no: str) -> None:
++    header = {
++        "schema_version": 1,
++        "match_id": match_id,
++        "yes_token": yes,
++        "no_token": no,
++        "policy": {"min_abs_delta": 0.05, "buy_cutoff_second": 900},
++        "limits": {"min_order_size": 5.0},
++        "freshness": {"entry_stale_s": 5.0, "exit_stale_s": 15.0},
++    }
++    (archive / "core_trace.jsonl").write_text(json.dumps(header) + "\n")
++
++
++def _write_sidecar(root: Path, cid: str, *, slug: str, closed: bool) -> None:
++    markets = root / "metadata" / "markets"
++    markets.mkdir(parents=True, exist_ok=True)
++    sidecar = {
++        "schemaVersion": 1,
++        "eventId": "ev-1",
++        "eventSlug": "fixture-sidecar-event",
++        "conditionId": cid,
++        "marketSlug": slug,
++        "question": "fixture question",
++        "marketKind": "map_winner",
++        "mapNumber": 2,
++        "outcomes": [
++            {"index": 0, "name": "SideA", "tokenId": f"tok-{cid}-a"},
++            {"index": 1, "name": "SideB", "tokenId": f"tok-{cid}-b"},
++        ],
++        "active": not closed,
++        "closed": closed,
++        "acceptingOrders": not closed,
++        "enableOrderBook": not closed,
++        "tickSize": "0.01",
++        "minOrderSize": "5",
++        "negRisk": False,
++        "gridSeriesId": None,
++        "eventTitle": None,
++    }
++    (markets / f"{cid}.json").write_text(json.dumps(sidecar))
++
++
++def build_wallet_db(
++    path: Path, *, conn_hook: Callable[[sqlite3.Connection], None] | None = None
++) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    WalletStateStore(path).close()
++    conn = sqlite3.connect(path)
++    conn.execute("INSERT INTO wallet_identity(k, v) VALUES('funder', ?)", (FUNDER,))
++    conn.execute("INSERT INTO token_cid(token_id, condition_id) VALUES(?,?)", (YES, CID))
++    conn.execute("INSERT INTO token_cid(token_id, condition_id) VALUES(?,?)", (NO, CID))
++    conn.execute(
++        "INSERT INTO positions(token_id, size, avg_price, updated_ts) VALUES(?,?,?,?)",
++        (YES, 4.0, 0.5, NOW),
++    )
++    conn.execute(
++        "INSERT INTO fill_ledger(fill_key, clob_trade_id, maker_order_id, token_id,"
++        " side, price, size, ts, status, pre_size, pre_avg, cash_delta, is_maker)"
++        " VALUES('k1','t-k1','v-1',?, 'BUY', 0.5, 4.0, ?, 'MATCHED', 0,0,-2.0,1)",
++        (YES, NOW),
++    )
++    conn.execute("INSERT INTO fill_outbox(fill_key, event) VALUES('k1','matched')")
++    if conn_hook is not None:
++        conn_hook(conn)
++    conn.commit()
++    conn.close()
++
++
++def _fixture_fetch(state: FixtureState, counters: dict[str, int]) -> Callable[[str, float], object]:
++    def fetch(url: str, timeout: float) -> object:
++        counters["fetch"] += 1
++        if state.fetch_sleep_s > 0:
++            time.sleep(state.fetch_sleep_s)
++        if state.fetch_error is not None:
++            raise OSError(state.fetch_error)
++        if "/activity" in url:
++            return state.activity
++        if "/positions" in url:
++            return state.positions
++        raise OSError(f"unexpected url {url}")
++
++    return fetch
++
++
++def _fixture_runner(
++    state: FixtureState, counters: dict[str, int]
++) -> Callable[[Sequence[str], float], bytes]:
++    def runner(argv: Sequence[str], timeout_s: float) -> bytes:
++        counters["log_runner"] += 1
++        joined = " ".join(str(a) for a in argv)
++        if argv[0] != "docker":
++            raise OSError("only docker commands allowed")
++        if "ps" in argv:
++            return (state.container_id or "").encode()
++        if "inspect" in argv:
++            return f"{state.container_state}|{state.container_started}|/fixture".encode()
++        if "logs" in argv:
++            return state.logs
++        raise OSError(f"unexpected docker call: {joined}")
++
++    return runner
++
++
++def _fixture_balance(state: FixtureState, counters: dict[str, int]) -> Callable[[], BalanceRead]:
++    def read() -> BalanceRead:
++        counters["balance"] += 1
++        return state.balance
++
++    return read
++
++
++def build(
++    root: Path,
++    *,
++    conn_hook: Callable[[sqlite3.Connection], None] | None = None,
++    timing: HubTiming = FIXTURE_TIMING,
++) -> DashboardFixture:
++    live_root = root / "trader_live"
++    legacy_root = root / "live_paper"
++    sidecar_root = root / "sidecars" / "dota"
++    wallet_db = live_root / "wallet" / "live.db"
++    for path in (live_root, legacy_root, sidecar_root):
++        path.mkdir(parents=True, exist_ok=True)
++    compose_file = root / "compose.yaml"
++    compose_file.write_text("services: {}\n")
++    build_wallet_db(wallet_db, conn_hook=conn_hook)
++
++    live = _write_match(live_root / "m-live", "m-live", cid=CID, yes=YES, no=NO)
++    _write_trace(live, "m-live", yes=YES, no=NO)
++    _write_journal(
++        live,
++        [
++            {"kind": "session_start", "execution_mode": "live", "schema_version": 7},
++            _signal(120.0, entry_block="min_delta"),
++            _signal(300.0, reason="model"),
++        ],
++    )
++
++    closed = _write_match(
++        live_root / "m-closed",
++        "m-closed",
++        cid=CID2,
++        yes=YES2,
++        no=NO2,
++        map_number=2,
++        final={"winner": "radiant"},
++    )
++    _write_journal(
++        closed,
++        [
++            {"kind": "session_start", "execution_mode": "live", "schema_version": 7},
++            _signal(200.0, reason="finished", phase="finished", raw_delta=None),
++            {
++                "kind": "session_end",
++                "net_cash": 12.0,
++                "inventory_value": 3.0,
++                "positions": {YES2: 6.0},
++            },
++        ],
++    )
++
++    record_only = _write_match(
++        live_root / "m-record",
++        "m-record",
++        cid="0xcondR",
++        yes="yes-R",
++        no="no-R",
++        record_only=True,
++    )
++    (record_only / "note.txt").write_text("record only")
++
++    _write_sidecar(sidecar_root, CID3, slug="fixture-skipped", closed=True)
++
++    state = FixtureState(
++        activity=[],
++        positions=[
++            {
++                "asset": YES2,
++                "conditionId": CID2,
++                "title": "m-closed",
++                "size": 6.0,
++                "curPrice": 0.9,
++                "redeemable": True,
++            }
++        ],
++        balance=BalanceRead(
++            ok=True, collateral_usdc=100.0, error=None, status_code=None, retry_after_s=None
++        ),
++        logs=b"fixture log line\n",
++        container_id="abc123",
++        container_state="running",
++        container_started=datetime.now(UTC).isoformat(),
++        fetch_error=None,
++        fetch_sleep_s=0.0,
++    )
++    counters: dict[str, int] = {"fetch": 0, "log_runner": 0, "balance": 0}
++    books: list[FakeBooks] = []
++
++    def factory(schedule: ScheduleFn, on_books: BooksCallback) -> FakeBooks:
++        fake = FakeBooks(schedule, on_books)
++        books.append(fake)
++        return fake
++
++    config = HubConfig(
++        wallet_db=wallet_db,
++        live_root=live_root,
++        legacy_root=legacy_root,
++        compose_file=compose_file,
++        service="live",
++        ws_url="ws://unused",
++        proxy=None,
++        account=None,
++        account_error="no credentials",
++        sidecar_roots={"dota": sidecar_root},
++        sidecar_root_errors=(),
++        timing=timing,
++        fetch=_fixture_fetch(state, counters),
++        log_runner=_fixture_runner(state, counters),
++        read_balance=None,
++        make_books=factory,
++        wall=time.time,
++        mono=time.monotonic,
++    )
++    return DashboardFixture(
++        config=config,
++        state=state,
++        wallet_db=wallet_db,
++        live_root=live_root,
++        legacy_root=legacy_root,
++        sidecar_root=sidecar_root,
++        compose_file=compose_file,
++        counters=counters,
++        books=books,
++    )
++
++
++def wait_for(pred: Callable[[], bool], timeout_s: float = 15.0) -> None:
++    deadline = time.monotonic() + timeout_s
++    while time.monotonic() < deadline:
++        if pred():
++            return
++        time.sleep(0.01)
++    raise AssertionError("fixture condition not met")
++
++
++def make_book(
++    token_id: str, *, bid: float = 0.55, ask: float = 0.57, cid: str = CID
++) -> BookSnapshot:
++    return BookSnapshot(
++        token_id=token_id,
++        condition_id=cid,
++        bids=(BookLevel(price=bid, size=10.0),),
++        asks=(BookLevel(price=ask, size=10.0),),
++        tick_size=0.01,
++        book_hash=None,
++        exchange_ts=None,
++        local_ts=time.time(),
++        generation=1,
++        initialized=True,
++        ready=True,
++        connected=True,
++        disconnected_since=None,
++        truncated=False,
++    )
++
++
++def emit_books(fixture: DashboardFixture, books: tuple[BookSnapshot, ...]) -> None:
++    for fake in fixture.books:
++        fake.emit(books)
++
++
++def balance_reader(fixture: DashboardFixture) -> Callable[[], BalanceRead]:
++    return _fixture_balance(fixture.state, fixture.counters)
++
++
++def enable_balance(fixture: DashboardFixture) -> DashboardFixture:
++    return DashboardFixture(
++        config=replace(
++            fixture.config,
++            account=BalanceAccount(
++                host="https://clob.example",
++                chain_id=137,
++                signature_type=2,
++                pk="k",
++                funder=FUNDER,
++            ),
++            account_error=None,
++            read_balance=_fixture_balance(fixture.state, fixture.counters),
++        ),
++        state=fixture.state,
++        wallet_db=fixture.wallet_db,
++        live_root=fixture.live_root,
++        legacy_root=fixture.legacy_root,
++        sidecar_root=fixture.sidecar_root,
++        compose_file=fixture.compose_file,
++        counters=fixture.counters,
++        books=fixture.books,
++    )
++
++
++def insert_session(
++    fixture: DashboardFixture,
++    *,
++    session_id: str = SID,
++    condition_id: str = CID,
++    yes: str = YES,
++    no: str = NO,
++    orders: tuple[RestingOrder, ...] = (),
++    qty: float = 0.0,
++) -> None:
++    state = empty_state(
++        limits=MarketLimits(
++            min_order_size=5.0,
++            tick_size=0.01,
++            pair_sum_tolerance=0.05,
++            radiant_token_index=0,
++        ),
++        freshness=FreshnessLimits(book_stale_s=5.0, entry_stale_s=16.0, exit_stale_s=45.0),
++        permissions=Permissions(
++            halt=False,
++            reduce_only=False,
++            allow_buy=True,
++            allow_sell=True,
++            sell_unconfirmed=False,
++        ),
++        budget=Budget(
++            cash_usdc=1000.0,
++            cap_room_usdc=float("inf"),
++            account_cap_room_usdc=float("inf"),
++        ),
++        clock=GameClock(now_ns=0, game_second=10, paused=False, game_ended=False),
++    )
++    state = replace(
++        state,
++        episode_id=1,
++        episode_counter=1,
++        episode_token_index=0,
++        orders=orders,
++        inventory=(
++            TokenInventory(token_index=0, qty=qty, cost_basis=0.5 * qty, last_buy_ns=None),
++            TokenInventory(token_index=1, qty=0.0, cost_basis=0.0, last_buy_ns=None),
++        ),
++        next_order_seq=1,
++    )
++    checkpoint = snapshot_checkpoint(state=state, now_ns=0, now_wall_s=NOW, sell_min_life_s=1.0)
++    conn = sqlite3.connect(fixture.wallet_db)
++    upsert_session(
++        conn,
++        session_id=session_id,
++        key=CoreSessionKey(
++            condition_id=condition_id,
++            game="dota",
++            yes_token=yes,
++            no_token=no,
++            yes_is_radiant=True,
++        ),
++        revision=1,
++        recovery=False,
++        recovery_generation=0,
++        checkpoint=checkpoint,
++        last_outbox_seq=0,
++    )
++    conn.commit()
++    conn.close()
+diff --git a/tests/test_dashboard_app.py b/tests/test_dashboard_app.py
+new file mode 100644
+index 00000000..60e50d7b
+--- /dev/null
++++ b/tests/test_dashboard_app.py
+@@ -0,0 +1,118 @@
++# pyright: reportPrivateUsage=false
++"""AppTest coverage for the Streamlit home screen with an injected fixture hub."""
++
++from collections.abc import Generator
++from pathlib import Path
++
++import dashboard_fixture as fx
++import pytest
++import streamlit as st
++from streamlit.testing.v1 import AppTest
++
++import dashboard.home_view as home_view
++import dashboard.live_hub as live_hub_module
++from dashboard.live_hub import LiveHub
++
++APP = str(Path(__file__).resolve().parents[1] / "src" / "dashboard" / "app.py")
++
++World = tuple[fx.DashboardFixture, LiveHub]
++
++
++@pytest.fixture
++def world(tmp_path: Path) -> Generator[World]:
++    fixture = fx.enable_balance(fx.build(tmp_path))
++    hub = fixture.start_hub()
++    try:
++        fx.wait_for(
++            lambda: any(view.entry.match_id == "m-live" for view in hub.get_snapshot().maps)
++        )
++        fx.wait_for(lambda: hub.get_snapshot().health.ok)
++        yield fixture, hub
++    finally:
++        hub.close()
++        live_hub_module.close_live_hub()
++
++
++def _noop(*args: object, **kwargs: object) -> None:
++    pass
++
++
++def _patch_hub(monkeypatch: pytest.MonkeyPatch, hub: LiveHub) -> None:
++    monkeypatch.setattr(live_hub_module, "get_live_hub", lambda: hub)
++    monkeypatch.setattr(home_view, "render_fresh", _noop)
++    st.cache_resource.clear()
++
++
++def _run_app(monkeypatch: pytest.MonkeyPatch, hub: LiveHub) -> AppTest:
++    _patch_hub(monkeypatch, hub)
++    return AppTest.from_file(APP).run()
++
++
++def test_home_renders_all_sections(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
++    _, hub = world
++    at = _run_app(monkeypatch, hub)
++    heads = [h.value for h in at.subheader]
++    assert heads == [
++        "Торгуем сейчас",
++        "Скоро / не торгуем",
++        "Закрытые сегодня",
++        "Остатки завершённых карт",
++    ]
++    captions = [c.value for c in at.caption]
++    assert any(value.startswith("диагностика:") for value in captions)
++    labels = [e.label for e in at.expander]
++    assert any("Team Radiant vs Team Dire" in label for label in labels)
++    assert any("только запись" in label for label in labels)
++    assert any("доступен redeem" in label for label in labels)
++    assert len(at.dataframe) >= 1
++
++
++def test_match_route_scaffold(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
++    _, hub = world
++    _patch_hub(monkeypatch, hub)
++    at = AppTest.from_file(APP)
++    at.query_params["match"] = "m-live"
++    at.run()
++    assert at.title[0].value == "Team Radiant vs Team Dire · карта 1"
++    assert [w.value for w in at.warning] == []
++
++
++def test_match_route_unknown(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
++    _, hub = world
++    _patch_hub(monkeypatch, hub)
++    at = AppTest.from_file(APP)
++    at.query_params["match"] = "no-such-match"
++    at.run()
++    assert any("не найдена" in w.value for w in at.warning)
++
++
++def test_lists_refresh_reads_new_snapshot(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
++    fixture, hub = world
++    at = _run_app(monkeypatch, hub)
++    assert not any("Natus" in e.label for e in at.expander)
++    archive = fx._write_match(
++        fixture.live_root / "m-fresh",
++        "m-fresh",
++        cid="0xfresh",
++        yes="y-f",
++        no="n-f",
++        teams=("Natus", "Vincere"),
++    )
++    fx._write_journal(
++        archive,
++        [
++            {"kind": "session_start", "execution_mode": "live", "schema_version": 7},
++            {
++                "kind": "signal",
++                "second": 10.0,
++                "reason": "min_delta",
++                "model_evaluated": False,
++                "recorded_at_utc": fx.utc_now_iso(),
++                "feed_received_at_utc": fx.utc_now_iso(),
++                "game_snapshot": {"second": 10.0, "phase": "playing", "paused": False},
++            },
++        ],
++    )
++    fx.wait_for(lambda: any(v.entry.match_id == "m-fresh" for v in hub.get_snapshot().maps))
++    at.run()
++    assert any("Natus" in e.label for e in at.expander)
+diff --git a/tests/test_dashboard_home.py b/tests/test_dashboard_home.py
+new file mode 100644
+index 00000000..7839cd23
+--- /dev/null
++++ b/tests/test_dashboard_home.py
+@@ -0,0 +1,668 @@
++# pyright: reportPrivateUsage=false
++import time
++from dataclasses import replace
++from datetime import datetime
++from pathlib import Path
++
++from polymaker.marketdata.orderbook import BookLevel
++
++from dashboard import home, summarize
++from dashboard.balance import BalanceSnapshot
++from dashboard.catalog import ArchiveEntry, DecisionFacts, MapView, SessionParams
++from dashboard.health import EMPTY_HEALTH
++from dashboard.home import (
++    SellWatcher,
++    build_diagnostics,
++    build_lists,
++    build_strip,
++    find_match,
++)
++from dashboard.hub_types import (
++    EMPTY_DAY_SNAPSHOT,
++    EMPTY_NONTRADING,
++    EMPTY_SUBSCRIPTION_FACTS,
++    HubSnapshot,
++    LogsFacts,
++    NontradingFacts,
++    SellOrderFacts,
++    SessionFacts,
++    WalletFacts,
++)
++from dashboard.logs import SkippedMarket
++from dashboard.market_books import BookSnapshot
++from dashboard.reserve import ReserveDetail, ReserveReport
++from dashboard.summarize import DayFold, PositionEntry, PositionsResult
++from dashboard.wallet import TokenCid, WalletPosition
++from trader.core_persistence import UnsettledBuy
++
++NOW = time.time()
++YES = "yes-t"
++NO = "no-t"
++CID = "0xcid"
++
++
++def _balance(**kw: object) -> BalanceSnapshot:
++    base = BalanceSnapshot(
++        collateral_usdc=100.0,
++        funder="0xf",
++        funder_mismatch=False,
++        request_started_at=NOW - 2,
++        response_at=NOW - 2,
++        last_attempt_at=NOW - 2,
++        last_error=None,
++        queued=False,
++        inflight=False,
++        request_cutoff_seq=None,
++        covered_seq=None,
++        significant_seq=None,
++        evidence_gaps=0,
++        pending=(),
++        pending_dropped=0,
++    )
++    return replace(base, **kw)
++
++
++def _wallet(**kw: object) -> WalletFacts:
++    base = WalletFacts(
++        ok=True,
++        error=None,
++        read_at=NOW - 1,
++        funder="0xf",
++        max_outbox_seq=3,
++        sessions=(),
++        positions=(),
++        bindings=(),
++        open_buys=(),
++        unsettled=(),
++        token_cids=(),
++        notes=(),
++    )
++    return replace(base, **kw)
++
++
++def _logs() -> LogsFacts:
++    return LogsFacts(
++        service="live",
++        ok=True,
++        error=None,
++        attempt_at=NOW - 5,
++        read_at=NOW - 5,
++        text="",
++        truncated=False,
++    )
++
++
++def _snap(**kw: object) -> HubSnapshot:
++    base = HubSnapshot(
++        generation=1,
++        published_at=NOW,
++        running=True,
++        error=None,
++        books=(),
++        balance=_balance(),
++        wallet=_wallet(),
++        reserve=None,
++        day=EMPTY_DAY_SNAPSHOT,
++        subscriptions=EMPTY_SUBSCRIPTION_FACTS,
++        maps=(),
++        legacy_maps=(),
++        nontrading=EMPTY_NONTRADING,
++        health=EMPTY_HEALTH,
++        service_logs=_logs(),
++    )
++    return replace(base, **kw)
++
++
++def _decision(**kw: object) -> DecisionFacts:
++    base = DecisionFacts(
++        second=120.0,
++        snapshot_second=118.0,
++        phase="playing",
++        paused=False,
++        reason="min_delta",
++        entry_block="min_delta",
++        model_evaluated=True,
++        raw_delta=0.02,
++        feed_source="grid",
++        recorded_at_utc="2026-01-01T00:00:00Z",
++        feed_received_at_utc="2026-01-01T00:00:00Z",
++        path=Path("/x/session.jsonl"),
++    )
++    return replace(base, **kw)
++
++
++def _entry(match_id: str, **kw: object) -> ArchiveEntry:
++    base = ArchiveEntry(
++        match_id=match_id,
++        archive_dir=Path("/x") / match_id,
++        tree="live",
++        game="dota",
++        slug=f"slug-{match_id}",
++        event_slug="ev",
++        joined_at_utc=None,
++        condition_id=CID,
++        yes_token=YES,
++        no_token=NO,
++        yes_is_radiant=True,
++        radiant="Rad",
++        dire="Dir",
++        map_number=1,
++        outcome_0_name="Rad",
++        outcome_1_name="Dir",
++        finished=False,
++        cleanup_proven=False,
++        session_ended=False,
++        has_journal=True,
++        record_only=False,
++        on_tape=True,
++        last_write=NOW - 5,
++        realized=None,
++        imv=None,
++        rebate=None,
++        net=None,
++        fill_count=None,
++        closed_observed_at=None,
++        last_decision=None,
++        params=None,
++    )
++    return replace(base, **kw)
++
++
++def _view(entry: ArchiveEntry, **kw: object) -> MapView:
++    base = MapView(
++        entry=entry,
++        status="live",
++        write_age_s=5.0,
++        decision_age_s=3.0,
++        feed_age_s=4.0,
++        decision=_decision(),
++        evidence=("recent_writes",),
++    )
++    return replace(base, **kw)
++
++
++def _book(token_id: str, *, bid: float = 0.55, ask: float = 0.57, **kw: object) -> BookSnapshot:
++    base = BookSnapshot(
++        token_id=token_id,
++        condition_id=CID,
++        bids=(BookLevel(price=bid, size=10.0),),
++        asks=(BookLevel(price=ask, size=10.0),),
++        tick_size=0.01,
++        book_hash=None,
++        exchange_ts=None,
++        local_ts=NOW,
++        generation=1,
++        initialized=True,
++        ready=True,
++        connected=True,
++        disconnected_since=None,
++        truncated=False,
++    )
++    return replace(base, **kw)
++
++
++def _session(**kw: object) -> SessionFacts:
++    base = SessionFacts(
++        session_id="s1",
++        condition_id=CID,
++        game="dota",
++        yes_token=YES,
++        no_token=NO,
++        yes_is_radiant=True,
++        revision=3,
++        recovery=False,
++        created_at=NOW - 100,
++        updated_at=NOW - 5,
++        checkpoint_error=None,
++        sell_only=False,
++        recovery_pending=False,
++        winding_down=False,
++        unconfirmed=0,
++        pending_ownership=0,
++        has_buy_fill=True,
++        held=(4.0, 0.0),
++        sells=(),
++    )
++    return replace(base, **kw)
++
++
++def _positions(*entries: PositionEntry, complete: bool = True) -> PositionsResult:
++    return PositionsResult(
++        positions=tuple(entries),
++        as_of=NOW - 30,
++        started_at=NOW - 31,
++        completed_at=NOW - 30,
++        pages=1,
++        traversal_complete=complete,
++        stop_reason="exhausted",
++        error=None,
++    )
++
++
++def _berlin_today() -> str:
++    return datetime.fromtimestamp(NOW, summarize.BERLIN).date().isoformat()
++
++
++def test_active_row_marks_and_reason() -> None:
++    entry = _entry("m1", params=SessionParams(0.05, 900, 5.0, 5.0, 15.0))
++    snap = _snap(
++        maps=(_view(entry),),
++        books=(_book(YES), _book(NO)),
++        wallet=_wallet(positions=(WalletPosition(YES, 4.0, 0.5, NOW),)),
++    )
++    lists = build_lists(snap, NOW)
++    assert len(lists.active) == 1
++    row = lists.active[0]
++    assert row.title == "Rad vs Dir · карта 1"
++    assert row.second == 120.0
++    leg = row.positions[0]
++    assert leg.mark == 0.56
++    assert leg.mark_state == "book"
++    assert leg.unrealized == 4.0 * (0.56 - 0.5)
++    assert row.unrealized_total == leg.unrealized
++    assert "порога" in row.reason
++    assert row.match_url == "?match=m1"
++    assert row.polymarket_url == "https://polymarket.com/event/ev"
++
++
++def test_active_row_unknown_mark_states() -> None:
++    view = _view(_entry("m1"))
++    wallet = _wallet(positions=(WalletPosition(YES, 4.0, 0.5, NOW),))
++    for book in (
++        _book(YES, bid=0.0, ask=0.0),
++        _book(YES, bid=0.6, ask=0.5),
++        _book(YES, ready=False),
++        None,
++    ):
++        snap = _snap(
++            maps=(view,),
++            books=() if book is None else (book,),
++            wallet=wallet,
++        )
++        row = build_lists(snap, NOW).active[0]
++        assert row.positions[0].mark is None
++        assert row.positions[0].mark_state == "unknown"
++        assert row.unrealized_total is None
++
++
++def test_active_row_stale_book_mark() -> None:
++    book = _book(YES, connected=False)
++    snap = _snap(
++        maps=(_view(_entry("m1")),),
++        books=(book,),
++        wallet=_wallet(positions=(WalletPosition(YES, 4.0, 0.5, NOW),)),
++    )
++    row = build_lists(snap, NOW).active[0]
++    assert row.positions[0].mark_state == "book_stale"
++    assert row.unrealized_total is not None
++
++
++def test_stale_and_record_only_rows_leave_active() -> None:
++    stale = _view(_entry("m1"), status="stale")
++    record_only = _view(_entry("m2", record_only=True), status="live")
++    snap = _snap(maps=(stale, record_only))
++    lists = build_lists(snap, NOW)
++    assert [row.match_id for row in lists.active] == ["m1"]
++    assert lists.active[0].stale
++    assert {row.match_url for row in lists.idle} == {"?match=m2"}
++    assert lists.idle[0].reason == "только запись"
++
++
++def test_paused_clock_uses_recorded_second() -> None:
++    decision = _decision(paused=True, second=42.0, snapshot_second=40.0)
++    view = _view(_entry("m1"), decision=decision)
++    row = build_lists(_snap(maps=(view,)), NOW).active[0]
++    assert row.second == 42.0
++    assert row.paused is True
++
++
++def test_unknown_cutoff_window() -> None:
++    entry = _entry("m1", params=SessionParams(None, None, None, None, None))
++    view = _view(entry)
++    row = build_lists(_snap(maps=(view,)), NOW).active[0]
++    assert row.window is None
++    entry2 = _entry("m2", params=SessionParams(None, 900, None, None, None))
++    row2 = build_lists(_snap(maps=(_view(entry2),)), NOW).active[0]
++    assert row2.window == "вход до 900с"
++
++
++def test_unevaluated_decision_reason() -> None:
++    decision = _decision(model_evaluated=False, entry_block=None, reason="feed_stale")
++    row = build_lists(_snap(maps=(_view(_entry("m1"), decision=decision),)), NOW).active[0]
++    assert row.reason == home.diagnostics.reason_label("feed_stale")
++
++
++def test_closed_today_split_by_observed_day() -> None:
++    today = _berlin_today()
++    closed_now = _entry(
++        "m1",
++        session_ended=True,
++        closed_observed_at=NOW,
++        realized=10.0,
++        imv=2.0,
++        rebate=0.5,
++        net=12.5,
++        fill_count=3,
++    )
++    closed_old = _entry("m2", session_ended=True, closed_observed_at=NOW - 90000)
++    undated = _entry("m3", session_ended=True, closed_observed_at=None)
++    snap = _snap(
++        maps=(
++            _view(closed_now, status="terminal"),
++            _view(closed_old, status="terminal"),
++            _view(undated, status="terminal"),
++        )
++    )
++    lists = build_lists(snap, NOW)
++    assert [row.match_id for row in lists.closed_dated] == ["m1"]
++    assert [row.match_id for row in lists.closed_undated] == ["m3"]
++    row = lists.closed_dated[0]
++    assert row.net == 12.5
++    assert row.fill_count == 3
++    assert _berlin_today() == today
++
++
++def test_closed_net_unknown_without_imv() -> None:
++    entry = _entry(
++        "m1", session_ended=True, closed_observed_at=NOW, realized=10.0, imv=None, net=None
++    )
++    lists = build_lists(_snap(maps=(_view(entry, status="terminal"),)), NOW)
++    assert lists.closed_dated[0].net is None
++    assert lists.closed_dated[0].realized == 10.0
++
++
++def test_duplicate_live_legacy_prefers_live() -> None:
++    live = _view(_entry("m1", session_ended=True, closed_observed_at=NOW), status="terminal")
++    legacy = _view(
++        _entry("m1", tree="legacy", session_ended=True, closed_observed_at=NOW),
++        status="terminal",
++    )
++    lists = build_lists(_snap(maps=(live,), legacy_maps=(legacy,)), NOW)
++    assert len(lists.closed_dated) == 1
++    matches = find_match(_snap(maps=(live,), legacy_maps=(legacy,)), "m1")
++    assert len(matches) == 2
++
++
++def test_residuals_from_api_and_local() -> None:
++    entry = _entry("m1", session_ended=True, closed_observed_at=NOW)
++    api = PositionEntry(
++        asset=YES, condition_id=CID, title="m1", size=0.01, cur_price=0.9, redeemable=True
++    )
++    day = replace(
++        EMPTY_DAY_SNAPSHOT,
++        positions=_positions(api),
++        positions_candidate=None,
++    )
++    snap = _snap(
++        maps=(_view(entry, status="terminal"),),
++        day=day,
++        wallet=_wallet(positions=(WalletPosition(YES, 5.0, 0.5, NOW),)),
++        books=(_book(YES),),
++    )
++    lists = build_lists(snap, NOW)
++    assert len(lists.residuals) == 1
++    row = lists.residuals[0]
++    assert row.redeem_state == "доступен redeem"
++    leg = row.legs[0]
++    assert leg.api_size == 0.01
++    assert leg.local_size == 5.0
++    assert leg.mark_state == "api"
++    assert leg.value == 0.01 * 0.9
++
++
++def test_residual_reserve_only_row() -> None:
++    entry = _entry("m1", session_ended=True, closed_observed_at=NOW)
++    unsettled = UnsettledBuy(
++        venue_id="v-1",
++        session_id="s1",
++        token_id=YES,
++        price=0.5,
++        qty=2.0,
++        proven=False,
++        resolved=False,
++        created_at=NOW - 3600,
++        updated_at=NOW - 60,
++    )
++    reserve = ReserveReport(
++        core_buy=0.0,
++        command_buy=0.0,
++        unsettled_buy=1.0,
++        observed_orphan_buy=0.0,
++        total_known=1.0,
++        available_cash=99.0,
++        details=(
++            ReserveDetail(
++                source="unsettled",
++                session_id="s1",
++                condition_id=CID,
++                venue_id="v-1",
++                core_order_id=None,
++                token_index=0,
++                price=0.5,
++                remaining_qty=2.0,
++                notional=1.0,
++                note=None,
++            ),
++        ),
++        incomplete=True,
++        limitations=("order log incomplete",),
++    )
++    snap = _snap(
++        maps=(_view(entry, status="terminal"),),
++        wallet=_wallet(unsettled=(unsettled,), token_cids=(TokenCid(YES, CID),)),
++        reserve=reserve,
++    )
++    lists = build_lists(snap, NOW)
++    assert len(lists.residuals) == 1
++    row = lists.residuals[0]
++    assert not row.legs
++    assert row.commitments[0].venue_id == "v-1"
++    assert row.commitments[0].age_s is not None
++
++
++def test_residual_unmatched_api_position() -> None:
++    api = PositionEntry(
++        asset="orphan-token",
++        condition_id="0xother",
++        title="Foreign map",
++        size=3.0,
++        cur_price=0.4,
++        redeemable=True,
++    )
++    snap = _snap(day=replace(EMPTY_DAY_SNAPSHOT, positions=_positions(api)))
++    lists = build_lists(snap, NOW)
++    assert len(lists.residuals) == 1
++    row = lists.residuals[0]
++    assert row.match_id is None
++    assert row.legs[0].mark_state == "api"
++
++
++def test_residual_hidden_when_positions_incomplete() -> None:
++    api = PositionEntry(
++        asset="x", condition_id="0xother", title="x", size=1.0, cur_price=0.5, redeemable=None
++    )
++    snap = _snap(
++        day=replace(
++            EMPTY_DAY_SNAPSHOT,
++            positions=_positions(api, complete=False),
++            positions_candidate=_positions(api, complete=False),
++        )
++    )
++    lists = build_lists(snap, NOW)
++    assert lists.positions_state == "incomplete"
++    assert lists.residuals == ()
++
++
++def test_strip_metrics_states() -> None:
++    snap = _snap()
++    strip = build_strip(snap, NOW)
++    assert strip.collateral.text == "$100.00"
++    assert strip.collateral.verdict.state == "fresh"
++    assert strip.pnl.verdict.state == "no_data"
++    assert strip.rebate.verdict.state == "no_data"
++
++    stale_snap = _snap(balance=_balance(response_at=NOW - 1000, last_error="boom"))
++    strip2 = build_strip(stale_snap, NOW)
++    assert strip2.collateral.text == "$100.00"
++    assert strip2.collateral.verdict.state == "stale"
++
++    pending = _snap(balance=_balance(inflight=True))
++    assert build_strip(pending, NOW).collateral.verdict.state == "updating"
++
++
++def test_strip_day_fold_today() -> None:
++    fold = DayFold(
++        buy=10.0,
++        sell=12.0,
++        redeem=0.0,
++        rebate=0.5,
++        cash=2.5,
++        open_mark=1.0,
++        pnl=3.5,
++        n_buy=1,
++        n_sell=1,
++        n_redeem=0,
++        n_rebate=1,
++        n_open=1,
++    )
++    day = replace(
++        EMPTY_DAY_SNAPSHOT,
++        day=_berlin_today(),
++        fold=fold,
++        fold_at=NOW - 10,
++        complete=True,
++    )
++    strip = build_strip(_snap(day=day), NOW)
++    assert strip.pnl.text == "$+3.50"
++    assert strip.pnl.verdict.state == "fresh"
++
++
++def test_diagnostics_orders_fatal_first() -> None:
++    snap = _snap(error="SourceDied", wallet=_wallet(ok=False, error="db gone"))
++    diag = build_diagnostics(snap, None, NOW)
++    assert diag.headline is not None
++    assert diag.headline.severity == "fatal"
++    assert "диагностика:" not in diag.line
++    assert diag.findings[0].severity == "fatal"
++    assert diag.findings[1].severity == "error"
++
++
++def test_diagnostics_clean_reports_observed() -> None:
++    healthy = replace(
++        EMPTY_HEALTH,
++        ok=True,
++        consistent=True,
++        container_id="abc",
++        container_state="running",
++        halted=False,
++    )
++    clean = _snap(
++        health=healthy,
++        nontrading=replace(EMPTY_NONTRADING, ok=True, scanned_at=NOW),
++    )
++    diag = build_diagnostics(clean, None, NOW)
++    assert diag.findings == ()
++    assert "проблем" in diag.line and "контейнер работает" in diag.line
++
++
++def test_diagnostics_halt_findings() -> None:
++    healthy = replace(
++        EMPTY_HEALTH,
++        ok=True,
++        consistent=True,
++        container_id="abc",
++        container_state="running",
++        halted=True,
++        halt_label="risk_halt:map1",
++        halt_at=NOW - 10,
++    )
++    diag = build_diagnostics(_snap(health=healthy), None, NOW)
++    assert diag.headline is not None
++    assert "halt" in diag.headline.label
++    assert diag.headline.severity == "error"
++
++
++def test_sell_watcher_wedges_after_threshold() -> None:
++    watcher = SellWatcher()
++    sell = SellOrderFacts(
++        order_id="o1",
++        token_index=0,
++        token_id=YES,
++        status="canceling",
++        price=0.7,
++        submitted_qty=4.0,
++        filled_qty=0.0,
++        remaining_qty=4.0,
++        held_qty=4.0,
++        venue_id="v-1",
++        cancel_reason="",
++    )
++    session = _session(sells=(sell,))
++    snap = _snap(wallet=_wallet(sessions=(session,)))
++    first = build_diagnostics(snap, watcher, NOW)
++    later_snap = _snap(wallet=_wallet(sessions=(session,), read_at=NOW + 30))
++    later = build_diagnostics(later_snap, watcher, NOW + 31.0)
++    wedge = [f for f in later.findings if "SELL" in f.label]
++    assert not any("SELL" in f.label and "зависан" in f.label for f in first.findings)
++    assert wedge and wedge[0].severity == "warn"
++
++
++def test_sell_watcher_resets_on_stale_input() -> None:
++    watcher = SellWatcher()
++    sell = SellOrderFacts(
++        order_id="o1",
++        token_index=0,
++        token_id=YES,
++        status="canceling",
++        price=0.7,
++        submitted_qty=4.0,
++        filled_qty=0.0,
++        remaining_qty=4.0,
++        held_qty=4.0,
++        venue_id="v-1",
++        cancel_reason="",
++    )
++    session = _session(sells=(sell,))
++    snap = _snap(wallet=_wallet(sessions=(session,), read_at=NOW + 59))
++    build_diagnostics(snap, watcher, NOW + 60.0)
++    stale_wallet = _snap(wallet=_wallet(sessions=(session,), read_at=NOW, ok=True))
++    later = build_diagnostics(stale_wallet, watcher, NOW + 100.0)
++    assert not any("зависан" in f.label for f in later.findings)
++
++
++def test_idle_rows_from_sidecars() -> None:
++    market = SkippedMarket(
++        condition_id="0xskip",
++        game="dota",
++        event_slug="ev2",
++        market_slug="m-skip",
++        map_number=3,
++        outcome_names=("A", "B"),
++        reason="market closed",
++        reason_source="flags",
++        reason_ts=NOW - 100,
++    )
++    snap = _snap(
++        nontrading=NontradingFacts(
++            ok=True,
++            error=None,
++            attempt_at=NOW - 30,
++            scanned_at=NOW - 30,
++            markets=(market,),
++            invalid_sidecars=0,
++            missing_roots=(),
++            root_errors=(),
++        )
++    )
++    lists = build_lists(snap, NOW)
++    assert len(lists.idle) == 1
++    row = lists.idle[0]
++    assert row.reason == "рынок закрыт"
++    assert row.match_url is None
++    assert row.polymarket_url == "https://polymarket.com/event/ev2"
++
++
++def test_nontrading_note_on_failure() -> None:
++    snap = _snap(nontrading=replace(EMPTY_NONTRADING, ok=False, error="scan died", attempt_at=NOW))
++    lists = build_lists(snap, NOW)
++    assert lists.nontrading_note == "scan died"
+diff --git a/tests/test_dashboard_live_hub.py b/tests/test_dashboard_live_hub.py
+index 8790bd68..32c6df3d 100644
+--- a/tests/test_dashboard_live_hub.py
++++ b/tests/test_dashboard_live_hub.py
+@@ -228,6 +228,8 @@ def _hub_config(tmp_path: Path) -> HubConfig:
+         proxy=None,
+         account=None,
+         account_error="no credentials",
++        sidecar_roots={},
++        sidecar_root_errors=(),
+         timing=FAST_TIMING,
+         fetch=_empty_fetch,
+         log_runner=_ok_logs,
+@@ -832,11 +834,17 @@ def _entry(
+         tree="live",
+         game="dota",
+         slug=None,
++        event_slug=None,
+         joined_at_utc=None,
+         condition_id=cid,
+         yes_token=yes,
+         no_token=no,
+         yes_is_radiant=True,
++        radiant=None,
++        dire=None,
++        map_number=None,
++        outcome_0_name=None,
++        outcome_1_name=None,
+         finished=finished,
+         cleanup_proven=cleanup_proven,
+         session_ended=session_ended,
+@@ -845,7 +853,13 @@ def _entry(
+         on_tape=True,
+         last_write=None,
+         realized=None,
++        imv=None,
+         rebate=None,
++        net=None,
++        fill_count=None,
++        closed_observed_at=None,
++        last_decision=None,
++        params=None,
+     )
+ 
+ 
+@@ -856,6 +870,7 @@ def _view(entry: ArchiveEntry, status: MapStatus = "live") -> MapView:
+         write_age_s=0.0,
+         decision_age_s=None,
+         feed_age_s=None,
++        decision=None,
+         evidence=(),
+     )
+ 
+@@ -980,11 +995,13 @@ def _day_job(
+     payout_ts: float | None = 500.0,
+     accrual: RebateAccrual | None = None,
+     accrual_error: str | None = None,
++    started_at: float = 1999.0,
+     finished_at: float = 2000.0,
+ ) -> DayJob:
+     return DayJob(
+         funder=funder,
+         generation=generation,
++        started_at=started_at,
+         finished_at=finished_at,
+         day=result if result is not None else _day_result(day, fold=_fold()),
+         payout_known=payout_known,
+@@ -1064,6 +1081,7 @@ def test_day_merge_discards_stale_generation_and_funder() -> None:
+     retired = DayJob(
+         funder="0xf",
+         generation=0,
++        started_at=0.5,
+         finished_at=1.0,
+         day=_day_result("2026-10-05", fold=_fold()),
+         payout_known=True,
+diff --git a/uv.lock b/uv.lock
+index 061ff7a2..a5880c3b 100644
+--- a/uv.lock
++++ b/uv.lock
+@@ -740,6 +740,10 @@ backtest = [
+     { name = "python-dotenv" },
+     { name = "streamlit" },
+ ]
++dashboard = [
++    { name = "plotly" },
++    { name = "streamlit" },
++]
+ dev = [
+     { name = "basedpyright" },
+     { name = "matplotlib" },
+@@ -784,6 +788,10 @@ backtest = [
+     { name = "python-dotenv", specifier = ">=1.0.0" },
+     { name = "streamlit", specifier = ">=1.30.0" },
+ ]
++dashboard = [
++    { name = "plotly", specifier = ">=5.0.0" },
++    { name = "streamlit", specifier = ">=1.63.0" },
++]
+ dev = [
+     { name = "basedpyright", specifier = ">=1.39.9" },
+     { name = "matplotlib", specifier = ">=3.9" },

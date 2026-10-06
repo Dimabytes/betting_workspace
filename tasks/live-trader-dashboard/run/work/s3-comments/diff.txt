@@ -1,0 +1,3171 @@
+diff --git a/src/dashboard/balance.py b/src/dashboard/balance.py
+new file mode 100644
+index 00000000..baafc1ea
+--- /dev/null
++++ b/src/dashboard/balance.py
+@@ -0,0 +1,391 @@
++# pyright: reportMissingTypeStubs=false
++
++import math
++import tomllib
++from collections.abc import Callable, Mapping
++from dataclasses import dataclass
++from pathlib import Path
++from typing import Protocol, cast
++
++from polymaker.config import WalletConfig
++from py_clob_client_v2.client import ClobClient
++from py_clob_client_v2.clob_types import AssetType, BalanceAllowanceParams
++
++from dashboard.wallet import FillEvent, OutboxPage
++from shared.utils.environment import env_value
++
++MIN_REQUEST_INTERVAL_S = 5.0
++PERIODIC_REFRESH_S = 60.0
++BACKOFF_SCHEDULE_S = (5.0, 10.0, 20.0, 40.0, 60.0)
++BASE_UNITS_PER_USDC = 1_000_000
++
++
++@dataclass(frozen=True)
++class BalanceAccount:
++    host: str
++    chain_id: int
++    signature_type: int
++    pk: str
++    funder: str
++
++
++@dataclass(frozen=True)
++class FillEvidence:
++    seq: int
++    fill_key: str
++    event: str
++    expected_cash: float | None
++
++
++@dataclass(frozen=True)
++class BalanceRead:
++    ok: bool
++    collateral_usdc: float | None
++    error: str | None
++    status_code: int | None
++    retry_after_s: float | None
++
++
++@dataclass(frozen=True)
++class BalanceSnapshot:
++    collateral_usdc: float | None
++    funder: str | None
++    funder_mismatch: bool
++    request_started_at: float | None
++    response_at: float | None
++    last_attempt_at: float | None
++    last_error: str | None
++    queued: bool
++    inflight: bool
++    request_cutoff_seq: int | None
++    covered_seq: int | None
++    significant_seq: int | None
++    evidence_gaps: int
++    pending: tuple[FillEvidence, ...]
++
++
++def _expected_cash(event: FillEvent) -> float | None:
++    if event.price is None or event.size is None:
++        return None
++    if event.side == "BUY":
++        return -event.price * event.size
++    if event.side == "SELL":
++        return event.price * event.size
++    return None
++
++
++class BalanceTracker:
++    def __init__(
++        self,
++        *,
++        min_interval_s: float = MIN_REQUEST_INTERVAL_S,
++        period_s: float = PERIODIC_REFRESH_S,
++        backoffs_s: tuple[float, ...] = BACKOFF_SCHEDULE_S,
++    ) -> None:
++        self._min_interval_s = min_interval_s
++        self._period_s = period_s
++        self._backoffs_s = backoffs_s
++        self._cursor: int | None = None
++        self._awaiting: dict[str, float | None] = {}
++        self._pending: dict[int, FillEvidence] = {}
++        self._significant: int | None = None
++        self._covered: int | None = None
++        self._cutoff: int | None = None
++        self._collateral: float | None = None
++        self._request_started_at: float | None = None
++        self._response_at: float | None = None
++        self._last_attempt_at: float | None = None
++        self._last_error: str | None = None
++        self._last_start_mono: float | None = None
++        self._retry_not_before = 0.0
++        self._failures = 0
++        self._inflight = False
++        self._evidence_gaps = 0
++
++    @property
++    def cursor(self) -> int | None:
++        return self._cursor
++
++    @property
++    def collateral(self) -> float | None:
++        return self._collateral
++
++    @property
++    def awaiting(self) -> frozenset[str]:
++        return frozenset(self._awaiting)
++
++    @property
++    def inflight(self) -> bool:
++        return self._inflight
++
++    def seeded(self) -> bool:
++        return self._cursor is not None
++
++    def seed(self, matched_keys: frozenset[str], cursor_seq: int) -> None:
++        if self._cursor is not None:
++            return
++        self._cursor = cursor_seq
++        for key in matched_keys:
++            self._awaiting[key] = None
++
++    def apply_page(self, page: OutboxPage) -> bool:
++        if self._cursor is None:
++            return False
++        significant_before = self._significant
++        cursor = self._cursor
++        for event in page.events:
++            if event.seq <= cursor:
++                continue
++            self._apply(event)
++            cursor = event.seq
++        if page.next_seq is not None and page.next_seq > self._cursor:
++            self._cursor = page.next_seq
++        return self._significant != significant_before
++
++    def _apply(self, event: FillEvent) -> None:
++        if event.event == "matched":
++            expected = _expected_cash(event)
++            if expected is None:
++                self._evidence_gaps += 1
++            self._awaiting[event.fill_key] = expected
++            self._pending[event.seq] = FillEvidence(
++                event.seq, event.fill_key, event.event, expected
++            )
++            self._significant = event.seq
++        elif event.event == "confirmed":
++            if event.fill_key in self._awaiting:
++                del self._awaiting[event.fill_key]
++            else:
++                self._pending[event.seq] = FillEvidence(
++                    event.seq, event.fill_key, event.event, event.cash_delta
++                )
++                self._significant = event.seq
++        elif event.event == "failed":
++            prior = self._awaiting.pop(event.fill_key, None)
++            rollback = None if prior is None else -prior
++            self._pending[event.seq] = FillEvidence(
++                event.seq, event.fill_key, event.event, rollback
++            )
++            self._significant = event.seq
++        else:
++            self._evidence_gaps += 1
++            self._pending[event.seq] = FillEvidence(event.seq, event.fill_key, event.event, None)
++            self._significant = event.seq
++
++    def _dirty(self) -> bool:
++        return self._significant is not None and (
++            self._covered is None or self._significant > self._covered
++        )
++
++    def wants_request(self, now_mono: float) -> bool:
++        if self._cursor is None:
++            return False
++        if self._covered is None or self._dirty():
++            return True
++        return self._last_start_mono is None or now_mono - self._last_start_mono >= self._period_s
++
++    def next_delay(self, now_mono: float) -> float | None:
++        if self._cursor is None or self._inflight:
++            return None
++        not_before = self._retry_not_before
++        if self._last_start_mono is not None:
++            not_before = max(not_before, self._last_start_mono + self._min_interval_s)
++        if self._covered is None or self._dirty() or self._last_start_mono is None:
++            due = not_before
++        else:
++            due = max(not_before, self._last_start_mono + self._period_s)
++        return max(0.0, due - now_mono)
++
++    def begin_request(self, *, now_mono: float, now_wall: float) -> None:
++        self._inflight = True
++        self._last_start_mono = now_mono
++        self._request_started_at = now_wall
++        self._last_attempt_at = now_wall
++        self._cutoff = self._cursor
++
++    def finish_request(self, result: BalanceRead, *, now_mono: float, now_wall: float) -> None:
++        self._inflight = False
++        self._last_attempt_at = now_wall
++        if result.ok:
++            self._collateral = result.collateral_usdc
++            self._response_at = now_wall
++            self._last_error = None
++            self._failures = 0
++            self._retry_not_before = 0.0
++            self._covered = self._cutoff
++            self._pending = {
++                seq: ev
++                for seq, ev in self._pending.items()
++                if self._covered is None or seq > self._covered
++            }
++        else:
++            self._last_error = result.error or "balance read failed"
++            self._failures += 1
++            backoff = self._backoffs_s[min(self._failures - 1, len(self._backoffs_s) - 1)]
++            delay = result.retry_after_s if result.retry_after_s is not None else backoff
++            self._retry_not_before = now_mono + delay
++
++    def snapshot(
++        self,
++        *,
++        now_mono: float,
++        funder: str | None,
++        funder_mismatch: bool,
++        source_error: str | None,
++    ) -> BalanceSnapshot:
++        return BalanceSnapshot(
++            collateral_usdc=None if funder_mismatch else self._collateral,
++            funder=funder,
++            funder_mismatch=funder_mismatch,
++            request_started_at=self._request_started_at,
++            response_at=self._response_at,
++            last_attempt_at=self._last_attempt_at,
++            last_error=self._last_error or source_error,
++            queued=not self._inflight and self.wants_request(now_mono),
++            inflight=self._inflight,
++            request_cutoff_seq=self._cutoff,
++            covered_seq=self._covered,
++            significant_seq=self._significant,
++            evidence_gaps=self._evidence_gaps,
++            pending=tuple(self._pending.values()),
++        )
++
++
++class _BalanceClient(Protocol):
++    def create_or_derive_api_key(self) -> object: ...
++    def set_api_creds(self, creds: object) -> None: ...
++    def get_balance_allowance(self, params: object) -> object: ...
++
++
++def build_balance_client(account: BalanceAccount) -> _BalanceClient:
++    client = cast(
++        _BalanceClient,
++        ClobClient(
++            host=account.host,
++            chain_id=account.chain_id,
++            key=account.pk,
++            signature_type=account.signature_type,
++            funder=account.funder,
++        ),
++    )
++    creds = client.create_or_derive_api_key()
++    client.set_api_creds(creds)
++    return client
++
++
++def parse_collateral_usdc(response: object) -> float:
++    if not isinstance(response, Mapping):
++        raise ValueError("collateral response is not a mapping")
++    raw = cast(Mapping[object, object], response).get("balance")
++    if isinstance(raw, bool) or raw is None:
++        raise ValueError("collateral balance missing")
++    if isinstance(raw, int):
++        base = raw
++    elif isinstance(raw, str) and raw.strip().isdigit():
++        base = int(raw.strip())
++    else:
++        raise ValueError("collateral balance malformed")
++    if base < 0:
++        raise ValueError("collateral balance negative")
++    return base / BASE_UNITS_PER_USDC
++
++
++def _status_code(exc: Exception) -> int | None:
++    code = getattr(exc, "status_code", None)
++    if isinstance(code, bool) or not isinstance(code, int):
++        return None
++    return code
++
++
++def _retry_after_s(exc: Exception) -> float | None:
++    response = getattr(exc, "response", None)
++    headers = getattr(response, "headers", None)
++    if headers is None:
++        headers = getattr(exc, "headers", None)
++    if not isinstance(headers, Mapping):
++        return None
++    header_map = cast(Mapping[str, object], headers)
++    raw = header_map.get("Retry-After") or header_map.get("retry-after")
++    if raw is None:
++        return None
++    if not isinstance(raw, (int, float, str)) or isinstance(raw, bool):
++        return None
++    try:
++        value = float(raw)
++    except (TypeError, ValueError):
++        return None
++    return value if math.isfinite(value) and value >= 0.0 else None
++
++
++class CollateralReader:
++    def __init__(
++        self,
++        account: BalanceAccount,
++        *,
++        client_factory: Callable[[BalanceAccount], _BalanceClient] | None = None,
++    ) -> None:
++        self._account = account
++        self._factory = client_factory if client_factory is not None else build_balance_client
++        self._client: _BalanceClient | None = None
++
++    def read(self) -> BalanceRead:
++        try:
++            if self._client is None:
++                self._client = self._factory(self._account)
++            response = self._client.get_balance_allowance(
++                BalanceAllowanceParams(asset_type=cast(AssetType, AssetType.COLLATERAL))
++            )
++            amount = parse_collateral_usdc(response)
++        except Exception as exc:
++            return BalanceRead(
++                ok=False,
++                collateral_usdc=None,
++                error=type(exc).__name__,
++                status_code=_status_code(exc),
++                retry_after_s=_retry_after_s(exc),
++            )
++        return BalanceRead(
++            ok=True,
++            collateral_usdc=amount,
++            error=None,
++            status_code=None,
++            retry_after_s=None,
++        )
++
++
++def load_balance_account(
++    trading_toml: Path, env: Callable[[str], str | None] = env_value
++) -> BalanceAccount | None:
++    defaults = WalletConfig()
++    try:
++        with trading_toml.open("rb") as handle:
++            document: dict[str, object] = tomllib.load(handle)
++    except OSError:
++        document = {}
++    section_raw = document.get("wallet")
++    section = cast(dict[str, object], section_raw) if isinstance(section_raw, dict) else {}
++    host_raw = section.get("clob_host")
++    host = host_raw if isinstance(host_raw, str) and host_raw else defaults.clob_host
++    chain_raw = section.get("chain_id")
++    chain_id = (
++        chain_raw
++        if isinstance(chain_raw, int) and not isinstance(chain_raw, bool)
++        else defaults.chain_id
++    )
++    sig_raw = section.get("signature_type")
++    signature_type = (
++        sig_raw
++        if isinstance(sig_raw, int) and not isinstance(sig_raw, bool)
++        else defaults.signature_type
++    )
++    pk = env("PK") or ""
++    funder = env("BROWSER_ADDRESS") or ""
++    if not pk or not funder:
++        return None
++    return BalanceAccount(
++        host=host,
++        chain_id=chain_id,
++        signature_type=signature_type,
++        pk=pk,
++        funder=funder,
++    )
+diff --git a/src/dashboard/live_hub.py b/src/dashboard/live_hub.py
+new file mode 100644
+index 00000000..fd156ccd
+--- /dev/null
++++ b/src/dashboard/live_hub.py
+@@ -0,0 +1,1027 @@
++import asyncio
++import atexit
++import functools
++import itertools
++import threading
++import time
++from collections.abc import Callable, Coroutine, Mapping
++from concurrent.futures import Future, ThreadPoolExecutor, wait
++from contextlib import suppress
++from dataclasses import dataclass
++from pathlib import Path
++from types import MappingProxyType
++from typing import Any, Protocol, Self
++
++from dashboard import catalog, logs, reserve, summarize, wallet
++from dashboard.balance import (
++    BalanceAccount,
++    BalanceRead,
++    BalanceSnapshot,
++    BalanceTracker,
++    CollateralReader,
++    load_balance_account,
++)
++from dashboard.catalog import CatalogSnapshot, MapView, classify_entry
++from dashboard.logs import LogRunner, ServiceLogs
++from dashboard.market_books import (
++    DEFAULT_WS_URL,
++    BooksCallback,
++    BookSnapshot,
++    DesiredMarket,
++    HubBooks,
++    ScheduleFn,
++)
++from dashboard.reserve import ReserveReport
++from dashboard.summarize import (
++    DayFold,
++    DayResult,
++    FetchJson,
++    PositionsResult,
++    RebateAccrual,
++)
++from dashboard.tails import TailCache, TailView
++from dashboard.wallet import OutboxPage, WalletPosition, WalletSnapshot
++from shared.utils.environment import env_value
++from shared.utils.log import get_logger
++from trader.paths import SESSION_JOURNAL_FILENAME
++
++OUTBOX_PAGE_LIMIT = 256
++TAIL_TRACK_LIMIT = 64
++LOG_FAIL_PAUSE_CAP_S = 300.0
++
++_log = get_logger("dashboard.live_hub")
++
++
++@dataclass(frozen=True)
++class HubTiming:
++    disk_s: float
++    order_log_s: float
++    catalog_s: float
++    subs_s: float
++    day_s: float
++    logs_s: float
++    drain_timeout_s: float
++    balance_min_s: float
++    balance_period_s: float
++
++
++PRODUCTION_TIMING = HubTiming(
++    disk_s=0.5,
++    order_log_s=10.0,
++    catalog_s=30.0,
++    subs_s=5.0,
++    day_s=300.0,
++    logs_s=60.0,
++    drain_timeout_s=20.0,
++    balance_min_s=5.0,
++    balance_period_s=60.0,
++)
++
++
++@dataclass(frozen=True)
++class SessionFacts:
++    session_id: str
++    condition_id: str
++    game: str
++    yes_token: str
++    no_token: str
++    revision: int
++    recovery: bool
++    created_at: float
++    updated_at: float
++
++
++@dataclass(frozen=True)
++class WalletFacts:
++    ok: bool
++    error: str | None
++    read_at: float | None
++    funder: str | None
++    max_outbox_seq: int
++    sessions: tuple[SessionFacts, ...]
++    positions: tuple[WalletPosition, ...]
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class DaySnapshot:
++    day: str | None
++    fold: DayFold | None
++    fold_at: float | None
++    complete: bool
++    attempt_at: float | None
++    error: str | None
++    positions: PositionsResult | None
++    payout_ts: float | None
++    payout_known: bool
++    accrual_per_game: Mapping[str, float]
++    accrual_total: float | None
++    accrual_fills: int | None
++    accrual_matches: int | None
++    accrual_at: float | None
++    accrual_error: str | None
++
++
++@dataclass(frozen=True)
++class SubscriptionFacts:
++    catalog_built_at: float | None
++    applied_at: float | None
++    markets: tuple[DesiredMarket, ...]
++    missing: tuple[str, ...]
++    conflicts: tuple[str, ...]
++    error: str | None
++
++
++@dataclass(frozen=True)
++class LogsFacts:
++    service: str
++    ok: bool
++    error: str | None
++    attempt_at: float | None
++    read_at: float | None
++    text: str
++    truncated: bool
++
++
++@dataclass(frozen=True)
++class HubSnapshot:
++    generation: int
++    published_at: float
++    running: bool
++    error: str | None
++    books: tuple[BookSnapshot, ...]
++    balance: BalanceSnapshot
++    wallet: WalletFacts
++    reserve: ReserveReport | None
++    day: DaySnapshot
++    subscriptions: SubscriptionFacts
++    maps: tuple[MapView, ...]
++    service_logs: LogsFacts
++
++
++class BooksDriver(Protocol):
++    @property
++    def applied_at(self) -> float | None: ...
++    def run(self) -> Coroutine[Any, Any, None]: ...
++    async def apply_subscriptions(self, markets: tuple[DesiredMarket, ...]) -> bool: ...
++    async def shutdown(self) -> None: ...
++
++
++BooksFactory = Callable[[ScheduleFn, BooksCallback], BooksDriver]
++
++
++@dataclass(frozen=True)
++class HubConfig:
++    wallet_db: Path
++    live_root: Path
++    legacy_root: Path
++    compose_file: Path
++    service: str
++    ws_url: str
++    proxy: str | None
++    account: BalanceAccount | None
++    account_error: str | None
++    timing: HubTiming
++    fetch: FetchJson
++    log_runner: LogRunner
++    read_balance: Callable[[], BalanceRead] | None
++    make_books: BooksFactory
++    wall: Callable[[], float]
++    mono: Callable[[], float]
++
++
++def _default_books_factory(ws_url: str, proxy: str | None) -> BooksFactory:
++    def build(schedule: ScheduleFn, on_books: BooksCallback) -> BooksDriver:
++        return HubBooks(ws_url, schedule=schedule, on_books=on_books, proxy=proxy)
++
++    return build
++
++
++def default_hub_config() -> HubConfig:
++    root = summarize.ESPORTS_TRADER
++    trading_toml = root / "config" / "trading.toml"
++    account = load_balance_account(trading_toml)
++    reader = None if account is None else CollateralReader(account).read
++    ws_url = DEFAULT_WS_URL
++    proxy = env_value("ALL_PROXY") or env_value("HTTPS_PROXY")
++    return HubConfig(
++        wallet_db=root / "data" / "trader_live" / "wallet" / "live.db",
++        live_root=root / "data" / "trader_live",
++        legacy_root=root / "data" / "live_paper",
++        compose_file=root / "compose.yaml",
++        service="live",
++        ws_url=ws_url,
++        proxy=proxy,
++        account=account,
++        account_error=None if account is not None else "PK/BROWSER_ADDRESS credentials unavailable",
++        timing=PRODUCTION_TIMING,
++        fetch=summarize.fetch_json,
++        log_runner=logs.docker_runner,
++        read_balance=reader,
++        make_books=_default_books_factory(ws_url, proxy),
++        wall=time.time,
++        mono=time.monotonic,
++    )
++
++
++@dataclass(frozen=True)
++class _TailRead:
++    path: Path
++    view: TailView | None
++
++
++@dataclass(frozen=True)
++class _DiskResult:
++    wallet: WalletSnapshot
++    page: OutboxPage | None
++    order_log_read: bool
++    order_log: tuple[dict[str, object], ...] | None
++    tails: tuple[_TailRead, ...]
++
++
++class _DiskLane:
++    def __init__(self, wallet_db: Path) -> None:
++        self._wallet_db = wallet_db
++        self._checkpoints = wallet.CheckpointCache()
++        self._tails = TailCache()
++
++    def __call__(
++        self,
++        *,
++        after_seq: int | None,
++        want_order_log: bool,
++        tail_paths: tuple[Path, ...],
++        now_wall: float,
++    ) -> _DiskResult:
++        snap = wallet.read_wallet_snapshot(
++            self._wallet_db, checkpoints=self._checkpoints, now=now_wall
++        )
++        page = (
++            wallet.read_outbox_page(self._wallet_db, after_seq=after_seq, limit=OUTBOX_PAGE_LIMIT)
++            if after_seq is not None
++            else None
++        )
++        order_log = reserve.read_order_log(self._wallet_db) if want_order_log else None
++        tails = tuple(_TailRead(p, self._tails.read(p)) for p in tail_paths)
++        return _DiskResult(
++            wallet=snap,
++            page=page,
++            order_log_read=want_order_log,
++            order_log=order_log,
++            tails=tails,
++        )
++
++
++class _CatalogLane:
++    def __init__(self, live_root: Path, legacy_root: Path) -> None:
++        self._live = catalog.MatchCatalog(live_root, "live")
++        self._legacy = catalog.MatchCatalog(legacy_root, "legacy")
++
++    def __call__(
++        self, *, now_mono: float, now_wall: float
++    ) -> tuple[CatalogSnapshot, CatalogSnapshot]:
++        return (
++            self._live.snapshot(now_mono=now_mono, now_wall=now_wall),
++            self._legacy.snapshot(now_mono=now_mono, now_wall=now_wall),
++        )
++
++
++@dataclass(frozen=True)
++class _DayJob:
++    funder: str
++    generation: int
++    finished_at: float
++    day: DayResult
++    payout_known: bool
++    payout_ts: float | None
++    accrual: RebateAccrual | None
++    accrual_error: str | None
++
++
++def _run_day_job(
++    *,
++    funder: str,
++    generation: int,
++    trees: tuple[tuple[str, Path], ...],
++    fetch: FetchJson,
++    wall: Callable[[], float],
++) -> _DayJob:
++    day = summarize.fetch_day(funder, now=wall(), fetch=fetch, wall=wall)
++    payout_known = False
++    payout_ts: float | None = None
++    accrual: RebateAccrual | None = None
++    accrual_error: str | None = None
++    activity = day.activity
++    if activity is None:
++        accrual_error = day.error or "no activity result"
++    elif not activity.payout_search_complete:
++        accrual_error = f"payout search incomplete: {activity.stop_reason}"
++    else:
++        payout_known = True
++        payout_ts = activity.newest_payout
++        if payout_ts is None:
++            accrual_error = "no known rebate payout"
++        else:
++            try:
++                accrual = summarize.accrued_rebate_since(
++                    payout_ts, matches=summarize.match_dirs(trees)
++                )
++            except Exception as exc:
++                accrual_error = type(exc).__name__
++    return _DayJob(
++        funder=funder,
++        generation=generation,
++        finished_at=wall(),
++        day=day,
++        payout_known=payout_known,
++        payout_ts=payout_ts,
++        accrual=accrual,
++        accrual_error=accrual_error,
++    )
++
++
++@dataclass(frozen=True)
++class _DesiredSubs:
++    markets: tuple[DesiredMarket, ...]
++    missing: tuple[str, ...]
++    conflicts: tuple[str, ...]
++
++
++_GENERATIONS = itertools.count(1)
++
++
++class LiveHub:
++    def __init__(self, config: HubConfig) -> None:
++        self._cfg = config
++        self._pub = threading.Lock()
++        self._ctl = threading.Lock()
++        self._closed = False
++        self._closing = False
++        self._thread: threading.Thread | None = None
++        self._loop: asyncio.AbstractEventLoop | None = None
++        self._stop_flag = threading.Event()
++        self._stop_async: asyncio.Event | None = None
++        self._balance_wake: asyncio.Event | None = None
++        self._adapter: BooksDriver | None = None
++        self._tasks: list[asyncio.Task[None]] = []
++        self._inflight: set[Future[Any]] = set()
++        self._pool_disk = ThreadPoolExecutor(1, thread_name_prefix="hub-disk")
++        self._pool_slow = ThreadPoolExecutor(1, thread_name_prefix="hub-slow")
++        self._pool_balance = ThreadPoolExecutor(1, thread_name_prefix="hub-balance")
++        self._pool_day = ThreadPoolExecutor(1, thread_name_prefix="hub-day")
++        self._pool_logs = ThreadPoolExecutor(1, thread_name_prefix="hub-logs")
++        self._pools = [
++            self._pool_disk,
++            self._pool_slow,
++            self._pool_balance,
++            self._pool_day,
++            self._pool_logs,
++        ]
++        self._stopping = False
++        self._exit_error: str | None = None
++        self._source_fatal: str | None = None
++        self._generation = next(_GENERATIONS)
++        self._tracker = BalanceTracker(
++            min_interval_s=config.timing.balance_min_s,
++            period_s=config.timing.balance_period_s,
++        )
++        self._books: tuple[BookSnapshot, ...] = ()
++        self._disk = _DiskLane(config.wallet_db)
++        self._catalogs = _CatalogLane(config.live_root, config.legacy_root)
++        self._disk_error: str | None = None
++        self._wallet_snap: WalletSnapshot | None = None
++        self._wallet_fail: str | None = None
++        self._wallet_read_at: float | None = None
++        self._order_log: tuple[dict[str, object], ...] | None = None
++        self._order_log_at: float | None = None
++        self._reserve: ReserveReport | None = None
++        self._catalog_live: CatalogSnapshot | None = None
++        self._catalog_legacy: CatalogSnapshot | None = None
++        self._catalog_error: str | None = None
++        self._map_views: tuple[MapView, ...] = ()
++        self._tail_views: dict[Path, TailView] = {}
++        self._subs_applied_at: float | None = None
++        self._subs_markets: tuple[DesiredMarket, ...] = ()
++        self._subs_missing: tuple[str, ...] = ()
++        self._subs_conflicts: tuple[str, ...] = ()
++        self._subs_error: str | None = None
++        self._day_result: DayResult | None = None
++        self._day_attempt_at: float | None = None
++        self._day_error: str | None = None
++        self._positions: PositionsResult | None = None
++        self._payout_known = False
++        self._payout_ts: float | None = None
++        self._accrual: RebateAccrual | None = None
++        self._accrual_at: float | None = None
++        self._accrual_error: str | None = None
++        self._log_last: ServiceLogs | None = None
++        self._log_ok = False
++        self._log_attempt_at: float | None = None
++        self._log_error: str | None = None
++        self._snapshot = self._build_snapshot()
++
++    @property
++    def closed(self) -> bool:
++        with self._ctl:
++            return self._closed
++
++    @property
++    def generation(self) -> int:
++        return self._generation
++
++    def get_snapshot(self) -> HubSnapshot:
++        with self._pub:
++            return self._snapshot
++
++    def start(self) -> Self:
++        with self._ctl:
++            if self._closed or self._closing:
++                raise RuntimeError("live hub closed")
++            if self._thread is not None:
++                return self
++            self._thread = threading.Thread(target=self._run, name="live-hub", daemon=True)
++            self._thread.start()
++            return self
++
++    def close(self, timeout_s: float | None = None) -> bool:
++        with self._ctl:
++            self._closing = True
++            thread = self._thread
++        self._stop_flag.set()
++        loop = self._loop
++        if loop is not None and loop.is_running():
++            loop.call_soon_threadsafe(self._request_stop_in_loop)
++        if thread is None:
++            with self._ctl:
++                self._closed = True
++            return True
++        bound = timeout_s if timeout_s is not None else self._cfg.timing.drain_timeout_s + 10.0
++        thread.join(bound)
++        alive = thread.is_alive()
++        with self._ctl:
++            self._closed = not alive
++        return not alive
++
++    def _request_stop_in_loop(self) -> None:
++        if self._stop_async is not None:
++            self._stop_async.set()
++
++    def _schedule_cb(self, fn: Callable[[], None]) -> None:
++        loop = self._loop
++        if loop is not None:
++            loop.call_soon_threadsafe(fn)
++
++    def _run(self) -> None:
++        loop = asyncio.new_event_loop()
++        self._loop = loop
++        error: str | None = None
++        try:
++            loop.run_until_complete(self._main())
++        except Exception as exc:
++            error = type(exc).__name__
++            self._cleanup_after_error(loop)
++        finally:
++            for pool in self._pools:
++                pool.shutdown(wait=False, cancel_futures=True)
++            loop.close()
++            self._exit_error = error
++            self._stopping = True
++            self._publish()
++            with self._ctl:
++                self._closed = True
++
++    def _cleanup_after_error(self, loop: asyncio.AbstractEventLoop) -> None:
++        async def cleanup() -> None:
++            if self._adapter is not None:
++                with suppress(Exception):
++                    await self._adapter.shutdown()
++            for task in self._tasks:
++                task.cancel()
++            if self._tasks:
++                await asyncio.gather(*self._tasks, return_exceptions=True)
++
++        with suppress(Exception):
++            loop.run_until_complete(cleanup())
++
++    async def _main(self) -> None:
++        self._stop_async = asyncio.Event()
++        self._balance_wake = asyncio.Event()
++        if self._stop_flag.is_set():
++            self._stop_async.set()
++        self._adapter = self._cfg.make_books(self._schedule_cb, self._on_books)
++        self._tasks = [
++            self._spawn(self._adapter.run(), "hub-books"),
++            self._spawn(self._disk_loop(), "hub-disk"),
++            self._spawn(self._catalog_loop(), "hub-catalog"),
++            self._spawn(self._subs_loop(), "hub-subs"),
++            self._spawn(self._balance_loop(), "hub-balance"),
++            self._spawn(self._day_loop(), "hub-day"),
++            self._spawn(self._logs_loop(), "hub-logs"),
++        ]
++        self._publish()
++        try:
++            await self._stop_async.wait()
++        finally:
++            await self._shutdown()
++
++    def _spawn(self, coro: Coroutine[Any, Any, None], name: str) -> asyncio.Task[None]:
++        task = asyncio.create_task(coro, name=name)
++        task.add_done_callback(self._task_done)
++        return task
++
++    def _task_done(self, task: asyncio.Task[None]) -> None:
++        if self._stopping or task.cancelled():
++            return
++        exc = task.exception()
++        if exc is not None:
++            self._source_fatal = f"{task.get_name()}:{type(exc).__name__}"
++            self._publish()
++
++    async def _shutdown(self) -> None:
++        self._stopping = True
++        if self._adapter is not None:
++            with suppress(Exception):
++                await self._adapter.shutdown()
++        for task in self._tasks:
++            task.cancel()
++        if self._tasks:
++            await asyncio.gather(*self._tasks, return_exceptions=True)
++        pending = [fut for fut in self._inflight if not fut.done()]
++        if pending:
++            loop = asyncio.get_running_loop()
++            _, left = await loop.run_in_executor(
++                None,
++                lambda: wait(pending, timeout=self._cfg.timing.drain_timeout_s),
++            )
++            if left:
++                self._exit_error = f"worker drain timeout ({len(left)} running)"
++
++    async def _submit[T](self, pool: ThreadPoolExecutor, fn: Callable[[], T]) -> T:
++        fut: Future[T] = pool.submit(fn)
++        self._inflight.add(fut)
++        fut.add_done_callback(self._inflight.discard)
++        return await asyncio.wrap_future(fut)
++
++    def _on_books(self, books: tuple[BookSnapshot, ...]) -> None:
++        self._books = books
++        self._publish()
++
++    def _wake_balance(self) -> None:
++        if self._balance_wake is not None:
++            self._balance_wake.set()
++
++    async def _wait_wake(self, delay: float | None) -> None:
++        wake = self._balance_wake
++        if wake is None:
++            return
++        wake.clear()
++        with suppress(TimeoutError):
++            await asyncio.wait_for(wake.wait(), delay)
++
++    async def _disk_loop(self) -> None:
++        lane = self._disk
++        interval = self._cfg.timing.disk_s
++        while not self._stopping:
++            want_log = self._order_log_at is None or (
++                self._mono() - self._order_log_at >= self._cfg.timing.order_log_s
++            )
++            job = functools.partial(
++                lane,
++                after_seq=self._tracker.cursor,
++                want_order_log=want_log,
++                tail_paths=self._tail_paths(),
++                now_wall=self._wall(),
++            )
++            try:
++                result = await self._submit(self._pool_disk, job)
++            except Exception as exc:
++                self._disk_error = type(exc).__name__
++                self._publish()
++                await asyncio.sleep(interval)
++                continue
++            self._apply_disk(result)
++            self._publish()
++            if result.page is not None and result.page.has_more:
++                await asyncio.sleep(0.0)
++            else:
++                await asyncio.sleep(interval)
++
++    async def _catalog_loop(self) -> None:
++        lane = self._catalogs
++        interval = self._cfg.timing.catalog_s
++        while not self._stopping:
++            job = functools.partial(lane, now_mono=self._mono(), now_wall=self._wall())
++            try:
++                live, legacy = await self._submit(self._pool_slow, job)
++            except Exception as exc:
++                self._catalog_error = type(exc).__name__
++                self._publish()
++                await asyncio.sleep(interval)
++                continue
++            self._catalog_error = None
++            self._catalog_live = live
++            self._catalog_legacy = legacy
++            self._reclassify()
++            self._publish()
++            await asyncio.sleep(interval)
++
++    async def _subs_loop(self) -> None:
++        interval = self._cfg.timing.subs_s
++        while not self._stopping:
++            desired = self._desired_subs()
++            adapter = self._adapter
++            if adapter is not None:
++                try:
++                    changed = await adapter.apply_subscriptions(desired.markets)
++                    self._subs_error = None
++                except Exception as exc:
++                    self._subs_error = type(exc).__name__
++                    changed = False
++                if changed:
++                    self._subs_applied_at = adapter.applied_at
++            self._subs_markets = desired.markets
++            self._subs_missing = desired.missing
++            self._subs_conflicts = desired.conflicts
++            self._publish()
++            await asyncio.sleep(interval)
++
++    async def _balance_loop(self) -> None:
++        reader = self._cfg.read_balance
++        while not self._stopping:
++            if reader is None:
++                await self._wait_wake(self._cfg.timing.day_s)
++                continue
++            now = self._mono()
++            delay = self._tracker.next_delay(now)
++            if delay is None or delay > 0.0:
++                await self._wait_wake(delay)
++                continue
++            self._tracker.begin_request(now_mono=now, now_wall=self._wall())
++            self._publish()
++            try:
++                result = await self._submit(self._pool_balance, reader)
++            except Exception as exc:
++                result = BalanceRead(
++                    ok=False,
++                    collateral_usdc=None,
++                    error=type(exc).__name__,
++                    status_code=None,
++                    retry_after_s=None,
++                )
++            self._tracker.finish_request(result, now_mono=self._mono(), now_wall=self._wall())
++            self._publish()
++
++    async def _day_loop(self) -> None:
++        interval = self._cfg.timing.day_s
++        while not self._stopping:
++            funder = self._current_funder()
++            if funder is None:
++                if self._day_error is None:
++                    self._day_error = "no funder configured"
++                    self._publish()
++            else:
++                job = functools.partial(
++                    _run_day_job,
++                    funder=funder,
++                    generation=self._generation,
++                    trees=(
++                        ("live", self._cfg.live_root),
++                        ("legacy", self._cfg.legacy_root),
++                    ),
++                    fetch=self._cfg.fetch,
++                    wall=self._wall,
++                )
++                try:
++                    result = await self._submit(self._pool_day, job)
++                except Exception as exc:
++                    self._day_attempt_at = self._wall()
++                    self._day_error = type(exc).__name__
++                else:
++                    self._apply_day(result)
++                self._publish()
++            await asyncio.sleep(interval)
++
++    async def _logs_loop(self) -> None:
++        interval = self._cfg.timing.logs_s
++        pause = 0.0
++        while not self._stopping:
++            if pause > 0.0:
++                await asyncio.sleep(pause)
++            job = functools.partial(
++                logs.read_service_logs,
++                compose_file=self._cfg.compose_file,
++                service=self._cfg.service,
++                runner=self._cfg.log_runner,
++            )
++            try:
++                result = await self._submit(self._pool_logs, job)
++            except Exception as exc:
++                self._log_ok = False
++                self._log_attempt_at = self._wall()
++                self._log_error = type(exc).__name__
++                pause = min(max(pause, interval) * 2.0, LOG_FAIL_PAUSE_CAP_S)
++                self._publish()
++                continue
++            self._log_attempt_at = self._wall()
++            if result.ok:
++                self._log_last = result
++                self._log_error = None
++                pause = interval
++            else:
++                self._log_error = result.error
++                pause = min(max(pause, interval) * 2.0, LOG_FAIL_PAUSE_CAP_S)
++            self._log_ok = result.ok
++            self._publish()
++
++    def _tail_paths(self) -> tuple[Path, ...]:
++        snap = self._catalog_live
++        if snap is None:
++            return ()
++        candidates = [
++            entry
++            for entry in snap.entries
++            if not entry.finished and not entry.cleanup_proven and not entry.session_ended
++        ]
++        candidates.sort(key=lambda entry: -(entry.last_write or 0.0))
++        return tuple(
++            entry.archive_dir / SESSION_JOURNAL_FILENAME for entry in candidates[:TAIL_TRACK_LIMIT]
++        )
++
++    def _apply_disk(self, result: _DiskResult) -> None:
++        self._disk_error = None
++        snap = result.wallet
++        if snap.ok:
++            self._wallet_snap = snap
++            self._wallet_read_at = snap.read_at
++            self._wallet_fail = None
++            if not self._tracker.seeded() and snap.fill_boundary_ok:
++                self._tracker.seed(snap.matched_fill_keys, snap.max_outbox_seq)
++                self._wake_balance()
++        else:
++            self._wallet_fail = snap.error or "wallet read failed"
++        if result.page is not None and self._tracker.apply_page(result.page):
++            self._wake_balance()
++        if result.order_log_read:
++            self._order_log_at = self._mono()
++            if result.order_log is not None:
++                self._order_log = result.order_log
++        for item in result.tails:
++            if item.view is None:
++                self._tail_views.pop(item.path, None)
++            else:
++                self._tail_views[item.path] = item.view
++        self._reclassify()
++        self._recompute_reserve()
++
++    def _reclassify(self) -> None:
++        snap = self._catalog_live
++        if snap is None:
++            self._map_views = ()
++            return
++        now = self._wall()
++        self._map_views = tuple(
++            classify_entry(
++                entry,
++                now_wall=now,
++                tail=self._tail_views.get(entry.archive_dir / SESSION_JOURNAL_FILENAME),
++            )
++            for entry in snap.entries
++        )
++
++    def _recompute_reserve(self) -> None:
++        snap = self._wallet_snap
++        if snap is None:
++            self._reserve = None
++            return
++        finished = frozenset(
++            view.entry.condition_id
++            for view in self._map_views
++            if view.status in ("final", "terminal") and view.entry.condition_id is not None
++        )
++        orphans = (
++            reserve.compute_orphans(snap, self._order_log) if self._order_log is not None else ()
++        )
++        collateral = None if self._funder_mismatch() else self._tracker.collateral
++        self._reserve = reserve.compute_reserve(
++            snap,
++            finished_cids=finished,
++            collateral_usdc=collateral,
++            orphan_details=orphans,
++        )
++
++    def _desired_subs(self) -> _DesiredSubs:
++        token_cid = {
++            row.token_id: row.condition_id
++            for row in (self._wallet_snap.token_cids if self._wallet_snap else ())
++        }
++        markets: list[DesiredMarket] = []
++        missing: list[str] = []
++        conflicts: list[str] = []
++        for view in self._map_views:
++            if view.status != "live":
++                continue
++            entry = view.entry
++            cid = entry.condition_id
++            yes = entry.yes_token
++            no = entry.no_token
++            if cid is None or yes is None or no is None or yes == no:
++                missing.append(entry.match_id)
++                continue
++            bad = [token for token in (yes, no) if token_cid.get(token) not in (None, cid)]
++            if bad:
++                conflicts.append(entry.match_id)
++                continue
++            markets.append(DesiredMarket(cid, (yes, no)))
++        return _DesiredSubs(
++            markets=tuple(markets),
++            missing=tuple(missing),
++            conflicts=tuple(conflicts),
++        )
++
++    def _current_funder(self) -> str | None:
++        if self._wallet_snap is not None and self._wallet_snap.funder:
++            return self._wallet_snap.funder
++        if self._cfg.account is not None:
++            return self._cfg.account.funder
++        return None
++
++    def _funder_mismatch(self) -> bool:
++        account = self._cfg.account
++        if account is None:
++            return False
++        wallet_funder = self._wallet_snap.funder if self._wallet_snap else None
++        return wallet_funder is None or wallet_funder.lower() != account.funder.lower()
++
++    def _apply_day(self, job: _DayJob) -> None:
++        if job.generation != self._generation:
++            return
++        current = self._current_funder()
++        if current is None or job.funder != current:
++            return
++        self._day_attempt_at = job.finished_at
++        self._day_error = job.day.error
++        self._day_result = summarize.publish_day(self._day_result, job.day)
++        positions = job.day.positions
++        if positions is not None and positions.traversal_complete:
++            self._positions = positions
++        if job.payout_known:
++            self._payout_known = True
++            self._payout_ts = job.payout_ts
++        if job.accrual is not None:
++            self._accrual = job.accrual
++            self._accrual_at = job.finished_at
++            self._accrual_error = None
++        elif job.accrual_error is not None:
++            self._accrual_error = job.accrual_error
++
++    def _wall(self) -> float:
++        return self._cfg.wall()
++
++    def _mono(self) -> float:
++        return self._cfg.mono()
++
++    def _wallet_facts(self) -> WalletFacts:
++        snap = self._wallet_snap
++        error = self._wallet_fail or self._disk_error
++        if snap is None:
++            return WalletFacts(
++                ok=False,
++                error=error or "no wallet read yet",
++                read_at=None,
++                funder=None,
++                max_outbox_seq=0,
++                sessions=(),
++                positions=(),
++                notes=(),
++            )
++        notes = snap.notes + (() if error is None else (f"latest read: {error}",))
++        return WalletFacts(
++            ok=self._wallet_fail is None,
++            error=error,
++            read_at=self._wallet_read_at,
++            funder=snap.funder,
++            max_outbox_seq=snap.max_outbox_seq,
++            sessions=tuple(
++                SessionFacts(
++                    session_id=s.session_id,
++                    condition_id=s.condition_id,
++                    game=s.game,
++                    yes_token=s.yes_token,
++                    no_token=s.no_token,
++                    revision=s.revision,
++                    recovery=s.recovery,
++                    created_at=s.created_at,
++                    updated_at=s.updated_at,
++                )
++                for s in snap.sessions
++            ),
++            positions=snap.positions,
++            notes=notes,
++        )
++
++    def _build_snapshot(self) -> HubSnapshot:
++        account = self._cfg.account
++        funder = account.funder if account is not None else None
++        mismatch = self._funder_mismatch()
++        balance = self._tracker.snapshot(
++            now_mono=self._mono(),
++            funder=funder,
++            funder_mismatch=mismatch,
++            source_error=self._cfg.account_error,
++        )
++        catalog_built = self._catalog_live.built_at if self._catalog_live is not None else None
++        accrual = self._accrual
++        last_log = self._log_last
++        running = self._thread is not None and self._thread.is_alive()
++        return HubSnapshot(
++            generation=self._generation,
++            published_at=self._wall(),
++            running=running and not self._stopping,
++            error=self._exit_error or self._source_fatal,
++            books=self._books,
++            balance=balance,
++            wallet=self._wallet_facts(),
++            reserve=self._reserve,
++            day=DaySnapshot(
++                day=self._day_result.day if self._day_result else None,
++                fold=self._day_result.fold if self._day_result else None,
++                fold_at=self._day_result.fetched_at if self._day_result else None,
++                complete=self._day_result.complete if self._day_result else False,
++                attempt_at=self._day_attempt_at,
++                error=self._day_error,
++                positions=self._positions,
++                payout_ts=self._payout_ts,
++                payout_known=self._payout_known,
++                accrual_per_game=MappingProxyType(
++                    dict(accrual.per_game) if accrual is not None else {}
++                ),
++                accrual_total=accrual.total if accrual is not None else None,
++                accrual_fills=accrual.fills if accrual is not None else None,
++                accrual_matches=accrual.matches if accrual is not None else None,
++                accrual_at=self._accrual_at,
++                accrual_error=self._accrual_error,
++            ),
++            subscriptions=SubscriptionFacts(
++                catalog_built_at=catalog_built,
++                applied_at=self._subs_applied_at,
++                markets=self._subs_markets,
++                missing=self._subs_missing,
++                conflicts=self._subs_conflicts,
++                error=self._subs_error or self._catalog_error,
++            ),
++            maps=self._map_views,
++            service_logs=LogsFacts(
++                service=self._cfg.service,
++                ok=self._log_ok,
++                error=self._log_error,
++                attempt_at=self._log_attempt_at,
++                read_at=last_log.read_at if last_log is not None else None,
++                text=last_log.text if last_log is not None else "",
++                truncated=last_log.truncated if last_log is not None else False,
++            ),
++        )
++
++    def _publish(self) -> None:
++        snap = self._build_snapshot()
++        with self._pub:
++            self._snapshot = snap
++
++
++_registry_lock = threading.Lock()
++_singleton: LiveHub | None = None
++_atexit_registered = False
++
++
++def get_live_hub(factory: Callable[[], LiveHub] | None = None) -> LiveHub:
++    global _singleton, _atexit_registered
++    with _registry_lock:
++        if _singleton is not None and not _singleton.closed:
++            return _singleton
++        hub = factory() if factory is not None else LiveHub(default_hub_config())
++        hub.start()
++        _singleton = hub
++        if not _atexit_registered:
++            atexit.register(close_live_hub)
++            _atexit_registered = True
++        return hub
++
++
++def replace_live_hub(factory: Callable[[], LiveHub] | None = None) -> LiveHub:
++    global _singleton
++    with _registry_lock:
++        old = _singleton
++        new = factory() if factory is not None else LiveHub(default_hub_config())
++        if old is not None and not old.close():
++            _log.warning("previous live hub failed to stop cleanly")
++        new.start()
++        _singleton = new
++        return new
++
++
++def close_live_hub() -> None:
++    global _singleton
++    with _registry_lock:
++        old = _singleton
++        _singleton = None
++    if old is not None:
++        old.close()
+diff --git a/src/dashboard/logs.py b/src/dashboard/logs.py
+index 87865aa5..1540db60 100644
+--- a/src/dashboard/logs.py
++++ b/src/dashboard/logs.py
+@@ -105,7 +105,7 @@ def halt_events(log_text: str) -> tuple[HaltLine, ...]:
+ LogRunner = Callable[[Sequence[str], float], bytes]
+ 
+ 
+-def _docker_runner(argv: Sequence[str], timeout_s: float) -> bytes:
++def docker_runner(argv: Sequence[str], timeout_s: float) -> bytes:
+     proc = subprocess.run(list(argv), capture_output=True, timeout=timeout_s, check=False)
+     if proc.returncode != 0:
+         tail = proc.stderr.decode("utf-8", errors="replace")[:200]
+@@ -121,7 +121,7 @@ def read_service_logs(
+     tail: int = LOG_TAIL_LINES,
+     timeout_s: float = LOG_TIMEOUT_S,
+     max_bytes: int = LOG_MAX_BYTES,
+-    runner: LogRunner = _docker_runner,
++    runner: LogRunner = docker_runner,
+ ) -> ServiceLogs:
+     read_at = time.time()
+     if not compose_file.is_file():
+diff --git a/src/dashboard/market_books.py b/src/dashboard/market_books.py
+new file mode 100644
+index 00000000..69339cee
+--- /dev/null
++++ b/src/dashboard/market_books.py
+@@ -0,0 +1,212 @@
++import itertools
++import time
++from collections.abc import Callable, Iterable, Reversible
++from contextlib import suppress
++from dataclasses import dataclass
++from typing import Any, cast
++
++from polymaker.marketdata.orderbook import BookLevel
++from polymaker.marketdata.parse import parse_book
++from polymaker.marketdata.service import MarketDataService
++
++BOOK_TOP_LEVELS = 20
++DEFAULT_TICK_SIZE = 0.001
++DEFAULT_WS_URL = "wss://ws-subscriptions-clob.polymarket.com/ws/market"
++
++
++@dataclass(frozen=True)
++class BookSnapshot:
++    token_id: str
++    condition_id: str
++    bids: tuple[BookLevel, ...]
++    asks: tuple[BookLevel, ...]
++    tick_size: float
++    book_hash: str | None
++    exchange_ts: float | None
++    local_ts: float | None
++    generation: int
++    initialized: bool
++    ready: bool
++    connected: bool
++    disconnected_since: float | None
++    truncated: bool
++
++
++@dataclass(frozen=True)
++class DesiredMarket:
++    condition_id: str
++    token_ids: tuple[str, ...]
++
++
++ScheduleFn = Callable[[Callable[[], None]], None]
++BooksCallback = Callable[[tuple[BookSnapshot, ...]], None]
++
++
++class HubBooks(MarketDataService):
++    def __init__(
++        self,
++        url: str = DEFAULT_WS_URL,
++        *,
++        schedule: ScheduleFn,
++        on_books: BooksCallback,
++        proxy: str | None = None,
++        top_levels: int = BOOK_TOP_LEVELS,
++        wall: Callable[[], float] = time.time,
++    ) -> None:
++        super().__init__(url, proxy=proxy)
++        self._schedule_cb = schedule
++        self._on_books_cb = on_books
++        self._top_levels = top_levels
++        self._wall = wall
++        self._generation = 0
++        self._ready: set[str] = set()
++        self._initialized: set[str] = set()
++        self._desired: dict[str, str] = {}
++        self._published: dict[str, BookSnapshot] = {}
++        self._applied_at: float | None = None
++        self._pending_publish = False
++
++    @property
++    def generation(self) -> int:
++        return self._generation
++
++    @property
++    def applied_at(self) -> float | None:
++        return self._applied_at
++
++    def feed_frame(self, raw: str | bytes) -> None:
++        self._handle(raw)
++
++    def _wake(self, token_id: str) -> None:
++        self._schedule_publish()
++
++    def _schedule_publish(self) -> None:
++        if self._pending_publish:
++            return
++        self._pending_publish = True
++        self._schedule_cb(self._publish_now)
++
++    def _publish_now(self) -> None:
++        self._pending_publish = False
++        self._on_books_cb(self._snapshots())
++
++    def _snapshots(self) -> tuple[BookSnapshot, ...]:
++        snaps = tuple(self._capture(token, cid) for token, cid in sorted(self._desired.items()))
++        for snap in snaps:
++            self._published[snap.token_id] = snap
++        return snaps
++
++    def _capture(self, token: str, condition_id: str) -> BookSnapshot:
++        book = self.books.get(token)
++        ready = token in self._ready
++        prev = self._published.get(token)
++        if ready and book is not None:
++            bid_items = cast(Reversible[tuple[float, float]], book.bids.items())
++            ask_items = cast(Iterable[tuple[float, float]], book.asks.items())
++            bids = tuple(
++                BookLevel(price, size)
++                for price, size in itertools.islice(reversed(bid_items), self._top_levels)
++            )
++            asks = tuple(
++                BookLevel(price, size)
++                for price, size in itertools.islice(ask_items, self._top_levels)
++            )
++            truncated = len(book.bids) > self._top_levels or len(book.asks) > self._top_levels
++            book_hash = book.book_hash
++            exchange_ts = book.last_update_ts or None
++            local_ts = book.local_ts or None
++        elif prev is not None:
++            bids, asks, truncated = prev.bids, prev.asks, prev.truncated
++            book_hash = prev.book_hash
++            exchange_ts = prev.exchange_ts
++            local_ts = prev.local_ts
++        else:
++            bids, asks = (), ()
++            truncated = False
++            book_hash = None
++            exchange_ts = None
++            local_ts = None
++        if book is not None:
++            tick = book.tick_size
++        elif prev is not None:
++            tick = prev.tick_size
++        else:
++            tick = DEFAULT_TICK_SIZE
++        disconnected = self.disconnected_since if self.disconnected_since else None
++        return BookSnapshot(
++            token_id=token,
++            condition_id=condition_id,
++            bids=bids,
++            asks=asks,
++            tick_size=tick,
++            book_hash=book_hash,
++            exchange_ts=exchange_ts,
++            local_ts=local_ts,
++            generation=self._generation,
++            initialized=token in self._initialized,
++            ready=ready,
++            connected=self.connected,
++            disconnected_since=disconnected,
++            truncated=truncated,
++        )
++
++    def _on_book(self, msg: dict[str, Any]) -> None:
++        upd = parse_book(msg)
++        if upd is None or upd.asset_id not in self._desired:
++            return
++        super()._on_book(msg)
++        if upd.asset_id in self.books:
++            self._ready.add(upd.asset_id)
++            self._initialized.add(upd.asset_id)
++            self._schedule_publish()
++
++    async def _connect_and_listen(self) -> None:
++        if self._subs:
++            self._generation += 1
++            self._ready.clear()
++            for token in self._subs:
++                book = self.books.get(token)
++                if book is None:
++                    continue
++                book.bids.clear()
++                book.asks.clear()
++                book.book_hash = None
++                book.last_update_ts = 0.0
++                book.local_ts = 0.0
++            self._schedule_publish()
++        try:
++            await super()._connect_and_listen()
++        finally:
++            self._schedule_publish()
++
++    async def _close_socket(self) -> None:
++        ws = self._ws
++        if ws is None:
++            return
++        with suppress(Exception):
++            await ws.close()
++
++    async def apply_subscriptions(self, markets: tuple[DesiredMarket, ...]) -> bool:
++        desired: dict[str, str] = {}
++        for market in markets:
++            for token in market.token_ids:
++                desired[token] = market.condition_id
++        if desired == self._desired:
++            return False
++        for token in self._desired:
++            if token not in desired:
++                self.books.pop(token, None)
++                self._token_condition.pop(token, None)
++                self._ready.discard(token)
++                self._initialized.discard(token)
++                self._published.pop(token, None)
++        self._desired = desired
++        self.set_markets([(m.condition_id, list(m.token_ids)) for m in markets])
++        self._applied_at = self._wall()
++        await self._close_socket()
++        self._schedule_publish()
++        return True
++
++    async def shutdown(self) -> None:
++        self.stop()
++        await self._close_socket()
+diff --git a/src/dashboard/reserve.py b/src/dashboard/reserve.py
+index a43a2cff..aa71e774 100644
+--- a/src/dashboard/reserve.py
++++ b/src/dashboard/reserve.py
+@@ -360,6 +360,7 @@ def compute_reserve(
+     unsettled_total = _reserve_unsettled(snapshot.unsettled_buys, bookings, covered_venues, details)
+     details.extend(orphan_details)
+     orphan_total = sum(item.notional for item in orphan_details)
++    limitations.append("order_log is last-known only: live orphan coverage unprovable")
+     total = core.total + commands.total + unsettled_total + orphan_total
+     available = None if collateral_usdc is None else collateral_usdc - total
+     return ReserveReport(
+diff --git a/src/dashboard/wallet.py b/src/dashboard/wallet.py
+index 6bd412c5..a21605c1 100644
+--- a/src/dashboard/wallet.py
++++ b/src/dashboard/wallet.py
+@@ -94,6 +94,8 @@ class WalletSnapshot:
+     token_cids: tuple[TokenCid, ...]
+     booked_buy_qty: tuple[BookedVenue, ...]
+     max_outbox_seq: int
++    matched_fill_keys: frozenset[str]
++    fill_boundary_ok: bool
+     notes: tuple[str, ...]
+ 
+ 
+@@ -126,7 +128,8 @@ class _WalletRows:
+     token_cids: tuple[TokenCid, ...]
+     booked_buy_qty: tuple[BookedVenue, ...]
+     funder: str | None
+-    max_outbox_seq: int
++    max_outbox_seq: int | None
++    matched_fill_keys: frozenset[str] | None
+ 
+ 
+ def open_readonly(path: Path) -> sqlite3.Connection:
+@@ -172,28 +175,35 @@ def _text_cell(row: sqlite3.Row, key: str) -> str:
+     return str(cell(row, key))
+ 
+ 
++@dataclass(frozen=True)
++class _DecodedCheckpoint:
++    updated_at: float
++    revision: int
++    checkpoint: StructuralCheckpoint | None
++    error: str | None
++
++
+ class CheckpointCache:
+     def __init__(self) -> None:
+-        self._decoded: dict[
+-            tuple[str, float, int], tuple[StructuralCheckpoint | None, str | None]
+-        ] = {}
++        self._decoded: dict[str, _DecodedCheckpoint] = {}
+ 
+     def decode(
+         self, *, session_id: str, updated_at: float, revision: int, raw: str
+     ) -> tuple[StructuralCheckpoint | None, str | None]:
+-        key = (session_id, updated_at, revision)
+-        hit = self._decoded.get(key)
+-        if hit is not None:
+-            return hit
++        hit = self._decoded.get(session_id)
++        if hit is not None and hit.updated_at == updated_at and hit.revision == revision:
++            return hit.checkpoint, hit.error
+         try:
+-            result: tuple[StructuralCheckpoint | None, str | None] = (
+-                decode_checkpoint(raw),
+-                None,
+-            )
++            entry = _DecodedCheckpoint(updated_at, revision, decode_checkpoint(raw), None)
+         except CoreSchemaError as exc:
+-            result = (None, str(exc))
+-        self._decoded[key] = result
+-        return result
++            entry = _DecodedCheckpoint(updated_at, revision, None, str(exc))
++        self._decoded[session_id] = entry
++        return entry.checkpoint, entry.error
++
++    def retain(self, session_ids: frozenset[str]) -> None:
++        for key in tuple(self._decoded):
++            if key not in session_ids:
++                del self._decoded[key]
+ 
+ 
+ def table_rows(
+@@ -359,14 +369,22 @@ def _read_booked_qty(conn: sqlite3.Connection, notes: list[str]) -> tuple[Booked
+     )
+ 
+ 
+-def _read_max_outbox_seq(conn: sqlite3.Connection, notes: list[str]) -> int:
++def _read_max_outbox_seq(conn: sqlite3.Connection, notes: list[str]) -> int | None:
+     rows = table_rows(conn, "SELECT COALESCE(MAX(seq), 0) AS m FROM fill_outbox")
+     if rows is None:
+         notes.append("fill_outbox unreadable or missing")
+-        return 0
++        return None
+     return _int_cell(rows[0], "m")
+ 
+ 
++def _read_matched_fill_keys(conn: sqlite3.Connection, notes: list[str]) -> frozenset[str] | None:
++    rows = table_rows(conn, "SELECT fill_key FROM fill_ledger WHERE status='MATCHED'")
++    if rows is None:
++        notes.append("fill_ledger matched keys unreadable or missing")
++        return None
++    return frozenset(_text_cell(row, "fill_key") for row in rows)
++
++
+ def _copy_wallet_rows(conn: sqlite3.Connection, notes: list[str]) -> _WalletRows:
+     session_rows = _copy_sessions(conn, notes)
+     session_ids = tuple(row.session_id for row in session_rows)
+@@ -380,6 +398,7 @@ def _copy_wallet_rows(conn: sqlite3.Connection, notes: list[str]) -> _WalletRows
+         booked_buy_qty=_read_booked_qty(conn, notes),
+         funder=_read_identity(conn, notes),
+         max_outbox_seq=_read_max_outbox_seq(conn, notes),
++        matched_fill_keys=_read_matched_fill_keys(conn, notes),
+     )
+ 
+ 
+@@ -400,6 +419,8 @@ def _failed_snapshot(
+         token_cids=(),
+         booked_buy_qty=(),
+         max_outbox_seq=0,
++        matched_fill_keys=frozenset(),
++        fill_boundary_ok=False,
+         notes=notes,
+     )
+ 
+@@ -427,20 +448,26 @@ def read_wallet_snapshot(
+         conn.close()
+     if raw is None or error is not None:
+         return _failed_snapshot(path, read_at, error or "read failed", tuple(notes))
++    sessions = _decode_sessions(raw.sessions, cache)
++    cache.retain(frozenset(row.session_id for row in raw.sessions))
+     return WalletSnapshot(
+         db_path=path,
+         ok=True,
+         error=None,
+         read_at=read_at,
+         funder=raw.funder,
+-        sessions=_decode_sessions(raw.sessions, cache),
++        sessions=sessions,
+         bindings=raw.bindings,
+         open_buy_commands=raw.open_buy_commands,
+         unsettled_buys=raw.unsettled_buys,
+         positions=raw.positions,
+         token_cids=raw.token_cids,
+         booked_buy_qty=raw.booked_buy_qty,
+-        max_outbox_seq=raw.max_outbox_seq,
++        max_outbox_seq=raw.max_outbox_seq if raw.max_outbox_seq is not None else 0,
++        matched_fill_keys=(
++            raw.matched_fill_keys if raw.matched_fill_keys is not None else frozenset()
++        ),
++        fill_boundary_ok=raw.max_outbox_seq is not None and raw.matched_fill_keys is not None,
+         notes=tuple(notes),
+     )
+ 
+diff --git a/tests/test_dashboard.py b/tests/test_dashboard.py
+index 25cd1b66..79e43715 100644
+--- a/tests/test_dashboard.py
++++ b/tests/test_dashboard.py
+@@ -336,6 +336,63 @@ def test_checkpoint_cache_invalidates_on_updated_at() -> None:
+     assert bad is None and err is not None
+ 
+ 
++def test_checkpoint_cache_retain_evicts_dead_sessions() -> None:
++    cache = wallet.CheckpointCache()
++    checkpoint = snapshot_checkpoint(
++        state=_state((_order("c0"),)), now_ns=0, now_wall_s=NOW, sell_min_life_s=1.0
++    )
++    raw = encode_checkpoint(checkpoint)
++    kept, _ = cache.decode(session_id="s-keep", updated_at=1.0, revision=1, raw=raw)
++    cache.decode(session_id="s-dead", updated_at=1.0, revision=1, raw=raw)
++    cache.retain(frozenset({"s-keep"}))
++    again, _ = cache.decode(session_id="s-keep", updated_at=1.0, revision=1, raw=raw)
++    assert again is kept
++    reloaded, _ = cache.decode(session_id="s-dead", updated_at=1.0, revision=1, raw=raw)
++    assert reloaded is not None
++    reread, _ = cache.decode(session_id="s-dead", updated_at=1.0, revision=1, raw=raw)
++    assert reread is reloaded
++
++
++def test_wallet_snapshot_seeds_matched_boundary(tmp_path: Path) -> None:
++    conn, path = _wallet(tmp_path)
++    _insert_fill(conn, "k1")
++    _insert_fill(conn, "k2", status="CONFIRMED")
++    _insert_fill(conn, "k3", status="FAILED")
++    _insert_outbox(conn, "k1", "matched")
++    _insert_outbox(conn, "k2", "matched")
++    _insert_outbox(conn, "k2", "confirmed")
++    _insert_outbox(conn, "k3", "matched")
++    conn.commit()
++    snap = wallet.read_wallet_snapshot(path)
++    conn.close()
++    assert snap.ok
++    assert snap.fill_boundary_ok
++    assert snap.matched_fill_keys == frozenset({"k1"})
++    assert snap.max_outbox_seq == 4
++
++
++def test_wallet_snapshot_boundary_bad_when_fill_tables_missing(tmp_path: Path) -> None:
++    conn, path = _wallet(tmp_path)
++    conn.execute("DROP TABLE fill_ledger")
++    conn.execute("DROP TABLE fill_outbox")
++    conn.commit()
++    snap = wallet.read_wallet_snapshot(path)
++    conn.close()
++    assert not snap.fill_boundary_ok
++    assert snap.matched_fill_keys == frozenset()
++
++
++def test_reserve_reports_last_known_limitation(tmp_path: Path) -> None:
++    conn, path = _wallet(tmp_path)
++    conn.commit()
++    snap = wallet.read_wallet_snapshot(path)
++    conn.close()
++    report = reserve.compute_reserve(snap, finished_cids=frozenset(), collateral_usdc=100.0)
++    assert report.incomplete
++    assert report.available_cash is not None
++    assert any("unprovable" in note for note in report.limitations)
++
++
+ def test_reserve_counts_core_remainder_and_dedupes_command(tmp_path: Path) -> None:
+     conn, path = _wallet(tmp_path)
+     _insert_session(conn, (_order("c0", price=0.5, submitted=40.0, filled=10.0),))
+diff --git a/tests/test_dashboard_live_hub.py b/tests/test_dashboard_live_hub.py
+new file mode 100644
+index 00000000..4452909f
+--- /dev/null
++++ b/tests/test_dashboard_live_hub.py
+@@ -0,0 +1,1271 @@
++# pyright: reportPrivateUsage=false, reportMissingTypeStubs=false
++
++import asyncio
++import json
++import os
++import sqlite3
++import threading
++import time
++from collections.abc import Callable, Sequence
++from dataclasses import replace
++from pathlib import Path
++from types import SimpleNamespace
++from typing import Any
++
++import pytest
++from polymaker.marketdata import service as service_mod
++from polymaker.marketdata.orderbook import BookLevel
++from py_clob_client_v2.http_helpers import helpers
++
++from dashboard import live_hub
++from dashboard.balance import (
++    BalanceAccount,
++    BalanceRead,
++    BalanceTracker,
++    CollateralReader,
++    _BalanceClient,
++    load_balance_account,
++    parse_collateral_usdc,
++)
++from dashboard.catalog import ArchiveEntry, MapStatus, MapView
++from dashboard.live_hub import (
++    BooksCallback,
++    HubConfig,
++    HubTiming,
++    LiveHub,
++    ScheduleFn,
++    _DayJob,
++    _DesiredSubs,
++)
++from dashboard.market_books import BookSnapshot, DesiredMarket, HubBooks
++from dashboard.summarize import (
++    DayFold,
++    DayResult,
++    PositionsResult,
++    RebateAccrual,
++)
++from dashboard.wallet import FillEvent, OutboxPage, TokenCid, WalletSnapshot
++from trader.wallet_store import WalletStateStore
++
++YES = "yes-token"
++NO = "no-token"
++T3 = "third-token"
++CID = "0xcond"
++CID2 = "0xcond2"
++NOW = 1_800_000_000.0
++
++FAST_TIMING = HubTiming(
++    disk_s=0.02,
++    order_log_s=0.05,
++    catalog_s=0.05,
++    subs_s=0.02,
++    day_s=3600.0,
++    logs_s=3600.0,
++    drain_timeout_s=2.0,
++    balance_min_s=0.05,
++    balance_period_s=0.3,
++)
++
++
++def _wait_until(cond: Callable[[], bool], timeout_s: float = 10.0) -> None:
++    deadline = time.monotonic() + timeout_s
++    while time.monotonic() < deadline:
++        if cond():
++            return
++        time.sleep(0.005)
++    raise AssertionError("condition not met before timeout")
++
++
++def _ev(
++    seq: int,
++    key: str,
++    event: str,
++    *,
++    side: str | None = "BUY",
++    price: float | None = 0.5,
++    size: float | None = 4.0,
++    status: str | None = None,
++    cash_delta: float | None = None,
++) -> FillEvent:
++    return FillEvent(
++        seq=seq,
++        fill_key=key,
++        event=event,
++        token_id=YES,
++        side=side,
++        price=price,
++        size=size,
++        ts=NOW,
++        status=status,
++        cash_delta=cash_delta,
++        maker_order_id="v-1",
++    )
++
++
++def _page(*events: FillEvent, has_more: bool = False, max_seq: int | None = None) -> OutboxPage:
++    seqs = [e.seq for e in events]
++    last = seqs[-1] if seqs else 0
++    return OutboxPage(
++        events=tuple(events),
++        next_seq=seqs[-1] if seqs else None,
++        max_seq=max_seq if max_seq is not None else last,
++        has_more=has_more,
++    )
++
++
++def _ok(amount: float) -> BalanceRead:
++    return BalanceRead(
++        ok=True,
++        collateral_usdc=amount,
++        error=None,
++        status_code=None,
++        retry_after_s=None,
++    )
++
++
++def _fail(error: str = "boom", retry_after: float | None = None) -> BalanceRead:
++    return BalanceRead(
++        ok=False,
++        collateral_usdc=None,
++        error=error,
++        status_code=None,
++        retry_after_s=retry_after,
++    )
++
++
++def _insert_fill(
++    conn: sqlite3.Connection,
++    fill_key: str,
++    *,
++    status: str = "MATCHED",
++    cash: float = -2.0,
++) -> None:
++    conn.execute(
++        "INSERT INTO fill_ledger(fill_key, clob_trade_id, maker_order_id, token_id,"
++        " side, price, size, ts, status, pre_size, pre_avg, cash_delta, is_maker)"
++        " VALUES(?,?,?,?,?,?,?,?,?,0,0,?,1)",
++        (fill_key, "t-" + fill_key, "v-1", YES, "BUY", 0.5, 4.0, NOW, status, cash),
++    )
++
++
++def _insert_outbox(conn: sqlite3.Connection, fill_key: str, event: str) -> None:
++    conn.execute("INSERT INTO fill_outbox(fill_key, event) VALUES(?,?)", (fill_key, event))
++
++
++def _archive(
++    root: Path,
++    match_id: str,
++    *,
++    cid: str = CID,
++    yes: str = YES,
++    no: str = NO,
++    records: list[dict[str, object]] | None = None,
++) -> Path:
++    archive = root / match_id
++    archive.mkdir(parents=True)
++    (archive / "match.json").write_text(
++        json.dumps(
++            {
++                "match_id": match_id,
++                "game": "dota",
++                "joined_at_utc": "2026-08-29T10:00:00Z",
++                "market": {
++                    "condition_id": cid,
++                    "market_slug": f"dota-m-{match_id}",
++                    "yes_token_id": yes,
++                    "no_token_id": no,
++                    "yes_is_radiant": True,
++                },
++            }
++        )
++    )
++    if records is not None:
++        (archive / "session.jsonl").write_text("".join(json.dumps(r) + "\n" for r in records))
++    return archive
++
++
++def _account(funder: str = "0xf") -> BalanceAccount:
++    return BalanceAccount(
++        host="https://clob.example",
++        chain_id=137,
++        signature_type=2,
++        pk="k",
++        funder=funder,
++    )
++
++
++def _empty_fetch(url: str, timeout: float) -> object:
++    return []
++
++
++def _ok_logs(argv: Sequence[str], timeout_s: float) -> bytes:
++    return b"log line\n"
++
++
++def _hub_config(tmp_path: Path) -> HubConfig:
++    live_root = tmp_path / "trader_live"
++    legacy_root = tmp_path / "live_paper"
++    live_root.mkdir(parents=True, exist_ok=True)
++    legacy_root.mkdir(parents=True, exist_ok=True)
++    wallet_dir = live_root / "wallet"
++    wallet_dir.mkdir(parents=True, exist_ok=True)
++    (tmp_path / "compose.yaml").write_text("services: {}\n")
++    return HubConfig(
++        wallet_db=wallet_dir / "live.db",
++        live_root=live_root,
++        legacy_root=legacy_root,
++        compose_file=tmp_path / "compose.yaml",
++        service="live",
++        ws_url="ws://unused",
++        proxy=None,
++        account=None,
++        account_error="no credentials",
++        timing=FAST_TIMING,
++        fetch=_empty_fetch,
++        log_runner=_ok_logs,
++        read_balance=None,
++        make_books=lambda schedule, on_books: _FakeBooks(schedule, on_books),
++        wall=time.time,
++        mono=time.monotonic,
++    )
++
++
++class _FakeBooks:
++    def __init__(self, schedule: ScheduleFn, on_books: BooksCallback) -> None:
++        self._schedule = schedule
++        self._on_books = on_books
++        self._desired: dict[str, str] = {}
++        self._applied_at: float | None = None
++        self._stop = asyncio.Event()
++        self.calls: list[tuple[DesiredMarket, ...]] = []
++        self.closes = 0
++        self.stopped = False
++
++    @property
++    def applied_at(self) -> float | None:
++        return self._applied_at
++
++    async def run(self) -> None:
++        await self._stop.wait()
++
++    async def apply_subscriptions(self, markets: tuple[DesiredMarket, ...]) -> bool:
++        desired = {tok: m.condition_id for m in markets for tok in m.token_ids}
++        changed = desired != self._desired
++        self.calls.append(markets)
++        if changed:
++            self._desired = desired
++            self._applied_at = time.time()
++            self.closes += 1
++        return changed
++
++    def emit(self, books: tuple[BookSnapshot, ...]) -> None:
++        self._schedule(lambda: self._on_books(books))
++
++    async def shutdown(self) -> None:
++        self.stopped = True
++        self._stop.set()
++
++
++class _StubHub(LiveHub):
++    def __init__(self, config: HubConfig, events: list[str]) -> None:
++        super().__init__(config)
++        self._events = events
++
++    def start(self) -> "_StubHub":
++        self._events.append("start")
++        return self
++
++    def close(self, timeout_s: float | None = None) -> bool:
++        self._events.append("close")
++        self._closed = True
++        return True
++
++
++class _Reader:
++    def __init__(self, amount: float = 12.5, gate: threading.Event | None = None) -> None:
++        self.amount = amount
++        self.gate = gate
++        self.calls = 0
++        self.entered = threading.Event()
++
++    def __call__(self) -> BalanceRead:
++        self.calls += 1
++        self.entered.set()
++        if self.gate is not None:
++            self.gate.wait(5.0)
++        return _ok(self.amount)
++
++
++def test_tracker_seed_and_initial_request() -> None:
++    tracker = BalanceTracker()
++    assert tracker.next_delay(0.0) is None
++    tracker.seed(frozenset({"k1"}), cursor_seq=7)
++    assert tracker.cursor == 7 and tracker.awaiting == frozenset({"k1"})
++    assert tracker.next_delay(0.0) == 0.0
++    tracker.begin_request(now_mono=100.0, now_wall=1000.0)
++    assert tracker.next_delay(100.0) is None
++    tracker.finish_request(_ok(12.0), now_mono=101.0, now_wall=1001.0)
++    snap = tracker.snapshot(now_mono=101.0, funder="0xf", funder_mismatch=False, source_error=None)
++    assert snap.collateral_usdc == 12.0
++    assert snap.covered_seq == 7 and snap.request_cutoff_seq == 7
++    assert snap.significant_seq is None
++    assert tracker.next_delay(101.0) == pytest.approx(59.0)
++    assert tracker.next_delay(159.0) == pytest.approx(1.0)
++    assert tracker.next_delay(160.0) == 0.0
++
++
++def test_tracker_matched_confirmed_one_refresh() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    assert tracker.apply_page(_page(_ev(1, "k1", "matched")))
++    assert not tracker.apply_page(_page(_ev(2, "k1", "confirmed")))
++    snap = tracker.snapshot(now_mono=0.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.significant_seq == 1 and tracker.cursor == 2
++    assert [e.seq for e in snap.pending] == [1]
++    tracker.begin_request(now_mono=10.0, now_wall=0.0)
++    tracker.finish_request(_ok(5.0), now_mono=11.0, now_wall=1.0)
++    snap = tracker.snapshot(now_mono=11.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.covered_seq == 2 and snap.pending == ()
++    assert tracker.next_delay(11.0) == pytest.approx(59.0)
++
++
++def test_tracker_seeded_matched_confirmed_not_dirty() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset({"k1"}), 5)
++    assert not tracker.apply_page(_page(_ev(6, "k1", "confirmed")))
++    tracker.begin_request(now_mono=0.0, now_wall=0.0)
++    tracker.finish_request(_ok(1.0), now_mono=1.0, now_wall=1.0)
++    snap = tracker.snapshot(now_mono=1.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.covered_seq == 6 and snap.significant_seq is None
++    assert tracker.next_delay(1.0) == pytest.approx(59.0)
++
++
++def test_tracker_direct_confirmed_and_failed_dirty() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    assert tracker.apply_page(_page(_ev(1, "kX", "confirmed", cash_delta=-1.5)))
++    assert tracker.apply_page(_page(_ev(2, "kY", "failed", cash_delta=0.0)))
++    snap = tracker.snapshot(now_mono=0.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.significant_seq == 2
++    assert [(e.seq, e.event) for e in snap.pending] == [(1, "confirmed"), (2, "failed")]
++
++
++def test_tracker_failed_after_covered_matched_dirties() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.apply_page(_page(_ev(1, "k1", "matched")))
++    tracker.begin_request(now_mono=0.0, now_wall=0.0)
++    tracker.finish_request(_ok(9.0), now_mono=1.0, now_wall=1.0)
++    assert not tracker.wants_request(1.0)
++    assert tracker.apply_page(_page(_ev(2, "k1", "failed", cash_delta=0.0)))
++    snap = tracker.snapshot(now_mono=1.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.significant_seq == 2 and snap.covered_seq == 1
++    assert tracker.next_delay(1.0) == pytest.approx(4.0)
++
++
++def test_tracker_event_during_request_stays_pending() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.apply_page(_page(_ev(1, "k1", "matched")))
++    tracker.begin_request(now_mono=10.0, now_wall=0.0)
++    tracker.apply_page(_page(_ev(2, "k2", "matched")))
++    tracker.finish_request(_ok(10.0), now_mono=11.0, now_wall=1.0)
++    snap = tracker.snapshot(now_mono=11.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.covered_seq == 1
++    assert [e.seq for e in snap.pending] == [2]
++    assert tracker.wants_request(11.0)
++    assert tracker.next_delay(11.0) == pytest.approx(4.0)
++    assert tracker.next_delay(15.0) == 0.0
++
++
++def test_tracker_coalescing_and_five_second_floor() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.begin_request(now_mono=0.0, now_wall=0.0)
++    tracker.finish_request(_ok(1.0), now_mono=1.0, now_wall=1.0)
++    tracker.apply_page(_page(_ev(2, "k1", "matched")))
++    tracker.apply_page(_page(_ev(3, "k2", "matched")))
++    assert tracker.next_delay(2.0) == pytest.approx(3.0)
++    assert tracker.next_delay(5.0) == 0.0
++    tracker.begin_request(now_mono=5.0, now_wall=5.0)
++    tracker.finish_request(_ok(1.0), now_mono=6.0, now_wall=6.0)
++    snap = tracker.snapshot(now_mono=6.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.covered_seq == 3 and snap.pending == ()
++
++
++def test_tracker_backoff_and_retry_after() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.begin_request(now_mono=0.0, now_wall=0.0)
++    tracker.finish_request(_fail(), now_mono=1.0, now_wall=1.0)
++    assert tracker.next_delay(1.0) == pytest.approx(5.0)
++    tracker.apply_page(_page(_ev(1, "k1", "matched")))
++    assert tracker.next_delay(1.0) == pytest.approx(5.0)
++    tracker.begin_request(now_mono=6.0, now_wall=6.0)
++    tracker.finish_request(_fail(), now_mono=7.0, now_wall=7.0)
++    assert tracker.next_delay(7.0) == pytest.approx(10.0)
++    tracker.begin_request(now_mono=17.0, now_wall=17.0)
++    tracker.finish_request(_fail(retry_after=42.0), now_mono=18.0, now_wall=18.0)
++    assert tracker.next_delay(18.0) == pytest.approx(42.0)
++    tracker.begin_request(now_mono=60.0, now_wall=60.0)
++    tracker.finish_request(_ok(3.0), now_mono=61.0, now_wall=61.0)
++    snap = tracker.snapshot(now_mono=61.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.last_error is None and snap.collateral_usdc == 3.0
++    assert tracker.next_delay(61.0) == pytest.approx(59.0)
++
++
++def test_tracker_zero_is_a_real_value() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.begin_request(now_mono=0.0, now_wall=0.0)
++    tracker.finish_request(_ok(0.0), now_mono=1.0, now_wall=1.0)
++    snap = tracker.snapshot(now_mono=1.0, funder=None, funder_mismatch=False, source_error=None)
++    assert snap.collateral_usdc == 0.0 and snap.response_at is not None
++
++
++def test_tracker_evidence_gaps_and_two_legs() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 0)
++    tracker.apply_page(
++        _page(
++            _ev(1, "k1", "matched"),
++            _ev(2, "k2", "matched"),
++            _ev(3, "k3", "matched", price=None),
++            _ev(4, "k4", "bogus"),
++        )
++    )
++    snap = tracker.snapshot(now_mono=0.0, funder=None, funder_mismatch=False, source_error=None)
++    assert tracker.awaiting == frozenset({"k1", "k2", "k3"})
++    assert snap.evidence_gaps == 2
++    assert len(snap.pending) == 4
++
++
++def test_tracker_ignores_events_at_or_below_cursor() -> None:
++    tracker = BalanceTracker()
++    tracker.seed(frozenset(), 4)
++    assert not tracker.apply_page(
++        _page(_ev(2, "k0", "matched"), _ev(3, "k9", "confirmed"), max_seq=4)
++    )
++    assert tracker.cursor == 4
++
++
++def test_parse_collateral_converts_and_rejects() -> None:
++    cases = {"0": 0.0, "1": 0.000001, "500000": 0.5, "1000000": 1.0, "125500000": 125.5}
++    for raw, expected in cases.items():
++        assert parse_collateral_usdc({"balance": raw}) == pytest.approx(expected)
++    assert parse_collateral_usdc({"balance": 3000000}) == pytest.approx(3.0)
++    for bad in (
++        {},
++        {"balance": ""},
++        {"balance": "  "},
++        {"balance": "-5"},
++        {"balance": "abc"},
++        {"balance": "1.5"},
++        {"balance": float("nan")},
++        {"balance": True},
++        "raw-string",
++        None,
++    ):
++        with pytest.raises(ValueError):
++            parse_collateral_usdc(bad)
++
++
++def test_collateral_reader_calls_only_allowance() -> None:
++    calls: list[str] = []
++    params_seen: list[object] = []
++
++    class _FakeClient:
++        def create_or_derive_api_key(self) -> object:
++            calls.append("derive")
++            return object()
++
++        def set_api_creds(self, creds: object) -> None:
++            calls.append("creds")
++
++        def get_balance_allowance(self, params: object) -> object:
++            calls.append("balance")
++            params_seen.append(params)
++            return {"balance": "2500000"}
++
++    built: list[BalanceAccount] = []
++
++    def factory(account: BalanceAccount) -> _BalanceClient:
++        built.append(account)
++        client = _FakeClient()
++        client.set_api_creds(client.create_or_derive_api_key())
++        return client
++
++    reader = CollateralReader(_account(), client_factory=factory)
++    first = reader.read()
++    second = reader.read()
++    assert len(built) == 1 and built[0].funder == "0xf"
++    assert first.ok and first.collateral_usdc == 2.5
++    assert second.ok
++    assert calls == ["derive", "creds", "balance", "balance"]
++    params = params_seen[0]
++    assert "COLLATERAL" in repr(params).upper()
++
++
++def test_collateral_reader_error_mapping() -> None:
++    class _RateLimited(Exception):
++        status_code = 429
++        response = SimpleNamespace(headers={"Retry-After": "42"})
++
++    class _BoomClient:
++        def create_or_derive_api_key(self) -> object:
++            return object()
++
++        def set_api_creds(self, creds: object) -> None:
++            return None
++
++        def get_balance_allowance(self, params: object) -> object:
++            raise _RateLimited("throttled")
++
++    reader = CollateralReader(_account(), client_factory=lambda account: _BoomClient())
++    result = reader.read()
++    assert not result.ok and result.error == "_RateLimited"
++    assert result.status_code == 429 and result.retry_after_s == 42.0
++
++
++def test_sdk_transport_has_finite_timeouts() -> None:
++    timeout = helpers._http_client.timeout
++    assert timeout is not None
++    for name in ("connect", "read", "write", "pool"):
++        value = getattr(timeout, name, None)
++        assert isinstance(value, (int, float)) and 0.0 < value < float("inf")
++
++
++def test_load_balance_account(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    toml = tmp_path / "trading.toml"
++    toml.write_text("[wallet]\nsignature_type = 1\n")
++    monkeypatch.setenv("PK", "0xkey")
++    monkeypatch.setenv("BROWSER_ADDRESS", "0xFUNDER")
++    account = load_balance_account(toml, os.environ.get)
++    assert account is not None
++    assert account.signature_type == 1 and account.funder == "0xFUNDER"
++    monkeypatch.delenv("BROWSER_ADDRESS")
++    assert load_balance_account(toml, os.environ.get) is None
++
++
++class _FakeSocket:
++    def __init__(self, frames: list[str], *, block: bool = False) -> None:
++        self.frames = frames
++        self.block = block
++        self.sent: list[str] = []
++        self.closes = 0
++        self._release: asyncio.Event | None = asyncio.Event() if block else None
++
++    async def __aenter__(self) -> "_FakeSocket":
++        return self
++
++    async def __aexit__(self, *args: object) -> None:
++        return None
++
++    async def send(self, data: str) -> None:
++        self.sent.append(data)
++
++    def __aiter__(self) -> Any:
++        async def gen() -> Any:
++            for frame in self.frames:
++                yield frame
++            if self._release is not None:
++                await self._release.wait()
++
++        return gen()
++
++    async def close(self) -> None:
++        self.closes += 1
++        if self._release is not None:
++            self._release.set()
++
++
++def _book(token: str, *, cid: str = CID, price: float = 0.5, size: float = 10.0) -> str:
++    return json.dumps(
++        {
++            "event_type": "book",
++            "market": cid,
++            "asset_id": token,
++            "bids": [{"price": str(price), "size": str(size)}],
++            "asks": [{"price": str(price + 0.1), "size": "7"}],
++            "timestamp": 1750000000000,
++            "hash": "h1",
++            "tick_size": "0.01",
++        }
++    )
++
++
++def _delta(token: str, *, cid: str = CID, price: float = 0.55) -> str:
++    return json.dumps(
++        {
++            "event_type": "price_change",
++            "market": cid,
++            "timestamp": 1750000000000,
++            "price_changes": [{"asset_id": token, "price": str(price), "size": "3", "side": "BUY"}],
++        }
++    )
++
++
++def _make_adapter(
++    monkeypatch: pytest.MonkeyPatch, sockets: list[_FakeSocket]
++) -> tuple[HubBooks, list[Callable[[], None]], list[tuple[BookSnapshot, ...]]]:
++    queue: list[Callable[[], None]] = []
++    published: list[tuple[BookSnapshot, ...]] = []
++    adapter = HubBooks(schedule=queue.append, on_books=published.append)
++    iterator = iter(sockets)
++
++    def connect(url: str, **kw: object) -> _FakeSocket:
++        return next(iterator)
++
++    monkeypatch.setattr(service_mod, "websockets", SimpleNamespace(connect=connect))
++    return adapter, queue, published
++
++
++def _drain(queue: list[Callable[[], None]]) -> None:
++    while queue:
++        queue.pop(0)()
++
++
++def test_books_full_snapshot_readiness(monkeypatch: pytest.MonkeyPatch) -> None:
++    async def scenario() -> tuple[HubBooks, tuple[BookSnapshot, ...], tuple[BookSnapshot, ...]]:
++        sock = _FakeSocket([_book(YES), _book(NO)], block=True)
++        adapter, queue, published = _make_adapter(monkeypatch, [sock])
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        task = asyncio.create_task(adapter._connect_and_listen())
++        await asyncio.sleep(0.05)
++        _drain(queue)
++        live = published[-1]
++        await adapter._close_socket()
++        await task
++        _drain(queue)
++        return adapter, live, published[-1]
++
++    adapter, live, snap = asyncio.run(scenario())
++    assert adapter.generation == 1
++    by_token = {b.token_id: b for b in snap}
++    assert set(by_token) == {YES, NO}
++    yes = by_token[YES]
++    assert yes.ready and yes.initialized and yes.generation == 1
++    assert yes.bids == (BookLevel(0.5, 10.0),)
++    assert yes.asks == (BookLevel(0.6, 7.0),)
++    assert yes.book_hash == "h1" and yes.exchange_ts == 1750000000.0
++    assert yes.local_ts is not None and yes.tick_size == 0.01
++    assert not yes.connected and yes.disconnected_since is not None
++    live_by = {b.token_id: b for b in live}
++    assert live_by[YES].connected and live_by[YES].disconnected_since is None
++
++
++def test_books_delta_before_snapshot_not_ready(monkeypatch: pytest.MonkeyPatch) -> None:
++    async def scenario() -> list[tuple[BookSnapshot, ...]]:
++        adapter, queue, published = _make_adapter(monkeypatch, [_FakeSocket([_delta(YES)])])
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        await adapter._connect_and_listen()
++        _drain(queue)
++        adapter.feed_frame(_book(YES))
++        _drain(queue)
++        return published
++
++    published = asyncio.run(scenario())
++    first = {b.token_id: b for b in published[0]}
++    assert not first[YES].ready and first[YES].bids == ()
++    assert not first[YES].initialized
++    last = {b.token_id: b for b in published[-1]}
++    assert last[YES].ready and last[YES].bids == (BookLevel(0.5, 10.0),)
++    assert not last[NO].ready and not last[NO].initialized
++
++
++def test_books_empty_snapshot_is_received(monkeypatch: pytest.MonkeyPatch) -> None:
++    frame = json.dumps(
++        {
++            "event_type": "book",
++            "market": CID,
++            "asset_id": YES,
++            "bids": [],
++            "asks": [],
++            "timestamp": 1750000000000,
++            "hash": "",
++            "tick_size": "0.01",
++        }
++    )
++
++    async def scenario() -> list[tuple[BookSnapshot, ...]]:
++        adapter, queue, published = _make_adapter(monkeypatch, [_FakeSocket([frame])])
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        await adapter._connect_and_listen()
++        _drain(queue)
++        return published
++
++    published = asyncio.run(scenario())
++    last = {b.token_id: b for b in published[-1]}
++    assert last[YES].ready and last[YES].bids == () and last[YES].asks == ()
++
++
++def test_books_reconnect_resets_readiness_and_retains(
++    monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    async def scenario() -> tuple[tuple[BookSnapshot, ...], tuple[BookSnapshot, ...], HubBooks]:
++        adapter, queue, published = _make_adapter(
++            monkeypatch,
++            [_FakeSocket([_book(YES), _book(NO)]), _FakeSocket([_delta(YES)])],
++        )
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        await adapter._connect_and_listen()
++        _drain(queue)
++        await adapter._connect_and_listen()
++        _drain(queue)
++        before_feed = published[-1]
++        adapter.feed_frame(_book(YES, price=0.7))
++        _drain(queue)
++        return before_feed, published[-1], adapter
++
++    before_feed, last_snap, adapter = asyncio.run(scenario())
++    assert adapter.generation == 2
++    by_token = {b.token_id: b for b in before_feed}
++    assert not by_token[YES].ready and not by_token[NO].ready
++    assert by_token[YES].initialized and by_token[NO].initialized
++    assert by_token[YES].bids == (BookLevel(0.5, 10.0),)
++    last = {b.token_id: b for b in last_snap}
++    assert last[YES].ready and last[YES].bids == (BookLevel(0.7, 10.0),)
++    assert not last[NO].ready and last[NO].bids == (BookLevel(0.5, 10.0),)
++
++
++def test_books_apply_subscriptions_closes_socket(
++    monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    async def scenario() -> tuple[_FakeSocket, HubBooks, tuple[BookSnapshot, ...]]:
++        sock = _FakeSocket([_book(YES), _book(NO)], block=True)
++        adapter, queue, published = _make_adapter(monkeypatch, [sock])
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        task = asyncio.create_task(adapter._connect_and_listen())
++        await asyncio.sleep(0.05)
++        _drain(queue)
++        same = await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        assert not same and sock.closes == 0
++        changed = await adapter.apply_subscriptions(
++            (DesiredMarket(CID, (YES,)), DesiredMarket(CID2, (T3, "fourth")))
++        )
++        assert changed and sock.closes == 1
++        await task
++        _drain(queue)
++        return sock, adapter, published[-1]
++
++    sock, adapter, last_snap = asyncio.run(scenario())
++    _ = sock
++    last = {b.token_id: b for b in last_snap}
++    assert set(last) == {YES, T3, "fourth"}
++    assert NO not in adapter.books and NO not in adapter._token_condition
++    assert adapter.generation == 1
++
++
++def test_books_empty_set_closes_socket() -> None:
++    async def scenario() -> HubBooks:
++        adapter = HubBooks(schedule=lambda fn: fn(), on_books=lambda snaps: None)
++        sock = _FakeSocket([], block=True)
++        await adapter.apply_subscriptions((DesiredMarket(CID, (YES, NO)),))
++        adapter._ws = sock
++        changed = await adapter.apply_subscriptions(())
++        assert changed and sock.closes == 1
++        return adapter
++
++    adapter = asyncio.run(scenario())
++    assert adapter.applied_at is not None
++
++
++def _wallet_snap(token_cids: tuple[TokenCid, ...]) -> WalletSnapshot:
++    return WalletSnapshot(
++        db_path=Path("x.db"),
++        ok=True,
++        error=None,
++        read_at=NOW,
++        funder="0xf",
++        sessions=(),
++        bindings=(),
++        open_buy_commands=(),
++        unsettled_buys=(),
++        positions=(),
++        token_cids=token_cids,
++        booked_buy_qty=(),
++        max_outbox_seq=0,
++        matched_fill_keys=frozenset(),
++        fill_boundary_ok=True,
++        notes=(),
++    )
++
++
++def _entry(
++    match_id: str,
++    cid: str | None,
++    yes: str | None,
++    no: str | None,
++    *,
++    finished: bool = False,
++    cleanup_proven: bool = False,
++    session_ended: bool = False,
++    has_journal: bool = True,
++    record_only: bool = False,
++) -> ArchiveEntry:
++    return ArchiveEntry(
++        match_id=match_id,
++        archive_dir=Path("/x") / match_id,
++        tree="live",
++        game="dota",
++        slug=None,
++        joined_at_utc=None,
++        condition_id=cid,
++        yes_token=yes,
++        no_token=no,
++        yes_is_radiant=True,
++        finished=finished,
++        cleanup_proven=cleanup_proven,
++        session_ended=session_ended,
++        has_journal=has_journal,
++        record_only=record_only,
++        on_tape=True,
++        last_write=None,
++        realized=None,
++        rebate=None,
++    )
++
++
++def _view(entry: ArchiveEntry, status: MapStatus = "live") -> MapView:
++    return MapView(
++        entry=entry,
++        status=status,
++        write_age_s=0.0,
++        decision_age_s=None,
++        feed_age_s=None,
++        evidence=(),
++    )
++
++
++def test_desired_subs_and_conflicts(tmp_path: Path) -> None:
++    hub = LiveHub(_hub_config(tmp_path))
++    hub._map_views = (
++        _view(_entry("m1", CID, YES, NO)),
++        _view(_entry("m2", CID2, T3, "fourth"), status="stale"),
++        _view(_entry("m3", None, None, None)),
++        _view(_entry("m4", "0x4", "dup", "dup")),
++    )
++    hub._wallet_snap = _wallet_snap((TokenCid(YES, CID), TokenCid(T3, "0xOTHER")))
++    desired = hub._desired_subs()
++    assert desired == _DesiredSubs(
++        markets=(DesiredMarket(CID, (YES, NO)),),
++        missing=("m3", "m4"),
++        conflicts=(),
++    )
++    hub._map_views = (*hub._map_views, _view(_entry("m5", "0x5", T3, "other")))
++    desired = hub._desired_subs()
++    assert desired.conflicts == ("m5",)
++
++
++def _day_result(
++    day: str,
++    *,
++    fold: DayFold | None = None,
++    complete: bool = True,
++    error: str | None = None,
++    fetched_at: float | None = 1000.0,
++    positions: PositionsResult | None = None,
++) -> DayResult:
++    return DayResult(
++        day=day,
++        fold=fold,
++        fetched_at=fetched_at,
++        complete=complete,
++        error=error,
++        activity=None,
++        positions=positions,
++    )
++
++
++def _fold() -> DayFold:
++    return DayFold(
++        buy=10.0,
++        sell=5.0,
++        redeem=1.0,
++        rebate=0.5,
++        cash=-4.0,
++        open_mark=2.0,
++        pnl=-1.5,
++        n_buy=1,
++        n_sell=1,
++        n_redeem=1,
++        n_rebate=1,
++        n_open=1,
++    )
++
++
++def _positions(complete: bool) -> PositionsResult:
++    return PositionsResult(
++        positions=(),
++        as_of=NOW,
++        started_at=NOW,
++        completed_at=NOW,
++        pages=1,
++        traversal_complete=complete,
++        stop_reason="done" if complete else "timeout",
++        error=None,
++    )
++
++
++def _day_job(
++    hub: LiveHub,
++    day: str,
++    *,
++    funder: str = "0xf",
++    result: DayResult | None = None,
++    payout_known: bool = True,
++    payout_ts: float | None = 500.0,
++    accrual: RebateAccrual | None = None,
++    accrual_error: str | None = None,
++    finished_at: float = 2000.0,
++) -> _DayJob:
++    return _DayJob(
++        funder=funder,
++        generation=hub.generation,
++        finished_at=finished_at,
++        day=result if result is not None else _day_result(day, fold=_fold()),
++        payout_known=payout_known,
++        payout_ts=payout_ts,
++        accrual=accrual,
++        accrual_error=accrual_error,
++    )
++
++
++def test_day_merge_retains_fold_positions_and_accrual(tmp_path: Path) -> None:
++    hub = LiveHub(_hub_config(tmp_path))
++    hub._cfg = replace(hub._cfg, account=_account(), account_error=None)
++    accrual = RebateAccrual(total=1.5, per_game={"dota": 1.5}, fills=3, matches=1)
++    hub._apply_day(
++        _day_job(
++            hub,
++            "2026-10-05",
++            result=_day_result("2026-10-05", fold=_fold(), positions=_positions(True)),
++            accrual=accrual,
++        )
++    )
++    hub._publish()
++    snap = hub.get_snapshot()
++    assert snap.day.fold is not None and snap.day.fold.pnl == -1.5
++    assert snap.day.complete and snap.day.fold_at == 1000.0
++    assert snap.day.positions is not None and snap.day.payout_ts == 500.0
++    assert snap.day.accrual_total == 1.5 and snap.day.accrual_per_game["dota"] == 1.5
++    with pytest.raises(TypeError):
++        snap.day.accrual_per_game["lol"] = 9.0  # type: ignore[index]
++    hub._apply_day(
++        _day_job(
++            hub,
++            "2026-10-05",
++            result=_day_result(
++                "2026-10-05",
++                fold=None,
++                complete=False,
++                error="timeout",
++                fetched_at=None,
++                positions=_positions(False),
++            ),
++            payout_known=False,
++            payout_ts=None,
++            accrual_error="payout search incomplete: timeout",
++            finished_at=2001.0,
++        )
++    )
++    hub._publish()
++    snap = hub.get_snapshot()
++    assert snap.day.fold is not None and snap.day.fold.pnl == -1.5
++    assert not snap.day.complete and snap.day.error == "timeout"
++    assert snap.day.positions is not None
++    assert snap.day.accrual_total == 1.5
++    assert snap.day.accrual_error == "payout search incomplete: timeout"
++    hub._apply_day(
++        _day_job(
++            hub,
++            "2026-10-06",
++            result=_day_result(
++                "2026-10-06", fold=None, complete=False, error="timeout", fetched_at=None
++            ),
++            finished_at=2002.0,
++        )
++    )
++    hub._publish()
++    snap = hub.get_snapshot()
++    assert snap.day.day == "2026-10-06" and snap.day.fold is None
++
++
++def test_day_merge_discards_stale_generation_and_funder(tmp_path: Path) -> None:
++    hub = LiveHub(_hub_config(tmp_path))
++    hub._cfg = replace(hub._cfg, account=_account(), account_error=None)
++    stale_funder = _day_job(hub, "2026-10-05", funder="0xother")
++    retired = _DayJob(
++        funder="0xf",
++        generation=hub.generation - 1,
++        finished_at=1.0,
++        day=_day_result("2026-10-05", fold=_fold()),
++        payout_known=True,
++        payout_ts=1.0,
++        accrual=None,
++        accrual_error=None,
++    )
++    hub._apply_day(stale_funder)
++    hub._apply_day(retired)
++    hub._publish()
++    assert hub.get_snapshot().day.fold is None
++    hub._apply_day(_day_job(hub, "2026-10-05"))
++    hub._publish()
++    assert hub.get_snapshot().day.fold is not None
++
++
++def test_day_job_empty_api() -> None:
++    job = live_hub._run_day_job(
++        funder="0xf",
++        generation=1,
++        trees=(),
++        fetch=_empty_fetch,
++        wall=lambda: NOW,
++    )
++    assert job.day.complete and job.day.fold is not None
++    assert job.payout_known and job.payout_ts is None
++    assert job.accrual is None and job.accrual_error == "no known rebate payout"
++
++
++def test_day_job_payout_failure_keeps_accrual_unknown() -> None:
++    def fetch(url: str, timeout: float) -> object:
++        if "activity" in url:
++            raise OSError("net down")
++        return []
++
++    job = live_hub._run_day_job(
++        funder="0xf",
++        generation=1,
++        trees=(),
++        fetch=fetch,
++        wall=lambda: NOW,
++    )
++    assert not job.day.complete and job.day.error is not None
++    assert not job.payout_known
++    assert job.accrual is None and job.accrual_error is not None
++
++
++def test_hub_singleton_and_replace(tmp_path: Path) -> None:
++    live_hub.close_live_hub()
++    events: list[str] = []
++    made: list[LiveHub] = []
++    cfg = _hub_config(tmp_path)
++
++    def factory() -> LiveHub:
++        stub = _StubHub(cfg, events)
++        made.append(stub)
++        return stub
++
++    try:
++        first = live_hub.get_live_hub(factory)
++        assert live_hub.get_live_hub(factory) is first
++        results: list[LiveHub] = []
++        threads = [
++            threading.Thread(target=lambda: results.append(live_hub.get_live_hub(factory)))
++            for _ in range(8)
++        ]
++        for thread in threads:
++            thread.start()
++        for thread in threads:
++            thread.join()
++        assert all(h is first for h in results) and len(made) == 1
++        second = live_hub.replace_live_hub(factory)
++        assert second is not first and events == ["start", "close", "start"]
++        live_hub.close_live_hub()
++        assert second.closed
++        third = live_hub.get_live_hub(factory)
++        assert third is not second
++    finally:
++        live_hub.close_live_hub()
++    assert events[-1] == "close"
++
++
++def test_hub_snapshot_before_start(tmp_path: Path) -> None:
++    hub = LiveHub(_hub_config(tmp_path))
++    snap = hub.get_snapshot()
++    assert not snap.running and snap.error is None
++    assert snap.balance.collateral_usdc is None and snap.balance.funder is None
++    assert snap.wallet.error == "no wallet read yet"
++    assert snap.day.error is None and snap.day.fold is None
++    assert snap.books == () and snap.maps == ()
++
++
++def test_hub_lifecycle(tmp_path: Path) -> None:
++    cfg = _hub_config(tmp_path)
++    WalletStateStore(cfg.wallet_db).close()
++    hub = LiveHub(cfg).start()
++    _wait_until(lambda: hub.get_snapshot().running)
++    _wait_until(lambda: hub.get_snapshot().wallet.ok)
++    assert hub.get_snapshot().reserve is not None
++    assert hub.close()
++    assert not hub.get_snapshot().running
++    assert hub.close()
++
++
++def test_hub_startup_failure_cleans_up(tmp_path: Path) -> None:
++    def bad_factory(schedule: ScheduleFn, on_books: BooksCallback) -> _FakeBooks:
++        raise RuntimeError("no books")
++
++    cfg = replace(_hub_config(tmp_path), make_books=bad_factory)
++    hub = LiveHub(cfg).start()
++    _wait_until(lambda: hub.get_snapshot().error == "RuntimeError", timeout_s=5.0)
++    _wait_until(lambda: hub.closed, timeout_s=5.0)
++    assert hub.close() and not hub.get_snapshot().running
++
++
++def test_hub_snapshot_while_balance_held(tmp_path: Path) -> None:
++    cfg = _hub_config(tmp_path)
++    WalletStateStore(cfg.wallet_db).close()
++    conn = sqlite3.connect(cfg.wallet_db)
++    conn.execute("INSERT INTO wallet_identity(k, v) VALUES('funder', '0xf')")
++    conn.commit()
++    conn.close()
++    gate = threading.Event()
++    reader = _Reader(42.0, gate=gate)
++    cfg = replace(cfg, account=_account(), account_error=None, read_balance=reader)
++    hub = LiveHub(cfg).start()
++    try:
++        _wait_until(reader.entered.is_set)
++        started = time.monotonic()
++        snap = hub.get_snapshot()
++        assert time.monotonic() - started < 1.0
++        assert snap.balance.inflight
++        assert snap.balance.collateral_usdc is None
++        gate.set()
++        _wait_until(lambda: hub.get_snapshot().balance.collateral_usdc == 42.0)
++    finally:
++        gate.set()
++        assert hub.close()
++
++
++def test_hub_end_to_end(tmp_path: Path) -> None:
++    cfg = _hub_config(tmp_path)
++    timing = replace(cfg.timing, balance_period_s=60.0)
++    WalletStateStore(cfg.wallet_db).close()
++    conn = sqlite3.connect(cfg.wallet_db)
++    _insert_fill(conn, "k1")
++    _insert_outbox(conn, "k1", "matched")
++    conn.execute("INSERT INTO wallet_identity(k, v) VALUES('funder', '0xf')")
++    conn.execute("INSERT INTO token_cid(token_id, condition_id) VALUES(?,?)", (YES, CID))
++    conn.commit()
++    conn.close()
++    _archive(
++        cfg.live_root,
++        "m1",
++        cid=CID,
++        yes=YES,
++        no=NO,
++        records=[{"kind": "session_start", "execution_mode": "live", "schema_version": 7}],
++    )
++    reader = _Reader(12.5)
++    books: list[_FakeBooks] = []
++
++    def factory(schedule: ScheduleFn, on_books: BooksCallback) -> _FakeBooks:
++        fake = _FakeBooks(schedule, on_books)
++        books.append(fake)
++        return fake
++
++    cfg = replace(
++        cfg,
++        timing=timing,
++        account=_account(),
++        account_error=None,
++        read_balance=reader,
++        make_books=factory,
++    )
++    hub = LiveHub(cfg).start()
++    try:
++        _wait_until(lambda: hub.get_snapshot().balance.collateral_usdc == 12.5)
++        snap = hub.get_snapshot()
++        assert snap.wallet.ok and snap.wallet.funder == "0xf"
++        assert snap.balance.covered_seq == 1 and snap.balance.collateral_usdc == 12.5
++        assert not snap.balance.funder_mismatch
++        _wait_until(
++            lambda: any(m.condition_id == CID for m in hub.get_snapshot().subscriptions.markets)
++        )
++        assert books and books[0].applied_at is not None
++        maps = {v.entry.match_id: v.status for v in hub.get_snapshot().maps}
++        assert maps["m1"] == "live"
++        books[0].emit(
++            (
++                BookSnapshot(
++                    token_id=YES,
++                    condition_id=CID,
++                    bids=(BookLevel(0.5, 10.0),),
++                    asks=(BookLevel(0.6, 7.0),),
++                    tick_size=0.01,
++                    book_hash="h1",
++                    exchange_ts=1000.0,
++                    local_ts=1001.0,
++                    generation=1,
++                    initialized=True,
++                    ready=True,
++                    connected=True,
++                    disconnected_since=None,
++                    truncated=False,
++                ),
++            )
++        )
++        _wait_until(lambda: len(hub.get_snapshot().books) == 1)
++        old = hub.get_snapshot()
++        books[0].emit(())
++        _wait_until(lambda: hub.get_snapshot().books == ())
++        assert old.books[0].bids == (BookLevel(0.5, 10.0),)
++        conn = sqlite3.connect(cfg.wallet_db)
++        conn.execute("UPDATE fill_ledger SET status='CONFIRMED' WHERE fill_key='k1'")
++        _insert_outbox(conn, "k1", "confirmed")
++        conn.commit()
++        conn.close()
++        _wait_until(lambda: hub.get_snapshot().wallet.max_outbox_seq == 2)
++        time.sleep(0.15)
++        assert reader.calls == 1
++        conn = sqlite3.connect(cfg.wallet_db)
++        _insert_fill(conn, "k2", status="FAILED", cash=0.0)
++        _insert_outbox(conn, "k2", "matched")
++        _insert_outbox(conn, "k2", "failed")
++        conn.commit()
++        conn.close()
++        _wait_until(lambda: hub.get_snapshot().balance.covered_seq == 4)
++        assert reader.calls >= 2
++        snap = hub.get_snapshot()
++        assert snap.reserve is not None and snap.reserve.incomplete
++        _wait_until(lambda: hub.get_snapshot().day.attempt_at is not None)
++        snap = hub.get_snapshot()
++        assert snap.day.complete and snap.day.fold is not None
++        assert snap.day.accrual_error == "no known rebate payout"
++        _wait_until(lambda: hub.get_snapshot().service_logs.ok)
++        assert hub.get_snapshot().service_logs.text == "log line\n"
++    finally:
++        assert hub.close()
++
++
++def test_hub_funder_mismatch_withholds_collateral(tmp_path: Path) -> None:
++    cfg = _hub_config(tmp_path)
++    WalletStateStore(cfg.wallet_db).close()
++    conn = sqlite3.connect(cfg.wallet_db)
++    conn.execute("INSERT INTO wallet_identity(k, v) VALUES('funder', '0xf')")
++    conn.commit()
++    conn.close()
++    reader = _Reader(7.0)
++    cfg = replace(cfg, account=_account("0xOTHER"), account_error=None, read_balance=reader)
++    hub = LiveHub(cfg).start()
++    try:
++        _wait_until(lambda: reader.calls >= 1)
++        _wait_until(lambda: hub.get_snapshot().wallet.ok)
++        snap = hub.get_snapshot()
++        assert snap.balance.funder_mismatch
++        assert snap.balance.collateral_usdc is None
++    finally:
++        assert hub.close()
++
++
++def test_hub_missing_db_not_created(tmp_path: Path) -> None:
++    cfg = _hub_config(tmp_path)
++    assert not cfg.wallet_db.exists()
++    hub = LiveHub(cfg).start()
++    try:
++        _wait_until(lambda: hub.get_snapshot().wallet.error is not None)
++        assert not cfg.wallet_db.exists()
++        assert not hub.get_snapshot().wallet.ok
++    finally:
++        assert hub.close()

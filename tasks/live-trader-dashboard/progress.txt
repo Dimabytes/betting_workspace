@@ -1,0 +1,110 @@
+## 2026-10-05 - STEP-001 (s1-impl)
+
+- Extended kind=signal with recorded_at_utc (journal clock, ISO-8601 microseconds+Z), feed_source/feed_received_at_utc (verbatim from the accepted FeedEvent, board re-quotes keep the original receipt), game_snapshot (explicit whitelist projection incl. the six top fields), model_evaluated, raw_delta (current call only — ModelFair carries it; never _last_raw_delta, never sign-flipped, null on skip/error).
+- SignalDecision +4 required fields; write_signal adds exactly 6 keys; all six NotRequired on SessionSignalRecord — old/mixed archives read, SESSION_SCHEMA_VERSION stays 7.
+- Verified: 44 journal + 19 board contract tests, 140 adjacent tests, basedpyright, ruff, commit hooks; one write/flush/fsync per signal; no extra model calls.
+- Benchmark (dev machine): +548 B/line mean (352->900, +156%), serialize p50 5.5->11.1us, write p50 0.026->0.037ms; ~449 KiB/match-hour at 1 table/5s + 1 board/30s.
+
+## 2026-10-05 - STEP-001 review fixes (s1-impl)
+
+- _quote_pm now hoists gate/latch, enqueues the core signal, then _compute_decision assembles the journaled decision once — entry_block is the real post-enqueue preview, no replace/patch phase.
+- Gate test is a frozen _GateCase table (event + reason + books/prior/stale flags); _ready_books/_signal_records inlined (lifecycle import and reportPrivateImportUsage dropped); provenance test uses mismatched feed/event sources so feed.source can no longer masquerade.
+- RecordingHandle subclasses io.TextIOWrapper over a real file (typed TextIO slot, no Any cast); legacy row uses a plain SessionSignalRecord annotation; false "Schema 7 adds" doc claim removed.
+- Kept suite-convention docstrings (every test/helper/TypedDict carries one) after reviewer disagreement on narration.
+STEP-001 review: grok + swe-high findings; fixed in 29e3a690 (gate test cases, entry_block built once, no cast); skipped per-test docstrings as suite convention.
+
+## 2026-10-06 - STEP-002 (s2-impl)
+
+- New src/dashboard/: summarize.py is the relocated stdlib-only CLI (runs standalone via plain python3; --today/--live/--game/--match/--wallet/--rebate/--restart-check/--self-check). Bounded /activity + /positions traversal reports explicit completeness: day_complete, payout_search_complete, stop_reason in {proven, exhausted, offset_cap, deadline, http_error, invalid}; an incomplete candidate keeps the last complete DayFold via publish_day.
+- sources.py is the read layer: open_readonly (URI mode=ro, never creates), WalletSnapshot (sessions with CheckpointCache, bindings, unresolved BUY commands, unsettled_buys, positions, token_cid, booked BUY qty from fill_ledger, max outbox seq, per-table notes), bounded read_outbox_page, TailCache (mtime+size keyed, gzip-aware, torn-tail tolerant), MatchCatalog + classify_entry (final/terminal/stale/live/incomplete with labeled ages), sidecar scan + skipped-market reasons, bounded docker log tail.
+- compute_reserve nets gone/unsettled orders against durable rows, counts checkpoint remainders + open place commands + unsettled buys + observed order_log orphans, and marks the result incomplete (with limitations) whenever coverage is partial instead of presenting a clean zero.
+- diagnostics.py is pure: signal/feed freshness, age_s, signal second, human-readable reason/entry_block/SELL text, sell-wedge check, position check.
+- Tests: tests/test_dashboard.py, 32 cases. Verified: pytest 32 passed, ruff check, ruff format --check, basedpyright 0 errors, summarize.py --self-check ok, --help ok.
+- Commits: esports-trader fdc71e4f; betting_workspace 2150cd0 (SKILL.md/log-map.md point at src/dashboard/summarize.py; includes owner's staged deletion of the old scripts/summarize.py). datetime.UTC kept as timezone.utc alias — the CLI also runs standalone on older VPS pythons.
+
+## 2026-10-06 - STEP-002 review fixes (s2-impl)
+
+- Split sources.py into per-domain modules: wallet.py (read-only snapshot; all rows copied inside one BEGIN/COMMIT, checkpoints decoded after close, typed cell() extraction replaces the file-level pyright suppression), reserve.py (reserve fold + order_log orphans), tails.py (TailCache), catalog.py (MatchCatalog/classify_entry/trace headers), logs.py (docker logs, skip reasons, sidecar nontrading scan). No barrel module.
+- Reserve: an open checkpoint BUY bound to a venue with an unsettled row now counts the checkpoint remainder once and skips that venue in the unsettled fold (price disagreement still flags incomplete). Orphan coverage is always incomplete: disk order_log is last-known only, so empty orphan input no longer reads as complete.
+- MatchCatalog caches only four frozen journal facts (started/ended/realized/rebate) keyed by path + (mtime_ns, size); the cache map is rebuilt per scan so removed archives drop out. SessionSummary.reasons/blocks/positions are now immutable Mappings.
+- TailCache.read is one stat/read/verify attempt loop (retry once, then fall back to the previous cached view); one _json_record line parser serves head/plain/gzip; one generic _evict bounds both caches.
+- classify_entry reuses diagnostics.signal_freshness; _SignalAges/_signal_ages deleted. restart_block uses named RESTART_CUTOFF_SECOND/RESTART_POSITION_SHARES constants mirroring strategy constants. Narration docstrings stripped across the new files; summarize.py keeps its module docstring (--help text).
+- Tests seed via a plain sqlite3.connect fixture conn (schema built by WalletStateStore(path).close()) instead of store._conn; _order takes Side/OrderStatus literals; both file-level pyright pragmas removed.
+- Verified: pytest tests/test_dashboard.py 33 passed, ruff check, ruff format --check, basedpyright 0 errors, python3 -I summarize.py --self-check ok, --help ok.
+- Commit: esports-trader e4c659d4 (not pushed). feature.json untouched; passes not set.
+STEP-002 review: grok + swe-high findings; fixed in e4c659d4 (sources split per domain, reserve shared-venue counted once, typed rows, no ignores/pragmas); kept noqa UP017 for stdlib summarize.
+
+## 2026-10-06 - STEP-003 (s3-impl)
+
+- New src/dashboard/live_hub.py: process-wide LiveHub (get_live_hub/replace_live_hub/close_live_hub registry, atexit fallback) owns one daemon asyncio loop plus five single-worker executors (disk, catalog/slow, balance, day, logs). All blocking work runs in lanes and merges on the loop; _publish swaps a frozen HubSnapshot under a short lock only. Desired subscriptions diff every 5 s against cached catalog/classify_entry views; day/rebate refreshes every 300 s via one composite _run_day_job (fetch_day + publish_day + payout-bounded accrued_rebate_since over live/legacy trees only, funder+generation tagged). Docker logs read async with doubling failure pause. Startup exceptions publish an error snapshot and clean up; close() is idempotent, signals the loop via call_soon_threadsafe, cancels tasks, then drains worker futures with a timeout.
+- New src/dashboard/market_books.py: HubBooks subclasses the frozen fork MarketDataService. Each connect attempt bumps a generation and clears readiness; a token publishes fresh only after its own full `book` frame (deltas never grant readiness), retained immutable levels stand in as stale while unready; subscription changes close the socket, purge removed token books/condition map/readiness/published snapshots, and the run loop resubscribes. BookSnapshot carries condition/token, top-20 desc/asc levels + truncation flag, tick, hash, exchange/local times, generation, initialized/ready/connected/disconnected_since; coalesced loop-scheduled publishes.
+- New src/dashboard/balance.py: BalanceTracker reduces bounded outbox pages — matched adds awaiting key + expected-cash evidence and marks significant; confirmed on a known key is inert, direct confirmed and failed (even with cash_delta=0) advance significant; requests capture cursor at submit and cover only that cut on success; 5 s min interval, 60 s period, 5/10/20/40/60 backoff + Retry-After. CollateralReader builds the ClobClient once (PK/BROWSER_ADDRESS + signature_type from trading.toml) and calls only get_balance_allowance(COLLATERAL); parse_collateral_usdc converts integer base units /1_000_000 and rejects blank/negative/NaN/bool/malformed.
+- wallet.py: snapshot now reads current MATCHED fill keys + max outbox seq inside the same transaction (matched_fill_keys, fill_boundary_ok) — no fake zero boundary when fill tables are missing — and CheckpointCache keeps only the latest decode per session via retain(). reserve.py: explicit "order_log is last-known only" limitation so incomplete reports always explain why. logs.py: docker_runner is public for injection.
+- Tests: tests/test_dashboard_live_hub.py (36 cases: tracker reducer/rate/backoff, parser/reader auth+timeout, socket/book generation and readiness, subscription purge/re-add, desired-subs conflicts, day merge retention/turnover/immutable mapping, singleton concurrency/replace ordering, lifecycle, startup failure cleanup, held-worker snapshot, end-to-end fill->balance and mismatch gating) + 4 new cases in test_dashboard.py (matched boundary, missing fill tables, cache retain, reserve limitation). Verified: pytest tests/test_dashboard_live_hub.py tests/test_dashboard.py 72 passed, ruff check, ruff format --check, basedpyright 0 errors.
+- Commit: esports-trader 782c0056 (not pushed). feature.json untouched; passes not set.
+
+## 2026-10-06 - STEP-003 review fixes (s3-impl)
+
+- Published state is now stored as frozen slices at each lane's apply site: hub_types.py holds WalletFacts/SubscriptionFacts/LogsFacts/DaySnapshot(+DayState) plus the pure builders wallet_facts, desired_subscriptions, classify_map_views, tail_paths, reserve_snapshot, run_day_job/merge_day_state/fail_day_state, merge_service_logs/fail_service_logs. _build_snapshot assembles stored slices instead of re-flattening ~15 per-source attributes; LiveHub drops the parallel field bag; live_hub.py is 762 lines.
+- Every lane wraps submit+reduce in one catch-sleep-continue so a reduce failure records the source error and keeps the lane alive; BalanceTracker gains abort_request for the balance reduce path.
+- _tail_views is rebuilt per disk pass (dropped journals no longer feed classify_entry stale views); BalanceTracker caps pending evidence at 64 with a pending_dropped counter on BalanceSnapshot.
+- Collateral SDK surface moved to collateral.py (owns the reportMissingTypeStubs pragma and the required AssetType cast — not identity: AssetType members are str literals). load_balance_account delegates [wallet] parsing to WalletConfig; malformed sections raise ValidationError -> account_error in default_hub_config. get_live_hub/replace_live_hub are zero-arg; _acquire_hub/_swap_hub are the internal registry helpers.
+- PRODUCTION_TIMING.catalog_s = CATALOG_REFRESH_S (one discovery constant). Tests: day/subs merges exercised via pure functions; type: ignore[index] replaced by MappingProxyType isinstance; added pending-cap, tail-rebuild, funder-gate cases (75 total).
+- Verified: pytest tests/test_dashboard_live_hub.py tests/test_dashboard.py 75 passed, ruff check, ruff format --check, basedpyright 0 errors.
+- Commit: esports-trader 74ed1ec9 (not pushed). feature.json untouched; passes not set.
+STEP-003 review: grok + swe-high findings; fixed in 74ed1ec9 (live hub split into apply-site slices, pending cap, tail rebuild, day funder gate); none skipped.
+
+## 2026-10-06 - STEP-004 (s4-impl)
+
+- Read-only Streamlit home over LiveHub: app.py routes ?match= scaffold + cached hub/sell-watcher + two fragments (_fast 1s strip/diagnostics, _lists 60s map lists); home.py pure DTO projections (strip, diagnostics reducer, active/idle/closed/residual rows); home_view.py render-only; fresh_view.py CCv2 status component (role=status, aria-live=polite, persistent dot, reduced-motion safe); health.py container/health lane; catalog.py DecisionFacts/SessionParams/labels/closed_observed_at; hub_types wallet facts (sells/flags/bindings/unsettled/token_cids), reserve token/created_at, nontrading facts, day inflight; logs.log_ts public.
+- Launch: dashboard dep group (streamlit>=1.63, plotly), .streamlit/config.toml dark theme on 127.0.0.1:8501, `make dashboard`.
+- **Learnings for future iterations:**
+  - st.cache_resource is process-global: later AppTest runs return the FIRST test's cached hub — call st.cache_resource.clear() before each AppTest (test_dashboard_app._patch_hub).
+  - AppTest runs the script as __main__; patch dashboard.live_hub.get_live_hub, not the app's imported name.
+  - fmt_age takes a duration, not a timestamp — pass ages (now_s - ts) on DTOs, never raw timestamps.
+  - Fragment run_every gates _lists; browser checks on inner gridcells must open <details> and poll up to ~80s, and iframe .fv nodes live in page.frames, not body text.
+  - Glide dataframes blank their a11y gridcells mid-rerender; reload the page before asserting cell text after a state change.
+- Verified: 102 dashboard tests passed (incl. AppTest), ruff check + format clean, basedpyright 0 errors, uv lock --check ok. Browser fixture 31/31 (freshness a11y, stale/updating transitions, book disconnect/reconnect marks, XSS escaping, second tab shared hub, 1366/1440 layouts).
+- Commit: esports-trader 68ca7867 (not pushed). feature.json untouched; passes not set.
+
+## 2026-10-06 - STEP-004 review fixes (s4-impl)
+
+- home.py (1416 lines) split into per-builder modules: home.py keeps shared fmt_*/map_title/urls/berlin_day/find_match (74 lines); home_strip.py FreshMetric/HealthLine/StripView/build_strip (215); home_lists.py row DTOs/ListIndexes/build_lists (700); home_diag.py Diagnostic/DiagnosticsView/HealthAssessment/SellWatcher/build_diagnostics (450). HomeView deleted (never constructed).
+- assess_health is the single HealthFacts ladder: returns strip state/text/details + optional Diagnostic + observed phrase; build_strip and build_diagnostics both consume it, no drifted copies. watcher arg on build_diagnostics now required.
+- Bug found by review: params_by_cid held min_order_size but _map_findings fed it to entry_block_label as min_abs_delta. Map findings now read entry.params.min_abs_delta like _row_reason; exit findings use min_order_by_cid. Test asserts "|Δ| 0.02 < порога входа 0.05".
+- Lists index built once (ListIndexes: books/positions/sessions/token_cid/buys/unsettled/terminal/api/reserve/known_cids) and passed into row builders; used_api keyed by (condition_id, asset) not id(); YES/NO token-to-team pairing shared via _token_sides.
+- Comments pass: narration docstrings and the dataframe-overloads comment removed; dead reportPrivateUsage directives dropped; fixture _write_match/_write_journal renamed public (cross-module API).
+- Verified: 103 dashboard tests passed, ruff check + format clean, basedpyright 0 errors.
+- Commit: esports-trader 4044b4bb (not pushed). feature.json untouched.
+STEP-004 review: grok + swe-high findings; fixed in 4044b4bb (home projection split per builder, one health read, min-delta regression test); none skipped.
+
+## 2026-10-06 - STEP-005 game summary (s5-impl)
+
+- tails.py: one stat/read/verify loop backs both read() (TailView summary) and new read_records() (RecordTail with parsed record tuple). Verified reads update both caches; unverified/raced reads keep last stable value; unchanged (mtime,size) reuse the same cached object identity. Same 256KiB/512-record bounds, gz via resolve_jsonl, malformed/truncation flags preserved.
+- game_grid.py: GridFold folds GRID scoreboard/table frames for the pinned map via existing read_map_scoreboard/read_net_worth/read_board_sides/select_board_players. Locks side orientation on first board, rejects wrong-map/pre-board/wrong-active-map tables, dedupes identical snapshots, reconstructs table second from board clock + feed delay, tracks feed_gone/finished terminals, keeps last valid board across torn tails.
+- game_oddin.py: OddinFold pipes archived ws records through the real OddinSnapshotReducer, honors reconnect resets, keeps the last live slice across terminal events, per-player alive/respawn/aegis pass-through where the payload carries them.
+- game_state.py: frozen DTOs (GameIdentity/DecisionSlice/SeriesScore/BoardSlice/PlayerSummary/SideSlice/Objectives/TableSlice/SourceFacts/GameSummary). GameStateReader keys per-(archive, source, game, map, yes_is_radiant, outcomes) fold state; fingerprint overlap for warm incremental folding, reconstruct on replace/truncate; last kind=signal -> DecisionSlice; aligned/different/unknown signal-vs-archive compare; cold/warm/reconstructed continuity; acceptance unknown note on reconstructed/cold.
+- **Learnings for future iterations:**
+  - Fold params (yes_is_radiant, outcome names) must live in the per-map state key, not just input_key - a catalog flip otherwise reuses a fold built with the stale orientation.
+  - Oddin board/table share the record receipt; GRID table receipt is independent and its second is board_clock + feed_delay, never the table's own occurredAt.
+  - Same match_id in different archive roots must not leak fold state; archive path is part of the key.
+- Verified: 44 game-state tests + 253 dashboard scope green, ruff check/format clean, basedpyright 0 errors. Full suite 2855 passed / 8 failed - all pre-existing (follow300 replay artifact hashes, trader session config clip); untouched by this diff.
+- Commit: esports-trader 879efa1d (not pushed). feature.json untouched; passes not set.
+
+## 2026-10-06 - STEP-005 review fixes (s5-impl)
+
+- game_types.py (new, 195 lines): all summary DTOs + compact()/side_slice() shared helpers. game_state.py 1040->717 lines: obs dataclasses, _grid_player.._oddin_table, _Slices, _project_slices deleted; folds store BoardSlice/TableSlice; reader patches archive_path + continuity note via dataclasses.replace; build_game_summary takes control/rejected/terminal not the fold.
+- tails.py: read() delegates to read_records() (the primitive), returns cached TailView for the returned RecordTail or _build_tail fallback. Same race/identity semantics.
+- SideSlice.gold is feed-only now: GRID sides gold=None; fixture netWorthNullable = player sum + ODDIN_TEAM_GOLD_PAD (97) so gold vs players_gold are provably distinct.
+- Test docstrings deleted; TailCache._read_resolved spy via vars() (getattr tripped ruff B009); frozen checks via delattr (setattr tripped B010, del tripped pyright frozen modeling).
+- **Learnings for future iterations:**
+  - ruff bugbear blocks const getattr/setattr (B009/B010): vars(cls)["_x"] reads privates unsuppressed; delattr() writes-through for FrozenInstanceError probes.
+  - pyright models frozen dataclasses on del (reportAttributeAccessIssue) — only dynamic builtins escape it.
+- Verified: 253 dashboard-scope tests green, ruff clean, basedpyright 0 errors.
+- Commit: esports-trader 7e69b435 (not pushed). feature.json untouched.
+STEP-005 review: grok + swe-high findings; fixed in 7e69b435 (folds own their slices, shared tail primitive); one finding skipped by implementer.
+STEP-006: match detail page behind ?match=<id> — header+orientation+diagnostics (1s), now/position/orders/books (0.5s), lazy chart+event feed (15s). OrderFacts from wallet checkpoint; trace advisory-only; live vs pending/canceling/unknown split; YES/NO orientation via archive binding (Radiant/Dire, Blue/Red).
+- Files: match_page/state/view/history/trace new; app router, catalog level_usdc, hub_types OrderFacts, home_diag build_match_diagnostics; tests/test_dashboard_match.py + app/home test updates.
+- Verified: 164 project tests green, ruff clean, basedpyright 0 errors; browser check on 127.0.0.1:8871 at 1366x768 + 1440x900 (final map, stale flipped-orientation map, unknown id; chart+feed expanders), no console errors.
+- Commit: esports-trader 777bad68 (not pushed). feature.json untouched.
+STEP-006 review: grok + swe-high findings; fixed in c5e22507 (single sell projection, advisory reset). Full suite: 2 failures reported by implementer as pre-existing (test_trader_session_config clip default, follow300 golden drift).

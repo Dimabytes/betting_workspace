@@ -1,0 +1,3260 @@
+diff --git a/src/dashboard/app.py b/src/dashboard/app.py
+index 8fb12dc3..a2c11e2e 100644
+--- a/src/dashboard/app.py
++++ b/src/dashboard/app.py
+@@ -6,12 +6,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ 
+ import streamlit as st
+ 
+-from dashboard.home import find_match, map_title
+ from dashboard.home_diag import SellWatcher, build_diagnostics
+ from dashboard.home_lists import build_lists
+ from dashboard.home_strip import build_strip
+ from dashboard.home_view import render_diagnostics, render_lists, render_strip
+ from dashboard.live_hub import LiveHub, get_live_hub
++from dashboard.match_page import render_match_page
+ 
+ if __name__ == "__main__":
+     st.set_page_config(page_title="esports-trader", layout="wide")
+@@ -41,25 +41,10 @@ def _lists() -> None:
+     render_lists(build_lists(snap, time.time()))
+ 
+ 
+-def _match_page(match_id: str) -> None:
+-    snap = _hub().get_snapshot()
+-    matches = find_match(snap, match_id)
+-    if len(matches) == 1:
+-        st.title(map_title(matches[0].entry))
+-        st.caption(f"match {match_id} · детальный экран — следующий шаг разработки")
+-    elif matches:
+-        st.title(match_id)
+-        st.warning("несколько архивов с этим match id — выбор неоднозначен")
+-    else:
+-        st.title(match_id)
+-        st.warning("карта не найдена в каталоге")
+-    st.link_button("← на главную", "/")
+-
+-
+ if __name__ == "__main__":
+     _match = st.query_params.get("match")
+     if _match:
+-        _match_page(_match)
++        render_match_page(_match, _hub())
+     else:
+         _fast()
+         _lists()
+diff --git a/src/dashboard/catalog.py b/src/dashboard/catalog.py
+index 13f40a97..c92cfdc1 100644
+--- a/src/dashboard/catalog.py
++++ b/src/dashboard/catalog.py
+@@ -31,6 +31,7 @@ class SessionParams:
+     min_order_size: float | None
+     entry_stale_s: float | None
+     exit_stale_s: float | None
++    level_usdc: float | None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -177,6 +178,7 @@ def session_params(
+         min_order_size=as_float(limits_block.get("min_order_size")),
+         entry_stale_s=as_float(freshness_block.get("entry_stale_s")),
+         exit_stale_s=as_float(freshness_block.get("exit_stale_s")),
++        level_usdc=as_float(policy_block.get("level_usdc")),
+     )
+ 
+ 
+diff --git a/src/dashboard/home_diag.py b/src/dashboard/home_diag.py
+index a8a0dec4..db3708b4 100644
+--- a/src/dashboard/home_diag.py
++++ b/src/dashboard/home_diag.py
+@@ -3,6 +3,7 @@ from dataclasses import dataclass
+ from typing import Literal
+ 
+ from dashboard import diagnostics
++from dashboard.catalog import MapView
+ from dashboard.diagnostics import SellObservation, SellWatchState, observe_sell
+ from dashboard.health import HealthFacts
+ from dashboard.home import fmt_age
+@@ -361,49 +362,55 @@ def _session_findings(
+ _NEUTRAL_BLOCKS = frozenset({"no_edge", "position_open", "position_cap", "min_delta"})
+ 
+ 
+-def _map_findings(snap: HubSnapshot) -> list[Diagnostic]:
++def _map_finding(view: MapView) -> list[Diagnostic]:
+     findings: list[Diagnostic] = []
+-    for view in snap.maps:
+-        if view.status == "stale":
+-            findings.append(
+-                _finding(
+-                    "warn",
+-                    f"карта {view.entry.match_id}: запись остановилась",
+-                    "session journal",
+-                    view.entry.last_write,
+-                    f"возраст {fmt_age(view.write_age_s)}",
+-                )
++    if view.status == "stale":
++        findings.append(
++            _finding(
++                "warn",
++                f"карта {view.entry.match_id}: запись остановилась",
++                "session journal",
++                view.entry.last_write,
++                f"возраст {fmt_age(view.write_age_s)}",
+             )
+-            continue
+-        if view.status != "live" or view.decision is None:
+-            continue
+-        decision = view.decision
+-        if decision.reason in ("model_error", "trading_error", "sidecar_fault"):
+-            findings.append(
+-                _finding(
+-                    "warn",
+-                    f"карта {view.entry.match_id}: {diagnostics.reason_label(decision.reason)}",
+-                    str(decision.path),
+-                    None,
+-                    f"решение {fmt_age(view.decision_age_s)} назад",
+-                )
++        )
++        return findings
++    if view.status != "live" or view.decision is None:
++        return findings
++    decision = view.decision
++    if decision.reason in ("model_error", "trading_error", "sidecar_fault"):
++        findings.append(
++            _finding(
++                "warn",
++                f"карта {view.entry.match_id}: {diagnostics.reason_label(decision.reason)}",
++                str(decision.path),
++                None,
++                f"решение {fmt_age(view.decision_age_s)} назад",
+             )
+-        elif decision.entry_block in _NEUTRAL_BLOCKS:
+-            params = view.entry.params
+-            findings.append(
+-                _finding(
+-                    "info",
+-                    f"карта {view.entry.match_id}: "
+-                    + diagnostics.entry_block_label(
+-                        decision.entry_block,
+-                        model_evaluated=decision.model_evaluated,
+-                        raw_delta=decision.raw_delta,
+-                        min_abs_delta=(params.min_abs_delta if params is not None else None),
+-                    ),
+-                    "decision tail",
+-                    None,
+-                )
++        )
++    elif decision.entry_block in _NEUTRAL_BLOCKS:
++        params = view.entry.params
++        findings.append(
++            _finding(
++                "info",
++                f"карта {view.entry.match_id}: "
++                + diagnostics.entry_block_label(
++                    decision.entry_block,
++                    model_evaluated=decision.model_evaluated,
++                    raw_delta=decision.raw_delta,
++                    min_abs_delta=(params.min_abs_delta if params is not None else None),
++                ),
++                "decision tail",
++                None,
+             )
++        )
++    return findings
++
++
++def _map_findings(snap: HubSnapshot) -> list[Diagnostic]:
++    findings: list[Diagnostic] = []
++    for view in snap.maps:
++        findings.extend(_map_finding(view))
+     return findings
+ 
+ 
+@@ -432,10 +439,47 @@ def build_diagnostics(
+         + _session_findings(sessions, wedge, min_order_by_cid, now_s)
+         + _map_findings(snap)
+     )
++    return _diagnostics_view(findings, assessment.observed)
++
++
++def build_match_diagnostics(
++    snap: HubSnapshot,
++    view: MapView,
++    session: SessionFacts | None,
++    wedge: Mapping[str, diagnostics.SellWedgeVerdict],
++    summary_notes: Sequence[str],
++    now_s: float,
++) -> DiagnosticsView:
++    assessment = assess_health(snap.health, now_s)
++    min_order = view.entry.params.min_order_size if view.entry.params is not None else None
++    sessions = () if session is None else (session,)
++    min_order_by_cid = {} if session is None else {session.condition_id: min_order}
++    findings = (
++        _source_findings(snap, assessment.diagnostic)
++        + _session_findings(sessions, wedge, min_order_by_cid, now_s)
++        + _map_finding(view)
++    )
++    for note in summary_notes:
++        findings.append(_finding("info", note, "game summary", None))
++    findings = [
++        finding
++        if finding.source not in ("session journal", "live.db core_sessions", "decision tail")
++        else _finding(
++            finding.severity,
++            finding.label,
++            f"эта карта · {finding.source}",
++            finding.ts,
++            *finding.details,
++        )
++        for finding in findings
++    ]
++    return _diagnostics_view(findings, assessment.observed)
++
++
++def _diagnostics_view(findings: list[Diagnostic], observed: str | None) -> DiagnosticsView:
+     findings.sort(key=lambda f: (_SEVERITY_RANK[f.severity], -(f.ts or 0.0)))
+     capped = tuple(findings[:_DIAG_CAP])
+     headline = capped[0] if capped else None
+-    observed = assessment.observed
+     if headline is not None:
+         line = f"{headline.label} · {headline.source}"
+     elif observed is not None:
+diff --git a/src/dashboard/hub_types.py b/src/dashboard/hub_types.py
+index 1c93bc2a..1db3f124 100644
+--- a/src/dashboard/hub_types.py
++++ b/src/dashboard/hub_types.py
+@@ -45,6 +45,26 @@ class SellOrderFacts:
+     cancel_reason: str
+ 
+ 
++@dataclass(frozen=True)
++class OrderFacts:
++    session_id: str
++    order_id: str
++    token_index: int
++    token_id: str | None
++    side: str
++    status: str
++    price: float
++    submitted_qty: float
++    filled_qty: float
++    remaining_qty: float
++    accepted: bool
++    level_index: int | None
++    venue_id: str | None
++    binding_conflict: bool
++    cancel_reason: str
++    ack_reason: str
++
++
+ @dataclass(frozen=True)
+ class SessionFacts:
+     session_id: str
+@@ -65,7 +85,9 @@ class SessionFacts:
+     pending_ownership: int
+     has_buy_fill: bool | None
+     held: tuple[float | None, float | None]
++    held_cost: tuple[float | None, float | None]
+     sells: tuple[SellOrderFacts, ...]
++    orders: tuple[OrderFacts, ...]
+ 
+ 
+ @dataclass(frozen=True)
+@@ -232,7 +254,7 @@ class DayJob:
+ 
+ 
+ def _sell_facts(
+-    sess: SessionSnapshot, venues: Mapping[str, str | None]
++    sess: SessionSnapshot, venues: Mapping[tuple[str, str], str | None]
+ ) -> tuple[SellOrderFacts, ...]:
+     checkpoint = sess.checkpoint
+     if checkpoint is None:
+@@ -258,24 +280,67 @@ def _sell_facts(
+                 filled_qty=order.filled_qty,
+                 remaining_qty=remaining,
+                 held_qty=held if held is not None else 0.0,
+-                venue_id=venues.get(order.order_id),
++                venue_id=venues.get((sess.session_id, order.order_id)),
++                cancel_reason=order.cancel_reason,
++            )
++        )
++    return tuple(out)
++
++
++def _order_facts(
++    sess: SessionSnapshot,
++    venues: Mapping[tuple[str, str], str | None],
++    conflicts: frozenset[tuple[str, str]],
++) -> tuple[OrderFacts, ...]:
++    checkpoint = sess.checkpoint
++    if checkpoint is None:
++        return ()
++    tokens = (sess.yes_token, sess.no_token)
++    out: list[OrderFacts] = []
++    for order in checkpoint.orders:
++        idx = order.token_index
++        key = (sess.session_id, order.order_id)
++        out.append(
++            OrderFacts(
++                session_id=sess.session_id,
++                order_id=order.order_id,
++                token_index=idx,
++                token_id=tokens[idx] if 0 <= idx < len(tokens) else None,
++                side=order.side,
++                status=order.status,
++                price=order.price,
++                submitted_qty=order.submitted_qty,
++                filled_qty=order.filled_qty,
++                remaining_qty=max(0.0, order.submitted_qty - order.filled_qty),
++                accepted=order.accepted,
++                level_index=order.level_index,
++                venue_id=venues.get(key),
++                binding_conflict=key in conflicts,
+                 cancel_reason=order.cancel_reason,
++                ack_reason=order.ack_reason,
+             )
+         )
+     return tuple(out)
+ 
+ 
+ def _session_facts(snap: WalletSnapshot) -> tuple[SessionFacts, ...]:
+-    venues: dict[str, str | None] = {}
++    venues: dict[tuple[str, str], str | None] = {}
++    conflicts: set[tuple[str, str]] = set()
+     for binding in snap.bindings:
+-        if binding.core_order_id not in venues or not binding.terminal:
+-            venues[binding.core_order_id] = binding.venue_id
++        key = (binding.session_id, binding.core_order_id)
++        seen = venues.get(key)
++        if seen is not None and binding.venue_id is not None and seen != binding.venue_id:
++            conflicts.add(key)
++        if key not in venues or not binding.terminal:
++            venues[key] = binding.venue_id
+     out: list[SessionFacts] = []
+     for sess in snap.sessions:
+         checkpoint = sess.checkpoint
+         if checkpoint is None:
+             sells: tuple[SellOrderFacts, ...] = ()
++            orders: tuple[OrderFacts, ...] = ()
+             held: tuple[float | None, float | None] = (None, None)
++            held_cost: tuple[float | None, float | None] = (None, None)
+             sell_only: bool | None = None
+             recovery_pending: bool | None = None
+             winding_down: bool | None = None
+@@ -284,8 +349,10 @@ def _session_facts(snap: WalletSnapshot) -> tuple[SessionFacts, ...]:
+             has_buy_fill: bool | None = None
+         else:
+             sells = _sell_facts(sess, venues)
++            orders = _order_facts(sess, venues, frozenset(conflicts))
+             inventory = checkpoint.inventory
+             held = (inventory[0].qty, inventory[1].qty)
++            held_cost = (inventory[0].cost_basis, inventory[1].cost_basis)
+             sell_only = checkpoint.sell_only
+             recovery_pending = checkpoint.recovery_pending
+             winding_down = checkpoint.winding_down
+@@ -312,7 +379,9 @@ def _session_facts(snap: WalletSnapshot) -> tuple[SessionFacts, ...]:
+                 pending_ownership=pending_ownership,
+                 has_buy_fill=has_buy_fill,
+                 held=held,
++                held_cost=held_cost,
+                 sells=sells,
++                orders=orders,
+             )
+         )
+     return tuple(out)
+diff --git a/src/dashboard/match_history.py b/src/dashboard/match_history.py
+new file mode 100644
+index 00000000..93380bcf
+--- /dev/null
++++ b/src/dashboard/match_history.py
+@@ -0,0 +1,227 @@
++import time
++from collections.abc import Iterable, Mapping
++from dataclasses import dataclass
++from datetime import datetime
++from pathlib import Path
++from typing import cast
++
++import streamlit as st
++
++from dashboard.tails import TailCache
++from shared.utils.jsonl_io import resolve_jsonl
++from shared.utils.match_time import parse_utc
++from trader.paths import (
++    CORE_TRACE_FILENAME,
++    GRID_STATE_ARCHIVE_FILENAME,
++    MATCH_META_FILENAME,
++    ODDIN_STATE_ARCHIVE_FILENAME,
++    SESSION_JOURNAL_FILENAME,
++)
++from viewer.archive_read import (
++    as_float,
++    as_str,
++    horn_at_utc,
++    iter_json_objects,
++    read_match_document,
++)
++from viewer.live_tape import load_live_tapes
++from viewer.types import TokenTape
++
++
++@dataclass(frozen=True)
++class FileStamps:
++    journal: tuple[int, int] | None
++    feed: tuple[int, int] | None
++    trace: tuple[int, int] | None
++    meta: tuple[int, int] | None
++
++
++@dataclass(frozen=True)
++class ChartFacts:
++    ok: bool
++    error: str | None
++    read_at: float
++    tapes: tuple[TokenTape, ...]
++    horn_at: datetime | None
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class JournalRead:
++    ok: bool
++    error: str | None
++    truncated: bool
++    records: tuple[dict[str, object], ...]
++
++
++@dataclass(frozen=True)
++class EventRow:
++    label: str
++    second: float | None
++    stamp_age_s: float | None
++    text: str
++    initial: bool
++
++
++MAX_EVENTS = 40
++_MAX_EVENT_SOURCE = 5000
++
++
++def file_stamp(path: Path) -> tuple[int, int] | None:
++    resolved = resolve_jsonl(path)
++    try:
++        stat = resolved.stat()
++    except OSError:
++        return None
++    return (stat.st_mtime_ns, stat.st_size)
++
++
++def archive_stamps(archive_dir: Path) -> FileStamps:
++    feed = file_stamp(archive_dir / GRID_STATE_ARCHIVE_FILENAME)
++    if feed is None:
++        feed = file_stamp(archive_dir / ODDIN_STATE_ARCHIVE_FILENAME)
++    return FileStamps(
++        journal=file_stamp(archive_dir / SESSION_JOURNAL_FILENAME),
++        feed=feed,
++        trace=file_stamp(archive_dir / CORE_TRACE_FILENAME),
++        meta=file_stamp(archive_dir / MATCH_META_FILENAME),
++    )
++
++
++def read_chart(archive_dir: Path) -> ChartFacts:
++    notes: list[str] = []
++    try:
++        document = read_match_document(archive_dir)
++    except OSError as exc:
++        return ChartFacts(False, type(exc).__name__, time.time(), (), None, ())
++    if document is None:
++        return ChartFacts(False, "match.json не читается", time.time(), (), None, ())
++    horn = horn_at_utc(document)
++    try:
++        tapes = load_live_tapes(archive_dir)
++    except OSError as exc:
++        return ChartFacts(False, type(exc).__name__, time.time(), (), horn, ())
++    if not tapes:
++        notes.append("нет лент сделок — токены не покупались или журнала нет")
++    return ChartFacts(True, None, time.time(), tapes, horn, tuple(notes))
++
++
++def _stamp_age(record: Mapping[str, object], now_s: float) -> float | None:
++    stamp = as_str(record.get("recorded_at_utc")) or as_str(record.get("ts_utc"))
++    if stamp is None:
++        return None
++    try:
++        return max(0.0, now_s - parse_utc(stamp).timestamp())
++    except ValueError:
++        return None
++
++
++def _fill_text(record: Mapping[str, object]) -> str:
++    side = as_str(record.get("side")) or "?"
++    token = as_str(record.get("token")) or as_str(record.get("outcome")) or ""
++    qty = as_float(record.get("qty")) or as_float(record.get("size"))
++    price = as_float(record.get("price"))
++    parts = [side]
++    if qty is not None:
++        parts.append(f"{qty:g}")
++    if token:
++        parts.append(token)
++    if price is not None:
++        parts.append(f"@{price:g}")
++    return " ".join(parts)
++
++
++def _quote_text(record: Mapping[str, object]) -> str:
++    placed = record.get("placed")
++    items = cast(list[object], placed) if isinstance(placed, list) else []
++    count = len(items)
++    texts: list[str] = []
++    for raw in items[:3]:
++        if not isinstance(raw, dict):
++            continue
++        fields = cast(dict[str, object], raw)
++        side = as_str(fields.get("side")) or "?"
++        qty = as_float(fields.get("qty")) or as_float(fields.get("size"))
++        price = as_float(fields.get("price"))
++        text = side
++        if qty is not None:
++            text += f" {qty:g}"
++        if price is not None:
++            text += f" @{price:g}"
++        texts.append(text)
++    if len(items) > 3:
++        texts.append(f"+{len(items) - 3}")
++    detail = "; ".join(texts)
++    return f"размещено {count}" + (f": {detail}" if detail else "")
++
++
++def project_events(
++    records: Iterable[Mapping[str, object]],
++    *,
++    now_s: float,
++    limit: int = MAX_EVENTS,
++    initial_unknown: bool = True,
++) -> tuple[EventRow, ...]:
++    rows: list[EventRow] = []
++    last_pair: tuple[str | None, str | None] | None = None
++    seen_signal = False
++    for record in records:
++        kind = as_str(record.get("kind"))
++        second = as_float(record.get("second"))
++        age = _stamp_age(record, now_s)
++        if kind == "signal":
++            reason = as_str(record.get("reason"))
++            block = as_str(record.get("entry_block"))
++            pair = (reason, block)
++            if seen_signal and pair == last_pair:
++                continue
++            seen_signal = True
++            last_pair = pair
++            initial = initial_unknown and not rows
++            text = f"reason={reason or '—'} block={block or '—'}"
++            rows.append(EventRow("signal", second, age, text, initial))
++            continue
++        if kind in ("fill", "late_fill"):
++            label = "fill" if kind == "fill" else "late fill"
++            rows.append(EventRow(label, second, age, _fill_text(record), False))
++            continue
++        if kind == "quote":
++            rows.append(EventRow("quote", second, age, _quote_text(record), False))
++            continue
++    if limit > 0 and len(rows) > limit:
++        rows = rows[-limit:]
++    return tuple(rows)
++
++
++def read_journal(archive_dir: Path, journal_file: str, *, full: bool) -> JournalRead:
++    resolved = resolve_jsonl(archive_dir / journal_file)
++    if full:
++        records: list[dict[str, object]] = []
++        try:
++            for record in iter_json_objects(resolved):
++                records.append(record)
++                if len(records) >= _MAX_EVENT_SOURCE:
++                    break
++        except OSError as exc:
++            return JournalRead(False, type(exc).__name__, False, ())
++        return JournalRead(True, None, len(records) >= _MAX_EVENT_SOURCE, tuple(records))
++    tail = TailCache().read_records(resolved)
++    if tail is None:
++        return JournalRead(False, "журнал не читается", False, ())
++    return JournalRead(True, None, tail.truncated_start, tail.records)
++
++
++CACHE_TTL_S = 15
++CACHE_ENTRIES = 8
++
++
++@st.cache_data(ttl=CACHE_TTL_S, max_entries=CACHE_ENTRIES, show_spinner=False)
++def cached_chart(archive_dir: str, stamps: FileStamps) -> ChartFacts:
++    return read_chart(Path(archive_dir))
++
++
++@st.cache_data(ttl=CACHE_TTL_S, max_entries=CACHE_ENTRIES, show_spinner=False)
++def cached_journal(
++    archive_dir: str, journal_file: str, full: bool, stamps: FileStamps
++) -> JournalRead:
++    return read_journal(Path(archive_dir), journal_file, full=full)
+diff --git a/src/dashboard/match_page.py b/src/dashboard/match_page.py
+new file mode 100644
+index 00000000..a8b6edd9
+--- /dev/null
++++ b/src/dashboard/match_page.py
+@@ -0,0 +1,269 @@
++# pyright: reportUnknownMemberType=false
++
++import time
++from typing import cast
++
++import streamlit as st
++
++from dashboard import match_view
++from dashboard.catalog import MapView
++from dashboard.game_state import GameStateReader
++from dashboard.game_types import GameSummary
++from dashboard.home import find_match, fmt_age
++from dashboard.home_diag import build_match_diagnostics
++from dashboard.hub_types import HubSnapshot
++from dashboard.live_hub import LiveHub
++from dashboard.match_history import (
++    ChartFacts,
++    archive_stamps,
++    cached_chart,
++    cached_journal,
++    project_events,
++)
++from dashboard.match_state import (
++    MatchObserver,
++    build_match_state,
++    link_session,
++    sell_held_map,
++    wallet_stale,
++)
++from dashboard.match_trace import read_advisory
++from dashboard.tails import TailCache
++from trader.paths import CORE_TRACE_FILENAME, SESSION_JOURNAL_FILENAME
++from viewer.plot import plot_match
++from viewer.types import empty_game_state
++
++CHART_HEIGHT = 300
++_CHART_MEMO_KEY = "mp-chart-memo"
++_OBSERVER_KEY = "mp-observer"
++
++
++@st.cache_resource
++def _game_reader() -> GameStateReader:
++    return GameStateReader(TailCache())
++
++
++@st.cache_resource
++def _advisory_tails() -> TailCache:
++    return TailCache()
++
++
++def _observer() -> MatchObserver:
++    observer = st.session_state.get(_OBSERVER_KEY)
++    if not isinstance(observer, MatchObserver):
++        observer = MatchObserver()
++        st.session_state[_OBSERVER_KEY] = observer
++    return observer
++
++
++def _resolve(snap: HubSnapshot, match_id: str) -> MapView | None:
++    matches = find_match(snap, match_id)
++    return matches[0] if len(matches) == 1 else None
++
++
++def _chart_memo() -> dict[str, ChartFacts]:
++    memo = cast(dict[str, ChartFacts] | None, st.session_state.get(_CHART_MEMO_KEY))
++    if memo is None:
++        memo = {}
++        st.session_state[_CHART_MEMO_KEY] = memo
++    return memo
++
++
++def _summary_notes(summary: GameSummary | None) -> tuple[str, ...]:
++    if summary is None:
++        return ()
++    notes = list(summary.decision.notes)
++    notes.extend(summary.source.evidence)
++    notes.extend(summary.source.control)
++    if summary.source.rejected:
++        notes.append(f"отклонено записей: {summary.source.rejected}")
++    if summary.board is not None:
++        notes.extend(summary.board.notes)
++    if summary.table is not None:
++        notes.extend(summary.table.notes)
++    return tuple(notes[:12])
++
++
++@st.fragment(run_every=1)
++def _head(hub: LiveHub, match_id: str) -> None:
++    snap = hub.get_snapshot()
++    now_s = time.time()
++    view = _resolve(snap, match_id)
++    if view is None:
++        st.caption("карта ушла из каталога — вернитесь на главную")
++        return
++    summary = _game_reader().read(view.entry, now_s)
++    link = link_session(view.entry, snap.wallet)
++    session = link.session
++    advisory = read_advisory(
++        _advisory_tails(),
++        view.entry.archive_dir,
++        match_id=view.entry.match_id,
++        session_id=session.session_id if session is not None else None,
++        yes_token=view.entry.yes_token,
++        no_token=view.entry.no_token,
++        trace_file=CORE_TRACE_FILENAME,
++    )
++    state = build_match_state(
++        snap=snap,
++        view=view,
++        summary=summary,
++        advisory=advisory,
++        observed={},
++        wedge=_observer().wedge,
++        now_s=now_s,
++    )
++    diag = build_match_diagnostics(
++        snap, view, session, _observer().wedge, _summary_notes(summary), now_s
++    )
++    match_view.render_header(state, diag)
++    cols = st.columns([1.1, 1.0])
++    with cols[0]:
++        match_view.render_game(summary, key_prefix=f"mp-{match_id}")
++    with cols[1]:
++        match_view.render_buy(state)
++        match_view.render_ages(state)
++    match_view.render_details(state, key=f"mp-details-{match_id}")
++
++
++@st.fragment(run_every=0.5)
++def _trade(hub: LiveHub, match_id: str) -> None:
++    snap = hub.get_snapshot()
++    now_s = time.time()
++    view = _resolve(snap, match_id)
++    if view is None:
++        return
++    session = link_session(view.entry, snap.wallet).session
++    observer = _observer()
++    observer.observe(
++        identity=f"{view.entry.archive_dir}:{session.session_id if session else 'none'}",
++        generation=snap.generation,
++        orders=session.orders if session is not None else (),
++        sell_held=sell_held_map(session) if session is not None else {},
++        stale=wallet_stale(snap, now_s),
++        now_s=now_s,
++    )
++    state = build_match_state(
++        snap=snap,
++        view=view,
++        summary=None,
++        advisory=None,
++        observed=observer.first_seen,
++        wedge=observer.wedge,
++        now_s=now_s,
++    )
++    match_view.render_now(state)
++    cols = st.columns([1.0, 1.4])
++    with cols[0]:
++        match_view.render_position(state)
++        match_view.render_orders(state, key=f"mp-orders-{match_id}")
++    with cols[1]:
++        book_cols = st.columns(2)
++        for idx, panel in enumerate(state.books):
++            with book_cols[idx]:
++                match_view.render_book(panel, key=f"mp-book-{match_id}-{panel.side}")
++
++
++@st.fragment(run_every=15)
++def _chart(hub: LiveHub, match_id: str) -> None:
++    exp = st.expander("график", on_change="rerun", key=f"mp-chart-{match_id}")
++    if not exp.open:
++        return
++    snap = hub.get_snapshot()
++    view = _resolve(snap, match_id)
++    if view is None:
++        return
++    entry = view.entry
++    facts = cached_chart(str(entry.archive_dir), archive_stamps(entry.archive_dir))
++    memo = _chart_memo()
++    now_s = time.time()
++    if not facts.ok:
++        last = memo.get(str(entry.archive_dir))
++        if last is None:
++            match_view.render_chart_unavailable(facts.error or "нет данных")
++            return
++        facts = last
++        st.caption(
++            f"чтение не удалось — показан график от "
++            f"{fmt_age(max(0.0, now_s - facts.read_at))} назад"
++        )
++    else:
++        memo[str(entry.archive_dir)] = facts
++        while len(memo) > 4:
++            memo.pop(next(iter(memo)))
++    with exp:
++        if facts.horn_at is None:
++            match_view.render_chart_unavailable("horn_at_utc не записан")
++            return
++        fig = plot_match(
++            facts.tapes,
++            empty_game_state(),
++            show_pred=True,
++            show_gold=False,
++            show_kills=False,
++            min_abs_delta=(entry.params.min_abs_delta if entry.params is not None else None),
++            horn_at=facts.horn_at,
++        )
++        fig.update_layout(height=CHART_HEIGHT, uirevision=str(entry.archive_dir))
++        st.plotly_chart(fig, key=f"mp-chart-fig-{match_id}")
++        for note in facts.notes:
++            st.caption(note)
++
++
++@st.fragment(run_every=15)
++def _events(hub: LiveHub, match_id: str) -> None:
++    exp = st.expander("лента событий", on_change="rerun", key=f"mp-events-{match_id}")
++    if not exp.open:
++        return
++    snap = hub.get_snapshot()
++    view = _resolve(snap, match_id)
++    if view is None:
++        return
++    entry = view.entry
++    with exp:
++        full = st.toggle("полная история", key=f"mp-events-full-{match_id}")
++        read = cached_journal(
++            str(entry.archive_dir),
++            SESSION_JOURNAL_FILENAME,
++            bool(full),
++            archive_stamps(entry.archive_dir),
++        )
++        if not read.ok:
++            match_view.render_events((), read.truncated, read.error)
++            return
++        rows = project_events(
++            read.records,
++            now_s=time.time(),
++            initial_unknown=read.truncated or not full,
++        )
++        capped = len(rows) >= 40
++        match_view.render_events(rows, read.truncated, None)
++        if capped:
++            st.caption("показаны последние 40 событий")
++
++
++def render_match_page(match_id: str, hub: LiveHub) -> None:
++    match_view.inject_css()
++    snap = hub.get_snapshot()
++    matches = find_match(snap, match_id)
++    if len(matches) > 1:
++        st.title(match_id)
++        st.warning("несколько архивов с этим match id — выбор неоднозначен")
++        st.link_button("← на главную", "/")
++        return
++    if not matches:
++        st.title(match_id)
++        if (
++            snap.subscriptions.catalog_built_at is None
++            and snap.subscriptions.error is None
++            and snap.error is None
++        ):
++            st.caption("каталог ещё загружается…")
++        else:
++            st.warning("карта не найдена в каталоге")
++        st.link_button("← на главную", "/")
++        return
++    _head(hub, match_id)
++    _trade(hub, match_id)
++    _chart(hub, match_id)
++    _events(hub, match_id)
+diff --git a/src/dashboard/match_state.py b/src/dashboard/match_state.py
+new file mode 100644
+index 00000000..6f013822
+--- /dev/null
++++ b/src/dashboard/match_state.py
+@@ -0,0 +1,888 @@
++import math
++from collections.abc import Mapping, Sequence
++from dataclasses import dataclass
++from typing import Literal
++
++from polymaker.marketdata.orderbook import BookLevel
++
++from dashboard import diagnostics
++from dashboard.catalog import ArchiveEntry, MapView, SessionParams
++from dashboard.diagnostics import (
++    SellObservation,
++    SellWatchState,
++    SellWedgeVerdict,
++    stamp_age_s,
++)
++from dashboard.game_types import DecisionSlice, GameIdentity, GameSummary
++from dashboard.home import map_title, polymarket_url
++from dashboard.hub_types import HubSnapshot, OrderFacts, SessionFacts, WalletFacts
++from dashboard.market_books import BookSnapshot
++from dashboard.match_trace import AdvisoryTrace
++from dashboard.wallet import WalletPosition
++from trader.game_profile import GAME_PROFILES
++
++LADDER_LEVELS = 5
++WALLET_STALE_S = 15.0
++TRANSITIONAL_STATUSES = frozenset({"pending", "canceling", "unknown"})
++LIVE_OVERLAY_STATUSES = frozenset({"live"})
++
++
++@dataclass(frozen=True)
++class SideFacts:
++    side: str
++    token_id: str | None
++    team: str | None
++    side_label: str | None
++    outcome_name: str | None
++
++
++@dataclass(frozen=True)
++class SideMapping:
++    yes: SideFacts
++    no: SideFacts
++    known: bool
++    note: str | None
++
++
++@dataclass(frozen=True)
++class SessionLink:
++    session: SessionFacts | None
++    state: Literal["matched", "none", "conflict"]
++    notes: tuple[str, ...]
++
++
++@dataclass(frozen=True)
++class NowFacts:
++    position_line: str
++    sell_line: str
++    sell_detail: str | None
++    wedge: bool
++
++
++@dataclass(frozen=True)
++class BuyBlock:
++    reason: str
++    block: str
++    decision_age_s: float | None
++    delta_text: str
++    threshold_text: str | None
++    window_text: str | None
++    map_limit: str
++    map_details: tuple[str, ...]
++    params_missing: bool
++
++
++@dataclass(frozen=True)
++class AgeLine:
++    label: str
++    age_s: float | None
++    suffix: str | None
++
++
++@dataclass(frozen=True)
++class PositionLeg:
++    side: str
++    team: str | None
++    side_label: str | None
++    token_id: str | None
++    size: float | None
++    avg_price: float | None
++    mark: float | None
++    mark_state: Literal["book", "book_stale", "unknown"]
++    unrealized: float | None
++    held_qty: float | None
++    held_cost: float | None
++
++
++@dataclass(frozen=True)
++class LadderRow:
++    price: float | None
++    size: float | None
++    own_qty: float
++    own_note: str | None
++
++
++@dataclass(frozen=True)
++class BookPanel:
++    side: str
++    token_id: str | None
++    label: str
++    state: str
++    change_age_s: float | None
++    asks: tuple[LadderRow, ...]
++    bids: tuple[LadderRow, ...]
++    own_extra: tuple[LadderRow, ...]
++    truncated: bool
++    stale_orders: bool
++    note: str | None
++
++
++@dataclass(frozen=True)
++class OrderRow:
++    order_id: str
++    session_id: str
++    side: str
++    token_label: str
++    price: float
++    submitted: float
++    filled: float
++    remaining: float
++    status: str
++    accepted: bool
++    observed_s: float | None
++    venue: str | None
++    reason: str | None
++    binding_conflict: bool
++    transitional: bool
++    overlay: bool
++
++
++@dataclass(frozen=True)
++class PositionBlock:
++    legs: tuple[PositionLeg, ...]
++    wallet_ok: bool
++    wallet_age_s: float | None
++    realized_text: str
++    rebate_text: str
++    net_text: str | None
++
++
++@dataclass(frozen=True)
++class MatchState:
++    title: str
++    match_id: str
++    map_status: str
++    poly_url: str | None
++    sides_line: str
++    orientation_note: str | None
++    session: SessionLink
++    now: NowFacts
++    buy: BuyBlock
++    ages: tuple[AgeLine, ...]
++    position: PositionBlock
++    books: tuple[BookPanel, ...]
++    orders: tuple[OrderRow, ...]
++    details: tuple[str, ...]
++    notes: tuple[str, ...]
++
++
++def _side_labels(game: str | None) -> tuple[str, str]:
++    profile = GAME_PROFILES.get(game or "dota", GAME_PROFILES["dota"])
++    return (profile.side_0_text.capitalize(), profile.side_1_text.capitalize())
++
++
++def resolve_sides(
++    entry: ArchiveEntry, identity: GameIdentity | None, session: SessionFacts | None
++) -> SideMapping:
++    if identity is not None:
++        side_0_label, side_1_label = identity.side_0_label, identity.side_1_label
++        team_0, team_1 = identity.team_0, identity.team_1
++        yes_is_side_0 = identity.yes_is_side_0
++    else:
++        side_0_label, side_1_label = _side_labels(entry.game)
++        team_0, team_1 = entry.radiant, entry.dire
++        yes_is_side_0 = entry.yes_is_radiant
++    note: str | None = None
++    if (
++        session is not None
++        and yes_is_side_0 is not None
++        and session.yes_is_radiant != yes_is_side_0
++    ):
++        yes_is_side_0 = None
++        note = "ориентация YES/NO сессии не совпадает с картой"
++    known = yes_is_side_0 is not None
++    if not known and note is None:
++        note = "ориентация YES/NO неизвестна"
++
++    def _facts(side: str, is_0: bool | None) -> SideFacts:
++        token = entry.yes_token if side == "YES" else entry.no_token
++        outcome = entry.outcome_0_name if side == "YES" else entry.outcome_1_name
++        if is_0 is None:
++            return SideFacts(side, token, None, None, outcome)
++        return SideFacts(
++            side,
++            token,
++            team_0 if is_0 else team_1,
++            side_0_label if is_0 else side_1_label,
++            outcome,
++        )
++
++    return SideMapping(
++        yes=_facts("YES", yes_is_side_0),
++        no=_facts("NO", None if yes_is_side_0 is None else not yes_is_side_0),
++        known=known,
++        note=note,
++    )
++
++
++def link_session(entry: ArchiveEntry, wallet: WalletFacts) -> SessionLink:
++    if entry.condition_id is None:
++        return SessionLink(None, "none", ("condition_id неизвестен — сессия не привязана",))
++    candidates = [s for s in wallet.sessions if s.condition_id == entry.condition_id]
++    if not candidates:
++        return SessionLink(None, "none", ("сессия ядра для этой карты не найдена",))
++    if entry.yes_token is None or entry.no_token is None:
++        return SessionLink(
++            None,
++            "conflict",
++            ("токены карты неизвестны — привязка сессии недоказана",),
++        )
++    exact = [
++        s for s in candidates if s.yes_token == entry.yes_token and s.no_token == entry.no_token
++    ]
++    if not exact:
++        return SessionLink(
++            None,
++            "conflict",
++            (f"{len(candidates)} сессий с этим condition_id, но токены не совпадают",),
++        )
++    exact.sort(key=lambda s: s.updated_at or 0.0, reverse=True)
++    notes: list[str] = []
++    if len(exact) > 1:
++        notes.append(f"{len(exact)} сессий у этой карты — показана последняя")
++    sess = exact[0]
++    if entry.yes_is_radiant is not None and sess.yes_is_radiant != entry.yes_is_radiant:
++        return SessionLink(None, "conflict", ("ориентация YES/NO сессии не совпадает с картой",))
++    return SessionLink(sess, "matched", tuple(notes))
++
++
++def _book_mark(
++    book: BookSnapshot | None,
++) -> tuple[float | None, Literal["book", "book_stale", "unknown"]]:
++    if book is None or not book.initialized or not book.ready:
++        return None, "unknown"
++    if not book.bids or not book.asks:
++        return None, "unknown"
++    bid = book.bids[0].price
++    ask = book.asks[0].price
++    if not (math.isfinite(bid) and math.isfinite(ask)) or bid > ask:
++        return None, "unknown"
++    mark = (bid + ask) / 2.0
++    if not (0.0 < mark < 1.0):
++        return None, "unknown"
++    return mark, "book" if book.connected else "book_stale"
++
++
++def _position_legs(
++    sides: SideMapping,
++    positions: Mapping[str, WalletPosition],
++    books: Mapping[str, BookSnapshot],
++    session: SessionFacts | None,
++) -> tuple[PositionLeg, ...]:
++    legs: list[PositionLeg] = []
++    held = session.held if session is not None else (None, None)
++    held_cost = session.held_cost if session is not None else (None, None)
++    for idx, side in enumerate((sides.yes, sides.no)):
++        position = positions.get(side.token_id) if side.token_id else None
++        book = books.get(side.token_id) if side.token_id else None
++        mark, mark_state = _book_mark(book)
++        size = position.size if position is not None else None
++        avg = position.avg_price if position is not None else None
++        unrealized = None
++        if size is not None and avg is not None and mark is not None:
++            unrealized = size * (mark - avg)
++        legs.append(
++            PositionLeg(
++                side=side.side,
++                team=side.team or side.outcome_name,
++                side_label=side.side_label,
++                token_id=side.token_id,
++                size=size,
++                avg_price=avg,
++                mark=mark,
++                mark_state=mark_state,
++                unrealized=unrealized,
++                held_qty=held[idx],
++                held_cost=held_cost[idx],
++            )
++        )
++    return tuple(legs)
++
++
++def _same_level(order_price: float, level_price: float, tick: float | None) -> bool:
++    tolerance = (tick or 0.01) * 0.5
++    return abs(order_price - level_price) <= tolerance
++
++
++def _book_state(book: BookSnapshot) -> str:
++    if not book.connected:
++        return "socket отключён"
++    if not book.initialized:
++        return "ждём book"
++    if not book.ready:
++        return "ждём book после reconnect"
++    return "live"
++
++
++def _ladder_rows(
++    levels: Sequence[BookLevel],
++    live_own: Sequence[OrderFacts],
++    tick: float | None,
++    *,
++    reverse: bool,
++) -> tuple[LadderRow, ...]:
++    ordered = sorted(levels, key=lambda lvl: lvl.price, reverse=reverse)[:LADDER_LEVELS]
++    rows: list[LadderRow] = []
++    for level in ordered:
++        matching = [order for order in live_own if _same_level(order.price, level.price, tick)]
++        own_qty = sum(order.remaining_qty for order in matching)
++        note = None
++        if own_qty > 0.0:
++            own_sides = "/".join(sorted({order.side for order in matching}))
++            note = f"наши {own_sides} {own_qty:g}"
++        rows.append(LadderRow(level.price, level.size, own_qty, note))
++    return tuple(rows)
++
++
++def _extra_rows(
++    live_own: Sequence[OrderFacts],
++    asks: tuple[LadderRow, ...],
++    bids: tuple[LadderRow, ...],
++    tick: float | None,
++) -> tuple[LadderRow, ...]:
++    shown_prices = [row.price for row in (*asks, *bids) if row.price is not None]
++    return tuple(
++        LadderRow(order.price, None, order.remaining_qty, f"наши {order.side}")
++        for order in live_own
++        if not any(_same_level(order.price, price, tick) for price in shown_prices)
++    )
++
++
++def _live_own(own_orders: Sequence[OrderFacts]) -> list[OrderFacts]:
++    return [
++        order
++        for order in own_orders
++        if order.status in LIVE_OVERLAY_STATUSES and order.remaining_qty > 0.0
++    ]
++
++
++def _book_panel(
++    side: SideFacts,
++    book: BookSnapshot | None,
++    own_orders: Sequence[OrderFacts],
++    *,
++    stale_orders: bool,
++    now_s: float,
++) -> BookPanel:
++    team = side.team or side.outcome_name
++    label = f"{side.side} · {team}" if team else side.side
++    if side.side_label:
++        label = f"{label} · {side.side_label}"
++    live_own = _live_own(own_orders)
++    if book is None:
++        note = "нет текущей книги — токен не подписан"
++        if live_own:
++            note += "; наши live — по последнему checkpoint"
++        return BookPanel(
++            side.side,
++            side.token_id,
++            label,
++            "нет данных",
++            None,
++            (),
++            (),
++            _extra_rows(live_own, (), (), None),
++            False,
++            stale_orders,
++            note,
++        )
++    tick = book.tick_size
++    asks = _ladder_rows(book.asks, live_own, tick, reverse=False)
++    bids = _ladder_rows(book.bids, live_own, tick, reverse=True)
++    note = None
++    if stale_orders and live_own:
++        note = "наши live — последнее известное checkpoint"
++    if book.truncated:
++        note = (note + "; " if note else "") + "книга усечена до top-20"
++    change_age = max(0.0, now_s - book.local_ts) if book.local_ts is not None else None
++    return BookPanel(
++        side.side,
++        side.token_id,
++        label,
++        _book_state(book),
++        change_age,
++        asks,
++        bids,
++        _extra_rows(live_own, asks, bids, tick),
++        book.truncated,
++        stale_orders,
++        note,
++    )
++
++
++def _order_rows(
++    session: SessionFacts | None,
++    sides: SideMapping,
++    observed: Mapping[tuple[str, str, str], float],
++    now_s: float,
++) -> tuple[OrderRow, ...]:
++    if session is None:
++        return ()
++    labels = {sides.yes.token_id: sides.yes, sides.no.token_id: sides.no}
++    rows: list[OrderRow] = []
++    for order in session.orders:
++        token_label = order.token_id or f"idx {order.token_index}"
++        facts = labels.get(order.token_id)
++        if facts is not None:
++            team = facts.team or facts.outcome_name
++            token_label = f"{facts.side} {team}" if team else facts.side
++        first_seen = observed.get((order.session_id, order.order_id, order.status))
++        reason = order.cancel_reason or order.ack_reason or None
++        rows.append(
++            OrderRow(
++                order_id=order.order_id,
++                session_id=order.session_id,
++                side=order.side,
++                token_label=token_label,
++                price=order.price,
++                submitted=order.submitted_qty,
++                filled=order.filled_qty,
++                remaining=order.remaining_qty,
++                status=order.status,
++                accepted=order.accepted,
++                observed_s=(max(0.0, now_s - first_seen) if first_seen is not None else None),
++                venue=order.venue_id,
++                reason=reason,
++                binding_conflict=order.binding_conflict,
++                transitional=order.status in TRANSITIONAL_STATUSES,
++                overlay=order.status in LIVE_OVERLAY_STATUSES and order.remaining_qty > 0.0,
++            )
++        )
++    return tuple(rows)
++
++
++def _now_facts(
++    legs: tuple[PositionLeg, ...],
++    session: SessionFacts | None,
++    min_order_size: float | None,
++    wedge_verdicts: Mapping[str, SellWedgeVerdict],
++    wallet_ok: bool,
++) -> NowFacts:
++    if not wallet_ok:
++        return NowFacts(
++            "позиция неизвестна — live.db не читается",
++            "SELL неизвестен",
++            None,
++            False,
++        )
++    parts: list[str] = []
++    for leg in legs:
++        if leg.size is not None and leg.size > 0.0:
++            parts.append(f"{leg.side} {leg.size:g}")
++    if session is not None:
++        for idx, side in enumerate(("YES", "NO")):
++            held = session.held[idx]
++            if (
++                held is not None
++                and held > 0.0
++                and not any(leg.side == side and leg.size for leg in legs)
++            ):
++                parts.append(f"{side} {held:g} (checkpoint)")
++    position_line = "держим " + " · ".join(parts) if parts else "позиция не открыта"
++    held_total = sum(leg.size or 0.0 for leg in legs)
++    sells: tuple[SellObservation, ...] = ()
++    if session is not None:
++        sells = tuple(
++            SellObservation(
++                session_key=session.session_id,
++                token_id=sell.token_id or "?",
++                order_id=sell.order_id,
++                status=sell.status,
++                price=sell.price,
++                remaining_qty=sell.remaining_qty,
++                venue_id=sell.venue_id,
++                held_qty=sell.held_qty,
++            )
++            for sell in session.sells
++        )
++    wedge = next((verdict for verdict in wedge_verdicts.values() if verdict.wedged), None)
++    assessment = diagnostics.explain_exit(
++        held_qty=held_total,
++        min_order_size=min_order_size,
++        sells=sells,
++        sell_only=session.sell_only if session else None,
++        recovery_pending=session.recovery_pending if session else None,
++        unconfirmed=session.unconfirmed if session else 0,
++        pending_ownership=session.pending_ownership if session else 0,
++        wedge=wedge,
++    )
++    return NowFacts(
++        position_line,
++        assessment.label,
++        assessment.detail,
++        assessment.kind == "wedge",
++    )
++
++
++def _delta_text(decision: DecisionSlice, sides: SideMapping) -> str:
++    if decision.model_evaluated is False:
++        return "Δ не рассчитан (модель не вызвана)"
++    if decision.raw_delta is None or not math.isfinite(decision.raw_delta):
++        return "Δ нет данных"
++    convention = sides.yes.side_label or sides.no.side_label
++    suffix = f" → {convention}" if convention else ""
++    return f"Δ {decision.raw_delta:+.4g}{suffix}"
++
++
++def _window_text(
++    decision: DecisionSlice,
++    params: SessionParams | None,
++    decision_age: float | None,
++) -> str:
++    cutoff = params.buy_cutoff_second if params else None
++    if cutoff is None:
++        return "окно входа неизвестно"
++    if decision.second is None:
++        return "игровая секунда неизвестна — окно не проверить"
++    remaining = cutoff - float(decision.second)
++    if remaining <= 0:
++        return f"окно входа закрыто (cutoff {cutoff}с)"
++    if decision.paused:
++        text = f"до cutoff {remaining:.0f}с — игра на паузе, окно не тикает"
++    else:
++        text = f"до cutoff ≈{remaining:.0f}с по последнему решению"
++    stale_s = params.entry_stale_s if params else None
++    if stale_s is not None and decision_age is not None and decision_age > stale_s:
++        text += " · решение устарело"
++    return text
++
++
++def _map_limit_text(advisory: AdvisoryTrace, now_s: float) -> str:
++    if advisory.budget is None:
++        return "лимит карты неизвестен"
++    budget = advisory.budget
++    age = max(0.0, now_s - budget.wall_ts) if budget.wall_ts is not None else None
++    age_text = f", {age:.0f}с назад" if age is not None else ""
++    if budget.cap_room_usdc is None:
++        return f"лимит карты не ограничен (последняя запись seq {budget.seq}{age_text})"
++    return (
++        f"остаток лимита карты ≈${budget.cap_room_usdc:.2f} "
++        f"(последняя запись seq {budget.seq}{age_text}) — текущее состояние неизвестно"
++    )
++
++
++def _buy_details(
++    params: SessionParams | None,
++    session: SessionFacts | None,
++    reserve_map: tuple[tuple[str, float], ...],
++) -> tuple[str, ...]:
++    details: list[str] = []
++    if params is not None and params.level_usdc is not None:
++        details.append(f"уровень ${params.level_usdc:g} на ступень (policy из trace)")
++    if session is not None:
++        costs = [cost for cost in session.held_cost if cost is not None]
++        if costs:
++            details.append(f"удержано себестоимости ${sum(costs):.2f} (checkpoint)")
++    details.extend(f"{name} ${value:.2f}" for name, value in reserve_map)
++    return tuple(details)
++
++
++def _buy_block(
++    decision: DecisionSlice | None,
++    params: SessionParams | None,
++    advisory: AdvisoryTrace,
++    session: SessionFacts | None,
++    sides: SideMapping,
++    reserve_map: tuple[tuple[str, float], ...],
++    now_s: float,
++) -> BuyBlock:
++    if decision is None:
++        return BuyBlock(
++            "нет данных",
++            "нет данных",
++            None,
++            "Δ нет данных",
++            None,
++            "окно входа неизвестно",
++            "лимит карты неизвестен",
++            (),
++            True,
++        )
++    min_abs = params.min_abs_delta if params else None
++    decision_age = stamp_age_s(now_s, decision.recorded_at_utc)
++    return BuyBlock(
++        reason=diagnostics.reason_label(decision.reason),
++        block=diagnostics.entry_block_label(
++            decision.entry_block,
++            model_evaluated=decision.model_evaluated,
++            raw_delta=decision.raw_delta,
++            min_abs_delta=min_abs,
++        ),
++        decision_age_s=decision_age,
++        delta_text=_delta_text(decision, sides),
++        threshold_text=(
++            f"порог входа |Δ| ≥ {min_abs:g}" if min_abs is not None else "порог входа неизвестен"
++        ),
++        window_text=_window_text(decision, params, decision_age),
++        map_limit=_map_limit_text(advisory, now_s),
++        map_details=_buy_details(params, session, reserve_map),
++        params_missing=params is None,
++    )
++
++
++def _age_lines(
++    decision: DecisionSlice | None,
++    session: SessionFacts | None,
++    book_panels: tuple[BookPanel, ...],
++    now_s: float,
++) -> tuple[AgeLine, ...]:
++    lines: list[AgeLine] = []
++    if decision is None:
++        lines.append(AgeLine("фид/решение", None, "нет данных"))
++        lines.append(AgeLine("core_sessions", None, "нет данных"))
++        return tuple(lines)
++    source = decision.feed_source or "неизвестен"
++    if decision.provenance == "legacy":
++        source = f"{source} (match.json)" if source != "неизвестен" else "match.json"
++    lines.append(
++        AgeLine(
++            "фид",
++            stamp_age_s(now_s, decision.feed_received_at_utc),
++            f"источник: {source}",
++        )
++    )
++    lines.append(AgeLine("решение записано", stamp_age_s(now_s, decision.recorded_at_utc), None))
++    if session is None:
++        lines.append(AgeLine("core_sessions", None, "сессия не привязана"))
++    else:
++        lines.append(
++            AgeLine(
++                "core_sessions",
++                max(0.0, now_s - session.updated_at),
++                f"revision {session.revision}",
++            )
++        )
++    for panel in book_panels:
++        lines.append(AgeLine(f"книга {panel.side} (WS дашборда)", panel.change_age_s, panel.state))
++    return tuple(lines)
++
++
++class MatchObserver:
++    def __init__(self) -> None:
++        self._identity: str | None = None
++        self._generation = -1
++        self._seen: dict[tuple[str, str, str], float] = {}
++        self._sell_states: dict[tuple[str, str, str], SellWatchState] = {}
++        self._wedge: dict[str, SellWedgeVerdict] = {}
++
++    def observe(
++        self,
++        *,
++        identity: str,
++        generation: int,
++        orders: Sequence[OrderFacts],
++        sell_held: Mapping[str, float],
++        stale: bool,
++        now_s: float,
++    ) -> None:
++        if stale or identity != self._identity or generation != self._generation:
++            self._seen = {}
++            self._sell_states = {}
++            self._wedge = {}
++            self._identity = identity
++            self._generation = generation
++            if stale:
++                return
++        current: set[tuple[str, str, str]] = set()
++        for order in orders:
++            key = (order.session_id, order.order_id, order.status)
++            current.add(key)
++            if key not in self._seen:
++                self._seen[key] = now_s
++        for key in list(self._seen):
++            if key not in current:
++                del self._seen[key]
++        self._observe_sells(orders, sell_held, current, now_s)
++
++    def _observe_sells(
++        self,
++        orders: Sequence[OrderFacts],
++        sell_held: Mapping[str, float],
++        current: set[tuple[str, str, str]],
++        now_s: float,
++    ) -> None:
++        self._wedge = {}
++        for order in orders:
++            if order.side != "SELL":
++                continue
++            key = (order.session_id, order.order_id, order.status)
++            obs = SellObservation(
++                session_key=order.session_id,
++                token_id=order.token_id or "?",
++                order_id=order.order_id,
++                status=order.status,
++                price=order.price,
++                remaining_qty=order.remaining_qty,
++                venue_id=order.venue_id,
++                held_qty=sell_held.get(order.token_id or "", 0.0),
++            )
++            state = self._sell_states.get(key, SellWatchState(None, None))
++            state, verdict = diagnostics.observe_sell(state, obs, now_s)
++            self._sell_states[key] = state
++            self._wedge[order.order_id] = verdict
++        for key in list(self._sell_states):
++            if key not in current:
++                del self._sell_states[key]
++
++    def age(self, session_id: str, order_id: str, status: str, now_s: float) -> float | None:
++        first = self._seen.get((session_id, order_id, status))
++        if first is None:
++            return None
++        return max(0.0, now_s - first)
++
++    @property
++    def first_seen(self) -> Mapping[tuple[str, str, str], float]:
++        return self._seen
++
++    @property
++    def wedge(self) -> Mapping[str, SellWedgeVerdict]:
++        return self._wedge
++
++
++def wallet_stale(snap: HubSnapshot, now_s: float) -> bool:
++    if not snap.wallet.ok:
++        return True
++    if snap.wallet.read_at is None:
++        return True
++    return (now_s - snap.wallet.read_at) > WALLET_STALE_S
++
++
++_RESERVE_NAMES = {
++    "core": "BUY-резерв ядра",
++    "command": "команды в outbox",
++    "unsettled": "неучтённые покупки",
++    "orphan": "осиротевшие ордера",
++}
++
++
++def _reserve_rows(
++    snap: HubSnapshot,
++    entry: ArchiveEntry,
++    session: SessionFacts | None,
++) -> tuple[tuple[str, float], ...]:
++    if snap.reserve is None:
++        return ()
++    rows: list[tuple[str, float]] = []
++    for detail in snap.reserve.details:
++        if detail.condition_id is not None and detail.condition_id != entry.condition_id:
++            continue
++        if (
++            detail.session_id is not None
++            and session is not None
++            and detail.session_id != session.session_id
++        ):
++            continue
++        if detail.notional <= 0.0:
++            continue
++        rows.append((_RESERVE_NAMES.get(detail.source, detail.source), detail.notional))
++    return tuple(rows)
++
++
++def sell_held_map(session: SessionFacts) -> dict[str, float]:
++    return {
++        token: qty
++        for token, qty in zip((session.yes_token, session.no_token), session.held, strict=True)
++        if qty is not None
++    }
++
++
++def build_match_state(
++    *,
++    snap: HubSnapshot,
++    view: MapView,
++    summary: GameSummary | None,
++    advisory: AdvisoryTrace | None,
++    observed: Mapping[tuple[str, str, str], float],
++    wedge: Mapping[str, SellWedgeVerdict],
++    now_s: float,
++) -> MatchState:
++    entry = view.entry
++    identity = summary.identity if summary is not None else None
++    session_link = link_session(entry, snap.wallet)
++    session = session_link.session
++    sides = resolve_sides(entry, identity, session)
++    books = {book.token_id: book for book in snap.books}
++    positions = {pos.token_id: pos for pos in snap.wallet.positions}
++    wallet_age = max(0.0, now_s - snap.wallet.read_at) if snap.wallet.read_at is not None else None
++    stale = wallet_stale(snap, now_s)
++    legs = _position_legs(sides, positions, books, session)
++    own_orders = session.orders if session is not None else ()
++    min_order = entry.params.min_order_size if entry.params else None
++    now_facts = _now_facts(legs, session, min_order, wedge, snap.wallet.ok)
++    panels = (
++        _book_panel(
++            sides.yes,
++            books.get(sides.yes.token_id) if sides.yes.token_id else None,
++            tuple(o for o in own_orders if o.token_id == sides.yes.token_id),
++            stale_orders=stale,
++            now_s=now_s,
++        ),
++        _book_panel(
++            sides.no,
++            books.get(sides.no.token_id) if sides.no.token_id else None,
++            tuple(o for o in own_orders if o.token_id == sides.no.token_id),
++            stale_orders=stale,
++            now_s=now_s,
++        ),
++    )
++    reserve_map = _reserve_rows(snap, entry, session)
++    decision = summary.decision if summary is not None else None
++    buy = _buy_block(
++        decision,
++        entry.params,
++        advisory if advisory is not None else AdvisoryTrace(None, False, True, None, None, ()),
++        session,
++        sides,
++        tuple(reserve_map),
++        now_s,
++    )
++    ages = _age_lines(decision, session, panels, now_s)
++    order_rows = _order_rows(session, sides, observed, now_s)
++    if entry.realized is None:
++        realized_text = "неизвестно" if view.status == "live" else "нет данных"
++    else:
++        realized_text = f"${entry.realized:.2f}"
++    rebate_text = f"${entry.rebate:.2f}" if entry.rebate is not None else "нет данных"
++    net_text = f"${entry.net:.2f}" if entry.net is not None else None
++    if sides.known:
++        sides_line = f"YES = {sides.yes.team or '—'} ({sides.yes.side_label}) · NO = {sides.no.team or '—'} ({sides.no.side_label})"
++    else:
++        sides_line = "YES/NO ↔ стороны неизвестны"
++    details = (
++        f"match_id {entry.match_id}",
++        f"condition_id {entry.condition_id or '—'}",
++        f"archive {entry.archive_dir}",
++        f"yes_token {entry.yes_token or '—'}",
++        f"no_token {entry.no_token or '—'}",
++        f"session {session.session_id if session else '—'}",
++        f"feed {summary.identity.source if summary and summary.identity.source else '—'}",
++    )
++    notes = session_link.notes
++    if advisory is not None and advisory.identity_ok is False:
++        notes = notes + advisory.notes
++    if entry.params is None:
++        notes = (*notes, "параметры сессии не сохранены — порог/лимит неизвестны")
++    if stale:
++        notes = (
++            *notes,
++            "live.db читался давно или с ошибкой — ордера и позиция могут устареть",
++        )
++    return MatchState(
++        title=map_title(entry),
++        match_id=entry.match_id,
++        map_status=view.status,
++        poly_url=polymarket_url(entry.event_slug, entry.slug),
++        sides_line=sides_line,
++        orientation_note=sides.note,
++        session=session_link,
++        now=now_facts,
++        buy=buy,
++        ages=ages,
++        position=PositionBlock(
++            legs, snap.wallet.ok, wallet_age, realized_text, rebate_text, net_text
++        ),
++        books=panels,
++        orders=order_rows,
++        details=details,
++        notes=notes,
++    )
+diff --git a/src/dashboard/match_trace.py b/src/dashboard/match_trace.py
+new file mode 100644
+index 00000000..18da67dd
+--- /dev/null
++++ b/src/dashboard/match_trace.py
+@@ -0,0 +1,232 @@
++import math
++from collections.abc import Mapping
++from dataclasses import dataclass
++from pathlib import Path
++from typing import cast
++
++from dashboard.catalog import read_trace_header
++from dashboard.tails import RecordTail, TailCache
++from shared.utils.jsonl_io import resolve_jsonl
++from viewer.archive_read import as_float, as_int, as_str
++
++
++@dataclass(frozen=True)
++class AdvisoryBudget:
++    cap_room_usdc: float | None
++    account_cap_room_usdc: float | None
++    cash_usdc: float | None
++    seq: int
++    wall_ts: float | None
++
++
++@dataclass(frozen=True)
++class AdvisoryPermissions:
++    halt: bool | None
++    reduce_only: bool | None
++    allow_buy: bool | None
++    allow_sell: bool | None
++    seq: int
++    wall_ts: float | None
++
++
++@dataclass(frozen=True)
++class AdvisoryTrace:
++    path: Path | None
++    header_seen: bool
++    identity_ok: bool
++    budget: AdvisoryBudget | None
++    permissions: AdvisoryPermissions | None
++    notes: tuple[str, ...]
++
++
++def _wall_ts(header: Mapping[str, object], now_ns: int | None) -> float | None:
++    opened_wall = as_float(header.get("opened_wall_s"))
++    opened_ns = as_int(header.get("opened_now_ns"))
++    if opened_wall is None or opened_ns is None or now_ns is None:
++        return None
++    return opened_wall + (now_ns - opened_ns) / 1_000_000_000.0
++
++
++def _finite(value: object) -> float | None:
++    parsed = as_float(value)
++    if parsed is None or not math.isfinite(parsed):
++        return None
++    return parsed
++
++
++def _budget(
++    fields: Mapping[str, object], seq: int | None, wall_ts: float | None
++) -> AdvisoryBudget | None:
++    if seq is None:
++        return None
++    return AdvisoryBudget(
++        cap_room_usdc=_finite(fields.get("cap_room_usdc")),
++        account_cap_room_usdc=_finite(fields.get("account_cap_room_usdc")),
++        cash_usdc=_finite(fields.get("cash_usdc")),
++        seq=seq,
++        wall_ts=wall_ts,
++    )
++
++
++def _permissions(
++    fields: Mapping[str, object], seq: int | None, wall_ts: float | None
++) -> AdvisoryPermissions | None:
++    if seq is None:
++        return None
++
++    def flag(name: str) -> bool | None:
++        value = fields.get(name)
++        return value if isinstance(value, bool) else None
++
++    return AdvisoryPermissions(
++        halt=flag("halt"),
++        reduce_only=flag("reduce_only"),
++        allow_buy=flag("allow_buy"),
++        allow_sell=flag("allow_sell"),
++        seq=seq,
++        wall_ts=wall_ts,
++    )
++
++
++@dataclass
++class _Fold:
++    invalid: bool
++    notes: list[str]
++    budget: AdvisoryBudget | None = None
++    permissions: AdvisoryPermissions | None = None
++    min_seq: int | None = None
++
++
++def _fold_revert(fold: _Fold, record: Mapping[str, object]) -> None:
++    to_seq = as_int(record.get("to_seq"))
++    if to_seq is None:
++        return
++    if fold.budget is not None and fold.budget.seq > to_seq:
++        fold.budget = None
++    if fold.permissions is not None and fold.permissions.seq > to_seq:
++        fold.permissions = None
++    if fold.min_seq is not None and to_seq < fold.min_seq:
++        fold.invalid = True
++        fold.notes.append("trace: revert уходит за пределы хвоста — оценка не доказана")
++
++
++def _fold_event(fold: _Fold, record: Mapping[str, object], header: Mapping[str, object]) -> None:
++    event = record.get("event")
++    if not isinstance(event, dict):
++        return
++    event_fields = cast(dict[str, object], event)
++    seq = as_int(record.get("seq"))
++    wall_ts = _wall_ts(header, as_int(record.get("now_ns")))
++    event_type = as_str(event_fields.get("type"))
++    if event_type == "BudgetUpdate":
++        body = event_fields.get("budget")
++        if isinstance(body, dict):
++            seen = _budget(cast(dict[str, object], body), seq, wall_ts)
++            if seen is not None:
++                fold.budget = seen
++    elif event_type == "PermissionsUpdate":
++        body = event_fields.get("permissions")
++        if isinstance(body, dict):
++            seen = _permissions(cast(dict[str, object], body), seq, wall_ts)
++            if seen is not None:
++                fold.permissions = seen
++
++
++def _fold_record(fold: _Fold, record: Mapping[str, object], header: Mapping[str, object]) -> None:
++    seq = as_int(record.get("seq"))
++    if seq is not None and (fold.min_seq is None or seq < fold.min_seq):
++        fold.min_seq = seq
++    kind = as_str(record.get("kind"))
++    if kind == "truncated":
++        fold.invalid = True
++        fold.notes.append("trace: записано усечение size_cap")
++        return
++    if kind == "revert":
++        _fold_revert(fold, record)
++        return
++    if kind == "event":
++        _fold_event(fold, record, header)
++
++
++def _tail_notes(tail: RecordTail) -> tuple[list[str], bool]:
++    notes: list[str] = []
++    invalid = tail.read_error or tail.malformed > 0
++    if tail.read_error:
++        notes.append("trace: ошибка чтения хвоста")
++    if tail.malformed:
++        notes.append(f"trace: {tail.malformed} битых строк в хвосте")
++    if tail.truncated_start:
++        notes.append("trace: хвост обрезан — показана последняя записанная оценка")
++    if not tail.records:
++        notes.append("trace: записей нет")
++    return notes, invalid
++
++
++def fold_advisory(tail: RecordTail, *, header: Mapping[str, object]) -> AdvisoryTrace:
++    notes, invalid = _tail_notes(tail)
++    fold = _Fold(invalid=invalid, notes=notes)
++    for record in tail.records:
++        _fold_record(fold, record, header)
++    if fold.invalid:
++        fold.budget = None
++        fold.permissions = None
++    return AdvisoryTrace(
++        path=tail.path,
++        header_seen=True,
++        identity_ok=True,
++        budget=fold.budget,
++        permissions=fold.permissions,
++        notes=tuple(notes),
++    )
++
++
++def read_advisory(
++    tails: TailCache,
++    archive_dir: Path,
++    *,
++    match_id: str,
++    session_id: str | None,
++    yes_token: str | None,
++    no_token: str | None,
++    trace_file: str,
++) -> AdvisoryTrace:
++    path = resolve_jsonl(archive_dir / trace_file)
++    header = read_trace_header(path)
++    if header is None:
++        return AdvisoryTrace(
++            path=None,
++            header_seen=False,
++            identity_ok=False,
++            budget=None,
++            permissions=None,
++            notes=("trace: заголовок не найден — advisory недоступен",),
++        )
++    mismatches: list[str] = []
++    if as_str(header.get("match_id")) != match_id:
++        mismatches.append("match_id")
++    if session_id is not None and as_str(header.get("session_id")) != session_id:
++        mismatches.append("session_id")
++    if yes_token is not None and as_str(header.get("yes_token")) != yes_token:
++        mismatches.append("yes_token")
++    if no_token is not None and as_str(header.get("no_token")) != no_token:
++        mismatches.append("no_token")
++    if mismatches:
++        return AdvisoryTrace(
++            path=path,
++            header_seen=True,
++            identity_ok=False,
++            budget=None,
++            permissions=None,
++            notes=(f"trace: чужая сессия ({', '.join(mismatches)}) — advisory отключён",),
++        )
++    tail = tails.read_records(path)
++    if tail is None:
++        return AdvisoryTrace(
++            path=path,
++            header_seen=True,
++            identity_ok=True,
++            budget=None,
++            permissions=None,
++            notes=("trace: файл не читается",),
++        )
++    return fold_advisory(tail, header=header)
+diff --git a/src/dashboard/match_view.py b/src/dashboard/match_view.py
+new file mode 100644
+index 00000000..2599340e
+--- /dev/null
++++ b/src/dashboard/match_view.py
+@@ -0,0 +1,371 @@
++import html
++
++import streamlit as st
++
++from dashboard.fresh_view import render_fresh
++from dashboard.game_types import GameSummary, Objectives, PlayerSummary, SideSlice
++from dashboard.home import fmt_age, fmt_second, fmt_usd
++from dashboard.home_diag import Diagnostic, DiagnosticsView
++from dashboard.match_history import EventRow
++from dashboard.match_state import BookPanel, LadderRow, MatchState, PositionBlock
++
++_SEVERITY_TEXT = {"fatal": "FATAL", "error": "ОШИБКА", "warn": "ВНИМ", "info": "инфо"}
++
++_SIDE_CLASS = {"Radiant": "side0", "Blue": "side0", "Dire": "side1", "Red": "side1"}
++
++_CSS = """
++.mp { font-variant-numeric: tabular-nums; font-size: 0.82rem; line-height: 1.35; }
++.mp-table { border-collapse: collapse; width: 100%; }
++.mp-table td, .mp-table th {
++  padding: 0.05rem 0.35rem; text-align: right; white-space: nowrap;
++  overflow: hidden; text-overflow: ellipsis; max-width: 8rem;
++}
++.mp-table th { color: #8B98A5; font-weight: normal; text-align: right; }
++.mp-table td.name { text-align: left; }
++.mp-side0 { color: #4F9D7E; }
++.mp-side1 { color: #C05B5B; }
++.mp-own { color: #E3A93B; }
++.mp-own-row td { background: rgba(227, 169, 59, 0.14); }
++.mp-muted { color: #8B98A5; }
++.mp-book-head { color: #8B98A5; padding: 0.1rem 0 0.2rem; }
++"""
++
++
++def _esc(value: object) -> str:
++    return html.escape("" if value is None else str(value))
++
++
++def _qty(value: float | None) -> str:
++    return "—" if value is None else f"{value:g}"
++
++
++def _price(value: float | None) -> str:
++    return "—" if value is None else f"{value:g}"
++
++
++def render_header(state: MatchState, diag: DiagnosticsView) -> None:
++    cols = st.columns([6, 1, 1])
++    with cols[0]:
++        st.markdown(f"### {_esc(state.title)}")
++    with cols[1]:
++        st.link_button("← главная", "/", use_container_width=True)
++    with cols[2]:
++        if state.poly_url is not None:
++            st.link_button("polymarket", state.poly_url, use_container_width=True)
++    status = state.map_status
++    st.caption(f"{_esc(state.sides_line)} · статус {status}")
++    if state.orientation_note:
++        st.caption(f"⚠ {_esc(state.orientation_note)}")
++    for note in state.notes:
++        st.caption(f"⚠ {_esc(note)}")
++    st.caption(f"диагностика: {_esc(diag.line)}")
++    if diag.findings:
++        exp = st.expander(f"Диагностика ({len(diag.findings)})", on_change="rerun", key="mp-diag")
++        if exp.open:
++            with exp:
++                for finding in diag.findings:
++                    _finding_block(finding)
++
++
++def _finding_block(finding: Diagnostic) -> None:
++    age = fmt_age(finding.ts) if finding.ts is not None else "время ?"
++    st.write(f"**{_SEVERITY_TEXT[finding.severity]}** · {_esc(finding.label)}")
++    st.caption(f"{_esc(finding.source)} · {age} назад")
++    for detail in finding.details:
++        st.write(f"· {_esc(detail)}")
++
++
++def render_now(state: MatchState) -> None:
++    line = f"сейчас: {state.now.position_line}"
++    if state.now.sell_detail:
++        line += f" · {state.now.sell_line} ({state.now.sell_detail})"
++    else:
++        line += f" · {state.now.sell_line}"
++    if state.now.wedge:
++        st.warning(_esc(line))
++    else:
++        st.markdown(f"**{_esc(line)}**")
++
++
++def render_buy(state: MatchState) -> None:
++    buy = state.buy
++    age = fmt_age(buy.decision_age_s) if buy.decision_age_s is not None else "возраст ?"
++    st.markdown(f"**не покупаем:** {_esc(buy.reason)} · {_esc(buy.block)}")
++    st.caption(
++        f"{_esc(buy.delta_text)}"
++        + (f" · {_esc(buy.threshold_text)}" if buy.threshold_text else "")
++        + f" · решение {age} назад"
++    )
++    if buy.window_text:
++        st.caption(_esc(buy.window_text))
++    st.caption(_esc(buy.map_limit))
++    if buy.map_details:
++        st.caption(" · ".join(_esc(detail) for detail in buy.map_details))
++
++
++def render_ages(state: MatchState) -> None:
++    for line in state.ages:
++        age = fmt_age(line.age_s) if line.age_s is not None else "точное время неизвестно"
++        suffix = f" · {_esc(line.suffix)}" if line.suffix else ""
++        st.caption(f"{_esc(line.label)}: {age}{suffix}")
++
++
++def _objectives_rows(objectives: Objectives | None) -> str:
++    if objectives is None:
++        return "<span class='mp-muted'>нет данных</span>"
++    towers = float(objectives.towers) if objectives.towers is not None else None
++    barracks = float(objectives.barracks) if objectives.barracks is not None else None
++    roshans = float(objectives.roshans) if objectives.roshans is not None else None
++    return f"башни {_qty(towers)} · бараки {_qty(barracks)} · рошаны {_qty(roshans)}"
++
++
++def _players_html(players: tuple[PlayerSummary, ...]) -> str:
++    rows: list[str] = []
++    rows.append("<tr><th class='name'>игрок</th><th>герой</th><th>NW</th><th>K/D/A</th></tr>")
++    if not players:
++        rows.append("<tr><td class='name mp-muted' colspan='4'>нет данных</td></tr>")
++    for player in players:
++        nick = player.nick or player.nick_compact or "?"
++        hero = player.hero or player.hero_compact or "—"
++        kills = float(player.kills) if player.kills is not None else None
++        deaths = float(player.deaths) if player.deaths is not None else None
++        assists = float(player.assists) if player.assists is not None else None
++        net_worth = float(player.net_worth) if player.net_worth is not None else None
++        kda = f"{_qty(kills)}/{_qty(deaths)}/{_qty(assists)}"
++        cls = "" if player.alive is not False else " class='mp-muted'"
++        title = _esc(f"{player.nick or ''} · {player.hero or ''}")
++        rows.append(
++            f"<tr{cls} title='{title}'>"
++            f"<td class='name'>{_esc(player.nick_compact or nick)}</td>"
++            f"<td>{_esc(player.hero_compact or hero)}</td>"
++            f"<td>{_qty(net_worth)}</td>"
++            f"<td>{kda}</td></tr>"
++        )
++    return f"<table class='mp-table'>{''.join(rows)}</table>"
++
++
++def _side_block(side: SideSlice, objectives: Objectives | None, objectives_key: str) -> None:
++    cls = _SIDE_CLASS.get(side.label, "")
++    team = side.team_name or "—"
++    gold = _qty(float(side.gold) if side.gold is not None else None)
++    deaths = _qty(float(side.players_deaths) if side.players_deaths is not None else None)
++    st.markdown(
++        f"<div class='mp'><span class='mp-{cls or 'muted'}'>"
++        f"<b>{_esc(side.label)}</b> {_esc(team)}</span> "
++        f"<span class='mp-muted'>gold {gold} · смерти {deaths}</span></div>",
++        unsafe_allow_html=True,
++    )
++    st.markdown(f"<div class='mp'>{_players_html(side.players)}</div>", unsafe_allow_html=True)
++    exp = st.expander("объекты", on_change="rerun", key=objectives_key)
++    if exp.open:
++        with exp:
++            st.markdown(
++                f"<div class='mp'>{_objectives_rows(objectives)}</div>",
++                unsafe_allow_html=True,
++            )
++
++
++def _summary_parts(summary: GameSummary) -> list[str]:
++    decision = summary.decision
++    board = summary.board
++    second = float(decision.second) if decision.second is not None else None
++    parts = [f"t={fmt_second(second)}"]
++    if decision.phase:
++        parts.append(decision.phase)
++    if decision.paused:
++        parts.append("пауза")
++    if board is not None and board.kills_0 is not None and board.kills_1 is not None:
++        parts.append(f"убийства {board.kills_0}:{board.kills_1}")
++    if decision.radiant_nw_adv is not None:
++        parts.append(f"NW adv {decision.radiant_nw_adv:+d}")
++    if decision.xp_status == "not_used":
++        parts.append("XP не используется этой моделью")
++    elif decision.radiant_xp_adv is not None:
++        parts.append(f"XP adv {decision.radiant_xp_adv:+d}")
++    if board is not None and board.series is not None:
++        series = board.series
++        if series.score_0 is not None and series.score_1 is not None:
++            parts.append(f"серия {series.score_0}:{series.score_1}")
++    return parts
++
++
++def render_game(summary: GameSummary | None, key_prefix: str) -> None:
++    if summary is None:
++        st.caption("сводка игры недоступна — архив не читается")
++        return
++    st.markdown(" · ".join(_esc(part) for part in _summary_parts(summary)))
++    st.caption(f"{_esc(summary.decision_label)} · {_esc(summary.archive_label)}")
++    table = summary.table
++    if table is None or (not table.side_0.players and not table.side_1.players):
++        st.caption("игроки: нет данных")
++        if table is None:
++            return
++    cols = st.columns(2)
++    with cols[0]:
++        _side_block(table.side_0, table.objectives_0, f"{key_prefix}-obj0")
++    with cols[1]:
++        _side_block(table.side_1, table.objectives_1, f"{key_prefix}-obj1")
++
++
++def render_position(state: MatchState) -> None:
++    position: PositionBlock = state.position
++    st.markdown("**позиция**")
++    if not position.wallet_ok:
++        st.caption("live.db не читался — позиция неизвестна")
++        return
++    rows: list[str] = []
++    for leg in position.legs:
++        if leg.size is None and leg.held_qty in (None, 0.0):
++            continue
++        mark = f"{leg.mark:g}" if leg.mark is not None else "—"
++        side_cls = _SIDE_CLASS.get(leg.side_label or "", "muted")
++        rows.append(
++            f"<tr><td class='name mp-{side_cls}'><b>{_esc(leg.side)}</b> {_esc(leg.team or '')}</td>"
++            f"<td>{_qty(leg.size)}</td>"
++            f"<td>{_price(leg.avg_price)}</td>"
++            f"<td title='{_esc(leg.mark_state)}'>{mark}</td>"
++            f"<td>{_esc(fmt_usd(leg.unrealized, signed=True))}</td></tr>"
++        )
++    if rows:
++        st.markdown(
++            "<div class='mp'><table class='mp-table'>"
++            "<tr><th class='name'>исход</th><th>размер</th><th>ср.</th>"
++            "<th>марка</th><th>uPnL</th></tr>"
++            f"{''.join(rows)}</table></div>",
++            unsafe_allow_html=True,
++        )
++    else:
++        st.caption("нет позиции")
++    st.caption(
++        f"realized карты: {_esc(position.realized_text)} · rebate: {_esc(position.rebate_text)}"
++        + (f" · net: {_esc(position.net_text)}" if position.net_text else "")
++    )
++
++
++def _ladder_rows(rows: tuple[LadderRow, ...], *, empty: str) -> str:
++    if not rows:
++        return f"<tr><td class='mp-muted' colspan='3'>{empty}</td></tr>"
++    out: list[str] = []
++    for row in rows:
++        own = ""
++        cls = ""
++        if row.own_qty > 0.0:
++            own = f"наши {row.own_qty:g}"
++            cls = " class='mp-own-row'"
++        title = _esc(row.own_note) if row.own_note else ""
++        out.append(
++            f"<tr{cls} title='{title}'><td>{_price(row.price)}</td>"
++            f"<td>{_qty(row.size)}</td><td class='mp-own'>{_esc(own)}</td></tr>"
++        )
++    return "".join(out)
++
++
++def render_book(panel: BookPanel, key: str) -> None:
++    st.markdown(f"**{_esc(panel.label)}**")
++    age = fmt_age(panel.change_age_s) if panel.change_age_s is not None else "возраст ?"
++    fresh_state = (
++        "fresh"
++        if panel.state == "live"
++        else ("stale" if panel.state == "socket отключён" else "updating")
++    )
++    render_fresh(key, f"{panel.state} · изм. {age} назад", fresh_state, None)
++    asks = _ladder_rows(panel.asks, empty="asks пусто")
++    bids = _ladder_rows(panel.bids, empty="bids пусто")
++    extra = ""
++    if panel.own_extra:
++        extra_rows = "".join(
++            f"<tr class='mp-own-row'><td>{_price(row.price)}</td>"
++            f"<td class='mp-muted'>вне уровней</td>"
++            f"<td class='mp-own'>{_esc(row.own_note)}</td></tr>"
++            for row in panel.own_extra
++        )
++        extra = f"<tr><td class='mp-muted' colspan='3'>—</td></tr>{extra_rows}"
++    st.markdown(
++        "<div class='mp'>"
++        "<div class='mp-book-head'>ask ↑</div>"
++        f"<table class='mp-table'>{asks}</table>"
++        "<div class='mp-book-head'>bid ↓</div>"
++        f"<table class='mp-table'>{bids}{extra}</table></div>",
++        unsafe_allow_html=True,
++    )
++    if panel.note:
++        st.caption(_esc(panel.note))
++    if panel.stale_orders:
++        st.caption("наши ордера — последнее известное состояние checkpoint")
++
++
++def render_orders(state: MatchState, key: str) -> None:
++    transitional = [order for order in state.orders if order.transitional]
++    if transitional:
++        st.markdown("**ожидающие ордера**")
++        for order in transitional:
++            age = f"{order.observed_s:.0f}с" if order.observed_s is not None else "время ?"
++            st.caption(
++                f"{_esc(order.side)} {_esc(order.token_label)} {_qty(order.remaining)} "
++                f"@{_price(order.price)} · {_esc(order.status)} {age}"
++            )
++    exp = st.expander(f"все ордера ({len(state.orders)})", on_change="rerun", key=key)
++    if not exp.open:
++        return
++    with exp:
++        if not state.orders:
++            st.caption("ордеров нет")
++            return
++        rows: list[str] = []
++        for order in state.orders:
++            observed = f"{order.observed_s:.0f}с" if order.observed_s is not None else "—"
++            venue = order.venue or "—"
++            reason = order.reason or ""
++            conflict = " ⚠binding" if order.binding_conflict else ""
++            rows.append(
++                f"<tr title='{_esc(order.session_id)}'>"
++                f"<td class='name'>{_esc(order.order_id)}</td>"
++                f"<td>{_esc(order.side)}</td>"
++                f"<td>{_esc(order.token_label)}</td>"
++                f"<td>{_price(order.price)}</td>"
++                f"<td>{_qty(order.remaining)}</td>"
++                f"<td>{_esc(order.status)}{_esc(conflict)}</td>"
++                f"<td>{_esc(observed)}</td>"
++                f"<td>{_esc(venue)}</td>"
++                f"<td>{_esc(reason)}</td></tr>"
++            )
++        st.markdown(
++            "<div class='mp'><table class='mp-table'>"
++            "<tr><th class='name'>ордер</th><th>side</th><th>токен</th><th>цена</th>"
++            "<th>остаток</th><th>статус</th><th>наблюд.</th><th>venue</th><th>причина</th></tr>"
++            f"{''.join(rows)}</table></div>",
++            unsafe_allow_html=True,
++        )
++
++
++def render_details(state: MatchState, key: str) -> None:
++    exp = st.expander("детали", on_change="rerun", key=key)
++    if not exp.open:
++        return
++    with exp:
++        for line in state.details:
++            st.caption(_esc(line))
++
++
++def inject_css() -> None:
++    st.markdown(f"<style>{_CSS}</style>", unsafe_allow_html=True)
++
++
++def render_chart_unavailable(message: str) -> None:
++    st.caption(f"график недоступен: {_esc(message)}")
++
++
++def render_events(rows: tuple[EventRow, ...], truncated: bool, error: str | None) -> None:
++    if error is not None:
++        st.caption(f"лента недоступна: {_esc(error)}")
++        return
++    if not rows:
++        st.caption("событий нет")
++        return
++    for row in rows:
++        second = fmt_second(row.second) if row.second is not None else "—"
++        age = fmt_age(row.stamp_age_s) if row.stamp_age_s is not None else "время ?"
++        prefix = "начальное состояние · " if row.initial else ""
++        st.caption(f"{prefix}{_esc(row.label)} {second} · {age} назад · {_esc(row.text)}")
++    if truncated:
++        st.caption("показан ограниченный хвост журнала — полная история по запросу")
+diff --git a/tests/test_dashboard_app.py b/tests/test_dashboard_app.py
+index 341b1a97..3d0a10cf 100644
+--- a/tests/test_dashboard_app.py
++++ b/tests/test_dashboard_app.py
+@@ -8,6 +8,7 @@ from streamlit.testing.v1 import AppTest
+ 
+ import dashboard.home_view as home_view
+ import dashboard.live_hub as live_hub_module
++import dashboard.match_view as match_view
+ from dashboard.live_hub import LiveHub
+ 
+ APP = str(Path(__file__).resolve().parents[1] / "src" / "dashboard" / "app.py")
+@@ -37,6 +38,7 @@ def _noop(*args: object, **kwargs: object) -> None:
+ def _patch_hub(monkeypatch: pytest.MonkeyPatch, hub: LiveHub) -> None:
+     monkeypatch.setattr(live_hub_module, "get_live_hub", lambda: hub)
+     monkeypatch.setattr(home_view, "render_fresh", _noop)
++    monkeypatch.setattr(match_view, "render_fresh", _noop)
+     st.cache_resource.clear()
+ 
+ 
+@@ -64,14 +66,23 @@ def test_home_renders_all_sections(monkeypatch: pytest.MonkeyPatch, world: World
+     assert len(at.dataframe) >= 1
+ 
+ 
+-def test_match_route_scaffold(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
++def test_match_route_renders_detail(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
+     _, hub = world
+     _patch_hub(monkeypatch, hub)
+     at = AppTest.from_file(APP)
+     at.query_params["match"] = "m-live"
+     at.run()
+-    assert at.title[0].value == "Team Radiant vs Team Dire · карта 1"
+-    assert [w.value for w in at.warning] == []
++    markdowns = [m.value for m in at.markdown]
++    assert "### Team Radiant vs Team Dire · карта 1" in markdowns
++    assert any("сейчас:" in m for m in markdowns)
++    assert any(m.startswith("**не покупаем:**") for m in markdowns)
++    assert any(m == "**позиция**" for m in markdowns)
++    captions = [c.value for c in at.caption]
++    assert any(value.startswith("диагностика:") for value in captions)
++    labels = [e.label for e in at.expander]
++    assert "график" in labels
++    assert "лента событий" in labels
++    assert "детали" in labels
+ 
+ 
+ def test_match_route_unknown(monkeypatch: pytest.MonkeyPatch, world: World) -> None:
+diff --git a/tests/test_dashboard_home.py b/tests/test_dashboard_home.py
+index c5e00c18..9387200a 100644
+--- a/tests/test_dashboard_home.py
++++ b/tests/test_dashboard_home.py
+@@ -217,7 +217,9 @@ def _session(**kw: object) -> SessionFacts:
+         pending_ownership=0,
+         has_buy_fill=True,
+         held=(4.0, 0.0),
++        held_cost=(2.0, 0.0),
+         sells=(),
++        orders=(),
+     )
+     return replace(base, **kw)
+ 
+@@ -240,7 +242,7 @@ def _berlin_today() -> str:
+ 
+ 
+ def test_active_row_marks_and_reason() -> None:
+-    entry = _entry("m1", params=SessionParams(0.05, 900, 5.0, 5.0, 15.0))
++    entry = _entry("m1", params=SessionParams(0.05, 900, 5.0, 5.0, 15.0, 25.0))
+     snap = _snap(
+         maps=(_view(entry),),
+         books=(_book(YES), _book(NO)),
+@@ -314,11 +316,11 @@ def test_paused_clock_uses_recorded_second() -> None:
+ 
+ 
+ def test_unknown_cutoff_window() -> None:
+-    entry = _entry("m1", params=SessionParams(None, None, None, None, None))
++    entry = _entry("m1", params=SessionParams(None, None, None, None, None, None))
+     view = _view(entry)
+     row = build_lists(_snap(maps=(view,)), NOW).active[0]
+     assert row.window is None
+-    entry2 = _entry("m2", params=SessionParams(None, 900, None, None, None))
++    entry2 = _entry("m2", params=SessionParams(None, 900, None, None, None, None))
+     row2 = build_lists(_snap(maps=(_view(entry2),)), NOW).active[0]
+     assert row2.window == "вход до 900с"
+ 
+@@ -535,7 +537,7 @@ def test_strip_day_fold_today() -> None:
+ 
+ 
+ def test_min_delta_finding_uses_delta_threshold() -> None:
+-    entry = _entry("m1", params=SessionParams(0.05, 900, 5.0, 5.0, 15.0))
++    entry = _entry("m1", params=SessionParams(0.05, 900, 5.0, 5.0, 15.0, 25.0))
+     snap = _snap(maps=(_view(entry),))
+     diag = build_diagnostics(snap, SellWatcher(), NOW)
+     labels = " ".join(f.label for f in diag.findings)
+diff --git a/tests/test_dashboard_match.py b/tests/test_dashboard_match.py
+new file mode 100644
+index 00000000..472024c3
+--- /dev/null
++++ b/tests/test_dashboard_match.py
+@@ -0,0 +1,780 @@
++import json
++import time
++from dataclasses import replace
++from pathlib import Path
++
++import dashboard_fixture as fx
++import pytest
++from polymaker.marketdata.orderbook import BookLevel
++
++from dashboard.balance import BalanceSnapshot
++from dashboard.catalog import ArchiveEntry, MapView, SessionParams
++from dashboard.game_types import (
++    DecisionSlice,
++    GameIdentity,
++    GameSummary,
++    SourceFacts,
++)
++from dashboard.health import EMPTY_HEALTH
++from dashboard.hub_types import (
++    EMPTY_DAY_SNAPSHOT,
++    EMPTY_NONTRADING,
++    EMPTY_SUBSCRIPTION_FACTS,
++    HubSnapshot,
++    LogsFacts,
++    OrderFacts,
++    SessionFacts,
++    WalletFacts,
++    wallet_facts,
++)
++from dashboard.market_books import BookSnapshot
++from dashboard.match_history import project_events, read_journal
++from dashboard.match_state import (
++    MatchObserver,
++    MatchState,
++    build_match_state,
++    link_session,
++    resolve_sides,
++    sell_held_map,
++)
++from dashboard.match_trace import AdvisoryTrace, fold_advisory, read_advisory
++from dashboard.tails import RecordTail, TailCache
++from dashboard.wallet import WalletPosition, read_wallet_snapshot
++from strategy.types import RestingOrder
++from trader.core_persistence import OrderBinding
++from trader.paths import SESSION_JOURNAL_FILENAME
++
++NOW = time.time()
++YES = "yes-t"
++NO = "no-t"
++CID = "0xcid"
++SID = "sess-1"
++ARCHIVE = Path("/x/m1")
++
++
++def _entry(match_id: str = "m1", **kw: object) -> ArchiveEntry:
++    base = ArchiveEntry(
++        match_id=match_id,
++        archive_dir=ARCHIVE,
++        tree="live",
++        game="dota",
++        slug=f"slug-{match_id}",
++        event_slug="ev",
++        joined_at_utc=None,
++        condition_id=CID,
++        yes_token=YES,
++        no_token=NO,
++        yes_is_radiant=True,
++        radiant="Rad",
++        dire="Dir",
++        map_number=1,
++        outcome_0_name="Rad",
++        outcome_1_name="Dir",
++        finished=False,
++        cleanup_proven=False,
++        session_ended=False,
++        has_journal=True,
++        record_only=False,
++        on_tape=True,
++        last_write=NOW - 5,
++        realized=None,
++        imv=None,
++        rebate=None,
++        net=None,
++        fill_count=None,
++        closed_observed_at=None,
++        last_decision=None,
++        params=SessionParams(0.05, 900, 5.0, 5.0, 15.0, 25.0),
++    )
++    return replace(base, **kw)
++
++
++def _view(entry: ArchiveEntry, **kw: object) -> MapView:
++    base = MapView(
++        entry=entry,
++        status="live",
++        write_age_s=5.0,
++        decision_age_s=3.0,
++        feed_age_s=4.0,
++        decision=None,
++        evidence=("recent_writes",),
++    )
++    return replace(base, **kw)
++
++
++def _wallet(**kw: object) -> WalletFacts:
++    base = WalletFacts(
++        ok=True,
++        error=None,
++        read_at=NOW - 1,
++        funder="0xf",
++        max_outbox_seq=0,
++        sessions=(),
++        positions=(),
++        bindings=(),
++        open_buys=(),
++        unsettled=(),
++        token_cids=(),
++        notes=(),
++    )
++    return replace(base, **kw)
++
++
++def _session(**kw: object) -> SessionFacts:
++    base = SessionFacts(
++        session_id=SID,
++        condition_id=CID,
++        game="dota",
++        yes_token=YES,
++        no_token=NO,
++        yes_is_radiant=True,
++        revision=3,
++        recovery=False,
++        created_at=NOW - 100,
++        updated_at=NOW - 5,
++        checkpoint_error=None,
++        sell_only=False,
++        recovery_pending=False,
++        winding_down=False,
++        unconfirmed=0,
++        pending_ownership=0,
++        has_buy_fill=True,
++        held=(4.0, 0.0),
++        held_cost=(2.0, 0.0),
++        sells=(),
++        orders=(),
++    )
++    return replace(base, **kw)
++
++
++def _order(order_id: str, **kw: object) -> OrderFacts:
++    base = OrderFacts(
++        session_id=SID,
++        order_id=order_id,
++        token_index=0,
++        token_id=YES,
++        side="BUY",
++        status="live",
++        price=0.55,
++        submitted_qty=10.0,
++        filled_qty=4.0,
++        remaining_qty=6.0,
++        accepted=True,
++        level_index=0,
++        venue_id="v-1",
++        binding_conflict=False,
++        cancel_reason="",
++        ack_reason="",
++    )
++    return replace(base, **kw)
++
++
++def _book(token_id: str, *, bid: float = 0.55, ask: float = 0.57, **kw: object) -> BookSnapshot:
++    base = BookSnapshot(
++        token_id=token_id,
++        condition_id=CID,
++        bids=(BookLevel(price=bid, size=10.0),),
++        asks=(BookLevel(price=ask, size=10.0),),
++        tick_size=0.01,
++        book_hash=None,
++        exchange_ts=None,
++        local_ts=NOW,
++        generation=1,
++        initialized=True,
++        ready=True,
++        connected=True,
++        disconnected_since=None,
++        truncated=False,
++    )
++    return replace(base, **kw)
++
++
++def _balance(**kw: object) -> BalanceSnapshot:
++    base = BalanceSnapshot(
++        collateral_usdc=100.0,
++        funder="0xf",
++        funder_mismatch=False,
++        request_started_at=NOW - 2,
++        response_at=NOW - 2,
++        last_attempt_at=NOW - 2,
++        last_error=None,
++        queued=False,
++        inflight=False,
++        request_cutoff_seq=None,
++        covered_seq=None,
++        significant_seq=None,
++        evidence_gaps=0,
++        pending=(),
++        pending_dropped=0,
++    )
++    return replace(base, **kw)
++
++
++def _snap(**kw: object) -> HubSnapshot:
++    base = HubSnapshot(
++        generation=1,
++        published_at=NOW,
++        running=True,
++        error=None,
++        books=(),
++        balance=_balance(),
++        wallet=_wallet(),
++        reserve=None,
++        day=EMPTY_DAY_SNAPSHOT,
++        subscriptions=EMPTY_SUBSCRIPTION_FACTS,
++        maps=(),
++        legacy_maps=(),
++        nontrading=EMPTY_NONTRADING,
++        health=EMPTY_HEALTH,
++        service_logs=LogsFacts(
++            service="live",
++            ok=True,
++            error=None,
++            attempt_at=NOW,
++            read_at=NOW,
++            text="",
++            truncated=False,
++        ),
++    )
++    return replace(base, **kw)
++
++
++def _state(
++    snap: HubSnapshot | None = None,
++    *,
++    summary: GameSummary | None = None,
++    advisory: AdvisoryTrace | None = None,
++) -> MatchState:
++    return build_match_state(
++        snap=snap if snap is not None else _snap(),
++        view=_view(_entry()),
++        summary=summary,
++        advisory=advisory,
++        observed={},
++        wedge={},
++        now_s=NOW,
++    )
++
++
++def test_wallet_publishes_all_orders(tmp_path: Path) -> None:
++    fixture = fx.build(tmp_path)
++    orders = (
++        RestingOrder(
++            order_id="c-buy",
++            episode_id=1,
++            token_index=0,
++            side="BUY",
++            price=0.5,
++            submitted_qty=40.0,
++            filled_qty=45.0,
++            level_index=0,
++            status="live",
++            accepted=True,
++            partially_filled=True,
++            cancel_reason="",
++            ack_reason="",
++            placed_ns=0,
++            accepted_ns=0,
++        ),
++        RestingOrder(
++            order_id="c-sell",
++            episode_id=1,
++            token_index=1,
++            side="SELL",
++            price=0.7,
++            submitted_qty=5.0,
++            filled_qty=1.0,
++            level_index=None,
++            status="pending",
++            accepted=False,
++            partially_filled=False,
++            cancel_reason="",
++            ack_reason="",
++            placed_ns=0,
++            accepted_ns=0,
++        ),
++        RestingOrder(
++            order_id="c-gone",
++            episode_id=1,
++            token_index=0,
++            side="BUY",
++            price=0.4,
++            submitted_qty=5.0,
++            filled_qty=0.0,
++            level_index=1,
++            status="gone",
++            accepted=True,
++            partially_filled=False,
++            cancel_reason="unsettled",
++            ack_reason="",
++            placed_ns=0,
++            accepted_ns=0,
++        ),
++    )
++    fx.insert_session(fixture, orders=orders, qty=8.0)
++    snap = read_wallet_snapshot(fixture.wallet_db)
++    facts = wallet_facts(snap, read_ok=True, error=None)
++    session = facts.sessions[0]
++    by_id = {order.order_id: order for order in session.orders}
++    assert set(by_id) == {"c-buy", "c-sell", "c-gone"}
++    assert by_id["c-buy"].remaining_qty == 0.0
++    assert by_id["c-sell"].side == "SELL" and by_id["c-sell"].remaining_qty == 4.0
++    assert by_id["c-gone"].status == "unknown"
++    assert by_id["c-gone"].cancel_reason == "unsettled"
++    assert len(session.sells) == 1 and session.sells[0].order_id == "c-sell"
++    assert session.held == (8.0, 0.0)
++    assert session.held_cost == (4.0, 0.0)
++
++
++def test_wallet_binding_conflict(tmp_path: Path) -> None:
++    fixture = fx.build(tmp_path)
++    fx.insert_session(
++        fixture,
++        orders=(
++            RestingOrder(
++                order_id="c0",
++                episode_id=1,
++                token_index=0,
++                side="BUY",
++                price=0.5,
++                submitted_qty=5.0,
++                filled_qty=0.0,
++                level_index=0,
++                status="live",
++                accepted=True,
++                partially_filled=False,
++                cancel_reason="",
++                ack_reason="",
++                placed_ns=0,
++                accepted_ns=0,
++            ),
++        ),
++    )
++    snap = read_wallet_snapshot(fixture.wallet_db)
++    bindings = (
++        OrderBinding(
++            session_id="sess-1",
++            core_order_id="c0",
++            venue_id="v-1",
++            episode_id=1,
++            token_index=0,
++            side="BUY",
++            submitted_qty=5.0,
++            level_index=0,
++            terminal=False,
++        ),
++        OrderBinding(
++            session_id="sess-1",
++            core_order_id="c0",
++            venue_id="v-9",
++            episode_id=1,
++            token_index=0,
++            side="BUY",
++            submitted_qty=5.0,
++            level_index=0,
++            terminal=False,
++        ),
++    )
++    facts = wallet_facts(replace(snap, bindings=bindings), read_ok=True, error=None)
++    order = facts.sessions[0].orders[0]
++    assert order.binding_conflict is True
++
++
++def test_link_session_identity() -> None:
++    entry = _entry()
++    session = _session()
++    wallet = _wallet(sessions=(session,))
++    assert link_session(entry, wallet).session is session
++    foreign = _session(yes_token="other")
++    conflict = link_session(entry, _wallet(sessions=(foreign,)))
++    assert conflict.state == "conflict" and conflict.session is None
++    no_cid = link_session(_entry(condition_id=None), wallet)
++    assert no_cid.state == "none"
++    no_tokens = link_session(_entry(yes_token=None), wallet)
++    assert no_tokens.state == "conflict"
++    orient = _session(yes_is_radiant=False)
++    assert link_session(entry, _wallet(sessions=(orient,))).state == "conflict"
++
++
++def test_resolve_sides_orientation() -> None:
++    entry = _entry()
++    sides = resolve_sides(entry, None, None)
++    assert sides.known
++    assert sides.yes.team == "Rad" and sides.yes.side_label == "Radiant"
++    assert sides.no.team == "Dir" and sides.no.side_label == "Dire"
++    flipped = resolve_sides(_entry(yes_is_radiant=False), None, None)
++    assert flipped.yes.team == "Dir" and flipped.yes.side_label == "Dire"
++    unknown = resolve_sides(_entry(yes_is_radiant=None), None, None)
++    assert not unknown.known and unknown.yes.team is None
++    conflicted = resolve_sides(entry, None, _session(yes_is_radiant=False))
++    assert not conflicted.known and "не совпадает" in (conflicted.note or "")
++    lol = resolve_sides(_entry(game="lol"), None, None)
++    assert lol.yes.side_label == "Blue" and lol.no.side_label == "Red"
++
++
++def _trace_event(seq: int, now_ns: int, cap: float | None) -> dict[str, object]:
++    return {
++        "seq": seq,
++        "kind": "event",
++        "now_ns": now_ns,
++        "event": {
++            "type": "BudgetUpdate",
++            "now_ns": now_ns,
++            "budget": {
++                "cash_usdc": 900.0,
++                "cap_room_usdc": cap,
++                "account_cap_room_usdc": None,
++            },
++        },
++    }
++
++
++def _advisory_tail(tmp_path: Path, records: list[dict[str, object]]) -> RecordTail:
++    path = tmp_path / "core_trace.jsonl"
++    path.write_text("".join(json.dumps(rec) + "\n" for rec in records))
++    tail = TailCache().read_records(path)
++    assert tail is not None
++    return tail
++
++
++def test_advisory_budget_and_revert(tmp_path: Path) -> None:
++    header: dict[str, object] = {
++        "kind": "header",
++        "match_id": "m1",
++        "session_id": SID,
++        "yes_token": YES,
++        "no_token": NO,
++        "opened_wall_s": 1000.0,
++        "opened_now_ns": 5_000_000_000,
++    }
++    records: list[dict[str, object]] = [
++        header,
++        _trace_event(3, 6_000_000_000, 100.0),
++        _trace_event(5, 8_000_000_000, 80.0),
++        {"seq": 6, "kind": "revert", "to_seq": 4},
++        _trace_event(7, 9_000_000_000, 60.0),
++    ]
++    tail = _advisory_tail(tmp_path, records)
++    advisory = fold_advisory(tail, header=header)
++    assert advisory.identity_ok
++    assert advisory.budget is not None
++    assert advisory.budget.cap_room_usdc == 60.0
++    assert advisory.budget.seq == 7
++    assert advisory.budget.wall_ts == pytest.approx(1004.0)
++
++
++def test_advisory_truncated_and_foreign(tmp_path: Path) -> None:
++    header: dict[str, object] = {"kind": "header", "match_id": "m1", "session_id": SID}
++    records: list[dict[str, object]] = [
++        header,
++        _trace_event(3, 6_000_000_000, 100.0),
++        {"seq": 4, "kind": "truncated", "reason": "size_cap"},
++    ]
++    advisory = fold_advisory(_advisory_tail(tmp_path, records), header=header)
++    assert advisory.budget is None
++
++    tails = TailCache()
++    archive = tmp_path / "arch"
++    archive.mkdir()
++    (archive / "core_trace.jsonl").write_text(
++        '{"kind":"header","match_id":"other","yes_token":"y","no_token":"n"}\n'
++    )
++    foreign = read_advisory(
++        tails,
++        archive,
++        match_id="m1",
++        session_id=SID,
++        yes_token=YES,
++        no_token=NO,
++        trace_file="core_trace.jsonl",
++    )
++    assert not foreign.identity_ok
++    assert foreign.budget is None
++
++
++def test_match_state_position_and_marks() -> None:
++    session = _session()
++    snap = _snap(
++        books=(_book(YES), _book(NO, bid=0.9, ask=0.4)),
++        wallet=_wallet(
++            sessions=(session,),
++            positions=(WalletPosition(YES, 4.0, 0.5, NOW),),
++        ),
++    )
++    state = _state(snap)
++    yes_leg, no_leg = state.position.legs
++    assert yes_leg.mark == pytest.approx(0.56)
++    assert yes_leg.mark_state == "book"
++    assert yes_leg.unrealized == pytest.approx(4.0 * (0.56 - 0.5))
++    assert no_leg.mark is None and no_leg.mark_state == "unknown"
++    assert state.position.realized_text == "неизвестно"
++    assert "держим YES 4" in state.now.position_line
++    assert state.sides_line == "YES = Rad (Radiant) · NO = Dir (Dire)"
++
++
++def test_match_state_books_overlay() -> None:
++    own = (
++        _order("o1", side="BUY", price=0.55, remaining_qty=6.0),
++        _order("o2", side="SELL", price=0.61, remaining_qty=3.0),
++        _order("o3", side="SELL", price=0.70, status="pending", remaining_qty=2.0),
++    )
++    session = _session(orders=own)
++    snap = _snap(
++        books=(_book(YES), _book(NO)),
++        wallet=_wallet(sessions=(session,)),
++    )
++    state = _state(snap)
++    yes_panel = state.books[0]
++    assert yes_panel.state == "live"
++    bid_row = yes_panel.bids[0]
++    assert bid_row.own_qty == 6.0 and "наши" in (bid_row.own_note or "")
++    assert bid_row.size == 10.0
++    extra = {row.price for row in yes_panel.own_extra}
++    assert extra == {0.61}
++    statuses = {order.order_id: order.status for order in state.orders}
++    assert statuses == {"o1": "live", "o2": "live", "o3": "pending"}
++    transitional = [o for o in state.orders if o.transitional]
++    assert [o.order_id for o in transitional] == ["o3"]
++
++
++def test_match_state_books_not_subscribed() -> None:
++    session = _session(orders=(_order("o1"),))
++    snap = _snap(wallet=_wallet(sessions=(session,)))
++    state = _state(snap)
++    assert state.books[0].state == "нет данных"
++    assert state.books[0].own_extra[0].price == 0.55
++
++
++def test_match_state_wallet_stale_overlay() -> None:
++    session = _session(orders=(_order("o1"),))
++    snap = _snap(
++        books=(_book(YES), _book(NO)),
++        wallet=_wallet(sessions=(session,), ok=False, read_at=NOW - 120),
++    )
++    state = _state(snap)
++    assert state.books[0].stale_orders
++    assert "live.db" in " ".join(state.notes)
++    assert state.now.position_line.startswith("позиция неизвестна")
++
++
++def test_match_observer_ages_and_wedge() -> None:
++    observer = MatchObserver()
++    orders = (
++        _order("o1", status="pending"),
++        _order("o2", status="live"),
++    )
++    held = {YES: 8.0}
++    observer.observe(
++        identity="a:sess-1",
++        generation=1,
++        orders=orders,
++        sell_held=held,
++        stale=False,
++        now_s=100.0,
++    )
++    observer.observe(
++        identity="a:sess-1",
++        generation=1,
++        orders=orders,
++        sell_held=held,
++        stale=False,
++        now_s=140.0,
++    )
++    ages = observer.first_seen
++    assert ages[(SID, "o1", "pending")] == 100.0
++    sell = _order("o3", side="SELL", status="pending", remaining_qty=5.0)
++    observer.observe(
++        identity="a:sess-1",
++        generation=1,
++        orders=(sell,),
++        sell_held=held,
++        stale=False,
++        now_s=150.0,
++    )
++    assert (SID, "o1", "pending") not in observer.first_seen
++    observer.observe(
++        identity="a:sess-1",
++        generation=1,
++        orders=(sell,),
++        sell_held=held,
++        stale=False,
++        now_s=185.0,
++    )
++    assert observer.wedge["o3"].wedged
++    observer.observe(
++        identity="a:sess-1",
++        generation=1,
++        orders=(sell,),
++        sell_held=held,
++        stale=True,
++        now_s=190.0,
++    )
++    assert not observer.wedge
++    observer.observe(
++        identity="other:sess-1",
++        generation=1,
++        orders=(sell,),
++        sell_held=held,
++        stale=False,
++        now_s=191.0,
++    )
++    assert not observer.wedge["o3"].wedged
++
++
++def test_match_observer_generation_reset() -> None:
++    observer = MatchObserver()
++    orders = (_order("o1", status="pending"),)
++    observer.observe(
++        identity="a:s", generation=1, orders=orders, sell_held={}, stale=False, now_s=100.0
++    )
++    observer.observe(
++        identity="a:s", generation=2, orders=orders, sell_held={}, stale=False, now_s=200.0
++    )
++    assert observer.first_seen[(SID, "o1", "pending")] == 200.0
++
++
++def test_buy_block_delta_and_window() -> None:
++    identity = GameIdentity(
++        archive_dir=ARCHIVE,
++        match_id="m1",
++        condition_id=CID,
++        game="dota",
++        map_number=1,
++        source="grid",
++        side_0_label="Radiant",
++        side_1_label="Dire",
++        team_0="Rad",
++        team_1="Dir",
++        yes_is_side_0=True,
++        outcome_0_name="Rad",
++        outcome_1_name="Dir",
++    )
++
++    def summary_for(
++        *, evaluated: bool | None, delta: float | None, second: int | None, paused: bool
++    ) -> GameSummary:
++        decision = DecisionSlice(
++            provenance="signal",
++            second=second,
++            server_timestamp=None,
++            phase="in_progress",
++            paused=paused,
++            radiant_nw=None,
++            dire_nw=None,
++            radiant_nw_adv=None,
++            xp_status="unknown",
++            radiant_xp_adv=None,
++            xp_text=None,
++            deaths_radiant=None,
++            deaths_dire=None,
++            top=None,
++            model_evaluated=evaluated,
++            raw_delta=delta,
++            reason="model",
++            entry_block="min_delta",
++            feed_source="grid",
++            feed_received_at_utc="2026-01-01T00:00:00Z",
++            recorded_at_utc="2026-01-01T00:00:00Z",
++            journal_path=ARCHIVE / SESSION_JOURNAL_FILENAME,
++            notes=(),
++        )
++        return GameSummary(
++            identity=identity,
++            decision=decision,
++            board=None,
++            table=None,
++            source=SourceFacts(
++                continuity=None,
++                complete=True,
++                evidence=(),
++                control=(),
++                rejected=0,
++                terminal=False,
++                legacy_replay=False,
++                comparison="unknown",
++            ),
++            decision_label="d",
++            archive_label="a",
++        )
++
++    state = _state(summary=summary_for(evaluated=True, delta=0.012, second=100, paused=False))
++    assert state.buy.delta_text.startswith("Δ +0.012")
++    assert "порог" in (state.buy.threshold_text or "")
++    assert "800" in (state.buy.window_text or "")
++    skipped = _state(summary=summary_for(evaluated=False, delta=0.012, second=100, paused=False))
++    assert "не рассчитан" in skipped.buy.delta_text
++    missing = _state(summary=summary_for(evaluated=True, delta=None, second=100, paused=False))
++    assert "нет данных" in missing.buy.delta_text
++    paused = _state(summary=summary_for(evaluated=True, delta=0.5, second=200, paused=True))
++    assert "пауз" in (paused.buy.window_text or "")
++    closed = _state(summary=summary_for(evaluated=True, delta=0.5, second=950, paused=False))
++    assert "закрыто" in (closed.buy.window_text or "")
++
++
++def test_sell_held_map() -> None:
++    session = _session(held=(4.0, 2.0))
++    assert sell_held_map(session) == {YES: 4.0, NO: 2.0}
++    partial = _session(held=(4.0, None))
++    assert sell_held_map(partial) == {YES: 4.0}
++
++
++def test_project_events_dedup() -> None:
++    records = [
++        {
++            "kind": "signal",
++            "second": 1.0,
++            "reason": "a",
++            "entry_block": "none",
++            "recorded_at_utc": "2026-01-01T00:00:01Z",
++        },
++        {
++            "kind": "signal",
++            "second": 2.0,
++            "reason": "a",
++            "entry_block": "none",
++            "recorded_at_utc": "2026-01-01T00:00:02Z",
++        },
++        {
++            "kind": "fill",
++            "second": 3.0,
++            "side": "BUY",
++            "qty": 4.0,
++            "price": 0.5,
++            "token": "YES",
++            "ts_utc": "2026-01-01T00:00:03Z",
++        },
++        {
++            "kind": "signal",
++            "second": 4.0,
++            "reason": "b",
++            "entry_block": "min_delta",
++            "recorded_at_utc": "2026-01-01T00:00:04Z",
++        },
++        {
++            "kind": "quote",
++            "second": 5.0,
++            "placed": [{"side": "SELL", "qty": 2.0, "price": 0.7}],
++            "ts_utc": "2026-01-01T00:00:05Z",
++        },
++    ]
++    rows = project_events(records, now_s=NOW)
++    labels = [row.label for row in rows]
++    assert labels == ["signal", "fill", "signal", "quote"]
++    assert rows[0].initial
++    assert "reason=a" in rows[0].text
++    assert rows[2].text == "reason=b block=min_delta"
++
++
++def test_read_journal_tail_and_full(tmp_path: Path) -> None:
++    archive = tmp_path / "m"
++    archive.mkdir()
++    journal = archive / SESSION_JOURNAL_FILENAME
++    journal.write_text(
++        "".join(
++            f'{{"kind":"signal","second":{i},"reason":"r","entry_block":"b"}}\n' for i in range(600)
++        )
++    )
++    tail = read_journal(archive, SESSION_JOURNAL_FILENAME, full=False)
++    assert tail.ok
++    full = read_journal(archive, SESSION_JOURNAL_FILENAME, full=True)
++    assert full.ok and len(full.records) == 600
