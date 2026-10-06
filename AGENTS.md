@@ -30,6 +30,7 @@ Before any work on a sibling project (code, commands, tests, architecture) read 
 - Do not `git push` unless the user explicitly asks.
 - All git operations (status, branch, pull, rebase, push, commit) run inside the sibling project repo you are changing.
 - work on `main` by default, unless the user says otherwise.
+- A git worktree of `esports-trader` is a second directory. Read `.learnings/worktree.md` before creating one or running a backtest from one. Sync its `.venv` once before sharded runs. Do not symlink `data/backtests`.
 
 ## poly-maker is frozen
 
