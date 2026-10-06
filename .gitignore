@@ -2,6 +2,9 @@
 __pycache__/
 *.pyc
 .analysis/*
+investigations/**/work/
+*.parquet
+*.npz
 !.analysis/dota-audit-2026-09-26/
 .analysis/dota-audit-2026-09-26/work/**/*.csv
 .analysis/dota-audit-2026-09-26/work/**/*.parquet
