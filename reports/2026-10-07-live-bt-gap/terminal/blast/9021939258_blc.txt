@@ -1,0 +1,117 @@
+join/queue
+
+  model                     20261005T081730Z
+  trainlag                  10s
+  btlag                     10s
+  sigage                    16s
+  exitage                   45s
+  cut                       480
+  delta                     0.02
+  xdelta                    0.015
+  minpx                     0.45
+  maxpx                     0.85
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  n/a
+  selected                  1
+  completed                 1
+  terminated                0
+  traded matches            1
+  no-trade                  0
+  traded + no-trade         1
+  buy fills                 1  (1.0 / traded)
+  sell fills                2
+  turnover                  $599.99
+  median clip               $599.99
+  fill rate                 5.9%
+
+SIGNALS
+  schedule:grid             1
+  excluded                  0
+  model research            1
+
+PNL
+  span                      0.6h
+  cash est (fills only)     $599.99
+  deposit w/ reserves       $2999.99
+  deposit w/ res @close     $2999.99
+  peak reserved             $2399.99
+  pnl before rebate         -$7.68
+  ROI before rebate         -1%
+  rebate                    $2.46
+  taker fee                 $0.00
+  pnl with rebate           -$5.23
+  final balance with rebate $594.77
+  ROI with rebate           -1%
+  net / deposit w/ reserves -0.002
+  pnl per match             -$7.681
+  pnl per match with rebate -$5.226
+  median match pnl          -$7.681
+  pnl per share             -0.935¢
+  pnl per share with rebate -0.636¢
+  maps at once              1
+
+BALANCE
+    617.14 ┤                                                                                                    
+    616.46 ┤ ╭╮                                                                                                 
+    615.77 ┤ ││                                                                                                 
+    615.09 ┤ ││                                                                                                 
+    614.40 ┤ ││                                                                                                 
+    613.71 ┤ ││                                                                                                 
+    613.03 ┤ ││                                                                                                 
+    612.34 ┤ │╰╮                                                                                                
+    611.66 ┤ │ │                                                                                                
+    610.97 ┤ │ │                                                                                                
+    610.28 ┤ │ │                                                                                                
+    609.60 ┤ │ │                                                                                                
+    608.91 ┤ │ │                                                                                                
+    608.23 ┤ │ ╰╮                                                                                               
+    607.54 ┤ │  │                                                                                               
+    606.85 ┤ │  │                                                                                               
+    606.17 ┤ │  │                                                                                               
+    605.48 ┤ │  │                                                                                               
+    604.80 ┤ │  │                                                                                               
+    604.11 ┤╭╯  │                                                                                               
+    603.42 ┤│   │                                                                                               
+    602.74 ┤│   │                                                                                               
+    602.05 ┤│   │                                                                                               
+    601.37 ┤│   │                                                                                               
+    600.68 ┤│   │                                                                                               
+    599.99 ┼╯───│───────────────────────────────────────────────────────────────────────────────────────────────
+    599.31 ┤    │                                                                                               
+    598.62 ┤    │                                                                                               
+    597.94 ┤    │                                                                                               
+    597.25 ┤    │                                                                                               
+    596.56 ┤    │                                                                                               
+    595.88 ┤    ╰╮                                                                                              
+    595.19 ┤     │                                                                                              
+    594.51 ┤     ╰╮                                                                                             
+    593.82 ┤      │                                                                                             
+    593.13 ┤      │                                                                                             
+    592.45 ┤      │╭────────────────────────────────────────────────────────────────────────────────────────────
+    591.76 ┤      ││                                                                                            
+    591.08 ┤      ││                                                                                            
+    590.39 ┤      ╰╯                                                                                            
+
+FILLS
+                     est    95% CI
+  buy  30s        2.000¢    [  2.000,   2.000]
+  buy 300s       11.000¢    [ 11.000,  11.000]
+  sell 30s       -1.103¢    [ -1.103,  -1.103]
+  sell 300s     -12.565¢    [-12.565, -12.565]
+
+BOARD FILLS <=10s
+  fills                     0  (0.0% of fills)
+  buy 300s           n/a
+  sell 300s          n/a
+
+HOLD
+  hold                      n/a
+
+RISK
+  loss rate                 100.0%
+  CVaR 5%                   -$7.681
+  worst match               -$7.681
+  lowest capital point      $590.39

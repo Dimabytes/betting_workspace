@@ -1,0 +1,119 @@
+join/queue
+
+  model                     20261005T081730Z
+  trainlag                  10s
+  btlag                     10s
+  sigage                    16s
+  exitage                   45s
+  cut                       480
+  delta                     0.02
+  xdelta                    0.015
+  minpx                     0.45
+  maxpx                     0.85
+  settle                    10s
+  size                      $300
+
+RUN
+  eligible                  n/a
+  selected                  1
+  completed                 1
+  terminated                0
+  traded matches            1
+  no-trade                  0
+  traded + no-trade         1
+  buy fills                 26  (26.0 / traded)
+  sell fills                5
+  turnover                  $701.89
+  median clip               $47.74
+  fill rate                 5.8%
+
+SIGNALS
+  schedule:grid             1
+  excluded                  0
+  model research            1
+
+PNL
+  span                      0.2h
+  cash est (fills only)     $701.89
+  deposit w/ reserves       $1901.89
+  deposit w/ res @close     $1901.89
+  peak reserved             $1599.99
+  pnl before rebate         $96.17
+  ROI before rebate         14%
+  rebate                    $1.84
+  taker fee                 $0.00
+  pnl with rebate           $98.01
+  final balance with rebate $799.90
+  ROI with rebate           14%
+  net / deposit w/ reserves 0.052
+  pnl per match             $96.170
+  pnl per match with rebate $98.009
+  median match pnl          $96.170
+  pnl per share             10.653¢
+  pnl per share with rebate 10.857¢
+  maps at once              1
+
+BALANCE
+    806.87 ┤                                                                                                    
+    803.25 ┤                                                                                             ╭────╮ 
+    799.63 ┤                                                                                            ╭╯    ╰─
+    796.01 ┤                                                                                           ╭╯       
+    792.39 ┤                                                                                           │        
+    788.77 ┤                                                                                       ╭───╯        
+    785.15 ┤                                                                                       │            
+    781.53 ┤                                                                                       │            
+    777.91 ┤                                                                            ╭───────╮╭─╯            
+    774.29 ┤                                                                            │       ╰╯              
+    770.67 ┤                                                                     ╭╮   ╭─╯                       
+    767.05 ┤                                                                 ╭───╯│   │                         
+    763.43 ┤                                                                ╭╯    │╭──╯                         
+    759.81 ┤                                                                │     ││                            
+    756.19 ┤                                                                │     ││                            
+    752.57 ┤                                                                │     ╰╯                            
+    748.95 ┤                                                             ╭──╯                                   
+    745.33 ┤                                                             │                                      
+    741.71 ┤                                                             │                                      
+    738.09 ┤                                                             │                                      
+    734.47 ┤                                                   ╭╮     ╭──╯                                      
+    730.85 ┤                                                   ││     │                                         
+    727.23 ┤                                                   ││  ╭──╯                                         
+    723.61 ┤                ╭╮                                 ││  │                                            
+    719.99 ┤        ╭─╮     ││                                 │╰──╯                                            
+    716.37 ┤    ╭──╮│ ╰─────╯│                                 │                                                
+    712.75 ┤   ╭╯  ╰╯        ╰╮                              ╭─╯                                                
+    709.13 ┤   │              ╰───╮                         ╭╯                                                  
+    705.51 ┤╭──╯                  │                        ╭╯                                                   
+    701.89 ┼╯─────────────────────│────────────────────────│────────────────────────────────────────────────────
+    698.27 ┤                      ╰──╮  ╭──────────╮    ╭──╯                                                    
+    694.65 ┤                         ╰╮ │          │    │                                                       
+    691.03 ┤                          │ │          ╰╮   │                                                       
+    687.41 ┤                          ╰─╯           │  ╭╯                                                       
+    683.79 ┤                                        │  │                                                        
+    680.17 ┤                                        │  │                                                        
+    676.55 ┤                                        │  │                                                        
+    672.93 ┤                                        ╰╮ │                                                        
+    669.31 ┤                                         │╭╯                                                        
+    665.69 ┤                                         ╰╯                                                         
+
+FILLS
+                     est    95% CI
+  buy  30s        0.601¢    [  0.601,   0.601]
+  buy 300s        2.840¢    [  2.840,   2.840]
+  sell 30s        2.258¢    [  2.258,   2.258]
+  sell 300s      -8.149¢    [ -8.149,  -8.149]
+
+BOARD FILLS <=10s
+  fills                     21  (67.7% of fills)
+  buy 300s        3.875¢    [  3.875,   3.875]
+  sell 300s      -8.149¢    [ -8.149,  -8.149]
+
+HOLD
+  min                       677s
+  p50                       677s
+  p90                       677s
+
+RISK
+  loss rate                 0.0%
+  CVaR 5%                   $96.170
+  worst match               $96.170
+  lowest capital point      $665.69
