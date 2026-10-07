@@ -1,0 +1,8 @@
+sol-lol-micro w1:pSB
+sol-policy w1:pSD
+grok-bt w1:pSE
+grok-sim w1:pSF
+grok-live w1:pSC
+swe-fees w1:pSG
+swe-history w1:pSH
+swe-theory w1:pSJ

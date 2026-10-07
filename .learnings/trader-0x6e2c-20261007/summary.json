@@ -1,0 +1,782 @@
+{
+  "meta": {
+    "wallet": "0x6e2c0e9474af7d720e5aba2a5b0bb6f723b7787c",
+    "start": 1788783951,
+    "end": 1791375951,
+    "pages": 752,
+    "rows": 375961
+  },
+  "date_min": "2026-09-07T12:25:58+00:00",
+  "date_max": "2026-10-07T12:25:49+00:00",
+  "activity_counts": {
+    "TRADE": 367915,
+    "MERGE": 6784,
+    "REDEEM": 1201,
+    "MAKER_REBATE": 30,
+    "TAKER_REBATE": 31
+  },
+  "activity_usdc": {
+    "REDEEM": 612613.19,
+    "TAKER_REBATE": 37031.52,
+    "TRADE": 9737899.96,
+    "MERGE": 9240105.3,
+    "MAKER_REBATE": 14906.37
+  },
+  "sides": {
+    "BUY": 367893,
+    "SELL": 22
+  },
+  "buy_cost_quantiles": {
+    "10": 1.08,
+    "25": 2.8,
+    "50": 7.236923,
+    "75": 18.55,
+    "90": 46.7313,
+    "95": 95.2375,
+    "99": 357.0
+  },
+  "buy_size_quantiles": {
+    "10": 5.0,
+    "25": 8.0,
+    "50": 18.0,
+    "75": 35.0,
+    "90": 95.86898,
+    "95": 209.47,
+    "99": 674.181817
+  },
+  "categories": {
+    "Counter-Strike": {
+      "fills": 215575,
+      "cost": 7001911.429746,
+      "markets": 1545
+    },
+    "LoL": {
+      "fills": 131530,
+      "cost": 1417056.009199,
+      "markets": 500
+    },
+    "Valorant": {
+      "fills": 20810,
+      "cost": 1318932.522656,
+      "markets": 65
+    }
+  },
+  "markets": 2110,
+  "both_sides_markets": 2066,
+  "both_sides_cost": 9733547.585962,
+  "map_market_cost": 5968830.955711,
+  "map_market_count": 1381,
+  "repeated_market_count": 2095,
+  "market_n_quantiles": {
+    "10": 19,
+    "25": 45,
+    "50": 110,
+    "75": 245,
+    "90": 433,
+    "95": 553,
+    "99": 812
+  },
+  "market_cost_quantiles": {
+    "10": 157.022809,
+    "25": 455.992913,
+    "50": 1166.9381779999999,
+    "75": 3027.712367,
+    "90": 8637.023409,
+    "95": 18937.643139,
+    "99": 64646.480964
+  },
+  "market_duration_quantiles": {
+    "10": 17.6,
+    "25": 27.266666666666666,
+    "50": 40.083333333333336,
+    "75": 77.0,
+    "90": 141.41666666666666,
+    "95": 166.8,
+    "99": 206.53333333333333
+  },
+  "merge_markets": 1844,
+  "price_buckets": {
+    "under_0.2": {
+      "fills": 56401,
+      "cost": 302975.469773
+    },
+    "0.2_0.45": {
+      "fills": 112996,
+      "cost": 2034257.965228
+    },
+    "0.45_0.85": {
+      "fills": 172270,
+      "cost": 6123419.965462
+    },
+    "0.85_1": {
+      "fills": 26226,
+      "cost": 1274556.888108
+    }
+  },
+  "taker_api_rows": 81396,
+  "taker_matched_rows": 81396,
+  "taker_unmatched_rows": 0,
+  "taker_matched_cost": 4751675.812720127,
+  "roles_by_game": {
+    "Counter-Strike": {
+      "MAKER": 155666,
+      "TAKER": 59909
+    },
+    "Valorant": {
+      "MAKER": 16594,
+      "TAKER": 4216
+    },
+    "LoL": {
+      "MAKER": 114259,
+      "TAKER": 17271
+    }
+  },
+  "buy_fee_effect": 90232.19627662082,
+  "top_markets": [
+    {
+      "condition_id": "0xc57c2f14b4eeaa48d8dc6d41590c80c8edd4b512e4dfe5910f81dcb34d1c9168",
+      "title": "Counter-Strike: G2 vs PARIVISION (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-g2-prv-2026-10-06",
+      "event_slug": "cs2-g2-prv-2026-10-06",
+      "map": false,
+      "n": 1150,
+      "cost": 204017.241306,
+      "sells": 0,
+      "merge_n": 50,
+      "merge_usdc": 206916.681326,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 207879.8917520001,
+          "cost": 84373.2900209999,
+          "n": 610,
+          "outcome": "G2",
+          "avg": 0.4058751873974271
+        },
+        "1": {
+          "qty": 206916.68132600005,
+          "cost": 119643.95128499996,
+          "n": 540,
+          "outcome": "PARIVISION",
+          "avg": 0.5782228407988976
+        }
+      },
+      "pair_avg_cost": 0.9840980281963247,
+      "first": 1791288126,
+      "last": 1791299781,
+      "duration_m": 194.25,
+      "cash_net": 2899.44001999998,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 2,
+        "75": 6,
+        "90": 18,
+        "95": 38,
+        "99": 121
+      }
+    },
+    {
+      "condition_id": "0x723894a292f5c8bbf6f51166b41da03f100a999717501b9a0398853b7982c566",
+      "title": "Counter-Strike: Team Falcons vs Natus Vincere - Map 2 Winner",
+      "slug": "cs2-fal2-navi-2026-10-06-game2",
+      "event_slug": "cs2-fal2-navi-2026-10-06",
+      "map": true,
+      "n": 584,
+      "cost": 191790.732757,
+      "sells": 0,
+      "merge_n": 25,
+      "merge_usdc": 195132.636031,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 197401.91058900004,
+          "cost": 116909.929257,
+          "n": 312,
+          "outcome": "Team Falcons",
+          "avg": 0.5922431495630855
+        },
+        "1": {
+          "qty": 195132.63603099994,
+          "cost": 74880.80350000002,
+          "n": 272,
+          "outcome": "Natus Vincere",
+          "avg": 0.3837431042960133
+        }
+      },
+      "pair_avg_cost": 0.9759862538590989,
+      "first": 1791317517,
+      "last": 1791322466,
+      "duration_m": 82.48333333333333,
+      "cash_net": 3341.903274000011,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 9,
+        "90": 23,
+        "95": 35,
+        "99": 72
+      }
+    },
+    {
+      "condition_id": "0x69b99d7b5a9a5d4448d80eec4d92b4784553ac178b7e698cfcb574572bf07c3f",
+      "title": "Counter-Strike: FURIA vs Aurora Gaming (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-furia-aur1-2026-10-06",
+      "event_slug": "cs2-furia-aur1-2026-10-06",
+      "map": false,
+      "n": 739,
+      "cost": 134097.401749,
+      "sells": 0,
+      "merge_n": 44,
+      "merge_usdc": 133506.003827,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 138285.11577399992,
+          "cost": 60448.91085100001,
+          "n": 359,
+          "outcome": "FURIA",
+          "avg": 0.4371324456190352
+        },
+        "1": {
+          "qty": 133506.00382699998,
+          "cost": 73648.49089800008,
+          "n": 380,
+          "outcome": "Aurora Gaming",
+          "avg": 0.5516492800835789
+        }
+      },
+      "pair_avg_cost": 0.9887817257026141,
+      "first": 1791301281,
+      "last": 1791312162,
+      "duration_m": 181.35,
+      "cash_net": -591.3979220000037,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 11,
+        "90": 29,
+        "95": 45,
+        "99": 132
+      }
+    },
+    {
+      "condition_id": "0xe2d6acbaac0253adeca1ee7518478bb5eef1d4e04934e164feb1f2a38a48fec8",
+      "title": "Counter-Strike: PARIVISION vs FURIA (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-prv-furia-2026-10-05",
+      "event_slug": "cs2-prv-furia-2026-10-05",
+      "map": false,
+      "n": 859,
+      "cost": 131305.543774,
+      "sells": 0,
+      "merge_n": 29,
+      "merge_usdc": 131268.526455,
+      "redeem_usdc": 359.179017,
+      "outcomes": {
+        "1": {
+          "qty": 131627.705472,
+          "cost": 78162.468307,
+          "n": 388,
+          "outcome": "FURIA",
+          "avg": 0.5938147142101996
+        },
+        "0": {
+          "qty": 131268.5264550001,
+          "cost": 53143.07546699998,
+          "n": 471,
+          "outcome": "PARIVISION",
+          "avg": 0.40484247749377955
+        }
+      },
+      "pair_avg_cost": 0.9986571917039792,
+      "first": 1791190895,
+      "last": 1791201547,
+      "duration_m": 177.53333333333333,
+      "cash_net": 322.1616980000108,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 2,
+        "75": 9,
+        "90": 27,
+        "95": 46,
+        "99": 120
+      }
+    },
+    {
+      "condition_id": "0xee239c787b24f4ad595dde90080b812f2dcca456302bf2e647b558e689b0a54c",
+      "title": "Counter-Strike: Legacy vs M80 (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-lgc-m80-2026-10-06",
+      "event_slug": "cs2-lgc-m80-2026-10-06",
+      "map": false,
+      "n": 452,
+      "cost": 116240.768052,
+      "sells": 0,
+      "merge_n": 33,
+      "merge_usdc": 115187.959573,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 117363.67681000005,
+          "cost": 41602.859765,
+          "n": 208,
+          "outcome": "Legacy",
+          "avg": 0.3544781562386703
+        },
+        "1": {
+          "qty": 115187.95957299999,
+          "cost": 74637.90828700003,
+          "n": 244,
+          "outcome": "M80",
+          "avg": 0.6479662333084258
+        }
+      },
+      "pair_avg_cost": 1.002444389547096,
+      "first": 1791306056,
+      "last": 1791315521,
+      "duration_m": 157.75,
+      "cash_net": -1052.8084789999994,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 1,
+        "50": 4,
+        "75": 16,
+        "90": 47,
+        "95": 78,
+        "99": 150
+      }
+    },
+    {
+      "condition_id": "0x9cd26c5f890f1f58f1d5f4740b73ae0652b747f2ad9f87753768ebe51810f2a3",
+      "title": "Counter-Strike: BetBoom Team vs M80 - Map 1 Winner",
+      "slug": "cs2-bb3-m80-2026-10-04-game1",
+      "event_slug": "cs2-bb3-m80-2026-10-04",
+      "map": true,
+      "n": 506,
+      "cost": 113561.880046,
+      "sells": 0,
+      "merge_n": 21,
+      "merge_usdc": 115107.153806,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 115107.153806,
+          "cost": 49508.66656999998,
+          "n": 218,
+          "outcome": "BetBoom Team",
+          "avg": 0.43010938011238814
+        },
+        "1": {
+          "qty": 116073.5625639999,
+          "cost": 64053.21347600002,
+          "n": 288,
+          "outcome": "M80",
+          "avg": 0.5518329244067336
+        }
+      },
+      "pair_avg_cost": 0.9819423045191218,
+      "first": 1791133843,
+      "last": 1791137707,
+      "duration_m": 64.4,
+      "cash_net": 1545.2737599999964,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 2,
+        "75": 8,
+        "90": 21,
+        "95": 36,
+        "99": 62
+      }
+    },
+    {
+      "condition_id": "0x74f7a5f1c461f81bd750874003de310f722fc2c4520750d14ec0d84c2772145f",
+      "title": "Counter-Strike: Legacy vs PARIVISION (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-lgc-prv-2026-10-03",
+      "event_slug": "cs2-lgc-prv-2026-10-03",
+      "map": false,
+      "n": 763,
+      "cost": 112847.982597,
+      "sells": 0,
+      "merge_n": 35,
+      "merge_usdc": 112541.65279,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 118363.74954500003,
+          "cost": 53129.71520500002,
+          "n": 364,
+          "outcome": "Legacy",
+          "avg": 0.4488681324242854
+        },
+        "1": {
+          "qty": 112541.65279000004,
+          "cost": 59718.26739200001,
+          "n": 399,
+          "outcome": "PARIVISION",
+          "avg": 0.5306325783524153
+        }
+      },
+      "pair_avg_cost": 0.9795007107767006,
+      "first": 1791018068,
+      "last": 1791027933,
+      "duration_m": 164.41666666666666,
+      "cash_net": -306.3298070000019,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 9,
+        "90": 25,
+        "95": 42,
+        "99": 124
+      }
+    },
+    {
+      "condition_id": "0xac519fc93f71da966382f3ca0f36b345dd76d774112a3de65e3ebed544b89d8d",
+      "title": "Counter-Strike: Vitality vs Team Falcons (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-vit-fal2-2026-10-05",
+      "event_slug": "cs2-vit-fal2-2026-10-05",
+      "map": false,
+      "n": 783,
+      "cost": 110236.138996,
+      "sells": 0,
+      "merge_n": 32,
+      "merge_usdc": 109946.994266,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "1": {
+          "qty": 111061.88846000005,
+          "cost": 37633.32965600001,
+          "n": 383,
+          "outcome": "Team Falcons",
+          "avg": 0.33885007879686824
+        },
+        "0": {
+          "qty": 109946.99426600011,
+          "cost": 72602.80934000005,
+          "n": 400,
+          "outcome": "Vitality",
+          "avg": 0.6603437394964027
+        }
+      },
+      "pair_avg_cost": 0.9991938182932709,
+      "first": 1791217822,
+      "last": 1791227830,
+      "duration_m": 166.8,
+      "cash_net": -289.14473,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 10,
+        "90": 27,
+        "95": 46,
+        "99": 117
+      }
+    },
+    {
+      "condition_id": "0x16bf6187b713dc4c937599080f8063ba55beb46a6b3508e895d4f1114fd4fa48",
+      "title": "Counter-Strike: Team Falcons vs Natus Vincere (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-fal2-navi-2026-10-06",
+      "event_slug": "cs2-fal2-navi-2026-10-06",
+      "map": false,
+      "n": 374,
+      "cost": 95996.421745,
+      "sells": 6,
+      "merge_n": 39,
+      "merge_usdc": 97023.187899,
+      "redeem_usdc": 474.492801,
+      "outcomes": {
+        "0": {
+          "qty": 100497.68070000001,
+          "cost": 72709.14623100002,
+          "n": 188,
+          "outcome": "Team Falcons",
+          "avg": 0.7234907882904009
+        },
+        "1": {
+          "qty": 97023.18789900007,
+          "cost": 23287.275514,
+          "n": 186,
+          "outcome": "Natus Vincere",
+          "avg": 0.24001762896351916
+        }
+      },
+      "pair_avg_cost": 0.9635084172539201,
+      "first": 1791313539,
+      "last": 1791324900,
+      "duration_m": 189.35,
+      "cash_net": 3636.604435000001,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 1,
+        "50": 9,
+        "75": 31,
+        "90": 71,
+        "95": 115,
+        "99": 191
+      }
+    },
+    {
+      "condition_id": "0xd1de24afb6554d761d19943f2ad7bffe2f11bd1531af68892697c912d85a8360",
+      "title": "Counter-Strike: G2 vs 1WIN (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-g2-1win-2026-10-04",
+      "event_slug": "cs2-g2-1win-2026-10-04",
+      "map": false,
+      "n": 617,
+      "cost": 95393.260627,
+      "sells": 0,
+      "merge_n": 25,
+      "merge_usdc": 95145.467087,
+      "redeem_usdc": 137.904742,
+      "outcomes": {
+        "0": {
+          "qty": 95145.46708699998,
+          "cost": 43630.503019000025,
+          "n": 317,
+          "outcome": "G2",
+          "avg": 0.4585662812407528
+        },
+        "1": {
+          "qty": 95283.371829,
+          "cost": 51762.757608000065,
+          "n": 300,
+          "outcome": "1WIN",
+          "avg": 0.5432506912212965
+        }
+      },
+      "pair_avg_cost": 1.0018169724620494,
+      "first": 1791122494,
+      "last": 1791132563,
+      "duration_m": 167.81666666666666,
+      "cash_net": -109.88879799999995,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 10,
+        "90": 26,
+        "95": 45,
+        "99": 163
+      }
+    },
+    {
+      "condition_id": "0xd6422178d176d7997a241e6e2e2d08044916df516349aee84208593b5421aa56",
+      "title": "Counter-Strike: FURIA vs Aurora Gaming - Map 1 Winner",
+      "slug": "cs2-furia-aur1-2026-10-06-game1",
+      "event_slug": "cs2-furia-aur1-2026-10-06",
+      "map": true,
+      "n": 435,
+      "cost": 89956.102966,
+      "sells": 0,
+      "merge_n": 20,
+      "merge_usdc": 89439.401154,
+      "redeem_usdc": 1068.617803,
+      "outcomes": {
+        "1": {
+          "qty": 89439.40115399999,
+          "cost": 36101.290255999986,
+          "n": 225,
+          "outcome": "Aurora Gaming",
+          "avg": 0.4036396687611926
+        },
+        "0": {
+          "qty": 90508.01895699995,
+          "cost": 53854.81271000002,
+          "n": 210,
+          "outcome": "FURIA",
+          "avg": 0.5950280796178542
+        }
+      },
+      "pair_avg_cost": 0.9986677483790468,
+      "first": 1791301271,
+      "last": 1791304523,
+      "duration_m": 54.2,
+      "cash_net": 551.9159910000017,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 9,
+        "90": 21,
+        "95": 31,
+        "99": 47
+      }
+    },
+    {
+      "condition_id": "0x4093a42c80889b439e797c4d2748aa0410c84bd874f57fb1675485dec9e6e0d8",
+      "title": "Counter-Strike: FURIA vs Aurora Gaming - Map 2 Winner",
+      "slug": "cs2-furia-aur1-2026-10-06-game2",
+      "event_slug": "cs2-furia-aur1-2026-10-06",
+      "map": true,
+      "n": 362,
+      "cost": 81928.096518,
+      "sells": 0,
+      "merge_n": 14,
+      "merge_usdc": 83485.693118,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "1": {
+          "qty": 83485.69311799998,
+          "cost": 54160.805643,
+          "n": 211,
+          "outcome": "Aurora Gaming",
+          "avg": 0.64874355856935
+        },
+        "0": {
+          "qty": 87147.00360000001,
+          "cost": 27767.290875,
+          "n": 151,
+          "outcome": "FURIA",
+          "avg": 0.3186258818771366
+        }
+      },
+      "pair_avg_cost": 0.9673694404464865,
+      "first": 1791305498,
+      "last": 1791308453,
+      "duration_m": 49.25,
+      "cash_net": 1557.5965999999898,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 3,
+        "75": 8,
+        "90": 21,
+        "95": 39,
+        "99": 88
+      }
+    },
+    {
+      "condition_id": "0xfa9a81d8ed7204a9b1a8ef58c54cbb52638345d8e9d5de00ed4f8de6916d2b46",
+      "title": "Counter-Strike: Aurora Gaming vs BetBoom Team (BO3) - ESL Pro League Group Stage",
+      "slug": "cs2-aur1-bb3-2026-10-05",
+      "event_slug": "cs2-aur1-bb3-2026-10-05",
+      "map": false,
+      "n": 521,
+      "cost": 81708.55894,
+      "sells": 0,
+      "merge_n": 27,
+      "merge_usdc": 82344.485301,
+      "redeem_usdc": 1275.596046,
+      "outcomes": {
+        "1": {
+          "qty": 85157.15050000003,
+          "cost": 17138.213073,
+          "n": 302,
+          "outcome": "BetBoom Team",
+          "avg": 0.20125395192738385
+        },
+        "0": {
+          "qty": 83620.08134700003,
+          "cost": 64570.34586700001,
+          "n": 219,
+          "outcome": "Aurora Gaming",
+          "avg": 0.7721870730913436
+        }
+      },
+      "pair_avg_cost": 0.9734410250187274,
+      "first": 1791220972,
+      "last": 1791231092,
+      "duration_m": 168.66666666666666,
+      "cash_net": 1911.5224069999967,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 1,
+        "50": 5,
+        "75": 15,
+        "90": 39,
+        "95": 72,
+        "99": 168
+      }
+    },
+    {
+      "condition_id": "0x68d799bae7915bc0f82514ab0a8f98a9531a23b87deb71b31982768b4d8f03fd",
+      "title": "Counter-Strike: 9z vs BetBoom Team - Map 2 Winner",
+      "slug": "cs2-9z-bb3-2026-10-06-game2",
+      "event_slug": "cs2-9z-bb3-2026-10-06",
+      "map": true,
+      "n": 351,
+      "cost": 79712.326477,
+      "sells": 0,
+      "merge_n": 18,
+      "merge_usdc": 78691.172483,
+      "redeem_usdc": 1793.359696,
+      "outcomes": {
+        "1": {
+          "qty": 78691.172483,
+          "cost": 31518.501597,
+          "n": 162,
+          "outcome": "BetBoom Team",
+          "avg": 0.4005341463657703
+        },
+        "0": {
+          "qty": 80484.53217899999,
+          "cost": 48193.82487999999,
+          "n": 189,
+          "outcome": "9z",
+          "avg": 0.5987961111933346
+        }
+      },
+      "pair_avg_cost": 0.999330257559105,
+      "first": 1791301001,
+      "last": 1791303494,
+      "duration_m": 41.55,
+      "cash_net": 772.2057020000066,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 2,
+        "75": 8,
+        "90": 18,
+        "95": 28,
+        "99": 66
+      }
+    },
+    {
+      "condition_id": "0x03ad48211570a94d6aeca2774decffd15ca07c3ff4e57cb5ce822d1fea2b3f3e",
+      "title": "Counter-Strike: Legacy vs 1WIN - Map 2 Winner",
+      "slug": "cs2-lgc-1win-2026-10-05-game2",
+      "event_slug": "cs2-lgc-1win-2026-10-05",
+      "map": true,
+      "n": 386,
+      "cost": 79041.327058,
+      "sells": 0,
+      "merge_n": 14,
+      "merge_usdc": 81121.245472,
+      "redeem_usdc": 0,
+      "outcomes": {
+        "0": {
+          "qty": 82341.81786699998,
+          "cost": 38394.569840000004,
+          "n": 181,
+          "outcome": "Legacy",
+          "avg": 0.46628275686135107
+        },
+        "1": {
+          "qty": 81121.24547199998,
+          "cost": 40646.75721800001,
+          "n": 205,
+          "outcome": "1WIN",
+          "avg": 0.5010617993042249
+        }
+      },
+      "pair_avg_cost": 0.967344556165576,
+      "first": 1791203563,
+      "last": 1791206368,
+      "duration_m": 46.75,
+      "cash_net": 2079.9184139999998,
+      "buy_intervals_quantile": {
+        "10": 0,
+        "25": 0,
+        "50": 2,
+        "75": 7,
+        "90": 18,
+        "95": 29,
+        "99": 57
+      }
+    }
+  ]
+}

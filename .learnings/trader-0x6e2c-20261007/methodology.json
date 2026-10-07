@@ -1,0 +1,15 @@
+{
+  "activity_source": "https://data-api.polymarket.com/v2/activity",
+  "roles_source": "https://data-api.polymarket.com/v2/trades?taker_only=true",
+  "roles_method": "All 81,396 taker rows matched as a multiset on transaction_hash, token_id, side, rounded size and price to activity. Remaining trade activity records classified maker. Counts are API trade records, not orders or individual onchain logs.",
+  "turnover_method": "Sum activity usdc_size for trade records; 22 SELL records have negligible weight. Buy cash uses usdc_size including charged fees. Merge/redemption amounts are collateral returned, not profit.",
+  "clock_method": "222 matched LoL Game N markets; GRID recorded gameClock.currentSeconds with ticking extrapolation from received_at_utc; exclude anchors older than 60s and non-live/finished states. Approximate observed minutes, not exact seconds; received timestamps include feed delay. 61,018 classified trade records and 396 excluded. Do not extrapolate this timing evidence to CS2 round timing.",
+  "raw_data_dir": "/tmp/poly_target",
+  "our_strategy_sources": [
+    "VPS config/trading.toml",
+    "VPS src/shared/constants/strategy.py",
+    "local src/strategy/quoting.py",
+    "esports-trader/AGENTS.md"
+  ],
+  "warning": "Pair averaged buy prices are reconstructed across the entire market; below-$1 combined averages do not prove simultaneous risk-free arbitrage. Gross market buying is cumulative recycled turnover, not peak stake."
+}

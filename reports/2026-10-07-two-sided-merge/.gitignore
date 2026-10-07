@@ -1,0 +1,3 @@
+data/
+work/*/
+!work/orchestrator/

@@ -1,0 +1,155 @@
+{
+  "all_clock_maps": 312,
+  "all_errors": 0,
+  "matched_maps": 222,
+  "matched_fills": 61018,
+  "excluded_fills": 396,
+  "buckets": [
+    {
+      "bucket": "prematch",
+      "fills": 29,
+      "cost": 139.74552,
+      "pct_fills": 0.00047526959257923894,
+      "pct_cost": 0.00019072316638795293
+    },
+    {
+      "bucket": "0-8m",
+      "fills": 11779,
+      "cost": 125055.746155,
+      "pct_fills": 0.1930413976203743,
+      "pct_cost": 0.17067472275096668
+    },
+    {
+      "bucket": "8-20m",
+      "fills": 24301,
+      "cost": 265191.090264,
+      "pct_fills": 0.39825952997476155,
+      "pct_cost": 0.36192991684472975
+    },
+    {
+      "bucket": "20m+",
+      "fills": 24909,
+      "cost": 342327.343939,
+      "pct_fills": 0.4082238028122849,
+      "pct_cost": 0.4672046372379156
+    }
+  ],
+  "first_median": 91.4,
+  "last_median": 1709.35,
+  "first_min": -95.6,
+  "entered_before_8m": 221,
+  "last_after_8m": 219,
+  "last_after_20m": 185,
+  "top_examples": [
+    {
+      "title": "LoL: Cloud9 vs LYON - Game 2 Winner",
+      "slug": "lol-c9-ly-2026-10-03-game2",
+      "condition_id": "0x5421cbfe4b57840d24063a9637c5e5b0c69590673d2075cc64151f0fc97bbe13",
+      "match_id": "grid-3000378-m2",
+      "fills": 669,
+      "first_second": 52.3,
+      "last_second": 2165.6,
+      "total_cost": 23318.408808,
+      "anchors": 372
+    },
+    {
+      "title": "LoL: FlyQuest vs Shopify Rebellion - Game 2 Winner",
+      "slug": "lol-fly-sr-2026-09-25-game2",
+      "condition_id": "0x0db86f26792586a9bfcfff582f990fc18331d9783772a1fae2cebaa20bfd16e0",
+      "match_id": "grid-3000376-m2",
+      "fills": 476,
+      "first_second": 88.6,
+      "last_second": 1531.7,
+      "total_cost": 18944.148677,
+      "anchors": 309
+    },
+    {
+      "title": "LoL: LYON vs Cloud9 - Game 2 Winner",
+      "slug": "lol-ly-c9-2026-09-19-game2",
+      "condition_id": "0xaf1cb64c90fa77d795f978210bca3466e5cd965c6af6525664c634ff60a62de6",
+      "match_id": "grid-3000372-m2",
+      "fills": 975,
+      "first_second": 54.1,
+      "last_second": 2536.7,
+      "total_cost": 18924.043139,
+      "anchors": 424
+    },
+    {
+      "title": "LoL: LOS vs LOUD - Game 4 Winner",
+      "slug": "lol-los-lll-2026-09-27-game4",
+      "condition_id": "0x6c33ad2dfb496b2dfd6649f3de0371fa6fdc700fc2a3d92eb87f8f4483a4808d",
+      "match_id": "grid-2973277-m4",
+      "fills": 674,
+      "first_second": 58.1,
+      "last_second": 2265.5,
+      "total_cost": 16655.010657,
+      "anchors": 371
+    },
+    {
+      "title": "LoL: Shopify Rebellion vs Sentinels - Game 4 Winner",
+      "slug": "lol-sr-sen-2026-09-18-game4",
+      "condition_id": "0x65ca918c824341b7522746d763495bac1526600855a05d1a9b5b2fdc0ba6d30d",
+      "match_id": "grid-3000375-m4",
+      "fills": 628,
+      "first_second": 135.0,
+      "last_second": 1880.6,
+      "total_cost": 16129.552424,
+      "anchors": 661
+    },
+    {
+      "title": "LoL: Arctic Pandas vs Pyramid IV Esports - Game 1 Winner",
+      "slug": "lol-ap-piv-2026-09-22-game1",
+      "condition_id": "0x276133a898c81a017c0212c369533eb1bca086e284e8ff2507cdee59397d42d9",
+      "match_id": "grid-3008217-m1",
+      "fills": 503,
+      "first_second": 146.8,
+      "last_second": 2275.4,
+      "total_cost": 15872.195356,
+      "anchors": 529
+    },
+    {
+      "title": "LoL: Cloud9 vs LYON - Game 3 Winner",
+      "slug": "lol-c9-ly-2026-10-03-game3",
+      "condition_id": "0xaef47f801d3b15a1bda84e17a158568c8a3b3211efe07b87a1d1f50d4dd5d957",
+      "match_id": "grid-3000378-m3",
+      "fills": 587,
+      "first_second": 67.3,
+      "last_second": 2254.6,
+      "total_cost": 14329.915206,
+      "anchors": 487
+    },
+    {
+      "title": "LoL: Karmine Corp vs Movistar KOI - Game 1 Winner",
+      "slug": "lol-kc-mkoi-2026-09-19-game1",
+      "condition_id": "0x19ff39c352fd81585da861f2716c149a1a2aff4d9ce72eb64ffc2cd3dfef9317",
+      "match_id": "grid-3002603-m1",
+      "fills": 720,
+      "first_second": 75.4,
+      "last_second": 2516.9,
+      "total_cost": 14287.935896,
+      "anchors": 605
+    },
+    {
+      "title": "LoL: LYON vs Cloud9 - Game 1 Winner",
+      "slug": "lol-ly-c9-2026-09-19-game1",
+      "condition_id": "0xc766ad8772adf3c2dacecaf3e61fe3ac6de8ae270428e44f2fbd9861ba0ee98b",
+      "match_id": "grid-3000372-m1",
+      "fills": 745,
+      "first_second": 74.6,
+      "last_second": 2403.1,
+      "total_cost": 13426.380778,
+      "anchors": 382
+    },
+    {
+      "title": "LoL: LYON vs Cloud9 - Game 3 Winner",
+      "slug": "lol-ly-c9-2026-09-19-game3",
+      "condition_id": "0x7344b65297c8fab9b6e4e7f52e97a1a7203ef897ebe5bb094a49ee15df3b5739",
+      "match_id": "grid-3000372-m3",
+      "fills": 507,
+      "first_second": 91.6,
+      "last_second": 2621.8,
+      "total_cost": 12979.348348,
+      "anchors": 515
+    }
+  ]
+}

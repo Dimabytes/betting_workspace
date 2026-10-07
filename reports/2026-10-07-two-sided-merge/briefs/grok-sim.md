@@ -1,0 +1,25 @@
+# Brief: grok-sim — experiment zero: a standalone two-sided quoter replayed on Dota L2 tapes + Dota flow capacity
+
+Goal: a first, honest PnL estimate of a naive two-sided + merge maker on Dota map-winner markets, before anyone touches the real backtest. Standalone Python in `$R/work/grok-sim/` (esports-trader venv; pyarrow/pandas/duckdb/numpy), reading our Dota archive read-only. Keep it simple and explicit; no frameworks.
+
+Data: `esports-trader/data/raw/telonex/polymarket/{book_snapshot_full,onchain_fills,trades}/asset_id=<token>/<day>.parquet`; market → tokens from `data/new_processed/universe/universe.parquet` (contract_kind `map_winner`); match catalog with horn/game end and winner from `data/new_processed/match_catalog/` (look at the parquet schema; `didRadiantWin` / winner and `durationSeconds` exist in STRATZ-derived files; `data/raw/stratz_matches/match_*.json.gz` if needed). Pick ~40 map markets spread over 2026-08-01 .. 2026-10-04 with both-token books and on-chain fills: ~20 from big tournaments (BLAST Slam, EWC, EPL) and ~20 from tier-2. List them in a table with condition_id, teams, day, duration, winner, total on-chain taker notional.
+
+Part A — Dota flow capacity (numbers the plan needs):
+
+1. Per map: total on-chain fill notional, number of fills, by game minute (−5..+60), split into taker BUY of YES vs NO; the same for WS `trades` when present (<= 2026-09-17). Median/mean per map and per minute; share of maps with < $5k total.
+2. Book: time-weighted best spread (ticks), depth at best and within 3 ticks (both tokens), number of distinct price changes per minute; how often the book is one-sided or crossed.
+3. Who provides liquidity: from `onchain_fills.maker` addresses on these maps, top 15 maker wallets by notional, their share, whether they are on both tokens of the same market (two-sided), their typical fill size and price distance from mid (use the book at the fill time). Is any of them already running the 0x6e2c pattern in Dota (buy both, no sells)? Check with `data-api /v2/activity?user=<maker>` on 2-3 top makers (type counts: TRADE sides, MERGE). Also report our own wallet's share if you can identify it (our fills are in `esports-trader/data/trader/<session>/session.jsonl` `fill` rows; match by price/size/time).
+4. Jump risk: distribution of mid changes over 10 s / 30 s / 60 s windows (p50, p90, p99, max) per map phase (0-8 min, 8-20, 20+); frequency of jumps >= 5 ticks within 10 s. This is the adverse-selection budget for a resting bid.
+
+Part B — Experiment zero simulator:
+
+- State per token: resting BUY at price b with size s and a queue estimate q_ahead (size at that price level when we join, minus later prints at that price; simplest honest model: we are filled when cumulative on-chain fills at price <= b on that token, after we joined, exceed q_ahead + our size; or when a trade prints at a price below b). Document the rule; it should not be optimistic. Re-quote when mid moves by >= 1 tick or every 2 s; cancel/replace resets queue position. Insert latency 175 ms, cancel 60 ms.
+- Quotes: bid_yes = mid − h, bid_no = (1 − mid) − h, adjusted by skew = g × net (net = yes − no shares), snapped to 0.01, post-only (never >= ask of that token). Size s shares (try 20 and 50). Pull the adding side when |net| > N_max. Price band [0.03, 0.97]. Quote from horn − 60 s to game end; cancel at end; leftover settles by winner.
+- Merge: whenever min(yes,no) >= M: cash += M, yes −= M, no −= M. Track peak unreturned capital (cost − cash back).
+- Fees: maker fee 0, maker rebate 0.15 × 0.05 × p(1−p) × qty; taker fee 0.05 × p(1−p) × qty if you add an optional taker flatten (|net| > N_taker: buy the short side at ask).
+- Grid: h ∈ {1, 2, 3} ticks; g ∈ {0, 0.0002, 0.0005} per share; N_max ∈ {100, 300} shares; M = 20; s ∈ {20, 50}; taker flatten off/on. Report per config: PnL total and per map (mean, median, p10, worst), PnL per $ bought, buy volume, fills count, maker share, peak capital per map (p50/p95), rebates, fees, share of maps negative. Then the best config by PnL per $ with worst-map ≥ −$X. Split results by tournament tier and by map phase (where the PnL comes from: 0-8 / 8-20 / 20+ min).
+- Optional if time remains: add our model delta as fair offset using `data/new_processed/market_seconds/v*/` (per-second `market_p_radiant` and the 300 s signal columns if present; read the schema) and report the delta vs pure-book fair.
+
+Honesty rules: say explicitly where the sim is optimistic (queue model, no market impact, no competition reaction, prints are on-chain so may lag) and give a pessimistic variant (we are last in queue: filled only when a print goes strictly below our price). Report both.
+
+Deliverable `$R/reports/grok-sim.md`: Part A tables, Part B grid tables, the chosen config, 3 example maps with timeline plots as PNG under work/ (optional), and the list of assumptions. Scripts in `$R/work/grok-sim/`, runnable with the venv python. Aim: Part A WIP in 60 min, FINAL within ~3 h. Keep RAM under 6 GB: read one day-file per token at a time.
