@@ -1,0 +1,88 @@
+[
+  {
+    "condition_id": "0xc57c2f14b4eeaa48d8dc6d41590c80c8edd4b512e4dfe5910f81dcb34d1c9168",
+    "title": "Counter-Strike: G2 vs PARIVISION (BO3) - ESL Pro League Group Stage",
+    "slug": "cs2-g2-prv-2026-10-06",
+    "event_slug": "cs2-g2-prv-2026-10-06",
+    "map": false,
+    "n": 1150,
+    "cost": 204017.241306,
+    "sells": 0,
+    "merge_n": 50,
+    "merge_usdc": 206916.681326,
+    "redeem_usdc": 0,
+    "outcomes": {
+      "0": {
+        "qty": 207879.8917520001,
+        "cost": 84373.2900209999,
+        "n": 610,
+        "outcome": "G2",
+        "avg": 0.4058751873974271
+      },
+      "1": {
+        "qty": 206916.68132600005,
+        "cost": 119643.95128499996,
+        "n": 540,
+        "outcome": "PARIVISION",
+        "avg": 0.5782228407988976
+      }
+    },
+    "pair_avg_cost": 0.9840980281963247,
+    "first": 1791288126,
+    "last": 1791299781,
+    "duration_m": 194.25,
+    "cash_net": 2899.44001999998,
+    "buy_intervals_quantile": {
+      "10": 0,
+      "25": 0,
+      "50": 2,
+      "75": 6,
+      "90": 18,
+      "95": 38,
+      "99": 121
+    }
+  },
+  {
+    "condition_id": "0x5421cbfe4b57840d24063a9637c5e5b0c69590673d2075cc64151f0fc97bbe13",
+    "title": "LoL: Cloud9 vs LYON - Game 2 Winner",
+    "slug": "lol-c9-ly-2026-10-03-game2",
+    "event_slug": "lol-c9-ly-2026-10-03",
+    "map": true,
+    "n": 669,
+    "cost": 23318.408808,
+    "sells": 0,
+    "merge_n": 2,
+    "merge_usdc": 23247.7657,
+    "redeem_usdc": 0,
+    "outcomes": {
+      "0": {
+        "qty": 23582.219808000016,
+        "cost": 12623.397522000008,
+        "n": 328,
+        "outcome": "Cloud9",
+        "avg": 0.5352930141766237
+      },
+      "1": {
+        "qty": 23247.765767,
+        "cost": 10695.011286000003,
+        "n": 341,
+        "outcome": "LYON",
+        "avg": 0.46004469389404623
+      }
+    },
+    "pair_avg_cost": 0.9953377080706699,
+    "first": 1791061727,
+    "last": 1791063835,
+    "duration_m": 35.13333333333333,
+    "cash_net": -70.64310800000021,
+    "buy_intervals_quantile": {
+      "10": 0,
+      "25": 0,
+      "50": 1,
+      "75": 3,
+      "90": 9,
+      "95": 13,
+      "99": 27
+    }
+  }
+]
