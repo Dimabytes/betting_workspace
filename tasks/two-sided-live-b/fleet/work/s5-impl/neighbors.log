@@ -1,0 +1,22 @@
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 48%]
+........................................................................ [ 65%]
+........................................................................ [ 81%]
+........................................................................ [ 97%]
+.........                                                                [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.13/site-packages/nautilus_trader/persistence/catalog/parquet.py:825: 10 warnings
+  /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/.venv/lib/python3.13/site-packages/nautilus_trader/persistence/catalog/parquet.py:825: DeprecationWarning: The 'generic' unit for NumPy timedelta is deprecated, and will raise an error in the future. This includes implicit conversion of bare integers (e.g. `+ 1`).Please use a specific unit instead.
+    period: pd.Timedelta = pd.Timedelta(days=1),
+
+.venv/lib/python3.13/site-packages/nautilus_trader/persistence/catalog/parquet.py:891: 10 warnings
+  /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/.venv/lib/python3.13/site-packages/nautilus_trader/persistence/catalog/parquet.py:891: DeprecationWarning: The 'generic' unit for NumPy timedelta is deprecated, and will raise an error in the future. This includes implicit conversion of bare integers (e.g. `+ 1`).Please use a specific unit instead.
+    period: pd.Timedelta = pd.Timedelta(days=1),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+441 passed, 20 warnings in 225.71s (0:03:45)
+EXIT:0

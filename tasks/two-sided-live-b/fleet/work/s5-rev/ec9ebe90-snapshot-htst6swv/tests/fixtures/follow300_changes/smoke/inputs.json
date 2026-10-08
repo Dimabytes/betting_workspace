@@ -1,0 +1,88 @@
+{
+  "feeds": [
+    {
+      "game": "dota",
+      "kind": "grid_v1",
+      "match_id": 8837869969,
+      "model": {
+        "name": "20261005T081730Z",
+        "sha256": "e404e05d6326f5cb9011acacf2334c70420097f2b74a2e99dab4da202437af74"
+      },
+      "signals_sha256": "4e4b90a32e92e7173572797b75e5e6cc1d1932880b3ad14cd471915b036a7fc6"
+    },
+    {
+      "game": "dota",
+      "kind": "grid_v1",
+      "match_id": 8911784562,
+      "model": {
+        "name": "20261005T081730Z",
+        "sha256": "e404e05d6326f5cb9011acacf2334c70420097f2b74a2e99dab4da202437af74"
+      },
+      "signals_sha256": "4e4b90a32e92e7173572797b75e5e6cc1d1932880b3ad14cd471915b036a7fc6"
+    },
+    {
+      "game": "dota",
+      "kind": "grid_v1",
+      "match_id": 8933879286,
+      "model": {
+        "name": "20261005T081730Z",
+        "sha256": "e404e05d6326f5cb9011acacf2334c70420097f2b74a2e99dab4da202437af74"
+      },
+      "signals_sha256": "4e4b90a32e92e7173572797b75e5e6cc1d1932880b3ad14cd471915b036a7fc6"
+    },
+    {
+      "features_sha256": "931128342cef2d4dbb975387c67a62efca9ac55da8f142662fb5ada23c721b26",
+      "game": "dota",
+      "kind": "schedule",
+      "match_id": 9007208887,
+      "model": {
+        "name": "20261005T081904Z",
+        "sha256": "382e425606f0c6a08a93fd6a1316575e1b8278d5fdcb08daef098918b429702e"
+      },
+      "schedule_sha256": "8246fc135b3954a562d3e10217a71bd51ca2d59a95dd4ce72c42f6ff98540977"
+    },
+    {
+      "features_sha256": "931128342cef2d4dbb975387c67a62efca9ac55da8f142662fb5ada23c721b26",
+      "game": "dota",
+      "kind": "schedule",
+      "match_id": 9007700576,
+      "model": {
+        "name": "20261005T081904Z",
+        "sha256": "382e425606f0c6a08a93fd6a1316575e1b8278d5fdcb08daef098918b429702e"
+      },
+      "schedule_sha256": "3ea1f186494183e197412b2ff875fad740fb1e1eb6f515ade68cc2f7940b3b1a"
+    },
+    {
+      "features_sha256": "931128342cef2d4dbb975387c67a62efca9ac55da8f142662fb5ada23c721b26",
+      "game": "dota",
+      "kind": "schedule",
+      "match_id": 9015175653,
+      "model": {
+        "name": "20261005T081904Z",
+        "sha256": "382e425606f0c6a08a93fd6a1316575e1b8278d5fdcb08daef098918b429702e"
+      },
+      "schedule_sha256": "2d94028c21c825150bf553d7fa798ad9d4ec3a1fc0598c4a37fdda84464a4e66"
+    },
+    {
+      "game": "lol",
+      "kind": "grid_v1",
+      "match_id": 115564793879469302,
+      "model": {
+        "name": "20261005T085427Z",
+        "sha256": "c58d7c3672cfa57f32fde569d3e830bee30aa23451d48314f21fbe2e8b729fff"
+      },
+      "signals_sha256": "e004a1a2d367b1a35fcf7ef257fee45ef5084ec16ede01095a293479a1faea9b"
+    },
+    {
+      "game": "lol",
+      "kind": "grid_v1",
+      "match_id": 116634566264113530,
+      "model": {
+        "name": "20261005T085427Z",
+        "sha256": "c58d7c3672cfa57f32fde569d3e830bee30aa23451d48314f21fbe2e8b729fff"
+      },
+      "signals_sha256": "e004a1a2d367b1a35fcf7ef257fee45ef5084ec16ede01095a293479a1faea9b"
+    }
+  ],
+  "strategy_constants_sha256": "158198ebfcd8b68a7c41e0648a802f963963cab9aeede3b5ff3dac25f130abad"
+}

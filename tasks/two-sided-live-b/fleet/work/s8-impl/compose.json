@@ -1,0 +1,403 @@
+{
+  "name": "esports-trader-s8",
+  "networks": {
+    "default": {
+      "name": "esports-trader-s8_default"
+    }
+  },
+  "services": {
+    "compress": {
+      "build": {
+        "context": "/Users/dimabytes/work/polymarket/dota_2_bot",
+        "dockerfile": "esports-trader/Dockerfile"
+      },
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-dev",
+        "python",
+        "-m",
+        "trader.compress_archives",
+        "--root",
+        "/app/data/trader_live",
+        "--root",
+        "/app/data/trader_paper",
+        "--root",
+        "/app/data/trader_live_b"
+      ],
+      "init": true,
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-file": "5",
+          "max-size": "10m"
+        }
+      },
+      "networks": {
+        "default": null
+      },
+      "restart": "unless-stopped",
+      "stop_grace_period": "30s",
+      "volumes": [
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_live",
+          "target": "/app/data/trader_live",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_paper",
+          "target": "/app/data/trader_paper",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_live_b",
+          "target": "/app/data/trader_live_b",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/src",
+          "target": "/app/src",
+          "type": "bind"
+        }
+      ]
+    },
+    "live": {
+      "build": {
+        "context": "/Users/dimabytes/work/polymarket/dota_2_bot",
+        "dockerfile": "esports-trader/Dockerfile"
+      },
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-dev",
+        "python",
+        "-m",
+        "trader.orchestrator",
+        "daemon",
+        "--mode",
+        "live"
+      ],
+      "environment": {
+        "BROWSER_ADDRESS": "${BROWSER_ADDRESS}",
+        "DOTA_ARCHIVE_ROOT": "/archive/dota",
+        "DOTA_TRADING_MODE": "${DOTA_TRADING_MODE}",
+        "LOL_ARCHIVE_ROOT": "/archive/lol",
+        "LOL_TRADING_MODE": "${LOL_TRADING_MODE}",
+        "ODDIN_BRAND_TOKEN": "${ODDIN_BRAND_TOKEN}",
+        "PK": "${PK}",
+        "POLYGON_RPC": "${POLYGON_RPC}",
+        "STEAM_KEYS": "${STEAM_KEYS}",
+        "TG_BOT_API_TOKEN": "${TG_BOT_API_TOKEN}",
+        "TG_CHAT_ID": "${TG_CHAT_ID}"
+      },
+      "init": true,
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-file": "5",
+          "max-size": "10m"
+        }
+      },
+      "networks": {
+        "default": null
+      },
+      "restart": "unless-stopped",
+      "stop_grace_period": "60s",
+      "volumes": [
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/var/lib/polymarket-dota-archive",
+          "target": "/archive/dota",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/var/lib/polymarket-lol-archive",
+          "target": "/archive/lol",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_live",
+          "target": "/app/data/trader",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/new_model",
+          "target": "/app/data/new_model",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/lol/models",
+          "target": "/app/data/lol/models",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/src",
+          "target": "/app/src",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/config",
+          "target": "/app/config",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/.git",
+          "target": "/app/.git",
+          "type": "bind"
+        }
+      ]
+    },
+    "live_b": {
+      "build": {
+        "context": "/Users/dimabytes/work/polymarket/dota_2_bot",
+        "dockerfile": "esports-trader/Dockerfile"
+      },
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-dev",
+        "python",
+        "-m",
+        "trader.orchestrator",
+        "daemon",
+        "--mode",
+        "live"
+      ],
+      "environment": {
+        "BROWSER_ADDRESS": "${BROWSER_ADDRESS_B}",
+        "DOTA_ARCHIVE_ROOT": "/archive/dota",
+        "DOTA_STRATEGY": "two_sided",
+        "DOTA_TRADING_MODE": "live",
+        "LOL_TRADING_MODE": "off",
+        "ODDIN_BRAND_TOKEN": "${ODDIN_BRAND_TOKEN}",
+        "PK": "${PK_WALLET_B}",
+        "POLYGON_RPC": "${POLYGON_RPC}",
+        "POLY_BUILDER_KEY": "${POLY_BUILDER_KEY_B}",
+        "POLY_BUILDER_PASSPHRASE": "${POLY_BUILDER_PASSPHRASE_B}",
+        "POLY_BUILDER_SECRET": "${POLY_BUILDER_SECRET_B}",
+        "STEAM_KEYS": "${STEAM_KEYS}",
+        "TG_BOT_API_TOKEN": "${TG_BOT_API_TOKEN}",
+        "TG_CHAT_ID": "${TG_CHAT_ID_B}"
+      },
+      "init": true,
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-file": "5",
+          "max-size": "10m"
+        }
+      },
+      "networks": {
+        "default": null
+      },
+      "restart": "unless-stopped",
+      "stop_grace_period": "240s",
+      "volumes": [
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/var/lib/polymarket-dota-archive",
+          "target": "/archive/dota",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_live_b",
+          "target": "/app/data/trader",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/new_model",
+          "target": "/app/data/new_model",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/src",
+          "target": "/app/src",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/config_b",
+          "target": "/app/config",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/.git",
+          "target": "/app/.git",
+          "type": "bind"
+        }
+      ]
+    },
+    "paper": {
+      "build": {
+        "context": "/Users/dimabytes/work/polymarket/dota_2_bot",
+        "dockerfile": "esports-trader/Dockerfile"
+      },
+      "command": [
+        "uv",
+        "run",
+        "--frozen",
+        "--no-dev",
+        "python",
+        "-m",
+        "trader.orchestrator",
+        "daemon",
+        "--mode",
+        "paper"
+      ],
+      "environment": {
+        "DOTA_ARCHIVE_ROOT": "/archive/dota",
+        "DOTA_TRADING_MODE": "${DOTA_TRADING_MODE}",
+        "LOL_ARCHIVE_ROOT": "/archive/lol",
+        "LOL_TRADING_MODE": "${LOL_TRADING_MODE}",
+        "ODDIN_BRAND_TOKEN": "${ODDIN_BRAND_TOKEN}",
+        "STEAM_KEYS": "${STEAM_KEYS}",
+        "TG_BOT_API_TOKEN": "${TG_BOT_API_TOKEN}",
+        "TG_CHAT_ID": "${TG_CHAT_ID}"
+      },
+      "init": true,
+      "logging": {
+        "driver": "local",
+        "options": {
+          "max-file": "5",
+          "max-size": "10m"
+        }
+      },
+      "networks": {
+        "default": null
+      },
+      "restart": "unless-stopped",
+      "stop_grace_period": "30s",
+      "volumes": [
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/var/lib/polymarket-dota-archive",
+          "target": "/archive/dota",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/var/lib/polymarket-lol-archive",
+          "target": "/archive/lol",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/trader_paper",
+          "target": "/app/data/trader",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/new_model",
+          "target": "/app/data/new_model",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/data/lol/models",
+          "target": "/app/data/lol/models",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/src",
+          "target": "/app/src",
+          "type": "bind"
+        },
+        {
+          "bind": {
+            "create_host_path": true
+          },
+          "read_only": true,
+          "source": "/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader-s8/config",
+          "target": "/app/config",
+          "type": "bind"
+        }
+      ]
+    }
+  }
+}

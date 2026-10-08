@@ -1,0 +1,1025 @@
+diff --git a/src/backtest/two_sided_strategy.py b/src/backtest/two_sided_strategy.py
+index af433632..7a4e3c2e 100644
+--- a/src/backtest/two_sided_strategy.py
++++ b/src/backtest/two_sided_strategy.py
+@@ -66,6 +66,7 @@ from strategy.two_sided import (
+     inventory_skew,
+     price_bids,
+     scale_order_size,
++    tick_gap,
+ )
+ 
+ PLACEMENT_JOIN = "join"
+@@ -364,7 +365,7 @@ class TwoSidedMakerStrategy(Strategy):
+         if prices_match(live_price, want_price):
+             self._reprice_since.pop(token_index, None)
+             return False
+-        if _tick_gap(live_price, want_price) >= REPRICE_NOW_TICKS:
++        if tick_gap(live_price=live_price, want_price=want_price) >= REPRICE_NOW_TICKS:
+             self._reprice_since.pop(token_index, None)
+             return True
+         since_ns = self._reprice_since.get(token_index)
+@@ -766,7 +767,3 @@ class TwoSidedMakerStrategy(Strategy):
+             self._live_since_ns = None
+         if self._live:
+             self._live_since_ns = now_ns
+-
+-
+-def _tick_gap(live_price: float, want_price: float) -> int:
+-    return abs(round(live_price / TICK) - round(want_price / TICK))
+diff --git a/src/strategy/engine.py b/src/strategy/engine.py
+index 16050916..ca4c0f6a 100644
+--- a/src/strategy/engine.py
++++ b/src/strategy/engine.py
+@@ -16,9 +16,10 @@ from strategy.lifecycle import (
+     apply_settlement,
+     apply_submit_timeout,
+ )
+-from strategy.policy import Follow300Policy
++from strategy.policy import Policy, TwoSidedPolicy
+ from strategy.quoting import empty_plan, requote
+ from strategy.scheduling import mark_evaluated, next_wake_ns, note_schedule, should_evaluate
++from strategy.two_sided_quoting import requote_two_sided
+ from strategy.types import (
+     BookUpdate,
+     BudgetUpdate,
+@@ -37,6 +38,7 @@ from strategy.types import (
+     OrderRejected,
+     OwnershipResolved,
+     PermissionsUpdate,
++    Plan,
+     Recovery,
+     RecoveryVerified,
+     SettlementStatus,
+@@ -128,12 +130,18 @@ def _cancels_opened(*, prior: frozenset[str], state: StrategyState) -> tuple[Can
+     )
+ 
+ 
+-def step(*, state: StrategyState, policy: Follow300Policy, event: InboundEvent) -> EngineOutput:
++def _requote(*, state: StrategyState, policy: Policy, now_ns: int) -> tuple[StrategyState, Plan]:
++    if isinstance(policy, TwoSidedPolicy):
++        return requote_two_sided(state=state, policy=policy, now_ns=now_ns)
++    return requote(state=state, policy=policy, now_ns=now_ns)
++
++
++def step(*, state: StrategyState, policy: Policy, event: InboundEvent) -> EngineOutput:
+     prior = _canceling_ids(state)
+     state = _apply(state=state, event=event)
+     state = note_schedule(state=state, event=event)
+     if should_evaluate(event=event, state=state, policy=policy):
+-        state, plan = requote(state=state, policy=policy, now_ns=event.now_ns)
++        state, plan = _requote(state=state, policy=policy, now_ns=event.now_ns)
+         plan = replace(plan, cancels=_cancels_opened(prior=prior, state=state))
+         state = mark_evaluated(state=state, now_ns=event.now_ns)
+     else:
+diff --git a/src/strategy/lifecycle.py b/src/strategy/lifecycle.py
+index 583fe7d8..5ba336ef 100644
+--- a/src/strategy/lifecycle.py
++++ b/src/strategy/lifecycle.py
+@@ -71,6 +71,7 @@ def empty_state(
+         kill_gate=empty_kill_gate(),
+         next_order_seq=0,
+         schedule=QuoteSchedule(dirty_open_ns=None, last_eval_ns=0),
++        reprice_since_ns=(None, None),
+     )
+ 
+ 
+diff --git a/src/strategy/quoting.py b/src/strategy/quoting.py
+index b63c0b46..35f98d8a 100644
+--- a/src/strategy/quoting.py
++++ b/src/strategy/quoting.py
+@@ -125,7 +125,7 @@ def _cutoff(state: StrategyState, policy: Follow300Policy) -> bool:
+     return state.clock.game_second >= policy.buy_cutoff_second
+ 
+ 
+-def _books_unusable(state: StrategyState, now_ns: int) -> bool:
++def books_unusable(state: StrategyState, now_ns: int) -> bool:
+     books = state.books
+     if books is None:
+         return True
+@@ -621,9 +621,8 @@ def reconcile(
+         if already_canceling(order) or _skip_reprice(state, order, "reprice"):
+             continue
+         state = mark_canceling(state=state, order_id=order.order_id, reason="reprice")
+-    return _place_missing(
++    return place_missing(
+         state=state,
+-        policy=policy,
+         missing=tuple(missing),
+         keeps=tuple(keeps),
+         moves=tuple(moves),
+@@ -631,10 +630,9 @@ def reconcile(
+     )
+ 
+ 
+-def _place_missing(
++def place_missing(
+     *,
+     state: StrategyState,
+-    policy: Follow300Policy,
+     missing: tuple[QuoteTarget, ...],
+     keeps: tuple[KeepOrder, ...],
+     moves: tuple[MoveOrder, ...],
+@@ -875,7 +873,7 @@ def _quote_after_gates(
+ ) -> tuple[StrategyState, Plan]:
+     if _cutoff(state, policy) and total_qty(state.inventory) == 0:
+         return state, empty_plan(reason="cutoff")
+-    if _books_unusable(state, now_ns) or state.books is None:
++    if books_unusable(state, now_ns) or state.books is None:
+         return _blocked(state=state, reason="stale_book")
+     pair_p = core_book_p(books=state.books, limits=state.limits)
+     if pair_p is None:
+@@ -897,7 +895,7 @@ def _recovery_exit(
+ ) -> tuple[StrategyState, Plan]:
+     state = _cancel_orders(state=state, reason="recovery", buys_only=True)
+     state = end_episode_if_idle(state=state)
+-    if _books_unusable(state, now_ns) or state.books is None:
++    if books_unusable(state, now_ns) or state.books is None:
+         return _blocked(state=state, reason="stale_book")
+     pair_p = core_book_p(books=state.books, limits=state.limits)
+     if pair_p is not None and total_qty(state.inventory) > 0.0:
+diff --git a/src/strategy/scheduling.py b/src/strategy/scheduling.py
+index 6e0e64e1..4046f229 100644
+--- a/src/strategy/scheduling.py
++++ b/src/strategy/scheduling.py
+@@ -4,8 +4,9 @@ from dataclasses import replace
+ 
+ from strategy.kill_gate import kill_gate_boundary_ns
+ from strategy.mid_spike import mid_spike_boundary_ns
+-from strategy.policy import Follow300Policy
++from strategy.policy import Policy, TwoSidedPolicy
+ from strategy.quoting import reanchor_boundary_ns, sell_boundary_ns
++from strategy.two_sided_quoting import reprice_hold_boundary_ns
+ from strategy.types import (
+     BookUpdate,
+     BuySettled,
+@@ -33,11 +34,11 @@ NS_PER_MS = 1_000_000
+ NS_PER_S = 1_000_000_000
+ 
+ 
+-def debounce_ns(policy: Follow300Policy) -> int:
++def debounce_ns(policy: Policy) -> int:
+     return int(policy.debounce_ms) * NS_PER_MS
+ 
+ 
+-def fallback_ns(policy: Follow300Policy) -> int:
++def fallback_ns(policy: Policy) -> int:
+     return round(policy.fallback_timer_s * NS_PER_S)
+ 
+ 
+@@ -87,14 +88,30 @@ def entry_stale_boundary_ns(*, state: StrategyState) -> int | None:
+     return int(signal.source_received_ns + round(state.freshness.entry_stale_s * NS_PER_S))
+ 
+ 
+-def armed_deadline_ns(*, state: StrategyState, policy: Follow300Policy, now_ns: int) -> int:
++def _cadence_deadline_ns(*, state: StrategyState, policy: Policy, now_ns: int) -> int:
+     schedule = state.schedule
+     dirty = schedule.dirty_open_ns
+     if dirty is not None:
+-        deadline = dirty + debounce_ns(policy)
+-    else:
+-        origin = schedule.last_eval_ns if schedule.last_eval_ns > 0 else now_ns
+-        deadline = origin + fallback_ns(policy)
++        return dirty + debounce_ns(policy)
++    origin = schedule.last_eval_ns if schedule.last_eval_ns > 0 else now_ns
++    return origin + fallback_ns(policy)
++
++
++def _hold_deadline_ns(
++    *, state: StrategyState, policy: TwoSidedPolicy, deadline: int, now_ns: int
++) -> int:
++    hold = reprice_hold_boundary_ns(state=state, policy=policy)
++    if hold is None:
++        return deadline
++    if hold <= now_ns:
++        return now_ns
++    return min(deadline, hold)
++
++
++def armed_deadline_ns(*, state: StrategyState, policy: Policy, now_ns: int) -> int:
++    deadline = _cadence_deadline_ns(state=state, policy=policy, now_ns=now_ns)
++    if isinstance(policy, TwoSidedPolicy):
++        return _hold_deadline_ns(state=state, policy=policy, deadline=deadline, now_ns=now_ns)
+     boundaries = (
+         sell_boundary_ns(state=state, policy=policy, now_ns=now_ns),
+         mid_spike_boundary_ns(state=state, now_ns=now_ns),
+@@ -117,7 +134,7 @@ def armed_deadline_ns(*, state: StrategyState, policy: Follow300Policy, now_ns:
+     return deadline
+ 
+ 
+-def next_wake_ns(*, state: StrategyState, policy: Follow300Policy, now_ns: int) -> int:
++def next_wake_ns(*, state: StrategyState, policy: Policy, now_ns: int) -> int:
+     deadline = armed_deadline_ns(state=state, policy=policy, now_ns=now_ns)
+     if deadline > now_ns:
+         return deadline
+@@ -126,7 +143,7 @@ def next_wake_ns(*, state: StrategyState, policy: Follow300Policy, now_ns: int)
+     return now_ns + fallback_ns(policy)
+ 
+ 
+-def should_evaluate(*, event: InboundEvent, state: StrategyState, policy: Follow300Policy) -> bool:
++def should_evaluate(*, event: InboundEvent, state: StrategyState, policy: Policy) -> bool:
+     match event:
+         case (
+             CancelAck()
+diff --git a/src/strategy/two_sided.py b/src/strategy/two_sided.py
+index 2ae9e738..8677c794 100644
+--- a/src/strategy/two_sided.py
++++ b/src/strategy/two_sided.py
+@@ -60,3 +60,7 @@ def scale_order_size(
+     if room <= 0.0:
+         return 0.0
+     return size_shares * min(room, 1.0)
++
++
++def tick_gap(*, live_price: float, want_price: float) -> int:
++    return abs(round(live_price / TICK) - round(want_price / TICK))
+diff --git a/src/strategy/two_sided_quoting.py b/src/strategy/two_sided_quoting.py
+new file mode 100644
+index 00000000..b82be6db
+--- /dev/null
++++ b/src/strategy/two_sided_quoting.py
+@@ -0,0 +1,236 @@
++"""Two-sided maker quotes in the core: pull reasons, bid targets, one-tick hold."""
++
++from dataclasses import dataclass, replace
++
++from shared.utils.trading import share_floor
++from strategy.lifecycle import already_canceling, mark_canceling
++from strategy.policy import TwoSidedPolicy
++from strategy.quoting import QuoteTarget, books_unusable, empty_plan, place_missing
++from strategy.signals import core_book_p, is_fresh
++from strategy.two_sided import inventory_skew, price_bids, scale_order_size, tick_gap
++from strategy.types import (
++    BlockReason,
++    BookPair,
++    KeepOrder,
++    Plan,
++    RestingOrder,
++    StrategyState,
++)
++
++
++@dataclass(frozen=True)
++class HeldBids:
++    targets: tuple[QuoteTarget, ...]
++    reprice_since_ns: tuple[int | None, int | None]
++
++
++def _session_pull_reason(*, state: StrategyState) -> BlockReason | None:
++    if state.permissions.halt:
++        return "halt"
++    if state.ownership_unresolved:
++        return "ownership_unresolved"
++    if state.recovery_pending:
++        return "recovery"
++    return None
++
++
++def _clock_pull_reason(
++    *, state: StrategyState, policy: TwoSidedPolicy, now_ns: int
++) -> BlockReason | None:
++    clock = state.clock
++    if clock.game_ended:
++        return "game_end"
++    if clock.paused:
++        return "paused"
++    if clock.game_second < policy.quote_from_second:
++        return "cutoff"
++    if not is_fresh(now_ns=now_ns, ts_ns=clock.now_ns, max_age_s=state.freshness.entry_stale_s):
++        return "stale_signal"
++    return None
++
++
++def _is_outside_band(*, books: BookPair, band_hi: float) -> bool:
++    for book in books.tokens:
++        mid = (book.bid + book.ask) / 2.0
++        if mid > band_hi or mid < 1.0 - band_hi:
++            return True
++    return False
++
++
++def _market_pull_reason(
++    *, state: StrategyState, policy: TwoSidedPolicy, now_ns: int
++) -> BlockReason | None:
++    if state.permissions.reduce_only:
++        return "reduce_only"
++    if not state.permissions.allow_buy:
++        return "fair"
++    books = state.books
++    if books is None or books_unusable(state, now_ns):
++        return "stale_book"
++    if _is_outside_band(books=books, band_hi=policy.band_hi):
++        return "band"
++    if core_book_p(books=books, limits=state.limits) is None:
++        return "pair_tolerance"
++    return None
++
++
++def two_sided_pull_reason(
++    *, state: StrategyState, policy: TwoSidedPolicy, now_ns: int
++) -> BlockReason | None:
++    reason = _session_pull_reason(state=state)
++    if reason is None:
++        reason = _clock_pull_reason(state=state, policy=policy, now_ns=now_ns)
++    if reason is None:
++        reason = _market_pull_reason(state=state, policy=policy, now_ns=now_ns)
++    return reason
++
++
++def _leg_target(
++    *,
++    state: StrategyState,
++    policy: TwoSidedPolicy,
++    leg_index: int,
++    token_index: int,
++    ticks: int,
++    net_shares: float,
++) -> QuoteTarget | None:
++    if ticks <= 0:
++        return None
++    size = share_floor(
++        scale_order_size(
++            size_shares=policy.order_shares,
++            net_shares=net_shares,
++            net_max_shares=policy.net_max_shares,
++            token_index=leg_index,
++        )
++    )
++    if size < state.limits.min_order_size:
++        return None
++    return QuoteTarget(
++        token_index=token_index,
++        side="BUY",
++        price=round(ticks * policy.tick, 2),
++        quantity=size,
++        level_index=token_index,
++    )
++
++
++def desired_bids(*, state: StrategyState, policy: TwoSidedPolicy) -> tuple[QuoteTarget, ...]:
++    books = state.books
++    fair = None if books is None else core_book_p(books=books, limits=state.limits)
++    if fair is None:
++        return ()
++    radiant = state.limits.radiant_token_index
++    dire = 1 - radiant
++    net = state.inventory[radiant].qty - state.inventory[dire].qty
++    skew = inventory_skew(fair=fair, net_shares=net, skew_per_share=policy.skew_per_share)
++    ticks = price_bids(fair=fair, half_spread_ticks=policy.half_spread_ticks, skew=skew)
++    legs = (
++        _leg_target(
++            state=state,
++            policy=policy,
++            leg_index=0,
++            token_index=radiant,
++            ticks=ticks.yes_ticks,
++            net_shares=net,
++        ),
++        _leg_target(
++            state=state,
++            policy=policy,
++            leg_index=1,
++            token_index=dire,
++            ticks=ticks.no_ticks,
++            net_shares=net,
++        ),
++    )
++    return tuple(target for target in legs if target is not None)
++
++
++def _live_bid(*, state: StrategyState, token_index: int) -> RestingOrder | None:
++    for order in state.orders:
++        if (
++            order.side == "BUY"
++            and order.token_index == token_index
++            and order.status != "gone"
++            and not already_canceling(order)
++        ):
++            return order
++    return None
++
++
++def hold_one_tick_moves(
++    *,
++    state: StrategyState,
++    policy: TwoSidedPolicy,
++    targets: tuple[QuoteTarget, ...],
++    now_ns: int,
++) -> HeldBids:
++    held: list[QuoteTarget] = []
++    since: list[int | None] = [None, None]
++    for target in targets:
++        live = _live_bid(state=state, token_index=target.token_index)
++        if live is None:
++            held.append(target)
++            continue
++        gap = tick_gap(live_price=live.price, want_price=target.price)
++        if gap == 0 or gap >= policy.reprice_now_ticks:
++            held.append(target)
++            continue
++        started = state.reprice_since_ns[target.token_index]
++        if started is None:
++            started = now_ns
++        if now_ns - started >= policy.reprice_hold_ns:
++            held.append(target)
++            continue
++        since[target.token_index] = started
++        held.append(replace(target, price=live.price))
++    return HeldBids(targets=tuple(held), reprice_since_ns=(since[0], since[1]))
++
++
++def reprice_hold_boundary_ns(*, state: StrategyState, policy: TwoSidedPolicy) -> int | None:
++    starts = [start for start in state.reprice_since_ns if start is not None]
++    if not starts:
++        return None
++    return min(starts) + policy.reprice_hold_ns
++
++
++def _pull_bids(*, state: StrategyState, reason: BlockReason) -> tuple[StrategyState, Plan]:
++    state = replace(state, reprice_since_ns=(None, None))
++    for order in state.orders:
++        state = mark_canceling(state=state, order_id=order.order_id, reason=reason)
++    return state, empty_plan(reason=reason)
++
++
++def _reconcile_bids(
++    *, state: StrategyState, targets: tuple[QuoteTarget, ...], now_ns: int
++) -> tuple[StrategyState, Plan]:
++    keeps: list[KeepOrder] = []
++    missing: list[QuoteTarget] = []
++    for target in targets:
++        live = _live_bid(state=state, token_index=target.token_index)
++        if live is not None and tick_gap(live_price=live.price, want_price=target.price) == 0:
++            keeps.append(KeepOrder(order_id=live.order_id, level_index=live.level_index))
++        else:
++            missing.append(target)
++    kept = {keep.order_id for keep in keeps}
++    for order in state.orders:
++        if order.order_id in kept or already_canceling(order):
++            continue
++        state = mark_canceling(state=state, order_id=order.order_id, reason="reprice")
++    return place_missing(
++        state=state, missing=tuple(missing), keeps=tuple(keeps), moves=(), now_ns=now_ns
++    )
++
++
++def requote_two_sided(
++    *, state: StrategyState, policy: TwoSidedPolicy, now_ns: int
++) -> tuple[StrategyState, Plan]:
++    if state.sell_only and not state.recovery_pending:
++        state = replace(state, sell_only=False)
++    reason = two_sided_pull_reason(state=state, policy=policy, now_ns=now_ns)
++    if reason is not None:
++        return _pull_bids(state=state, reason=reason)
++    targets = desired_bids(state=state, policy=policy)
++    held = hold_one_tick_moves(state=state, policy=policy, targets=targets, now_ns=now_ns)
++    state = replace(state, reprice_since_ns=held.reprice_since_ns)
++    return _reconcile_bids(state=state, targets=held.targets, now_ns=now_ns)
+diff --git a/src/strategy/types.py b/src/strategy/types.py
+index ab097717..392e3ed9 100644
+--- a/src/strategy/types.py
++++ b/src/strategy/types.py
+@@ -23,6 +23,7 @@ BlockReason = Literal[
+     "stale_signal",
+     "stale_book",
+     "pair_tolerance",
++    "band",
+     "anchor",
+     "halt",
+     "paused",
+@@ -295,6 +296,7 @@ class StrategyState:
+     kill_gate: KillGate
+     next_order_seq: int
+     schedule: QuoteSchedule
++    reprice_since_ns: tuple[int | None, int | None]
+     delta_gate_open: bool = False
+ 
+     @property
+diff --git a/tests/test_strategy_two_sided.py b/tests/test_strategy_two_sided.py
+index 95f0fa1c..81d24246 100644
+--- a/tests/test_strategy_two_sided.py
++++ b/tests/test_strategy_two_sided.py
+@@ -1,16 +1,52 @@
+ """Self-check values of the two-sided quote math, imported from strategy.two_sided."""
+ 
++from dataclasses import replace
++
++import pytest
++
++from strategy.engine import step
++from strategy.lifecycle import already_canceling, empty_state
+ from strategy.policy import Policy, TwoSidedPolicy, follow300_policy, two_sided_policy
++from strategy.quoting import QuoteTarget
++from strategy.scheduling import armed_deadline_ns, debounce_ns
+ from strategy.two_sided import (
+     HALF_SPREAD_TICKS,
+     NET_MAX_SHARES,
+     ORDER_SHARES,
++    REPRICE_HOLD_NS,
+     SKEW_PER_SHARE,
+     BidTicks,
+     inventory_skew,
+     price_bids,
+     scale_order_size,
+ )
++from strategy.two_sided_quoting import desired_bids
++from strategy.types import (
++    BlockReason,
++    BookPair,
++    BookUpdate,
++    Budget,
++    BuySettled,
++    CancelAck,
++    CancelUnsettled,
++    ClockUpdate,
++    EngineOutput,
++    Fill,
++    FreshnessLimits,
++    GameClock,
++    InboundEvent,
++    MarketLimits,
++    OrderAccepted,
++    Permissions,
++    PermissionsUpdate,
++    RawDeltaSignal,
++    Recovery,
++    RecoveryVerified,
++    StrategyState,
++    TokenBook,
++    TokenInventory,
++    Wake,
++)
+ 
+ 
+ def test_price_bids_matches_backtest_self_check() -> None:
+@@ -53,3 +89,470 @@ def test_two_sided_policy_bakes_live_constants() -> None:
+     follow = follow300_policy(level_usdc=20.0, debounce_ms=250, fallback_timer_s=1.0)
+     policies: tuple[Policy, ...] = (follow, policy)
+     assert all(item.debounce_ms == 250 for item in policies)
++
++
++NS = 1_000_000_000
++T0 = 10 * NS
++T1 = T0 + 1_000_000
++POLICY = two_sided_policy(debounce_ms=100, fallback_timer_s=1.0)
++PERMISSIONS = Permissions(
++    halt=False, reduce_only=False, allow_buy=True, allow_sell=True, sell_unconfirmed=False
++)
++WAKE = Wake(now_ns=T1, forced=True)
++
++
++def _books(*, bid0: float, ask0: float, bid1: float, ask1: float, ts_ns: int) -> BookPair:
++    return BookPair(
++        tokens=(
++            TokenBook(
++                token_index=0, bid=bid0, ask=ask0, bid_size=100.0, ask_size=100.0, ts_ns=ts_ns
++            ),
++            TokenBook(
++                token_index=1, bid=bid1, ask=ask1, bid_size=100.0, ask_size=100.0, ts_ns=ts_ns
++            ),
++        )
++    )
++
++
++def _even_books(*, ts_ns: int) -> BookPair:
++    return _books(bid0=0.49, ask0=0.51, bid1=0.49, ask1=0.51, ts_ns=ts_ns)
++
++
++def _idle(*, radiant_index: int) -> StrategyState:
++    return empty_state(
++        limits=MarketLimits(
++            min_order_size=5.0,
++            tick_size=0.01,
++            pair_sum_tolerance=0.05,
++            radiant_token_index=radiant_index,
++        ),
++        freshness=FreshnessLimits(book_stale_s=5.0, entry_stale_s=16.0, exit_stale_s=45.0),
++        permissions=PERMISSIONS,
++        budget=Budget(cash_usdc=1000.0, cap_room_usdc=1000.0, account_cap_room_usdc=1000.0),
++        clock=GameClock(now_ns=T0, game_second=100, paused=False, game_ended=False),
++    )
++
++
++def _run(*, state: StrategyState, events: tuple[InboundEvent, ...]) -> list[EngineOutput]:
++    outputs: list[EngineOutput] = []
++    for event in events:
++        output = step(state=state, policy=POLICY, event=event)
++        outputs.append(output)
++        state = output.state
++    return outputs
++
++
++def _quote_outputs(*, radiant_index: int) -> list[EngineOutput]:
++    opened = _run(
++        state=_idle(radiant_index=radiant_index),
++        events=(
++            BookUpdate(now_ns=T0, books=_even_books(ts_ns=T0)),
++            Wake(now_ns=T0, forced=True),
++        ),
++    )
++    accepted = _run(
++        state=opened[-1].state,
++        events=tuple(
++            OrderAccepted(now_ns=T0, order_id=place.order_id) for place in opened[-1].plan.places
++        ),
++    )
++    return [*opened, *accepted]
++
++
++def _quoting(*, radiant_index: int) -> StrategyState:
++    return _quote_outputs(radiant_index=radiant_index)[-1].state
++
++
++def _bid_ids(state: StrategyState) -> dict[int, str]:
++    return {
++        order.token_index: order.order_id
++        for order in state.orders
++        if order.side == "BUY" and order.status != "gone" and not already_canceling(order)
++    }
++
++
++def _inventory(
++    *, radiant_index: int, radiant_qty: float, dire_qty: float
++) -> tuple[TokenInventory, TokenInventory]:
++    qty = [0.0, 0.0]
++    qty[radiant_index] = radiant_qty
++    qty[1 - radiant_index] = dire_qty
++    return (
++        TokenInventory(token_index=0, qty=qty[0], cost_basis=0.0, last_buy_ns=None),
++        TokenInventory(token_index=1, qty=qty[1], cost_basis=0.0, last_buy_ns=None),
++    )
++
++
++def _target(targets: tuple[QuoteTarget, ...], token_index: int) -> QuoteTarget | None:
++    for target in targets:
++        if target.token_index == token_index:
++            return target
++    return None
++
++
++PULL_EVENTS: dict[BlockReason, tuple[InboundEvent, ...]] = {
++    "halt": (PermissionsUpdate(now_ns=T1, permissions=replace(PERMISSIONS, halt=True)), WAKE),
++    "ownership_unresolved": (
++        Fill(
++            now_ns=T1,
++            fill_id="stray",
++            order_id="venue-stray",
++            qty=5.0,
++            price=0.47,
++            token_index=0,
++            side="BUY",
++        ),
++        WAKE,
++    ),
++    "recovery": (Recovery(now_ns=T1, restored_buy_ids=()), WAKE),
++    "game_end": (
++        ClockUpdate(
++            now_ns=T1, clock=GameClock(now_ns=T1, game_second=100, paused=False, game_ended=True)
++        ),
++        WAKE,
++    ),
++    "paused": (
++        ClockUpdate(
++            now_ns=T1, clock=GameClock(now_ns=T1, game_second=100, paused=True, game_ended=False)
++        ),
++        WAKE,
++    ),
++    "cutoff": (
++        ClockUpdate(
++            now_ns=T1, clock=GameClock(now_ns=T1, game_second=-61, paused=False, game_ended=False)
++        ),
++        WAKE,
++    ),
++    "stale_signal": (Wake(now_ns=T0 + 16 * NS + 1, forced=False),),
++    "reduce_only": (
++        PermissionsUpdate(now_ns=T1, permissions=replace(PERMISSIONS, reduce_only=True)),
++        WAKE,
++    ),
++    "fair": (
++        PermissionsUpdate(now_ns=T1, permissions=replace(PERMISSIONS, allow_buy=False)),
++        WAKE,
++    ),
++    "stale_book": (Wake(now_ns=T0 + 5 * NS + 1, forced=False),),
++    "band": (
++        BookUpdate(
++            now_ns=T1,
++            books=_books(bid0=0.91, ask0=0.93, bid1=0.07, ask1=0.09, ts_ns=T1),
++        ),
++        WAKE,
++    ),
++    "pair_tolerance": (
++        BookUpdate(
++            now_ns=T1,
++            books=_books(bid0=0.55, ask0=0.57, bid1=0.53, ask1=0.55, ts_ns=T1),
++        ),
++        WAKE,
++    ),
++}
++
++
++def test_first_quote_places_two_post_only_buys() -> None:
++    wake = _quote_outputs(radiant_index=0)[1]
++    assert {
++        (
++            place.token_index,
++            place.level_index,
++            place.side,
++            place.price,
++            place.quantity,
++            place.reduce_only,
++        )
++        for place in wake.plan.places
++    } == {
++        (0, 0, "BUY", 0.47, 20.0, False),
++        (1, 1, "BUY", 0.47, 20.0, False),
++    }
++    assert wake.plan.block_reason == ""
++
++
++@pytest.mark.parametrize("radiant_index", [0, 1])
++def test_skew_leans_against_inventory(radiant_index: int) -> None:
++    state = replace(
++        _quoting(radiant_index=radiant_index),
++        inventory=_inventory(radiant_index=radiant_index, radiant_qty=30.0, dire_qty=0.0),
++    )
++    targets = desired_bids(state=state, policy=POLICY)
++    radiant = _target(targets, radiant_index)
++    dire_index = 1 - radiant_index
++    dire = _target(targets, dire_index)
++    assert radiant is not None and dire is not None
++    assert (radiant.price, radiant.quantity, radiant.level_index, radiant.side) == (
++        0.46,
++        8.0,
++        radiant_index,
++        "BUY",
++    )
++    assert (dire.price, dire.quantity, dire.level_index, dire.side) == (
++        0.48,
++        20.0,
++        dire_index,
++        "BUY",
++    )
++
++
++@pytest.mark.parametrize("radiant_index", [0, 1])
++def test_fill_shrinks_the_side_that_grew(radiant_index: int) -> None:
++    state = _quoting(radiant_index=radiant_index)
++    ids = _bid_ids(state)
++    dire = 1 - radiant_index
++    outputs = _run(
++        state=state,
++        events=(
++            Fill(
++                now_ns=T1,
++                fill_id="f1",
++                order_id=ids[radiant_index],
++                qty=20.0,
++                price=0.47,
++                token_index=radiant_index,
++                side="BUY",
++            ),
++            Wake(now_ns=T1, forced=True),
++        ),
++    )
++    plan = outputs[-1].plan
++    assert plan.cancels == ()
++    assert len(plan.places) == 1
++    place = plan.places[0]
++    assert (place.token_index, place.price, place.quantity, place.side) == (
++        radiant_index,
++        0.47,
++        12.0,
++        "BUY",
++    )
++    assert [keep.order_id for keep in plan.keep] == [ids[dire]]
++    kept = next(order for order in outputs[-1].state.orders if order.order_id == ids[dire])
++    assert kept.submitted_qty == 20.0
++
++
++@pytest.mark.parametrize(
++    ("net", "radiant_size"),
++    [
++        (0.0, 20.0),
++        (10.0, 16.0),
++        (25.0, 10.0),
++        (37.5, 5.0),
++        (45.0, None),
++        (50.0, None),
++    ],
++)
++def test_net_cap_shrinks_the_heavy_side_to_zero(net: float, radiant_size: float | None) -> None:
++    state = replace(
++        _quoting(radiant_index=0),
++        inventory=_inventory(radiant_index=0, radiant_qty=net, dire_qty=0.0),
++    )
++    targets = desired_bids(state=state, policy=POLICY)
++    dire = _target(targets, 1)
++    assert dire is not None
++    assert dire.quantity == 20.0
++    radiant = _target(targets, 0)
++    if radiant_size is None:
++        assert radiant is None
++        return
++    assert radiant is not None
++    assert radiant.quantity == radiant_size
++
++
++@pytest.mark.parametrize("reason", list(PULL_EVENTS))
++def test_each_pull_reason_cancels_both_bids(reason: BlockReason) -> None:
++    state = _quoting(radiant_index=0)
++    ids = _bid_ids(state)
++    outputs = _run(state=state, events=PULL_EVENTS[reason])
++    cancels = {cancel.order_id: cancel.reason for out in outputs for cancel in out.plan.cancels}
++    assert cancels == {ids[0]: reason, ids[1]: reason}
++    last = outputs[-1]
++    assert last.plan.block_reason == reason
++    assert last.plan.places == ()
++    assert all(
++        order.status == "canceling" and order.cancel_reason == reason for order in last.state.orders
++    )
++
++
++def test_one_tick_move_waits_then_replaces_after_ack() -> None:
++    state = _quoting(radiant_index=0)
++    ids = _bid_ids(state)
++    t1 = T0 + NS
++    held = _run(
++        state=state,
++        events=(
++            BookUpdate(
++                now_ns=t1,
++                books=_books(bid0=0.50, ask0=0.52, bid1=0.48, ask1=0.50, ts_ns=t1),
++            ),
++            Wake(now_ns=t1, forced=True),
++        ),
++    )[-1]
++    assert held.plan.cancels == ()
++    assert held.plan.places == ()
++    assert {keep.order_id for keep in held.plan.keep} == set(ids.values())
++    assert held.state.reprice_since_ns == (t1, t1)
++    assert held.next_wake_ns == t1 + REPRICE_HOLD_NS
++    early = _run(
++        state=held.state,
++        events=(Wake(now_ns=t1 + REPRICE_HOLD_NS - 1_000_000, forced=True),),
++    )[-1]
++    assert early.plan.cancels == ()
++    released = _run(
++        state=early.state,
++        events=(Wake(now_ns=t1 + REPRICE_HOLD_NS, forced=False),),
++    )[-1]
++    assert {cancel.order_id: cancel.reason for cancel in released.plan.cancels} == {
++        ids[0]: "reprice",
++        ids[1]: "reprice",
++    }
++    assert released.plan.places == ()
++    assert released.state.reprice_since_ns == (None, None)
++    radiant = _run(
++        state=released.state,
++        events=(CancelAck(now_ns=t1 + REPRICE_HOLD_NS, order_id=ids[0]),),
++    )[-1]
++    assert len(radiant.plan.places) == 1
++    assert (
++        radiant.plan.places[0].token_index,
++        radiant.plan.places[0].price,
++        radiant.plan.places[0].quantity,
++    ) == (
++        0,
++        0.48,
++        20.0,
++    )
++    dire = _run(
++        state=radiant.state,
++        events=(CancelAck(now_ns=t1 + REPRICE_HOLD_NS, order_id=ids[1]),),
++    )[-1]
++    assert len(dire.plan.places) == 1
++    assert (
++        dire.plan.places[0].token_index,
++        dire.plan.places[0].price,
++        dire.plan.places[0].quantity,
++    ) == (
++        1,
++        0.46,
++        20.0,
++    )
++
++
++def test_two_tick_move_cancels_at_once_and_waits_for_settle() -> None:
++    state = _quoting(radiant_index=0)
++    ids = _bid_ids(state)
++    t1 = T0 + NS
++    moved = _run(
++        state=state,
++        events=(
++            BookUpdate(
++                now_ns=t1,
++                books=_books(bid0=0.51, ask0=0.53, bid1=0.47, ask1=0.49, ts_ns=t1),
++            ),
++            Wake(now_ns=t1, forced=True),
++        ),
++    )[-1]
++    assert {cancel.order_id: cancel.reason for cancel in moved.plan.cancels} == {
++        ids[0]: "reprice",
++        ids[1]: "reprice",
++    }
++    assert moved.plan.places == ()
++    assert moved.state.reprice_since_ns == (None, None)
++    radiant = _run(state=moved.state, events=(CancelAck(now_ns=t1, order_id=ids[0]),))[-1]
++    assert len(radiant.plan.places) == 1
++    assert (radiant.plan.places[0].token_index, radiant.plan.places[0].price) == (0, 0.49)
++    unsettled = _run(state=radiant.state, events=(CancelUnsettled(now_ns=t1, order_id=ids[1]),))[-1]
++    assert unsettled.plan.places == ()
++    settled = _run(
++        state=unsettled.state,
++        events=(BuySettled(now_ns=t1, order_id=ids[1], matched_qty=0.0),),
++    )[-1]
++    assert len(settled.plan.places) == 1
++    assert (settled.plan.places[0].token_index, settled.plan.places[0].price) == (1, 0.45)
++
++
++def test_recovery_chain_keeps_quoting_both_sides() -> None:
++    chain: list[EngineOutput] = []
++    opened = _run(
++        state=_idle(radiant_index=0),
++        events=(
++            BookUpdate(now_ns=T0, books=_even_books(ts_ns=T0)),
++            Recovery(now_ns=T0, restored_buy_ids=()),
++        ),
++    )
++    chain.extend(opened)
++    recovery = opened[-1]
++    assert recovery.plan.block_reason == "recovery"
++    assert recovery.plan.places == ()
++    inventory = (
++        TokenInventory(token_index=0, qty=30.0, cost_basis=0.0, last_buy_ns=None),
++        TokenInventory(token_index=1, qty=10.0, cost_basis=0.0, last_buy_ns=None),
++    )
++    verified_outs = _run(
++        state=recovery.state,
++        events=(RecoveryVerified(now_ns=T0, generation=1, inventory=inventory),),
++    )
++    chain.extend(verified_outs)
++    verified = verified_outs[-1]
++    assert {
++        (place.token_index, place.price, place.quantity, place.side)
++        for place in verified.plan.places
++    } == {(0, 0.47, 12.0, "BUY"), (1, 0.47, 20.0, "BUY")}
++    assert verified.state.sell_only is False
++    assert verified.state.recovery_pending is False
++    accepted = _run(
++        state=verified.state,
++        events=tuple(
++            OrderAccepted(now_ns=T0, order_id=place.order_id) for place in verified.plan.places
++        ),
++    )
++    chain.extend(accepted)
++    token0 = next(place.order_id for place in verified.plan.places if place.token_index == 0)
++    token1 = next(place.order_id for place in verified.plan.places if place.token_index == 1)
++    filled_outs = _run(
++        state=accepted[-1].state,
++        events=(
++            Fill(
++                now_ns=T1,
++                fill_id="f-rec",
++                order_id=token0,
++                qty=12.0,
++                price=0.47,
++                token_index=0,
++                side="BUY",
++            ),
++            Wake(now_ns=T1, forced=True),
++        ),
++    )
++    chain.extend(filled_outs)
++    filled = filled_outs[-1]
++    assert len(filled.plan.places) == 1
++    place = filled.plan.places[0]
++    assert (place.token_index, place.price, place.quantity, place.side) == (0, 0.46, 7.2, "BUY")
++    assert any(keep.order_id == token1 for keep in filled.plan.keep)
++    live_tokens = {
++        order.token_index
++        for order in filled.state.orders
++        if order.side == "BUY" and order.status not in ("canceling", "gone")
++    }
++    assert live_tokens == {0, 1}
++    assert filled.state.recovery_pending is False
++    assert filled.state.sell_only is False
++    assert filled.state.recovery_generation == 1
++    assert all(place.side == "BUY" for out in chain for place in out.plan.places)
++
++
++def test_two_sided_deadline_ignores_follow300_boundaries() -> None:
++    state = replace(
++        _quoting(radiant_index=0),
++        signal=RawDeltaSignal(
++            predicted_delta=0.05,
++            received_ns=0,
++            source_received_ns=0,
++            anchor_p=0.5,
++            deaths_radiant=0,
++            deaths_dire=0,
++        ),
++    )
++    now = T0 + 20 * NS
++    follow = follow300_policy(level_usdc=20.0, debounce_ms=100, fallback_timer_s=1.0)
++    assert armed_deadline_ns(state=state, policy=follow, now_ns=now) == now
++    assert armed_deadline_ns(state=state, policy=POLICY, now_ns=now) == T0 + debounce_ns(POLICY)

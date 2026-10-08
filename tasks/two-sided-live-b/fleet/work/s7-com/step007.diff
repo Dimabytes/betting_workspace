@@ -1,0 +1,844 @@
+diff --git a/src/trader/discovery.py b/src/trader/discovery.py
+index c215a9c8..6214f623 100644
+--- a/src/trader/discovery.py
++++ b/src/trader/discovery.py
+@@ -67,16 +67,12 @@ _LEAGUE_FIELD = "live-list field"
+ LIVE_LEAGUE_LABEL = "get-live-league-games"
+ 
+ 
+-def is_league_blacklisted(title: str | None, blacklist: tuple[str, ...]) -> bool:
+-    """True when the `(BOx) - <league>` title suffix holds a banned substring.
+-
+-    Team names sit before the suffix, so a club named after a sponsor is not a hit.
+-    """
++def league_matches(title: str | None, names: tuple[str, ...]) -> bool:
+     league = parse_event_league(None, title)
+     if league is None:
+         return False
+-    lowered = league.lower()
+-    return any(needle.lower() in lowered for needle in blacklist)
++    folded = league.casefold()
++    return any(name.casefold() in folded for name in names)
+ 
+ 
+ @dataclass(frozen=True)
+@@ -184,6 +180,7 @@ class MarketDiscovery:
+         list_oddin_matches: Callable[[], Sequence[OddinMatch]],
+         profile: GameProfile,
+         title_blacklist: tuple[str, ...],
++        title_whitelist: tuple[str, ...],
+     ) -> None:
+         self._archive_root = archive_root
+         self._steam_client = steam_client
+@@ -191,6 +188,7 @@ class MarketDiscovery:
+         self._list_oddin_matches = list_oddin_matches
+         self._profile = profile
+         self._title_blacklist = title_blacklist
++        self._title_whitelist = title_whitelist
+         self._title_skips: set[str] = set()
+         self._league_filter = LolLeagueFilter(archive_root) if profile.game == "lol" else None
+         self._last_live: dict[str, Scoreboard] = {}
+@@ -200,9 +198,8 @@ class MarketDiscovery:
+     def discover(self) -> tuple[DiscoveredMatch, ...]:
+         """Run one synchronous discovery cycle and return the linked matches."""
+         scan = scan_sidecars(self._archive_root, time.time())
+-        eligible = tuple(sidecar for sidecar in scan.sidecars if sidecar.is_tradeable())
+-        if self._title_blacklist:
+-            eligible = self._drop_blacklisted(eligible)
++        tradeable = tuple(sidecar for sidecar in scan.sidecars if sidecar.is_tradeable())
++        eligible = self._drop_skipped_titles(tradeable)
+         record_only: tuple[FreshSidecar, ...] = ()
+         if self._league_filter is not None:
+             selection = self._league_filter.select_sidecars(eligible)
+@@ -243,24 +240,26 @@ class MarketDiscovery:
+             _log_emit(match)
+         return matches
+ 
+-    def _drop_blacklisted(self, sidecars: tuple[FreshSidecar, ...]) -> tuple[FreshSidecar, ...]:
+-        """Drop title-blacklisted sidecars; each market logs its skip once at INFO."""
++    def _title_skip_reason(self, title: str | None) -> str | None:
++        if league_matches(title, self._title_blacklist):
++            return "title_blacklist"
++        if self._title_whitelist and not league_matches(title, self._title_whitelist):
++            return "title_whitelist"
++        return None
++
++    def _drop_skipped_titles(self, sidecars: tuple[FreshSidecar, ...]) -> tuple[FreshSidecar, ...]:
+         kept: list[FreshSidecar] = []
+-        skipped: list[FreshSidecar] = []
++        skipped: set[str] = set()
+         for sidecar in sidecars:
+-            if is_league_blacklisted(sidecar.event_title, self._title_blacklist):
+-                skipped.append(sidecar)
+-            else:
++            reason = self._title_skip_reason(sidecar.event_title)
++            if reason is None:
+                 kept.append(sidecar)
+-        for sidecar in skipped:
++                continue
+             cid = sidecar.condition_id
+             log = logger.debug if cid in self._title_skips else logger.info
+-            log(
+-                "discovery skip reason=title_blacklist cid=%s title=%r",
+-                cid,
+-                sidecar.event_title,
+-            )
+-        self._title_skips = {sidecar.condition_id for sidecar in skipped}
++            log("discovery skip reason=%s cid=%s title=%r", reason, cid, sidecar.event_title)
++            skipped.add(cid)
++        self._title_skips = skipped
+         return tuple(kept)
+ 
+     def _drop_expired_ended(self, now: float) -> None:
+diff --git a/src/trader/host_resources.py b/src/trader/host_resources.py
+index f24f35b1..595aebfc 100644
+--- a/src/trader/host_resources.py
++++ b/src/trader/host_resources.py
+@@ -49,10 +49,13 @@ from trader.session_engine import StrategyCell, close_engine_resources
+ from trader.session_types import TradingDisabled
+ from trader.steam_client import SteamClient
+ from trader.trading_mode import (
++    DotaStrategy,
+     ExecutionMode,
+     assigned_games,
++    read_dota_strategy,
+     reject_legacy_env,
+     require_live_wallet,
++    require_two_sided_start,
+     steam_required,
+ )
+ from trader.wallet_host import WalletHost, wallet_db_path
+@@ -133,6 +136,7 @@ def open_wallet_host(
+     git_commit: str,
+     mode: ExecutionMode,
+     games: tuple[GameProfile, ...],
++    strategy: DotaStrategy,
+ ) -> WalletHost:
+     """Acquire the wallet flock, load catalogs by strategy-profile name, and construct the host."""
+     if not games:
+@@ -164,6 +168,19 @@ def open_wallet_host(
+         logger.info("trader config loaded [engine] [risk] [profiles] [wallet]")
+         if cfg.engine.journal is not True:
+             raise RuntimeError("engine journal is disabled in the config template")
++        if strategy == "two_sided":
++            require_two_sided_start(
++                mode=mode,
++                games=games,
++                signature_type=cfg.wallet.signature_type,
++                has_builder_creds=cfg.secrets.has_builder_creds,
++            )
++        logger.info(
++            "trader wallet: strategy=%s signature_type=%d funder=%s",
++            strategy,
++            cfg.wallet.signature_type,
++            cfg.secrets.browser_address,
++        )
+         engine = Engine(cfg, paper=(mode == "paper"))
+         state = cast(WalletStateStore, engine.state)
+         polymaker_engine.construct_quotes = _bind_quotes_adapter(
+@@ -198,6 +215,7 @@ def open_wallet_host(
+             git_commit,
+             games,
+             template.clips,
++            strategy,
+         )
+     except BaseException:
+         if engine is not None:
+@@ -216,6 +234,7 @@ def open_wallet_host(
+ async def run_wallet_daemon(git_commit: str, mode: ExecutionMode) -> None:
+     """Validate env, idle when no games, otherwise open assigned resources and run."""
+     reject_legacy_env()
++    strategy = read_dota_strategy()
+     use_http1_clob_transport()
+     games = assigned_games(mode)
+     if not games:
+@@ -232,7 +251,7 @@ async def run_wallet_daemon(git_commit: str, mode: ExecutionMode) -> None:
+     steam = SteamClient.from_environment(client) if client is not None else None
+     host: WalletHost | None = None
+     try:
+-        host = open_wallet_host(steam, archive_by_game, git_commit, mode, games)
++        host = open_wallet_host(steam, archive_by_game, git_commit, mode, games, strategy)
+         await host.run()
+     finally:
+         if host is not None and not host._closed:
+diff --git a/src/trader/trading_mode.py b/src/trader/trading_mode.py
+index f6df9e45..2a01e570 100644
+--- a/src/trader/trading_mode.py
++++ b/src/trader/trading_mode.py
+@@ -10,6 +10,7 @@ from trader.game_profile import GAME_PROFILES, GameProfile
+ from trader.session_types import TradingDisabled
+ 
+ ExecutionMode = Literal["paper", "live"]
++DotaStrategy = Literal["follow300", "two_sided"]
+ 
+ _GAME_MODE_TOKENS = ("off", "paper", "live")
+ 
+@@ -53,6 +54,42 @@ def require_live_wallet() -> None:
+     raise TradingDisabled("live trading requires PK and BROWSER_ADDRESS")
+ 
+ 
++def read_dota_strategy() -> DotaStrategy:
++    raw = env_value("DOTA_STRATEGY")
++    if raw is None or not raw.strip():
++        return "follow300"
++    token = raw.strip()
++    if token == "two_sided":
++        return "two_sided"
++    raise TradingDisabled(f"DOTA_STRATEGY {token!r} is not two_sided; leave it unset for follow300")
++
++
++def require_two_sided_start(
++    *,
++    mode: ExecutionMode,
++    games: tuple[GameProfile, ...],
++    signature_type: int,
++    has_builder_creds: bool,
++) -> None:
++    if mode != "live":
++        raise TradingDisabled(f"DOTA_STRATEGY=two_sided requires --mode live, got {mode}")
++    assigned = ",".join(profile.game for profile in games)
++    if assigned != "dota":
++        raise TradingDisabled(
++            f"DOTA_STRATEGY=two_sided requires only dota assigned, got {assigned!r}"
++        )
++    if signature_type != 3:
++        raise TradingDisabled(
++            "DOTA_STRATEGY=two_sided requires wallet.signature_type 3 (deposit wallet), "
++            f"got {signature_type}"
++        )
++    if not has_builder_creds:
++        raise TradingDisabled(
++            "DOTA_STRATEGY=two_sided requires POLY_BUILDER_KEY, POLY_BUILDER_SECRET "
++            "and POLY_BUILDER_PASSPHRASE for relayer merges"
++        )
++
++
+ def steam_required(games: tuple[GameProfile, ...]) -> bool:
+     """True when at least one assigned profile talks to the Steam Web API."""
+     return any(profile.uses_steam for profile in games)
+diff --git a/src/trader/wallet_host.py b/src/trader/wallet_host.py
+index 72500e98..c9d8174a 100644
+--- a/src/trader/wallet_host.py
++++ b/src/trader/wallet_host.py
+@@ -59,6 +59,7 @@ from trader.core_persistence import (
+     resolve_settled_buys,
+ )
+ from trader.core_session_io import SessionIdentity, consume_core_outbox, persist_core_snapshot
++from trader.ctf_merge import install_adapter_merge
+ from trader.discovery import MarketDiscovery, archive_id_kind
+ from trader.engine_seams import (
+     DRAIN_TIMEOUT_S,
+@@ -127,7 +128,8 @@ from trader.session_quoting import fill_ts_utc
+ from trader.session_types import TradingDisabled
+ from trader.source_picker import probe_grid_scoreboard_cycle
+ from trader.steam_client import SteamClient
+-from trader.trading_mode import ExecutionMode
++from trader.trading_mode import DotaStrategy, ExecutionMode
++from trader.two_sided_worker import TwoSidedWorker
+ from trader.unsettled_buy_recovery import (
+     UNSETTLED_ALERT_AGE_S,
+     BuyExecutionProof,
+@@ -152,6 +154,21 @@ def select_title_blacklist(mode: ExecutionMode, game: str) -> tuple[str, ...]:
+     return ()
+ 
+ 
++def select_title_whitelist(
++    strategy: DotaStrategy, clip_tables: Mapping[str, ClipTable], profile: GameProfile
++) -> tuple[str, ...]:
++    if strategy == "follow300":
++        return ()
++    table = clip_tables[profile.primary.profile_name]
++    names = tuple(name for tier in table.tiers for name in tier.names)
++    if not names:
++        raise TradingDisabled(
++            f"DOTA_STRATEGY=two_sided needs names in [clips.{profile.game}].tiers: "
++            "they are the title whitelist"
++        )
++    return names
++
++
+ @dataclass(frozen=True)
+ class BootScanTarget:
+     """A finalized match whose orders are not yet proven gone."""
+@@ -675,6 +692,7 @@ class WalletHost:
+         git_commit: str,
+         games: tuple[GameProfile, ...],
+         clip_tables: dict[str, ClipTable],
++        strategy: DotaStrategy,
+     ) -> None:
+         if not isinstance(engine.state, WalletStateStore):
+             raise TypeError("wallet host requires WalletStateStore")
+@@ -689,6 +707,7 @@ class WalletHost:
+         self._lol_leagues: LolLeagueFilter | None = None
+         self.store = engine.state
+         self._mode: ExecutionMode = mode
++        self._strategy: DotaStrategy = strategy
+         self._lock = lock
+         self._config_dir = config_dir
+         self._models = models
+@@ -791,6 +810,8 @@ class WalletHost:
+         if engine.paper:
+             self._install_paper_mds_bridge()
+         self._install_lol_prior_tap()
++        if self._strategy == "two_sided":
++            install_adapter_merge(engine)
+ 
+     def _install_paper_mds_bridge(self) -> None:
+         """Feed applied books and trade prints into the paper fill simulation."""
+@@ -1219,6 +1240,7 @@ class WalletHost:
+                 catalog.open_matches,
+                 profile,
+                 select_title_blacklist(self._mode, profile.game),
++                select_title_whitelist(self._strategy, self.clip_tables, profile),
+             )
+             for profile in self._games
+         )
+@@ -1567,7 +1589,8 @@ class WalletHost:
+             started = session_started_message(session_alert_from_match(record.handoff, self._mode))
+             self._notify_match(record, started)
+         profile_name = strategy_profile_name(game=game, feed_source=feed.source)
+-        worker = MatchWorker(
++        worker_class = TwoSidedWorker if self._strategy == "two_sided" else MatchWorker
++        worker = worker_class(
+             self,
+             replace(choice.handoff, record_only=record.record_only),
+             self._models[profile_name],
+diff --git a/tests/test_discovery_cadence.py b/tests/test_discovery_cadence.py
+index f3f81ba8..c31d6f10 100644
+--- a/tests/test_discovery_cadence.py
++++ b/tests/test_discovery_cadence.py
+@@ -67,6 +67,7 @@ def build_poll_target(monkeypatch: pytest.MonkeyPatch) -> tuple[MarketDiscovery,
+         lambda: (),
+         GAME_PROFILES["dota"],
+         (),
++        (),
+     )
+     calls: list[str] = []
+ 
+diff --git a/tests/test_trader_discovery.py b/tests/test_trader_discovery.py
+index 98d9e944..dac629b0 100644
+--- a/tests/test_trader_discovery.py
++++ b/tests/test_trader_discovery.py
+@@ -72,21 +72,25 @@ def test_non_tradeable_flags_yield_no_match_and_no_steam_traffic(
+     assert recorder.messages == []
+ 
+ 
+-def test_is_league_blacklisted_matches_the_league_not_the_teams() -> None:
++def test_league_matches_reads_the_league_not_the_teams() -> None:
+     """The needle matches the `(BOx) - league` suffix; a team name is not a hit."""
+     blacklist = ("Streamers", "Winline")
+-    assert discovery.is_league_blacklisted(
++    assert discovery.league_matches(
+         "Dota 2: Daxak Team vs YBN Team (BO3) - BetBoom Streamers Battle Playoffs", blacklist
+     )
+-    assert discovery.is_league_blacklisted(
++    assert discovery.league_matches(
+         "Dota 2: Team A vs Team B (BO3) - winline star series", blacklist
+     )
+-    assert not discovery.is_league_blacklisted(
+-        "Dota 2: Winline Team vs Team B (BO3) - EPL", blacklist
++    assert not discovery.league_matches("Dota 2: Winline Team vs Team B (BO3) - EPL", blacklist)
++    assert not discovery.league_matches("Winline showmatch", blacklist)
++    assert not discovery.league_matches(None, blacklist)
++    assert not discovery.league_matches("Dota 2: A vs B (BO3) - Winline", ())
++    assert discovery.league_matches(
++        "Dota 2: Falcons vs Tundra (BO3) - BLAST Slam IV Group Stage", ("BLAST Slam",)
++    )
++    assert not discovery.league_matches(
++        "Dota 2: Falcons vs Tundra (BO3) - PARI Universe", ("BLAST Slam",)
+     )
+-    assert not discovery.is_league_blacklisted("Winline showmatch", blacklist)
+-    assert not discovery.is_league_blacklisted(None, blacklist)
+-    assert not discovery.is_league_blacklisted("Dota 2: A vs B (BO3) - Winline", ())
+ 
+ 
+ def test_blacklisted_event_league_never_reaches_steam(
+@@ -116,6 +120,43 @@ def test_blacklisted_event_league_never_reaches_steam(
+     assert "Winline Star Series" in skips[0].getMessage()
+ 
+ 
++@pytest.mark.parametrize(
++    ("title", "whitelist", "emitted"),
++    [
++        ("Dota 2: Aurora vs Team Secret (BO3) - BLAST Slam IV Group Stage", ("BLAST Slam",), 1),
++        ("Dota 2: Aurora vs Team Secret (BO3) - PARI Universe", ("BLAST Slam",), 0),
++        (None, ("BLAST Slam",), 0),
++        ("Dota 2: Aurora vs Team Secret (BO3) - PARI Universe", (), 1),
++    ],
++    ids=["blast_slam", "other_league", "no_title", "empty_whitelist"],
++)
++def test_title_whitelist_keeps_only_listed_leagues(
++    tmp_path: Path,
++    monkeypatch: pytest.MonkeyPatch,
++    caplog: pytest.LogCaptureFixture,
++    title: str | None,
++    whitelist: tuple[str, ...],
++    emitted: int,
++) -> None:
++    api = FakeSteamApi()
++    prime_happy_api(api)
++    write_sidecar(tmp_path, "0x1", sidecar_body(eventTitle=title))
++    patch_discovery_time(monkeypatch, NOW_EPOCH)
++    patch_alerts(monkeypatch)
++    found = make_discovery(tmp_path, api, title_whitelist=whitelist)
++
++    with caplog.at_level(logging.INFO):
++        assert len(found.discover()) == emitted
++        assert len(found.discover()) == emitted
++
++    skips = [
++        row
++        for row in caplog.records
++        if row.levelname == "INFO" and "reason=title_whitelist" in row.getMessage()
++    ]
++    assert len(skips) == 1 - emitted
++
++
+ def test_map_winner_works_on_non_bo1_series(
+     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+ ) -> None:
+diff --git a/tests/test_trader_host_resources.py b/tests/test_trader_host_resources.py
+index fbea99db..93fcc978 100644
+--- a/tests/test_trader_host_resources.py
++++ b/tests/test_trader_host_resources.py
+@@ -11,7 +11,8 @@ import pytest
+ 
+ from trader.game_profile import GAME_PROFILES, GameProfile
+ from trader.host_resources import run_wallet_daemon
+-from trader.trading_mode import ExecutionMode
++from trader.session_types import TradingDisabled
++from trader.trading_mode import DotaStrategy, ExecutionMode
+ from trader.wallet_host import WalletHost
+ from trader.wallet_store import WalletStateStore
+ 
+@@ -33,6 +34,7 @@ class ResourceLog:
+         self.load_archive_root = 0
+         self.archive_envs: list[str] = []
+         self.loaded_games: list[str] = []
++        self.host_strategies: list[object] = []
+ 
+ 
+ def _patch_engine_io_fakes(
+@@ -98,7 +100,7 @@ def _patch_host_runtime_fakes(
+         return object()
+ 
+     def fake_init(self: WalletHost, *args: object) -> None:
+-        del args
++        log.host_strategies.append(args[-1])
+         self._closed = False
+ 
+     def fake_close(self: WalletHost) -> None:
+@@ -116,6 +118,21 @@ def _patch_host_runtime_fakes(
+     monkeypatch.setattr(WalletHost, "run", fake_run)
+ 
+ 
++def _use_wallet_cfg(
++    monkeypatch: pytest.MonkeyPatch, *, signature_type: int, has_builder_creds: bool
++) -> None:
++    cfg = SimpleNamespace(
++        engine=SimpleNamespace(journal=True),
++        wallet=SimpleNamespace(signature_type=signature_type, chain_id=1),
++        secrets=SimpleNamespace(browser_address="0xfunder", has_builder_creds=has_builder_creds),
++    )
++    monkeypatch.setattr("trader.host_resources.Config", SimpleNamespace(load=lambda *_a, **_k: cfg))
++
++
++def _use_strategy(monkeypatch: pytest.MonkeyPatch, strategy: DotaStrategy) -> None:
++    monkeypatch.setattr("trader.host_resources.read_dota_strategy", lambda: strategy)
++
++
+ def _install_resource_fakes(
+     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, log: ResourceLog
+ ) -> None:
+@@ -124,17 +141,14 @@ def _install_resource_fakes(
+     def fake_transport() -> None:
+         log.use_http1_clob_transport += 1
+ 
+-    cfg = SimpleNamespace(
+-        engine=SimpleNamespace(journal=True),
+-        wallet=SimpleNamespace(signature_type=1, chain_id=1),
+-    )
+     _patch_engine_io_fakes(monkeypatch, tmp_path, log)
+     _patch_host_runtime_fakes(monkeypatch, tmp_path, log)
+     monkeypatch.setattr("trader.host_resources.reject_legacy_env", lambda: None)
+     monkeypatch.setattr("trader.host_resources.use_http1_clob_transport", fake_transport)
+     monkeypatch.setattr("trader.host_resources.patch_engine_classes", lambda: object())
+     monkeypatch.setattr("trader.host_resources.restore_engine_classes", lambda restore: None)
+-    monkeypatch.setattr("trader.host_resources.Config", SimpleNamespace(load=lambda *_a, **_k: cfg))
++    _use_wallet_cfg(monkeypatch, signature_type=1, has_builder_creds=False)
++    _use_strategy(monkeypatch, "follow300")
+     monkeypatch.setattr("trader.host_resources._bind_quotes_adapter", lambda *_a, **_k: object())
+     monkeypatch.setattr("trader.host_resources.pin_engine_identity", lambda engine: None)
+ 
+@@ -165,6 +179,7 @@ def test_dota_live_opens_wallet_and_steam(tmp_path: Path, monkeypatch: pytest.Mo
+     assert log.load_archive_root == 1
+     assert log.archive_envs == ["DOTA_ARCHIVE_ROOT"]
+     assert log.loaded_games == ["production", "production-noxp"]
++    assert log.host_strategies == ["follow300"]
+ 
+ 
+ def test_lol_paper_skips_steam_and_live_wallet(
+@@ -230,3 +245,32 @@ def test_empty_assignment_idles_without_resources(
+     assert log.load_archive_root == 0
+     assert log.archive_envs == []
+     assert log.loaded_games == []
++
++
++def test_two_sided_live_dota_opens_the_host_with_the_strategy(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
++) -> None:
++    log = ResourceLog()
++    _install_resource_fakes(monkeypatch, tmp_path, log)
++    _assign(monkeypatch, (DOTA,))
++    _use_strategy(monkeypatch, "two_sided")
++    _use_wallet_cfg(monkeypatch, signature_type=3, has_builder_creds=True)
++    caplog.set_level(logging.INFO)
++    asyncio.run(run_wallet_daemon("commit", "live"))
++    assert log.host_strategies == ["two_sided"]
++    assert log.engine_paper == [False]
++    assert log.loaded_games == ["production", "production-noxp"]
++    assert "strategy=two_sided signature_type=3 funder=0xfunder" in caplog.text
++
++
++def test_two_sided_refusal_opens_no_engine(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    log = ResourceLog()
++    _install_resource_fakes(monkeypatch, tmp_path, log)
++    _assign(monkeypatch, (DOTA,))
++    _use_strategy(monkeypatch, "two_sided")
++    _use_wallet_cfg(monkeypatch, signature_type=1, has_builder_creds=True)
++    with pytest.raises(TradingDisabled, match="signature_type 3"):
++        asyncio.run(run_wallet_daemon("commit", "live"))
++    assert log.engine_paper == []
++    assert log.loaded_games == []
++    assert log.host_strategies == []
+diff --git a/tests/test_trader_lol_discovery.py b/tests/test_trader_lol_discovery.py
+index 82698846..49c2736b 100644
+--- a/tests/test_trader_lol_discovery.py
++++ b/tests/test_trader_lol_discovery.py
+@@ -74,7 +74,7 @@ def make_lol_discovery(
+     root: Path, probe: Callable[[Iterable[str]], GridProbeCycle]
+ ) -> MarketDiscovery:
+     """LoL discovery with no Steam client."""
+-    return MarketDiscovery(root, None, probe, lambda: (), LOL, ())
++    return MarketDiscovery(root, None, probe, lambda: (), LOL, (), ())
+ 
+ 
+ def test_lol_grid_emits_map_two_with_blue_red_orientation(
+diff --git a/tests/test_trader_trading_mode.py b/tests/test_trader_trading_mode.py
+index 50641263..2e7685e9 100644
+--- a/tests/test_trader_trading_mode.py
++++ b/tests/test_trader_trading_mode.py
+@@ -9,10 +9,13 @@ import pytest
+ from trader import session_types
+ from trader.game_profile import GAME_PROFILES, GameProfile
+ from trader.trading_mode import (
++    ExecutionMode,
+     assigned_games,
+     execution_mode,
++    read_dota_strategy,
+     reject_legacy_env,
+     require_live_wallet,
++    require_two_sided_start,
+     steam_required,
+ )
+ 
+@@ -178,3 +181,59 @@ def test_steam_required_follows_assigned_profiles(
+ ) -> None:
+     """Steam follows uses_steam; empty assignment is neither."""
+     assert steam_required(games) is want_steam
++
++
++@pytest.mark.parametrize(
++    ("env", "want"),
++    [
++        ({}, "follow300"),
++        ({"DOTA_STRATEGY": ""}, "follow300"),
++        ({"DOTA_STRATEGY": "  "}, "follow300"),
++        ({"DOTA_STRATEGY": "two_sided"}, "two_sided"),
++        ({"DOTA_STRATEGY": " two_sided "}, "two_sided"),
++    ],
++    ids=["missing", "empty", "blank", "two_sided", "padded"],
++)
++def test_read_dota_strategy_defaults_to_follow300(
++    monkeypatch: pytest.MonkeyPatch, env: dict[str, str], want: str
++) -> None:
++    monkeypatch.setattr("trader.trading_mode.env_value", _env_get(env))
++    assert read_dota_strategy() == want
++
++
++@pytest.mark.parametrize("raw", ["follow300", "two-sided", "TWO_SIDED", "1"])
++def test_read_dota_strategy_rejects_other_tokens(monkeypatch: pytest.MonkeyPatch, raw: str) -> None:
++    monkeypatch.setattr("trader.trading_mode.env_value", _env_get({"DOTA_STRATEGY": raw}))
++    with pytest.raises(session_types.TradingDisabled, match="DOTA_STRATEGY"):
++        read_dota_strategy()
++
++
++def test_two_sided_start_accepts_live_dota_deposit_wallet_with_builder_creds() -> None:
++    require_two_sided_start(mode="live", games=(DOTA,), signature_type=3, has_builder_creds=True)
++
++
++@pytest.mark.parametrize(
++    ("mode", "games", "signature_type", "has_builder_creds", "match"),
++    [
++        ("paper", (DOTA,), 3, True, "--mode live"),
++        ("live", (DOTA, LOL), 3, True, "only dota assigned, got 'dota,lol'"),
++        ("live", (LOL,), 3, True, "only dota assigned, got 'lol'"),
++        ("live", (DOTA,), 2, True, "signature_type 3"),
++        ("live", (DOTA,), 3, False, "POLY_BUILDER_KEY"),
++    ],
++    ids=["paper", "dota_and_lol", "lol_only", "signature_type_2", "no_builder_creds"],
++)
++def test_two_sided_start_refuses_each_violation(
++    mode: ExecutionMode,
++    games: tuple[GameProfile, ...],
++    signature_type: int,
++    has_builder_creds: bool,
++    match: str,
++) -> None:
++    with pytest.raises(session_types.TradingDisabled, match=match):
++        require_two_sided_start(
++            mode=mode,
++            games=games,
++            signature_type=signature_type,
++            has_builder_creds=has_builder_creds,
++        )
+diff --git a/tests/test_trader_two_sided_host.py b/tests/test_trader_two_sided_host.py
+new file mode 100644
+index 00000000..9e5ef72c
+--- /dev/null
++++ b/tests/test_trader_two_sided_host.py
+@@ -0,0 +1,172 @@
++# pyright: reportPrivateUsage=false, reportPrivateImportUsage=false, reportUnknownLambdaType=false
++
++import asyncio
++from pathlib import Path
++from types import SimpleNamespace
++from typing import Any, cast
++
++import polymaker.engine as polymaker_engine
++import pytest
++from polymaker.config import Config, PathsConfig, Secrets
++from polymaker.engine import Engine
++from test_trader_wallet_host import _bare_host, _patch_run_to_discovery, _record_for, _run_engine
++from trader_session_fixtures import build_discovered
++
++from shared.constants.strategy import GRID_FEED_STALE_SECONDS
++from trader.clip_rules import ClipTable, ClipTier
++from trader.ctf_merge import _skip_fork_merge
++from trader.engine_seams import (
++    BookReadiness,
++    ShutdownLatch,
++    patch_engine_classes,
++    restore_engine_classes,
++)
++from trader.game_profile import GAME_PROFILES
++from trader.live_feed import FeedSource
++from trader.paper_gateway import PaperGateway
++from trader.process_lock import acquire_file_lock
++from trader.session_core import CollateralCache
++from trader.session_types import TradingDisabled
++from trader.trading_mode import DotaStrategy
++from trader.wallet_host import LIVE_TITLE_BLACKLIST, WalletHost, select_title_whitelist
++
++DOTA = GAME_PROFILES["dota"]
++LOL = GAME_PROFILES["lol"]
++BLAST_ONLY = {"dota-map": ClipTable(5.0, (ClipTier(20.0, ("BLAST Slam",)),))}
++
++
++def test_select_title_whitelist_is_the_clip_names_for_two_sided_only() -> None:
++    tables = {
++        "dota-map": ClipTable(
++            5.0, (ClipTier(60.0, ("EPL World Series",)), ClipTier(20.0, ("BLAST Slam",)))
++        )
++    }
++    assert select_title_whitelist("follow300", tables, DOTA) == ()
++    assert select_title_whitelist("follow300", {}, LOL) == ()
++    assert select_title_whitelist("two_sided", tables, DOTA) == ("EPL World Series", "BLAST Slam")
++    with pytest.raises(TradingDisabled, match=r"\[clips\.dota\]\.tiers"):
++        select_title_whitelist("two_sided", {"dota-map": ClipTable(5.0, ())}, DOTA)
++
++
++def test_two_sided_run_filters_discovery_by_the_clip_names(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    events: list[str] = []
++    built: list[tuple[object, ...]] = []
++
++    def record_discovery(*args: object) -> object:
++        built.append(args)
++        return object()
++
++    async def no_refresh(self: object) -> bool:
++        del self
++        return False
++
++    monkeypatch.setattr("trader.wallet_host.TRADER_DIR", tmp_path)
++    monkeypatch.setattr("trader.wallet_host.require_brand_token", lambda: "test-token")
++    monkeypatch.setattr("trader.wallet_host.DisirCatalog.refresh_now", no_refresh)
++    host = _bare_host(_run_engine(events))
++    host._mode = "live"
++    host._strategy = "two_sided"
++    host.clip_tables = BLAST_ONLY
++    monkeypatch.setattr("trader.wallet_host.MarketDiscovery", record_discovery)
++    _patch_run_to_discovery(monkeypatch, host, events)
++    asyncio.run(host.run())
++    assert [args[5:] for args in built] == [(LIVE_TITLE_BLACKLIST, ("BLAST Slam",))]
++    assert "discovery" in events
++
++
++@pytest.mark.parametrize(
++    ("strategy", "worker_name"),
++    [("follow300", "MatchWorker"), ("two_sided", "TwoSidedWorker")],
++)
++def test_pick_and_run_builds_the_worker_of_the_strategy(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, strategy: DotaStrategy, worker_name: str
++) -> None:
++    def quiet_notify(message: str) -> None:
++        del message
++
++    monkeypatch.setattr("trader.wallet_host.TRADER_DIR", tmp_path)
++    monkeypatch.setattr("trader.match_meta.TRADER_DIR", tmp_path)
++    monkeypatch.setattr("trader.wallet_host.notify_in_background", quiet_notify)
++    feed = SimpleNamespace(source=FeedSource.GRID, stale_seconds=GRID_FEED_STALE_SECONDS)
++
++    async def fake_select(handoff: object, _should_close: object) -> object:
++        return SimpleNamespace(feed=feed, handoff=handoff)
++
++    built: dict[str, tuple[object, ...]] = {}
++
++    def record_worker(name: str) -> type:
++        class _Recorded:
++            def __init__(self, *args: object) -> None:
++                built[name] = args
++
++            async def run(self) -> None:
++                return None
++
++        return _Recorded
++
++    monkeypatch.setattr("trader.wallet_host.select_feed", fake_select)
++    monkeypatch.setattr("trader.wallet_host.MatchWorker", record_worker("MatchWorker"))
++    monkeypatch.setattr("trader.wallet_host.TwoSidedWorker", record_worker("TwoSidedWorker"))
++    host = _bare_host(SimpleNamespace(metas={}))
++    host._strategy = strategy
++    discovered = build_discovered(grid_series_id="2995964")
++    asyncio.run(host._pick_and_run(_record_for(discovered)))
++    model = host._models["dota-map"]
++    assert built == {worker_name: (host, discovered, model, "paper", feed, GRID_FEED_STALE_SECONDS)}
++
++
++def _open_paper_host(
++    tmp_path: Path,
++    request: pytest.FixtureRequest,
++    monkeypatch: pytest.MonkeyPatch,
++    strategy: DotaStrategy,
++) -> WalletHost:
++    original_gateway = polymaker_engine.ExecutionGateway
++    monkeypatch.setattr(polymaker_engine, "ExecutionGateway", PaperGateway)
++    restore = patch_engine_classes()
++    request.addfinalizer(lambda: restore_engine_classes(restore))
++    cfg = Config(
++        paths=PathsConfig(db=str(tmp_path / "paper.db"), journal_dir=str(tmp_path / "journal")),
++        secrets=Secrets(PK="", BROWSER_ADDRESS=""),
++    )
++    engine = Engine(cfg, paper=True)
++    host = WalletHost(
++        None,
++        {"dota": tmp_path},
++        engine,
++        "paper",
++        acquire_file_lock(tmp_path / "paper.lock"),
++        cast(Any, SimpleNamespace(cleanup=lambda: None)),
++        {},
++        restore,
++        ShutdownLatch(),
++        BookReadiness(),
++        {},
++        {},
++        CollateralCache(),
++        original_gateway,
++        polymaker_engine.construct_quotes,
++        polymaker_engine.reconcile,
++        "commit",
++        (DOTA,),
++        {},
++        strategy,
++    )
++    request.addfinalizer(host.close)
++    return host
++
++
++def test_follow300_host_keeps_the_fork_merge(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    host = _open_paper_host(tmp_path, request, monkeypatch, "follow300")
++    assert "_maybe_merge" not in vars(host.engine)
++
++
++def test_two_sided_host_stubs_the_fork_merge(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    host = _open_paper_host(tmp_path, request, monkeypatch, "two_sided")
++    assert vars(host.engine)["_maybe_merge"] is _skip_fork_merge
+diff --git a/tests/test_trader_wallet_host.py b/tests/test_trader_wallet_host.py
+index 322fc10a..14dbbefb 100644
+--- a/tests/test_trader_wallet_host.py
++++ b/tests/test_trader_wallet_host.py
+@@ -463,6 +463,8 @@ def _bare_host(engine: object) -> WalletHost:
+     host._games = (GAME_PROFILES["dota"],)
+     host._archive_by_game = {"dota": Path("/tmp")}
+     host.archive_root = Path("/tmp")
++    host._strategy = "follow300"
++    host.clip_tables = {}
+     return host
+ 
+ 
+@@ -2364,6 +2366,7 @@ def test_run_builds_one_discovery_per_assigned_game(monkeypatch: pytest.MonkeyPa
+     events: list[str] = []
+     constructed: list[tuple[str, bool, Path]] = []
+     blacklist_by_game: dict[str, tuple[str, ...]] = {}
++    whitelist_by_game: dict[str, tuple[str, ...]] = {}
+ 
+     class FakeDiscovery:
+         def __init__(
+@@ -2374,10 +2377,12 @@ def test_run_builds_one_discovery_per_assigned_game(monkeypatch: pytest.MonkeyPa
+             list_oddin: object,
+             profile: GameProfile,
+             title_blacklist: tuple[str, ...],
++            title_whitelist: tuple[str, ...],
+         ) -> None:
+             del probe, list_oddin
+             constructed.append((profile.game, steam is None, archive))
+             blacklist_by_game[profile.game] = title_blacklist
++            whitelist_by_game[profile.game] = title_whitelist
+ 
+     steam = SimpleNamespace()
+     host = _bare_host(_run_engine(events))
+@@ -2394,6 +2399,7 @@ def test_run_builds_one_discovery_per_assigned_game(monkeypatch: pytest.MonkeyPa
+         ("lol", True, Path("/tmp/lol")),
+     ]
+     assert blacklist_by_game == {"dota": LIVE_TITLE_BLACKLIST, "lol": ()}
++    assert whitelist_by_game == {"dota": (), "lol": ()}
+     assert "discovery" in events
+ 
+ 
+diff --git a/tests/trader_discovery_fixtures.py b/tests/trader_discovery_fixtures.py
+index bdca3821..e353381e 100644
+--- a/tests/trader_discovery_fixtures.py
++++ b/tests/trader_discovery_fixtures.py
+@@ -313,6 +313,7 @@ def make_discovery(
+     probe_grid_scoreboards: Callable[[Iterable[str]], GridProbeCycle] = _no_grid_scoreboards,
+     list_oddin_matches: Callable[[], Sequence[OddinMatch]] = _no_oddin_matches,
+     title_blacklist: tuple[str, ...] = (),
++    title_whitelist: tuple[str, ...] = (),
+ ) -> MarketDiscovery:
+     """Build one MarketDiscovery on the fake API and one test Steam key."""
+     client = httpx.Client(transport=api.transport)
+@@ -323,6 +324,7 @@ def make_discovery(
+         list_oddin_matches,
+         GAME_PROFILES["dota"],
+         title_blacklist,
++        title_whitelist,
+     )
+ 
+ 

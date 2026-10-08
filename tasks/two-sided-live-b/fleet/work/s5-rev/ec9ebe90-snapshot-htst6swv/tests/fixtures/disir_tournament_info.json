@@ -1,0 +1,3556 @@
+{
+  "scanned_at_utc": "2026-09-26T11:53:23Z",
+  "window_low": 14700,
+  "frontier": 15007,
+  "responses": [
+    {
+      "numeric_id": 14700,
+      "kind": "null",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": null
+        }
+      }
+    },
+    {
+      "numeric_id": 14702,
+      "kind": "not_found",
+      "body": {
+        "errors": [
+          {
+            "message": "Not found"
+          }
+        ],
+        "data": {
+          "dota2TournamentInfo": null
+        }
+      }
+    },
+    {
+      "numeric_id": 14765,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0NzY1",
+              "name": "EPL World Series: Southeast Asia Season 17",
+              "startTimestamp": "2026-08-31T05:00:00Z",
+              "endTimestamp": "2026-09-15T05:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE3NzI5MQ==",
+                "plannedStartTimestamp": "2026-09-08T09:10:00Z",
+                "startTimestamp": "2026-09-08T09:17:55Z",
+                "endTimestamp": "2026-09-08T11:10:05Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTky",
+                  "name": "Team Kinetix"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14779,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzc5",
+              "name": "WL Star Series Season 4",
+              "startTimestamp": "2026-09-09T00:00:00Z",
+              "endTimestamp": "2026-09-19T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTgwNA==",
+                "plannedStartTimestamp": "2026-09-19T16:00:00Z",
+                "startTimestamp": "2026-09-19T16:00:13Z",
+                "endTimestamp": "2026-09-19T19:29:47Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 3,
+                "awayScore": 0,
+                "bestOfType": "BO5"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTgwNQ==",
+                "plannedStartTimestamp": "2026-09-19T12:00:00Z",
+                "startTimestamp": "2026-09-19T12:00:15Z",
+                "endTimestamp": "2026-09-19T15:09:58Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTgwMQ==",
+                "plannedStartTimestamp": "2026-09-18T17:20:00Z",
+                "startTimestamp": "2026-09-18T17:23:31Z",
+                "endTimestamp": "2026-09-18T19:48:44Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTgwMg==",
+                "plannedStartTimestamp": "2026-09-18T14:05:00Z",
+                "startTimestamp": "2026-09-18T14:05:36Z",
+                "endTimestamp": "2026-09-18T16:56:23Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTgwMw==",
+                "plannedStartTimestamp": "2026-09-18T10:35:00Z",
+                "startTimestamp": "2026-09-18T10:36:10Z",
+                "endTimestamp": "2026-09-18T13:44:12Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDE0",
+                  "name": "Team Cooman"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTc5Nw==",
+                "plannedStartTimestamp": "2026-09-17T17:49:00Z",
+                "startTimestamp": "2026-09-17T17:49:42Z",
+                "endTimestamp": "2026-09-17T21:12:25Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTc5OA==",
+                "plannedStartTimestamp": "2026-09-17T14:13:00Z",
+                "startTimestamp": "2026-09-17T14:13:22Z",
+                "endTimestamp": "2026-09-17T17:22:20Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTc5OQ==",
+                "plannedStartTimestamp": "2026-09-17T11:01:00Z",
+                "startTimestamp": "2026-09-17T11:02:07Z",
+                "endTimestamp": "2026-09-17T12:56:01Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzOA==",
+                "plannedStartTimestamp": "2026-09-15T19:08:00Z",
+                "startTimestamp": "2026-09-15T19:08:43Z",
+                "endTimestamp": "2026-09-15T21:21:00Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcy",
+                  "name": "Team Rostik999"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzOQ==",
+                "plannedStartTimestamp": "2026-09-15T15:23:00Z",
+                "startTimestamp": "2026-09-15T15:22:58Z",
+                "endTimestamp": "2026-09-15T18:53:11Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDE0",
+                  "name": "Team Cooman"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQ0MA==",
+                "plannedStartTimestamp": "2026-09-15T12:40:00Z",
+                "startTimestamp": "2026-09-15T12:41:57Z",
+                "endTimestamp": "2026-09-15T15:03:10Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQ0MQ==",
+                "plannedStartTimestamp": "2026-09-15T09:08:00Z",
+                "startTimestamp": "2026-09-15T09:09:06Z",
+                "endTimestamp": "2026-09-15T12:38:06Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMjIz",
+                  "name": "NS Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0OTc5",
+                  "name": "Recrent Club"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzNQ==",
+                "plannedStartTimestamp": "2026-09-14T19:15:00Z",
+                "startTimestamp": "2026-09-14T19:16:52Z",
+                "endTimestamp": "2026-09-14T21:50:20Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzNg==",
+                "plannedStartTimestamp": "2026-09-14T15:20:00Z",
+                "startTimestamp": "2026-09-14T15:21:41Z",
+                "endTimestamp": "2026-09-14T19:02:45Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcy",
+                  "name": "Team Rostik999"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDE0",
+                  "name": "Team Cooman"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzNw==",
+                "plannedStartTimestamp": "2026-09-14T12:20:00Z",
+                "startTimestamp": "2026-09-14T12:19:04Z",
+                "endTimestamp": "2026-09-14T13:30:28Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMjIz",
+                  "name": "NS Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzMQ==",
+                "plannedStartTimestamp": "2026-09-13T18:10:00Z",
+                "startTimestamp": "2026-09-13T18:10:11Z",
+                "endTimestamp": "2026-09-13T21:15:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzMg==",
+                "plannedStartTimestamp": "2026-09-13T15:20:00Z",
+                "startTimestamp": "2026-09-13T15:20:57Z",
+                "endTimestamp": "2026-09-13T17:22:50Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDE0",
+                  "name": "Team Cooman"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQzMw==",
+                "plannedStartTimestamp": "2026-09-13T12:00:00Z",
+                "startTimestamp": "2026-09-13T12:00:22Z",
+                "endTimestamp": "2026-09-13T15:06:09Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0OTc5",
+                  "name": "Recrent Club"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyNQ==",
+                "plannedStartTimestamp": "2026-09-12T18:05:00Z",
+                "startTimestamp": "2026-09-12T18:05:42Z",
+                "endTimestamp": "2026-09-12T21:07:23Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcy",
+                  "name": "Team Rostik999"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyNg==",
+                "plannedStartTimestamp": "2026-09-12T15:00:00Z",
+                "startTimestamp": "2026-09-12T15:00:46Z",
+                "endTimestamp": "2026-09-12T17:09:35Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyNw==",
+                "plannedStartTimestamp": "2026-09-12T12:12:00Z",
+                "startTimestamp": "2026-09-12T12:12:49Z",
+                "endTimestamp": "2026-09-12T13:54:13Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDgx",
+                  "name": "Team StariyBog"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyOQ==",
+                "plannedStartTimestamp": "2026-09-12T09:08:00Z",
+                "startTimestamp": "2026-09-12T09:08:25Z",
+                "endTimestamp": "2026-09-12T11:19:42Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMjIz",
+                  "name": "NS Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyMQ==",
+                "plannedStartTimestamp": "2026-09-11T19:00:00Z",
+                "startTimestamp": "2026-09-11T19:01:03Z",
+                "endTimestamp": "2026-09-11T21:26:49Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDE0",
+                  "name": "Team Cooman"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyMg==",
+                "plannedStartTimestamp": "2026-09-11T16:04:00Z",
+                "startTimestamp": "2026-09-11T16:04:35Z",
+                "endTimestamp": "2026-09-11T17:52:09Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0OTc5",
+                  "name": "Recrent Club"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQyMw==",
+                "plannedStartTimestamp": "2026-09-11T13:15:00Z",
+                "startTimestamp": "2026-09-11T13:15:40Z",
+                "endTimestamp": "2026-09-11T15:35:39Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEwOTI2",
+                  "name": "Stray Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcy",
+                  "name": "Team Rostik999"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQxOQ==",
+                "plannedStartTimestamp": "2026-09-10T18:40:00Z",
+                "startTimestamp": "2026-09-10T18:37:30Z",
+                "endTimestamp": "2026-09-10T20:28:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMjIz",
+                  "name": "NS Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4MzUy",
+                  "name": "VooDooSh Team"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQxOA==",
+                "plannedStartTimestamp": "2026-09-10T16:20:00Z",
+                "startTimestamp": "2026-09-10T16:18:57Z",
+                "endTimestamp": "2026-09-10T18:32:01Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMzcx",
+                  "name": "Team Rostikfacekid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDQxNQ==",
+                "plannedStartTimestamp": "2026-09-10T12:05:00Z",
+                "startTimestamp": "2026-09-10T12:06:40Z",
+                "endTimestamp": "2026-09-10T16:00:36Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0OTc5",
+                  "name": "Recrent Club"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14780,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzgw",
+              "name": "RES Unchained 6: BLAST SLAM IX Southeast Asia Open Qualifier",
+              "startTimestamp": "2026-09-09T00:00:00Z",
+              "endTimestamp": "2026-09-10T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NTExNg==",
+                "plannedStartTimestamp": "2026-09-10T06:39:00Z",
+                "startTimestamp": "2026-09-10T06:39:37Z",
+                "endTimestamp": "2026-09-10T09:00:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NzE3",
+                  "name": "Team Kukuys"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQzNDU=",
+                  "name": "InterActive Philippines"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDkzMg==",
+                "plannedStartTimestamp": "2026-09-09T05:07:00Z",
+                "startTimestamp": "2026-09-09T05:06:43Z",
+                "endTimestamp": "2026-09-09T05:54:53Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMzgw",
+                  "name": "YACHE123"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMzAw",
+                  "name": "Carstensz Esports"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14781,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzgx",
+              "name": "RES Unchained 6: BLAST SLAM IX Southeast Asia Open Qualifier",
+              "startTimestamp": "2026-09-09T00:00:00Z",
+              "endTimestamp": "2026-09-10T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MDkzNg==",
+                "plannedStartTimestamp": "2026-09-09T06:27:00Z",
+                "startTimestamp": "2026-09-09T06:27:23Z",
+                "endTimestamp": "2026-09-09T09:30:15Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDQ5",
+                  "name": "Imperial Power"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMzgw",
+                  "name": "YACHE123"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14782,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzgy",
+              "name": "RES Unchained 6: BLAST SLAM IX Southeast Asia Open Qualifier",
+              "startTimestamp": "2026-09-09T00:00:00Z",
+              "endTimestamp": "2026-09-10T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NTUxNA==",
+                "plannedStartTimestamp": "2026-09-10T05:23:00Z",
+                "startTimestamp": "2026-09-10T05:23:40Z",
+                "endTimestamp": "2026-09-10T06:26:39Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NzE3",
+                  "name": "Team Kukuys"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MzY2",
+                  "name": "Ivory"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NTExOQ==",
+                "plannedStartTimestamp": "2026-09-10T04:24:00Z",
+                "startTimestamp": "2026-09-10T04:25:03Z",
+                "endTimestamp": "2026-09-10T05:16:24Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEzMzAw",
+                  "name": "Carstensz Esports"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MzY2",
+                  "name": "Ivory"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14783,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzgz",
+              "name": "RES Unchained 6: BLAST SLAM IX Europe Open Qualifier",
+              "startTimestamp": "2026-09-08T22:00:00Z",
+              "endTimestamp": "2026-09-09T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzA3MQ==",
+                "plannedStartTimestamp": "2026-09-10T15:20:00Z",
+                "startTimestamp": "2026-09-10T15:21:03Z",
+                "endTimestamp": "2026-09-10T16:51:35Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc3",
+                  "name": "Dawn Bulls"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDcx",
+                  "name": "Cyber nova"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzQyNA==",
+                "plannedStartTimestamp": "2026-09-10T15:13:00Z",
+                "startTimestamp": "2026-09-10T15:13:24Z",
+                "endTimestamp": "2026-09-10T16:58:10Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTY3",
+                  "name": "Devil Kings"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzAzNw==",
+                "plannedStartTimestamp": "2026-09-10T14:00:00Z",
+                "startTimestamp": "2026-09-10T14:00:22Z",
+                "endTimestamp": "2026-09-10T15:03:07Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc2",
+                  "name": "The WarriorsQ"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDcx",
+                  "name": "Cyber nova"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzAyOA==",
+                "plannedStartTimestamp": "2026-09-10T13:35:00Z",
+                "startTimestamp": "2026-09-10T13:31:06Z",
+                "endTimestamp": "2026-09-10T14:57:27Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTY3",
+                  "name": "Devil Kings"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMjEy",
+                  "name": "PlayTime"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NjUwNw==",
+                "plannedStartTimestamp": "2026-09-10T12:30:00Z",
+                "startTimestamp": "2026-09-10T12:31:10Z",
+                "endTimestamp": "2026-09-10T13:41:30Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc2",
+                  "name": "The WarriorsQ"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NjQ5Mg==",
+                "plannedStartTimestamp": "2026-09-10T11:30:00Z",
+                "startTimestamp": "2026-09-10T11:31:04Z",
+                "endTimestamp": "2026-09-10T13:18:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMjEy",
+                  "name": "PlayTime"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NDM3OQ==",
+                "plannedStartTimestamp": "2026-09-10T10:13:00Z",
+                "startTimestamp": "2026-09-10T10:13:35Z",
+                "endTimestamp": "2026-09-10T11:14:09Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NTU=",
+                  "name": "PuckChamp"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NjM1OA==",
+                "plannedStartTimestamp": "2026-09-10T10:10:00Z",
+                "startTimestamp": "2026-09-10T10:10:37Z",
+                "endTimestamp": "2026-09-10T12:19:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc2",
+                  "name": "The WarriorsQ"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5MQ==",
+                "plannedStartTimestamp": "2026-09-09T13:34:00Z",
+                "startTimestamp": "2026-09-09T13:34:16Z",
+                "endTimestamp": "2026-09-09T17:22:42Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNTkw",
+                  "name": "Klim Sani4"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5OA==",
+                "plannedStartTimestamp": "2026-09-09T13:28:00Z",
+                "startTimestamp": "2026-09-09T13:28:34Z",
+                "endTimestamp": "2026-09-09T14:22:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5NQ==",
+                "plannedStartTimestamp": "2026-09-09T12:37:00Z",
+                "startTimestamp": "2026-09-09T12:37:29Z",
+                "endTimestamp": "2026-09-09T13:25:43Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNTkw",
+                  "name": "Klim Sani4"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5Nw==",
+                "plannedStartTimestamp": "2026-09-09T11:56:00Z",
+                "startTimestamp": "2026-09-09T11:57:27Z",
+                "endTimestamp": "2026-09-09T13:20:09Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5Mw==",
+                "plannedStartTimestamp": "2026-09-09T11:02:00Z",
+                "startTimestamp": "2026-09-09T11:02:32Z",
+                "endTimestamp": "2026-09-09T11:54:50Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTc5Mg==",
+                "plannedStartTimestamp": "2026-09-09T10:10:00Z",
+                "startTimestamp": "2026-09-09T10:13:19Z",
+                "endTimestamp": "2026-09-09T10:59:15Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDUx",
+                  "name": "KirkomStyle"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "homeScore": 0,
+                "awayScore": 1,
+                "bestOfType": "BO1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14784,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzg0",
+              "name": "RES Unchained 6: BLAST SLAM IX Europe Open Qualifier",
+              "startTimestamp": "2026-09-08T22:00:00Z",
+              "endTimestamp": "2026-09-09T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTg4Mw==",
+                "plannedStartTimestamp": "2026-09-09T11:20:00Z",
+                "startTimestamp": "2026-09-09T11:20:49Z",
+                "endTimestamp": "2026-09-09T11:58:08Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDUy",
+                  "name": "HellNight-"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTkwMw==",
+                "plannedStartTimestamp": "2026-09-09T10:10:00Z",
+                "startTimestamp": "2026-09-09T10:10:50Z",
+                "endTimestamp": "2026-09-09T11:12:05Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NTU=",
+                  "name": "PuckChamp"
+                },
+                "homeScore": 1,
+                "awayScore": 0,
+                "bestOfType": "BO1"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14785,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0Nzg1",
+              "name": "RES Unchained 6: BLAST SLAM IX Europe Open Qualifier",
+              "startTimestamp": "2026-09-08T22:00:00Z",
+              "endTimestamp": "2026-09-09T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4MTg4Nw==",
+                "plannedStartTimestamp": "2026-09-09T14:32:00Z",
+                "startTimestamp": "2026-09-09T14:33:57Z",
+                "endTimestamp": "2026-09-09T16:28:55Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTIy",
+                  "name": "Team Synapse"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14804,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0ODA0",
+              "name": "RES Unchained 6: BLAST SLAM IX Europe Closed Qualifier",
+              "startTimestamp": "2026-09-10T22:00:00Z",
+              "endTimestamp": "2026-09-12T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzUwMw==",
+                "plannedStartTimestamp": "2026-09-13T11:01:00Z",
+                "startTimestamp": "2026-09-13T11:01:36Z",
+                "endTimestamp": "2026-09-13T13:25:10Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc3",
+                  "name": "Dawn Bulls"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNTkw",
+                  "name": "Klim Sani4"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzUwMg==",
+                "plannedStartTimestamp": "2026-09-13T08:01:00Z",
+                "startTimestamp": "2026-09-13T08:01:43Z",
+                "endTimestamp": "2026-09-13T10:05:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzUwMQ==",
+                "plannedStartTimestamp": "2026-09-12T17:00:00Z",
+                "startTimestamp": "2026-09-12T17:00:12Z",
+                "endTimestamp": "2026-09-12T18:45:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NjA2",
+                  "name": "HULIGANI"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNTkw",
+                  "name": "Klim Sani4"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzQ5OA==",
+                "plannedStartTimestamp": "2026-09-12T14:04:00Z",
+                "startTimestamp": "2026-09-12T14:04:33Z",
+                "endTimestamp": "2026-09-12T16:28:59Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDc3",
+                  "name": "Dawn Bulls"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzQ5Nw==",
+                "plannedStartTimestamp": "2026-09-12T11:00:00Z",
+                "startTimestamp": "2026-09-12T11:00:46Z",
+                "endTimestamp": "2026-09-12T13:21:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4NzQ5Ng==",
+                "plannedStartTimestamp": "2026-09-12T08:09:00Z",
+                "startTimestamp": "2026-09-12T08:09:20Z",
+                "endTimestamp": "2026-09-12T10:02:18Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14813,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0ODEz",
+              "name": "RES Unchained 6: BLAST SLAM IX Southeast Asia Closed Qualifier",
+              "startTimestamp": "2026-09-12T00:00:00Z",
+              "endTimestamp": "2026-09-13T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTE0Mw==",
+                "plannedStartTimestamp": "2026-09-13T10:12:00Z",
+                "startTimestamp": "2026-09-13T10:12:44Z",
+                "endTimestamp": "2026-09-13T12:59:49Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDg3",
+                  "name": "Team Bored"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTE0MA==",
+                "plannedStartTimestamp": "2026-09-13T05:44:00Z",
+                "startTimestamp": "2026-09-13T05:44:13Z",
+                "endTimestamp": "2026-09-13T09:37:51Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjMwMA==",
+                  "name": "Execration"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDg3",
+                  "name": "Team Bored"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTEzNw==",
+                "plannedStartTimestamp": "2026-09-12T11:12:00Z",
+                "startTimestamp": "2026-09-12T11:12:18Z",
+                "endTimestamp": "2026-09-12T13:29:06Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE0NjMz",
+                  "name": "Xipto Esports"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MDg3",
+                  "name": "Team Bored"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTEzNg==",
+                "plannedStartTimestamp": "2026-09-12T08:01:00Z",
+                "startTimestamp": "2026-09-12T08:01:03Z",
+                "endTimestamp": "2026-09-12T10:56:30Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjMwMA==",
+                  "name": "Execration"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMjU=",
+                  "name": "Yangon Galacticos"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTEzMg==",
+                "plannedStartTimestamp": "2026-09-12T02:05:00Z",
+                "startTimestamp": "2026-09-12T02:02:16Z",
+                "endTimestamp": "2026-09-12T04:11:35Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQzNDU=",
+                  "name": "InterActive Philippines"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14814,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0ODE0",
+              "name": "RES Unchained 6: BLAST SLAM IX Southeast Asia Closed Qualifier",
+              "startTimestamp": "2026-09-12T00:00:00Z",
+              "endTimestamp": "2026-09-13T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5MzkxNw==",
+                "plannedStartTimestamp": "2026-09-13T02:05:00Z",
+                "startTimestamp": "2026-09-13T02:02:03Z",
+                "endTimestamp": "2026-09-13T05:27:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIzNDk1",
+                  "name": "Direborn"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE4OTE2Ng==",
+                "plannedStartTimestamp": "2026-09-12T05:05:00Z",
+                "startTimestamp": "2026-09-12T05:00:23Z",
+                "endTimestamp": "2026-09-12T06:44:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIzNDk1",
+                  "name": "Direborn"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMzgw",
+                  "name": "YACHE123"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14828,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0ODI4",
+              "name": "European Pro League 40",
+              "startTimestamp": "2026-09-12T05:00:00Z",
+              "endTimestamp": "2026-09-25T05:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjYwNw==",
+                "plannedStartTimestamp": "2026-09-24T15:02:00Z",
+                "startTimestamp": "2026-09-24T15:02:55Z",
+                "endTimestamp": "2026-09-24T17:53:20Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjYwOA==",
+                "plannedStartTimestamp": "2026-09-24T12:05:00Z",
+                "startTimestamp": "2026-09-24T12:05:38Z",
+                "endTimestamp": "2026-09-24T14:06:04Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjYwNg==",
+                "plannedStartTimestamp": "2026-09-23T12:00:00Z",
+                "startTimestamp": "2026-09-23T12:00:46Z",
+                "endTimestamp": "2026-09-23T14:14:52Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjU5NA==",
+                "plannedStartTimestamp": "2026-09-22T15:48:00Z",
+                "startTimestamp": "2026-09-22T15:48:31Z",
+                "endTimestamp": "2026-09-22T17:49:45Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjU5NQ==",
+                "plannedStartTimestamp": "2026-09-22T13:11:00Z",
+                "startTimestamp": "2026-09-22T13:11:08Z",
+                "endTimestamp": "2026-09-22T15:28:58Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjU5Ng==",
+                "plannedStartTimestamp": "2026-09-22T09:02:00Z",
+                "startTimestamp": "2026-09-22T09:02:08Z",
+                "endTimestamp": "2026-09-22T12:56:29Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjU3NA==",
+                "plannedStartTimestamp": "2026-09-21T18:00:00Z",
+                "startTimestamp": "2026-09-21T18:03:19Z",
+                "endTimestamp": "2026-09-21T22:03:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNjU3NQ==",
+                "plannedStartTimestamp": "2026-09-21T12:03:00Z",
+                "startTimestamp": "2026-09-21T12:03:28Z",
+                "endTimestamp": "2026-09-21T14:24:18Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5OTc5MQ==",
+                "plannedStartTimestamp": "2026-09-20T12:02:00Z",
+                "startTimestamp": "2026-09-20T12:02:49Z",
+                "endTimestamp": "2026-09-20T15:20:16Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NTU=",
+                  "name": "PuckChamp"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5Nzk1OQ==",
+                "plannedStartTimestamp": "2026-09-20T09:01:00Z",
+                "startTimestamp": "2026-09-20T09:01:12Z",
+                "endTimestamp": "2026-09-20T10:48:54Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMzIxMQ==",
+                "plannedStartTimestamp": "2026-09-19T15:00:00Z",
+                "startTimestamp": "2026-09-19T17:36:17Z",
+                "endTimestamp": "2026-09-19T19:48:02Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMjAx",
+                  "name": "Kalmychata"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg1MA==",
+                "plannedStartTimestamp": "2026-09-19T13:28:00Z",
+                "startTimestamp": "2026-09-19T13:28:39Z",
+                "endTimestamp": "2026-09-19T17:34:32Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg1OA==",
+                "plannedStartTimestamp": "2026-09-18T18:00:00Z",
+                "startTimestamp": "2026-09-18T17:59:16Z",
+                "endTimestamp": "2026-09-18T19:47:54Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU3NzY=",
+                  "name": "Uralan"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg2NQ==",
+                "plannedStartTimestamp": "2026-09-18T12:05:00Z",
+                "startTimestamp": "2026-09-18T12:05:46Z",
+                "endTimestamp": "2026-09-18T13:56:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg0OQ==",
+                "plannedStartTimestamp": "2026-09-17T19:39:00Z",
+                "startTimestamp": "2026-09-17T19:39:11Z",
+                "endTimestamp": "2026-09-18T01:34:46Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMjAx",
+                  "name": "Kalmychata"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU3NzY=",
+                  "name": "Uralan"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg3NA==",
+                "plannedStartTimestamp": "2026-09-17T15:00:00Z",
+                "startTimestamp": "2026-09-17T15:00:24Z",
+                "endTimestamp": "2026-09-17T19:27:19Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg3Ng==",
+                "plannedStartTimestamp": "2026-09-17T12:07:00Z",
+                "startTimestamp": "2026-09-17T12:08:02Z",
+                "endTimestamp": "2026-09-17T14:23:50Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTk0MQ==",
+                "plannedStartTimestamp": "2026-09-16T19:16:00Z",
+                "startTimestamp": "2026-09-16T19:16:28Z",
+                "endTimestamp": "2026-09-16T22:28:31Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyOTQ5",
+                  "name": "Two Move"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTk0Mg==",
+                "plannedStartTimestamp": "2026-09-16T15:37:00Z",
+                "startTimestamp": "2026-09-16T15:38:06Z",
+                "endTimestamp": "2026-09-16T19:02:54Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMDkw",
+                  "name": "Inner Circle x Insanity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU3NzY=",
+                  "name": "Uralan"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg3Mw==",
+                "plannedStartTimestamp": "2026-09-16T12:01:00Z",
+                "startTimestamp": "2026-09-16T12:01:39Z",
+                "endTimestamp": "2026-09-16T15:24:31Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NTU=",
+                  "name": "PuckChamp"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg2NA==",
+                "plannedStartTimestamp": "2026-09-15T19:22:00Z",
+                "startTimestamp": "2026-09-15T19:22:51Z",
+                "endTimestamp": "2026-09-15T21:43:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU3NzY=",
+                  "name": "Uralan"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg2Mw==",
+                "plannedStartTimestamp": "2026-09-15T15:10:00Z",
+                "startTimestamp": "2026-09-15T15:10:12Z",
+                "endTimestamp": "2026-09-15T19:05:12Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg1MQ==",
+                "plannedStartTimestamp": "2026-09-14T18:11:00Z",
+                "startTimestamp": "2026-09-14T18:11:42Z",
+                "endTimestamp": "2026-09-14T20:15:38Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU3NzY=",
+                  "name": "Uralan"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg0OA==",
+                "plannedStartTimestamp": "2026-09-14T15:15:00Z",
+                "startTimestamp": "2026-09-14T15:12:07Z",
+                "endTimestamp": "2026-09-14T17:12:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE0NTUx",
+                  "name": "Level up"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MDUw",
+                  "name": "Inner Circle"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg0Mw==",
+                "plannedStartTimestamp": "2026-09-14T09:01:00Z",
+                "startTimestamp": "2026-09-14T09:01:28Z",
+                "endTimestamp": "2026-09-14T12:09:08Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzE5NTg0MQ==",
+                "plannedStartTimestamp": "2026-09-13T18:15:00Z",
+                "startTimestamp": "2026-09-13T18:16:08Z",
+                "endTimestamp": "2026-09-13T20:46:56Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMjAx",
+                  "name": "Kalmychata"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI4NTQ=",
+                  "name": "Team Spirit Academy"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14887,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0ODg3",
+              "name": "European Pro League 40",
+              "startTimestamp": "2026-09-12T05:00:00Z",
+              "endTimestamp": "2026-09-25T05:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMDkwNg==",
+                "plannedStartTimestamp": "2026-09-20T15:46:00Z",
+                "startTimestamp": "2026-09-20T15:46:26Z",
+                "endTimestamp": "2026-09-20T17:47:18Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE2NTU=",
+                  "name": "PuckChamp"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTY0",
+                  "name": "Balu Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMDg5OA==",
+                "plannedStartTimestamp": "2026-09-19T20:00:00Z",
+                "startTimestamp": "2026-09-19T19:58:56Z",
+                "endTimestamp": "2026-09-19T21:30:51Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MTUw",
+                  "name": "Team Lynx"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTY0",
+                  "name": "Balu Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMDg5MQ==",
+                "plannedStartTimestamp": "2026-09-17T09:05:00Z",
+                "startTimestamp": "2026-09-17T09:05:43Z",
+                "endTimestamp": "2026-09-17T10:49:38Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3ODk=",
+                  "name": "Zero Tenacity"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTY0",
+                  "name": "Balu Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIwMTU4MQ==",
+                "plannedStartTimestamp": "2026-09-14T12:20:00Z",
+                "startTimestamp": "2026-09-14T12:22:06Z",
+                "endTimestamp": "2026-09-14T13:57:56Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTY0",
+                  "name": "Balu Team"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14906,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTA2",
+              "name": "PGL Wallachia Season 9",
+              "startTimestamp": "2026-09-19T00:00:00Z",
+              "endTimestamp": "2026-09-27T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc1MA==",
+                "plannedStartTimestamp": "2026-09-26T16:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc1MQ==",
+                "plannedStartTimestamp": "2026-09-26T12:05:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc1Mg==",
+                "plannedStartTimestamp": "2026-09-26T09:34:00Z",
+                "startTimestamp": "2026-09-26T09:34:22Z",
+                "endTimestamp": "2026-09-26T11:46:57Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc1Mw==",
+                "plannedStartTimestamp": "2026-09-26T07:00:00Z",
+                "startTimestamp": "2026-09-26T07:00:14Z",
+                "endTimestamp": "2026-09-26T09:22:14Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0Ng==",
+                "plannedStartTimestamp": "2026-09-25T17:28:00Z",
+                "startTimestamp": "2026-09-25T17:28:18Z",
+                "endTimestamp": "2026-09-25T20:02:25Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0Nw==",
+                "plannedStartTimestamp": "2026-09-25T14:40:00Z",
+                "startTimestamp": "2026-09-25T14:41:35Z",
+                "endTimestamp": "2026-09-25T17:14:56Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0OA==",
+                "plannedStartTimestamp": "2026-09-25T10:35:00Z",
+                "startTimestamp": "2026-09-25T10:35:23Z",
+                "endTimestamp": "2026-09-25T14:22:19Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0OQ==",
+                "plannedStartTimestamp": "2026-09-25T07:00:00Z",
+                "startTimestamp": "2026-09-25T07:00:55Z",
+                "endTimestamp": "2026-09-25T10:22:46Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0NQ==",
+                "plannedStartTimestamp": "2026-09-24T15:25:00Z",
+                "startTimestamp": "2026-09-24T15:25:12Z",
+                "endTimestamp": "2026-09-24T17:28:01Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0MQ==",
+                "plannedStartTimestamp": "2026-09-24T12:56:00Z",
+                "startTimestamp": "2026-09-24T12:56:27Z",
+                "endTimestamp": "2026-09-24T15:12:24Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0Mg==",
+                "plannedStartTimestamp": "2026-09-24T09:21:00Z",
+                "startTimestamp": "2026-09-24T09:21:46Z",
+                "endTimestamp": "2026-09-24T12:38:36Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjc0Mw==",
+                "plannedStartTimestamp": "2026-09-24T07:02:00Z",
+                "startTimestamp": "2026-09-24T07:02:07Z",
+                "endTimestamp": "2026-09-24T09:05:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1Ng==",
+                "plannedStartTimestamp": "2026-09-23T13:20:00Z",
+                "startTimestamp": "2026-09-23T13:21:01Z",
+                "endTimestamp": "2026-09-23T15:31:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1Nw==",
+                "plannedStartTimestamp": "2026-09-23T09:45:00Z",
+                "startTimestamp": "2026-09-23T09:45:39Z",
+                "endTimestamp": "2026-09-23T13:07:46Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU3",
+                  "name": "Conventus Stellarum"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1OA==",
+                "plannedStartTimestamp": "2026-09-23T07:00:00Z",
+                "startTimestamp": "2026-09-23T07:00:30Z",
+                "endTimestamp": "2026-09-23T09:27:01Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1MQ==",
+                "plannedStartTimestamp": "2026-09-22T13:42:00Z",
+                "startTimestamp": "2026-09-22T13:42:55Z",
+                "endTimestamp": "2026-09-22T15:56:38Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1Mw==",
+                "plannedStartTimestamp": "2026-09-22T10:20:00Z",
+                "startTimestamp": "2026-09-22T10:20:57Z",
+                "endTimestamp": "2026-09-22T13:24:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1Mg==",
+                "plannedStartTimestamp": "2026-09-22T09:14:00Z",
+                "startTimestamp": "2026-09-22T09:15:14Z",
+                "endTimestamp": "2026-09-22T12:38:38Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMjA1",
+                  "name": "Team Cobra"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1NA==",
+                "plannedStartTimestamp": "2026-09-22T07:04:00Z",
+                "startTimestamp": "2026-09-22T07:05:02Z",
+                "endTimestamp": "2026-09-22T09:02:23Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU3",
+                  "name": "Conventus Stellarum"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1Nzk5",
+                  "name": "Yakult's Brothers"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM1NQ==",
+                "plannedStartTimestamp": "2026-09-22T07:02:00Z",
+                "startTimestamp": "2026-09-22T07:02:21Z",
+                "endTimestamp": "2026-09-22T10:06:31Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0MQ==",
+                "plannedStartTimestamp": "2026-09-21T16:07:00Z",
+                "startTimestamp": "2026-09-21T16:07:42Z",
+                "endTimestamp": "2026-09-21T17:39:55Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0Mw==",
+                "plannedStartTimestamp": "2026-09-21T13:39:00Z",
+                "startTimestamp": "2026-09-21T13:39:50Z",
+                "endTimestamp": "2026-09-21T15:54:22Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0NA==",
+                "plannedStartTimestamp": "2026-09-21T12:56:00Z",
+                "startTimestamp": "2026-09-21T12:56:41Z",
+                "endTimestamp": "2026-09-21T15:17:18Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1Nzk5",
+                  "name": "Yakult's Brothers"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMjEy",
+                  "name": "PlayTime"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0Ng==",
+                "plannedStartTimestamp": "2026-09-21T10:25:00Z",
+                "startTimestamp": "2026-09-21T10:25:12Z",
+                "endTimestamp": "2026-09-21T12:39:53Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0NQ==",
+                "plannedStartTimestamp": "2026-09-21T09:20:00Z",
+                "startTimestamp": "2026-09-21T09:21:01Z",
+                "endTimestamp": "2026-09-21T13:22:52Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU3",
+                  "name": "Conventus Stellarum"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0OA==",
+                "plannedStartTimestamp": "2026-09-21T07:00:00Z",
+                "startTimestamp": "2026-09-21T07:00:30Z",
+                "endTimestamp": "2026-09-21T10:12:00Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0Nw==",
+                "plannedStartTimestamp": "2026-09-21T07:00:00Z",
+                "startTimestamp": "2026-09-21T07:00:43Z",
+                "endTimestamp": "2026-09-21T09:03:14Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMjA1",
+                  "name": "Team Cobra"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzMw==",
+                "plannedStartTimestamp": "2026-09-20T15:52:00Z",
+                "startTimestamp": "2026-09-20T15:52:52Z",
+                "endTimestamp": "2026-09-20T17:31:09Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzNQ==",
+                "plannedStartTimestamp": "2026-09-20T13:40:00Z",
+                "startTimestamp": "2026-09-20T13:38:34Z",
+                "endTimestamp": "2026-09-20T15:39:48Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzNg==",
+                "plannedStartTimestamp": "2026-09-20T13:17:00Z",
+                "startTimestamp": "2026-09-20T13:17:20Z",
+                "endTimestamp": "2026-09-20T17:50:25Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1Nzk5",
+                  "name": "Yakult's Brothers"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzNw==",
+                "plannedStartTimestamp": "2026-09-20T11:15:00Z",
+                "startTimestamp": "2026-09-20T11:15:49Z",
+                "endTimestamp": "2026-09-20T13:20:13Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzOQ==",
+                "plannedStartTimestamp": "2026-09-20T07:03:00Z",
+                "startTimestamp": "2026-09-20T07:03:17Z",
+                "endTimestamp": "2026-09-20T11:01:27Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU3",
+                  "name": "Conventus Stellarum"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0MA==",
+                "plannedStartTimestamp": "2026-09-20T07:00:00Z",
+                "startTimestamp": "2026-09-20T07:01:34Z",
+                "endTimestamp": "2026-09-20T10:31:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMjEy",
+                  "name": "PlayTime"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMjA1",
+                  "name": "Team Cobra"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMyOA==",
+                "plannedStartTimestamp": "2026-09-19T19:40:00Z",
+                "startTimestamp": "2026-09-19T19:40:06Z",
+                "endTimestamp": "2026-09-19T22:41:45Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMyNA==",
+                "plannedStartTimestamp": "2026-09-19T15:18:00Z",
+                "startTimestamp": "2026-09-19T15:19:06Z",
+                "endTimestamp": "2026-09-19T19:21:47Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE5NzE5",
+                  "name": "Pipsqueak+4"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMzMQ==",
+                "plannedStartTimestamp": "2026-09-19T14:00:00Z",
+                "startTimestamp": "2026-09-19T14:00:26Z",
+                "endTimestamp": "2026-09-19T17:16:38Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1Nzk5",
+                  "name": "Yakult's Brothers"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMyNQ==",
+                "plannedStartTimestamp": "2026-09-19T11:25:00Z",
+                "startTimestamp": "2026-09-19T11:24:25Z",
+                "endTimestamp": "2026-09-19T13:47:26Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMjA1",
+                  "name": "Team Cobra"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMxOQ==",
+                "plannedStartTimestamp": "2026-09-19T10:48:00Z",
+                "startTimestamp": "2026-09-19T10:48:42Z",
+                "endTimestamp": "2026-09-19T15:02:14Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU3",
+                  "name": "Conventus Stellarum"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxMjEy",
+                  "name": "PlayTime"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTMxNw==",
+                "plannedStartTimestamp": "2026-09-19T07:01:00Z",
+                "startTimestamp": "2026-09-19T07:01:41Z",
+                "endTimestamp": "2026-09-19T10:34:17Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14907,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTA3",
+              "name": "PGL Wallachia Season 9",
+              "startTimestamp": "2026-09-19T00:00:00Z",
+              "endTimestamp": "2026-09-27T00:00:00Z"
+            },
+            "matches": []
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14908,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTA4",
+              "name": "PGL Wallachia Season 9",
+              "startTimestamp": "2026-09-19T00:00:00Z",
+              "endTimestamp": "2026-09-27T00:00:00Z"
+            },
+            "matches": []
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14909,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTA5",
+              "name": "PGL Wallachia Season 9",
+              "startTimestamp": "2026-09-19T00:00:00Z",
+              "endTimestamp": "2026-09-27T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMDMxNg==",
+                "plannedStartTimestamp": "2026-09-22T12:50:00Z",
+                "startTimestamp": "2026-09-22T12:50:27Z",
+                "endTimestamp": "2026-09-22T14:31:28Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxNTE=",
+                  "name": "Hokori"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTM0Mg==",
+                "plannedStartTimestamp": "2026-09-21T15:34:00Z",
+                "startTimestamp": "2026-09-21T15:34:35Z",
+                "endTimestamp": "2026-09-21T18:02:31Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU2",
+                  "name": "Pibbles Corp"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxNTE=",
+                  "name": "Hokori"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyMzE0OA==",
+                "plannedStartTimestamp": "2026-09-20T18:04:00Z",
+                "startTimestamp": "2026-09-20T18:04:08Z",
+                "endTimestamp": "2026-09-20T19:38:53Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU2",
+                  "name": "Pibbles Corp"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyMzE0Nw==",
+                "plannedStartTimestamp": "2026-09-20T10:45:00Z",
+                "startTimestamp": "2026-09-20T10:46:04Z",
+                "endTimestamp": "2026-09-20T13:04:00Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxNTE=",
+                  "name": "Hokori"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxMTUzNw==",
+                "plannedStartTimestamp": "2026-09-19T09:00:00Z",
+                "startTimestamp": "2026-09-19T09:01:49Z",
+                "endTimestamp": "2026-09-19T11:04:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIxNTE=",
+                  "name": "Hokori"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIxNDIxNA==",
+                "plannedStartTimestamp": "2026-09-19T07:02:00Z",
+                "startTimestamp": "2026-09-19T07:03:07Z",
+                "endTimestamp": "2026-09-19T08:47:42Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MjU2",
+                  "name": "Pibbles Corp"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14915,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTE1",
+              "name": "European Pro League Season 40",
+              "startTimestamp": "2026-09-12T00:00:00Z",
+              "endTimestamp": "2026-09-26T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzI0MzA2OA==",
+                "plannedStartTimestamp": "2026-09-25T13:06:00Z",
+                "startTimestamp": "2026-09-25T13:06:37Z",
+                "endTimestamp": "2026-09-25T19:32:21Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTIy",
+                  "name": "Team Synapse"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzE=",
+                  "name": "Yellow Submarine"
+                },
+                "homeScore": 3,
+                "awayScore": 2,
+                "bestOfType": "BO5"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyODE2OQ==",
+                "plannedStartTimestamp": "2026-09-21T09:05:00Z",
+                "startTimestamp": "2026-09-21T09:05:28Z",
+                "endTimestamp": "2026-09-21T11:13:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMjAx",
+                  "name": "Kalmychata"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyMDUyNg==",
+                "plannedStartTimestamp": "2026-09-19T09:00:00Z",
+                "startTimestamp": "2026-09-19T08:59:54Z",
+                "endTimestamp": "2026-09-19T13:03:13Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI3MA==",
+                  "name": "Nemiga Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1NTIy",
+                  "name": "Team Synapse"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14921,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTIx",
+              "name": "BB Streamers Battle 15",
+              "startTimestamp": "2026-09-21T05:00:00Z",
+              "endTimestamp": "2026-10-03T05:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjUyMQ==",
+                "plannedStartTimestamp": "2026-09-26T15:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MDM4",
+                  "name": "Team Rostik"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE1",
+                  "name": "Team avice"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjUyMA==",
+                "plannedStartTimestamp": "2026-09-26T12:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjUwMA==",
+                "plannedStartTimestamp": "2026-09-25T18:30:00Z",
+                "startTimestamp": "2026-09-25T18:31:11Z",
+                "endTimestamp": "2026-09-25T21:05:21Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDEy",
+                  "name": "Team TpaBoMaH"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjQ5OQ==",
+                "plannedStartTimestamp": "2026-09-25T15:35:00Z",
+                "startTimestamp": "2026-09-25T15:36:52Z",
+                "endTimestamp": "2026-09-25T19:09:20Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE2",
+                  "name": "Team Cake"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MzYy",
+                  "name": "Team GPK"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjQ5OA==",
+                "plannedStartTimestamp": "2026-09-25T15:21:00Z",
+                "startTimestamp": "2026-09-25T15:21:25Z",
+                "endTimestamp": "2026-09-25T18:08:10Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODc=",
+                  "name": "Team Stray"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MDM4",
+                  "name": "Team Rostik"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzMjQ5Nw==",
+                "plannedStartTimestamp": "2026-09-25T12:13:00Z",
+                "startTimestamp": "2026-09-25T12:13:56Z",
+                "endTimestamp": "2026-09-25T14:10:45Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDg0",
+                  "name": "Team Solo"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE1",
+                  "name": "Team avice"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxNA==",
+                "plannedStartTimestamp": "2026-09-24T18:10:00Z",
+                "startTimestamp": "2026-09-24T18:08:40Z",
+                "endTimestamp": "2026-09-24T20:34:06Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDEy",
+                  "name": "Team TpaBoMaH"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODc=",
+                  "name": "Team Stray"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxNQ==",
+                "plannedStartTimestamp": "2026-09-24T16:00:00Z",
+                "startTimestamp": "2026-09-24T15:59:45Z",
+                "endTimestamp": "2026-09-24T18:18:41Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE2",
+                  "name": "Team Cake"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDg0",
+                  "name": "Team Solo"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxMg==",
+                "plannedStartTimestamp": "2026-09-24T13:10:00Z",
+                "startTimestamp": "2026-09-24T13:11:00Z",
+                "endTimestamp": "2026-09-24T15:15:35Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODU=",
+                  "name": "Team NS"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MDM4",
+                  "name": "Team Rostik"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwNQ==",
+                "plannedStartTimestamp": "2026-09-24T12:05:00Z",
+                "startTimestamp": "2026-09-24T12:07:54Z",
+                "endTimestamp": "2026-09-24T15:38:50Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MzYy",
+                  "name": "Team GPK"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxMw==",
+                "plannedStartTimestamp": "2026-09-23T21:12:00Z",
+                "startTimestamp": "2026-09-23T21:14:29Z",
+                "endTimestamp": "2026-09-24T00:07:32Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MDM4",
+                  "name": "Team Rostik"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxMQ==",
+                "plannedStartTimestamp": "2026-09-23T16:36:00Z",
+                "startTimestamp": "2026-09-23T16:36:21Z",
+                "endTimestamp": "2026-09-23T21:08:16Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE1",
+                  "name": "Team avice"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MzYy",
+                  "name": "Team GPK"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYxMA==",
+                "plannedStartTimestamp": "2026-09-23T13:12:00Z",
+                "startTimestamp": "2026-09-23T13:12:34Z",
+                "endTimestamp": "2026-09-23T17:29:01Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODc=",
+                  "name": "Team Stray"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODU=",
+                  "name": "Team NS"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwOQ==",
+                "plannedStartTimestamp": "2026-09-23T12:01:00Z",
+                "startTimestamp": "2026-09-23T12:01:46Z",
+                "endTimestamp": "2026-09-23T16:19:39Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE2",
+                  "name": "Team Cake"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwOA==",
+                "plannedStartTimestamp": "2026-09-22T19:55:00Z",
+                "startTimestamp": "2026-09-22T19:55:28Z",
+                "endTimestamp": "2026-09-22T23:35:30Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODc=",
+                  "name": "Team Stray"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwNw==",
+                "plannedStartTimestamp": "2026-09-22T15:24:00Z",
+                "startTimestamp": "2026-09-22T15:25:01Z",
+                "endTimestamp": "2026-09-22T19:33:28Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDEy",
+                  "name": "Team TpaBoMaH"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODU=",
+                  "name": "Team NS"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwNg==",
+                "plannedStartTimestamp": "2026-09-22T13:15:00Z",
+                "startTimestamp": "2026-09-22T13:14:38Z",
+                "endTimestamp": "2026-09-22T15:35:18Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE1",
+                  "name": "Team avice"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "homeScore": 0,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwMw==",
+                "plannedStartTimestamp": "2026-09-22T12:13:00Z",
+                "startTimestamp": "2026-09-22T12:13:14Z",
+                "endTimestamp": "2026-09-22T14:15:11Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDg0",
+                  "name": "Team Solo"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2MzYy",
+                  "name": "Team GPK"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwNA==",
+                "plannedStartTimestamp": "2026-09-21T20:52:00Z",
+                "startTimestamp": "2026-09-21T20:52:53Z",
+                "endTimestamp": "2026-09-21T23:48:26Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjEyMDEy",
+                  "name": "Team TpaBoMaH"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MDM4",
+                  "name": "Team Rostik"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwMg==",
+                "plannedStartTimestamp": "2026-09-21T16:55:00Z",
+                "startTimestamp": "2026-09-21T16:55:05Z",
+                "endTimestamp": "2026-09-21T20:54:37Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE2",
+                  "name": "Team Cake"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE1",
+                  "name": "Team avice"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTYwMQ==",
+                "plannedStartTimestamp": "2026-09-21T15:35:00Z",
+                "startTimestamp": "2026-09-21T15:35:28Z",
+                "endTimestamp": "2026-09-21T19:43:25Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI0ODE2",
+                  "name": "Team YBN"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk1ODU=",
+                  "name": "Team NS"
+                },
+                "homeScore": 1,
+                "awayScore": 2,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIyNTU1Ng==",
+                "plannedStartTimestamp": "2026-09-21T12:20:00Z",
+                "startTimestamp": "2026-09-21T12:17:13Z",
+                "endTimestamp": "2026-09-21T16:07:34Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMTE1",
+                  "name": "Team Daxak"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwNDg0",
+                  "name": "Team Solo"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14994,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTk0",
+              "name": "BLAST SLAM VIII",
+              "startTimestamp": "2026-09-29T00:00:00Z",
+              "endTimestamp": "2026-10-11T00:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTU0OA==",
+                "plannedStartTimestamp": "2026-09-30T10:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU0NTc=",
+                  "name": "BetBoom Team"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjY=",
+                  "name": "Team OG"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTU0Nw==",
+                "plannedStartTimestamp": "2026-09-30T10:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4NzY3",
+                  "name": "Team Yandex"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjQxMTc=",
+                  "name": "MOUZ"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzI0MDg0Ng==",
+                "plannedStartTimestamp": "2026-09-29T16:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjU=",
+                  "name": "Team Liquid"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1Nzk5",
+                  "name": "Yakult's Brothers"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTUzMw==",
+                "plannedStartTimestamp": "2026-09-29T16:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3NzQ1",
+                  "name": "Aurora Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyNA==",
+                  "name": "GamerLegion"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTUyOQ==",
+                "plannedStartTimestamp": "2026-09-29T13:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE4Mw==",
+                  "name": "LGD Gaming"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1ODU=",
+                  "name": "Xtreme Gaming"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTUzMA==",
+                "plannedStartTimestamp": "2026-09-29T13:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjg1MQ==",
+                  "name": "1win"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI1",
+                  "name": "Natus Vincere"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTUyOA==",
+                "plannedStartTimestamp": "2026-09-29T10:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE3MDM2",
+                  "name": "PARIVISION"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjk4OTA=",
+                  "name": "Level Up"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              },
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzIzOTUzMQ==",
+                "plannedStartTimestamp": "2026-09-29T10:00:00Z",
+                "startTimestamp": null,
+                "endTimestamp": null,
+                "isClosed": false,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjI2OQ==",
+                  "name": "Team Spirit"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjExNzY4",
+                  "name": "Team Nemesis"
+                },
+                "homeScore": null,
+                "awayScore": null,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14997,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTk3",
+              "name": "EPL World Series: Southeast Asia Season 18",
+              "startTimestamp": "2026-09-24T22:00:00Z",
+              "endTimestamp": "2026-10-07T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzI0MjI1Ng==",
+                "plannedStartTimestamp": "2026-09-26T06:11:00Z",
+                "startTimestamp": "2026-09-26T06:11:41Z",
+                "endTimestamp": "2026-09-26T09:28:50Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIyMjU=",
+                  "name": "Yangon Galacticos"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjIwMzgw",
+                  "name": "YACHE123"
+                },
+                "homeScore": 2,
+                "awayScore": 1,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "numeric_id": 14998,
+      "kind": "tournament",
+      "body": {
+        "data": {
+          "dota2TournamentInfo": {
+            "tournament": {
+              "id": "dG91cm5hbWVudC9vZDp0b3VybmFtZW50OjE0OTk4",
+              "name": "EPL World Series: Southeast Asia Season 18",
+              "startTimestamp": "2026-09-24T22:00:00Z",
+              "endTimestamp": "2026-10-07T22:00:00Z"
+            },
+            "matches": [
+              {
+                "id": "bWF0Y2gvb2Q6bWF0Y2g6MzI0MjI5Mw==",
+                "plannedStartTimestamp": "2026-09-26T09:40:00Z",
+                "startTimestamp": "2026-09-26T09:41:06Z",
+                "endTimestamp": "2026-09-26T11:18:52Z",
+                "isClosed": true,
+                "homeTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE0NjMz",
+                  "name": "Xipto Esports"
+                },
+                "awayTeam": {
+                  "id": "dGVhbS9vZDpjb21wZXRpdG9yOjE1MzY2",
+                  "name": "Ivory"
+                },
+                "homeScore": 2,
+                "awayScore": 0,
+                "bestOfType": "BO3"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

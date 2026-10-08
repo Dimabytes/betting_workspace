@@ -1,0 +1,43 @@
+{
+  "leagues": [
+    "LPL",
+    "LEC",
+    "Esports World Cup",
+    "Mid-Season Invitational",
+    "LCK Challengers League",
+    "LCK",
+    "LES",
+    "KeSPA Cup",
+    "LRN",
+    "NACL",
+    "Road Of Legends",
+    "Hitpoint Masters",
+    "EMEA Masters",
+    "LPLOL",
+    "LCS",
+    "CBLOL",
+    "EBL",
+    "Prime League 1st Division",
+    "LCP",
+    "TCL",
+    "NLC",
+    "Rift Legends",
+    "World Star Challengers Invitational"
+  ],
+  "no_live_feed": [
+    "LPL",
+    "LCK Challengers League",
+    "World Star Challengers Invitational"
+  ],
+  "aliases": {
+    "North American Challengers League": "NACL",
+    "LPL Group Ascend": "LPL",
+    "LPL Group Nirvana": "LPL",
+    "LPL Group Perseverance": "LPL",
+    "LPL Knights Rivals": "LPL",
+    "LCK Challengers League Kickoff Group Stage": "LCK Challengers League",
+    "LCK Challengers League Kickoff Play-In": "LCK Challengers League",
+    "LCK Challengers League Kickoff Playoffs": "LCK Challengers League",
+    "Road Of Legends Tier 1 Group": "Road Of Legends"
+  }
+}

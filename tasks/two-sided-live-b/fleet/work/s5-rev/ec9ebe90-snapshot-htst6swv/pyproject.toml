@@ -1,0 +1,78 @@
+[project]
+name = "esports-trader"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "curl-cffi>=0.16.3",
+    "eth-abi>=5.2.0",
+    "eth-utils>=5.3.1",
+    "httpx>=0.27.0",
+    "lightgbm>=4.3.0",
+    "msgspec>=0.19.0",
+    "pandas>=2.3.3,<3.0.0",
+    "polymaker",
+    "polymarket-client>=0.3.0",
+    "pyarrow>=16.0.0",
+    "pytest>=8.3.0",
+    "rich>=14.1",
+    "scikit-learn>=1.5.0",
+    "tenacity>=8.3.0",
+    "typer>=0.27.1",
+    "watchdog>=6.0.0",
+    "websockets>=13.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+polymaker = { path = "../poly-maker", editable = true }
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.39.9",
+    "matplotlib>=3.9",
+    "pandas-stubs>=2.3.3.260113,<3.0",
+    "pre-commit>=4.0",
+    "pyarrow-stubs>=20.0.0.20260819",
+    "pytest-xdist>=3.6",
+    "ruff>=0.14",
+]
+backtest = [
+    "aiohttp>=3.10.0",
+    "bokeh>=3.0.0",
+    "duckdb>=1.0.0",
+    "maturin>=1.12,<2",
+    "nautilus_trader[polymarket,visualization]==1.226.0",
+    "optuna>=4.0.0",
+    "plotly>=5.0.0",
+    "py-clob-client>=0.34.0",
+    "python-dotenv>=1.0.0",
+    "streamlit>=1.30.0",
+]
+dashboard = [
+    "plotly>=5.0.0",
+    "streamlit>=1.63.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Don't keep the last 3 sessions: a killed run left 3GiB under /tmp (tmpfs).
+tmp_path_retention_policy = "none"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+# E/F pyflakes+pycodestyle, I import sort, UP modernize, B bugbear, SIM simplify,
+# RUF ruff-specific, PD pandas, TID251 no __future__.annotations, PLC0415 no nested imports.
+# C901 McCabe. Typing is basedpyright's job, so no ANN here.
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "PD", "TID251", "PLC0415", "C901"]
+ignore = [
+    "E501",    # formatter owns line width; only comments/URLs it can't split trip this
+    "RUF001",  # en-dashes in regexes/strings are intentional
+    "SIM108",  # wants `x = a if c else b`; we keep a flat if/else assignment
+]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "Python 3.13+; don't import annotations from __future__"

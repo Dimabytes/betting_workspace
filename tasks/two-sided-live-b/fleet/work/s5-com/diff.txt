@@ -1,0 +1,1179 @@
+diff --git a/scripts/merge_probe.py b/scripts/merge_probe.py
+index 903340fe..fcfdec3b 100644
+--- a/scripts/merge_probe.py
++++ b/scripts/merge_probe.py
+@@ -41,12 +41,16 @@ from polymaker.merge import CONDITIONAL_TOKENS, Merger, _to_bytes32
+ from web3.contract import Contract
+ from web3.contract.contract import ContractFunction
+ 
++from trader.ctf_merge import (
++    ADAPTER_ABI,
++    CTF_COLLATERAL_ADAPTER,
++    PARTITION,
++    PUSD,
++    SHARE_BASE_UNITS,
++    ZERO32,
++)
++
+ GAMMA_MARKETS = "https://gamma-api.polymarket.com/markets"
+-CTF_COLLATERAL_ADAPTER = "0xAdA100Db00Ca00073811820692005400218FcE1f"
+-PUSD = "0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB"
+-ZERO32 = b"\x00" * 32
+-PARTITION = [1, 2]
+-SHARE_BASE_UNITS = 1_000_000
+ TAKER_PRICE_CUSHION = 1.08
+ SETTLE_TIMEOUT_S = 90.0
+ 
+@@ -82,21 +86,6 @@ CTF_ABI = [
+         "outputs": [{"type": "uint256"}],
+     },
+ ]
+-ADAPTER_ABI = [
+-    {
+-        "name": "mergePositions",
+-        "type": "function",
+-        "stateMutability": "nonpayable",
+-        "inputs": [
+-            {"name": "collateralToken", "type": "address"},
+-            {"name": "parentCollectionId", "type": "bytes32"},
+-            {"name": "conditionId", "type": "bytes32"},
+-            {"name": "partition", "type": "uint256[]"},
+-            {"name": "amount", "type": "uint256"},
+-        ],
+-        "outputs": [],
+-    }
+-]
+ 
+ 
+ @dataclass(frozen=True)
+diff --git a/src/trader/ctf_merge.py b/src/trader/ctf_merge.py
+new file mode 100644
+index 00000000..5b20bc5e
+--- /dev/null
++++ b/src/trader/ctf_merge.py
+@@ -0,0 +1,173 @@
++# pyright: reportMissingTypeStubs=false, reportUnknownVariableType=false, reportUnknownMemberType=false
++# pyright: reportUnknownArgumentType=false, reportPrivateUsage=false
++
++import time
++from dataclasses import dataclass
++from typing import Literal, cast
++
++from eth_typing import HexStr
++from polymaker.config import Config, StrategyProfile
++from polymaker.domain import MarketMeta
++from polymaker.engine import Engine
++from polymaker.merge import _to_bytes32
++from py_builder_relayer_client.builder.deposit_wallet import build_deposit_wallet_batch_request
++from py_builder_relayer_client.client import RelayClient
++from py_builder_relayer_client.endpoints import SUBMIT_TRANSACTION
++from py_builder_relayer_client.exceptions import RelayerApiException, RelayerClientException
++from py_builder_relayer_client.http_helpers.helpers import POST
++from py_builder_relayer_client.models import DepositWalletCall, DepositWalletTransactionArgs
++from py_builder_relayer_client.signer import Signer
++from py_builder_signing_sdk.config import BuilderConfig
++from py_builder_signing_sdk.sdk_types import BuilderApiKeyCreds
++from web3 import Web3
++
++CTF_COLLATERAL_ADAPTER = "0xAdA100Db00Ca00073811820692005400218FcE1f"
++PUSD = "0xC011a7E12a19f7B1f670d46F03B03f3342E82DFB"
++ZERO32 = b"\x00" * 32
++PARTITION = [1, 2]
++SHARE_BASE_UNITS = 1_000_000
++ADAPTER_ABI = [
++    {
++        "name": "mergePositions",
++        "type": "function",
++        "stateMutability": "nonpayable",
++        "inputs": [
++            {"name": "collateralToken", "type": "address"},
++            {"name": "parentCollectionId", "type": "bytes32"},
++            {"name": "conditionId", "type": "bytes32"},
++            {"name": "partition", "type": "uint256[]"},
++            {"name": "amount", "type": "uint256"},
++        ],
++        "outputs": [],
++    }
++]
++RECEIPT_TIMEOUT_S = 180.0
++RECEIPT_POLL_S = 2.0
++BATCH_DEADLINE_S = 3600
++
++MergeStatus = Literal["merged", "failed", "unknown"]
++
++
++@dataclass(frozen=True)
++class MergeOutcome:
++    status: MergeStatus
++    tx_hash: str
++    reason: str
++
++
++def merge_pairs_via_adapter(*, cfg: Config, condition_id: str, amount_raw: int) -> MergeOutcome:
++    try:
++        relay = _open_relay(cfg)
++        w3 = Web3(Web3.HTTPProvider(cfg.secrets.polygon_rpc or cfg.wallet.polygon_rpc))
++        body = _sign_merge_batch(
++            relay=relay,
++            signer=Signer(cfg.secrets.pk, cfg.wallet.chain_id),
++            w3=w3,
++            wallet=cfg.secrets.browser_address,
++            condition_id=condition_id,
++            amount_raw=amount_raw,
++        )
++    except Exception as exc:
++        return MergeOutcome(status="failed", tx_hash="", reason=f"prepare: {_describe_error(exc)}")
++    return _submit_merge_batch(relay=relay, w3=w3, body=body)
++
++
++def install_adapter_merge(engine: Engine) -> None:
++    engine._maybe_merge = _skip_fork_merge
++
++
++def _skip_fork_merge(
++    cid: str, meta: MarketMeta, p: StrategyProfile, yes_size: float, no_size: float
++) -> None:
++    del cid, meta, p, yes_size, no_size
++
++
++def _open_relay(cfg: Config) -> RelayClient:
++    secrets = cfg.secrets
++    creds = BuilderApiKeyCreds(
++        key=secrets.builder_key or "",
++        secret=secrets.builder_secret or "",
++        passphrase=secrets.builder_passphrase or "",
++    )
++    return RelayClient(
++        secrets.relayer_url,
++        cfg.wallet.chain_id,
++        builder_config=BuilderConfig(local_builder_creds=creds),
++    )
++
++
++def _sign_merge_batch(
++    *,
++    relay: RelayClient,
++    signer: Signer,
++    w3: Web3,
++    wallet: str,
++    condition_id: str,
++    amount_raw: int,
++) -> dict[str, str]:
++    adapter = w3.eth.contract(
++        address=Web3.to_checksum_address(CTF_COLLATERAL_ADAPTER), abi=ADAPTER_ABI
++    )
++    data = adapter.encode_abi(
++        "mergePositions",
++        args=[
++            Web3.to_checksum_address(PUSD),
++            ZERO32,
++            _to_bytes32(condition_id),
++            PARTITION,
++            amount_raw,
++        ],
++    )
++    signer_address = signer.address()
++    nonce_answer = cast(dict[str, str], relay.get_nonce(signer_address, "WALLET"))
++    args = DepositWalletTransactionArgs(
++        from_address=signer_address,
++        chain_id=relay.chain_id,
++        wallet_address=Web3.to_checksum_address(wallet),
++        nonce=nonce_answer["nonce"],
++        deadline=str(int(time.time()) + BATCH_DEADLINE_S),
++        calls=[DepositWalletCall(target=adapter.address, value="0", data=data)],
++    )
++    request = build_deposit_wallet_batch_request(
++        signer=signer, args=args, config=relay.contract_config
++    )
++    return request.to_dict()
++
++
++def _submit_merge_batch(*, relay: RelayClient, w3: Web3, body: dict[str, str]) -> MergeOutcome:
++    try:
++        answer = relay._post_request(POST, SUBMIT_TRANSACTION, body)
++    except RelayerApiException as exc:
++        return _classify_relayer_error(exc)
++    except RelayerClientException as exc:
++        return MergeOutcome(status="failed", tx_hash="", reason=f"post: {exc.msg}")
++    except Exception as exc:
++        return MergeOutcome(status="unknown", tx_hash="", reason=f"post: {_describe_error(exc)}")
++    tx_hash = str(answer.get("transactionHash") or "") if isinstance(answer, dict) else ""
++    if not tx_hash:
++        return MergeOutcome(status="unknown", tx_hash="", reason=f"no tx hash: {answer!r}")
++    try:
++        receipt = w3.eth.wait_for_transaction_receipt(
++            HexStr(tx_hash), timeout=RECEIPT_TIMEOUT_S, poll_latency=RECEIPT_POLL_S
++        )
++        status = receipt["status"]
++    except Exception as exc:
++        return MergeOutcome(
++            status="unknown", tx_hash=tx_hash, reason=f"receipt: {_describe_error(exc)}"
++        )
++    if status == 1:
++        return MergeOutcome(status="merged", tx_hash=tx_hash, reason="")
++    return MergeOutcome(status="failed", tx_hash=tx_hash, reason=f"receipt status {status}")
++
++
++def _classify_relayer_error(exc: RelayerApiException) -> MergeOutcome:
++    reason = f"post: {_describe_error(exc)}"
++    if exc.status_code is not None and 400 <= exc.status_code < 500:
++        return MergeOutcome(status="failed", tx_hash="", reason=reason)
++    return MergeOutcome(status="unknown", tx_hash="", reason=reason)
++
++
++def _describe_error(exc: Exception) -> str:
++    if isinstance(exc, RelayerApiException):
++        return f"relayer {exc.status_code}: {exc.error_msg}"
++    return type(exc).__name__
+diff --git a/src/trader/pair_merge.py b/src/trader/pair_merge.py
+new file mode 100644
+index 00000000..9f5c5b26
+--- /dev/null
++++ b/src/trader/pair_merge.py
+@@ -0,0 +1,204 @@
++# pyright: reportPrivateUsage=false, reportMissingTypeStubs=false
++
++import asyncio
++import math
++import time
++from contextlib import suppress
++from typing import TYPE_CHECKING, cast
++
++from py_clob_client_v2.clob_types import AssetType, BalanceAllowanceParams
++
++from shared.utils.log import get_logger
++from trader.ctf_merge import SHARE_BASE_UNITS, MergeOutcome, merge_pairs_via_adapter
++from trader.notify import notify_in_background
++from trader.session_core import LiveCore
++from trader.trading_mode import ExecutionMode
++
++if TYPE_CHECKING:
++    from trader.wallet_host import WalletHost
++
++logger = get_logger(__name__)
++
++MERGE_AT_HELD_USDC = 130.0
++MERGE_MIN_PAIRS = 5.0
++FINAL_MERGE_MIN_RAW = 10_000
++MERGE_PAUSES_S = (30.0, 60.0, 120.0, 300.0)
++MERGE_CALL_TIMEOUT_S = 190.0
++
++
++def pick_merge_pause_s(failures: int) -> float:
++    return MERGE_PAUSES_S[min(failures, len(MERGE_PAUSES_S)) - 1]
++
++
++class PairMerger:
++    def __init__(
++        self,
++        *,
++        host: "WalletHost",
++        cid: str,
++        match_id: str,
++        yes_token: str,
++        no_token: str,
++        mode: ExecutionMode,
++    ) -> None:
++        self._host = host
++        self._cid = cid
++        self._match_id = match_id
++        self._yes = yes_token
++        self._no = no_token
++        self._mode = mode
++        self._core: LiveCore | None = None
++        self._quiesced = False
++        self._disabled = False
++        self._failures = 0
++        self._paused_until_s = 0.0
++        self._task: asyncio.Task[None] | None = None
++
++    def attach_core(self, core: LiveCore) -> None:
++        self._core = core
++
++    def mark_quiesced(self) -> None:
++        self._quiesced = True
++
++    def cancel(self) -> None:
++        if self._task is not None:
++            self._task.cancel()
++
++    def schedule(self) -> None:
++        if self._task is not None and not self._task.done():
++            return
++        if not self._is_due():
++            return
++        self._task = asyncio.get_running_loop().create_task(self._merge_pairs(min_raw=1))
++
++    async def wait_inflight(self) -> None:
++        if self._task is not None and not self._task.done():
++            with suppress(Exception, asyncio.CancelledError):
++                await self._task
++
++    async def merge_all(self) -> None:
++        if self._disabled:
++            return
++        await self._merge_pairs(min_raw=FINAL_MERGE_MIN_RAW)
++
++    def _is_due(self) -> bool:
++        if self._disabled or self._mode != "live" or self._quiesced:
++            return False
++        if time.monotonic() < self._paused_until_s:
++            return False
++        core = self._core
++        if core is None or core.state.recovery_pending:
++            return False
++        store = self._host.store
++        yes = store.position(self._yes)
++        no = store.position(self._no)
++        held_usdc = yes.size * yes.avg_price + no.size * no.avg_price
++        if held_usdc < MERGE_AT_HELD_USDC or min(yes.size, no.size) < MERGE_MIN_PAIRS:
++            return False
++        return not store.has_unacked_matched({self._yes, self._no})
++
++    async def _merge_pairs(self, *, min_raw: int) -> None:
++        booked = False
++        async with self._host.engine._chain_lock:
++            balances = await self._host.read_fresh_balances([self._yes, self._no])
++            if balances is None:
++                return
++            store = self._host.store
++            pairs = min(
++                store.position(self._yes).size,
++                store.position(self._no).size,
++                balances[self._yes],
++                balances[self._no],
++            )
++            amount_raw = math.floor(pairs * SHARE_BASE_UNITS)
++            if amount_raw < min_raw:
++                return
++            token_ids = (self._yes, self._no)
++            store.hold_merge(token_ids=token_ids)
++            try:
++                outcome = await self._call_adapter(amount_raw)
++                match outcome.status:
++                    case "merged":
++                        self._book_merge(tx_hash=outcome.tx_hash, qty=amount_raw / SHARE_BASE_UNITS)
++                        booked = True
++                    case "failed":
++                        self._pause_merges(outcome)
++                    case "unknown":
++                        self._disable_merges(outcome)
++            finally:
++                store.release_merge(token_ids=token_ids)
++        if booked:
++            await self._refresh_collateral()
++
++    async def _call_adapter(self, amount_raw: int) -> MergeOutcome:
++        call = asyncio.to_thread(
++            merge_pairs_via_adapter,
++            cfg=self._host.engine.cfg,
++            condition_id=self._cid,
++            amount_raw=amount_raw,
++        )
++        try:
++            return await asyncio.wait_for(call, timeout=MERGE_CALL_TIMEOUT_S)
++        except TimeoutError:
++            return MergeOutcome(
++                status="unknown", tx_hash="", reason=f"no outcome in {MERGE_CALL_TIMEOUT_S:.0f}s"
++            )
++
++    def _book_merge(self, *, tx_hash: str, qty: float) -> None:
++        applied = self._host.store.apply_merge(
++            tx_hash=tx_hash, token_ids=(self._yes, self._no), qty=qty
++        )
++        try:
++            self._host._consume_core_outbox(self._yes)
++        except Exception as exc:
++            logger.warning(
++                "merge core outbox failed match=%s err=%s", self._match_id, type(exc).__name__
++            )
++        self._failures = 0
++        self._host.engine._wake_cid(self._cid)
++        logger.info(
++            "merge match=%s pairs=%.6f tx=%s applied=%s", self._match_id, qty, tx_hash, applied
++        )
++        if applied:
++            notify_in_background(
++                f"trader merge: match {self._match_id} pairs {qty:.2f} tx {tx_hash}"
++            )
++
++    def _pause_merges(self, outcome: MergeOutcome) -> None:
++        self._failures += 1
++        pause_s = pick_merge_pause_s(self._failures)
++        self._paused_until_s = time.monotonic() + pause_s
++        tx = outcome.tx_hash or "-"
++        logger.warning(
++            "merge failed match=%s pause=%.0fs tx=%s reason=%s",
++            self._match_id,
++            pause_s,
++            tx,
++            outcome.reason,
++        )
++        notify_in_background(
++            f"trader merge failed: match {self._match_id} pause {pause_s:.0f}s tx {tx}: "
++            f"{outcome.reason[:200]}"
++        )
++
++    def _disable_merges(self, outcome: MergeOutcome) -> None:
++        self._disabled = True
++        tx = outcome.tx_hash or "-"
++        logger.error("merge unknown match=%s tx=%s reason=%s", self._match_id, tx, outcome.reason)
++        notify_in_background(
++            f"trader merge unknown: match {self._match_id} merges off for this map tx {tx}: "
++            f"{outcome.reason[:200]}"
++        )
++
++    async def _refresh_collateral(self) -> None:
++        gateway = self._host.engine.gateway
++        params = BalanceAllowanceParams(asset_type=cast(AssetType, AssetType.COLLATERAL))
++        try:
++            await gateway._io(gateway._client.update_balance_allowance, params)
++        except Exception as exc:
++            logger.warning(
++                "merge allowance refresh failed match=%s err=%s", self._match_id, type(exc).__name__
++            )
++        balance = await gateway.collateral_balance()
++        if balance > 0.0:
++            self._host._budget_cache.value = balance
+diff --git a/tests/test_trader_ctf_merge.py b/tests/test_trader_ctf_merge.py
+new file mode 100644
+index 00000000..1888805b
+--- /dev/null
++++ b/tests/test_trader_ctf_merge.py
+@@ -0,0 +1,250 @@
++# pyright: reportPrivateUsage=false, reportMissingTypeStubs=false
++
++import asyncio
++import time
++from pathlib import Path
++from typing import cast
++
++import merge_probe
++import pytest
++import requests
++from eth_typing import HexStr
++from polymaker.config import Config, PathsConfig, Secrets, StrategyProfile
++from polymaker.engine import Engine
++from py_builder_relayer_client.client import RelayClient
++from py_builder_relayer_client.exceptions import RelayerApiException, RelayerClientException
++from trader_session_fixtures import make_meta
++from web3 import Web3
++from web3.eth import Eth
++from web3.exceptions import TimeExhausted
++
++from trader.ctf_merge import (
++    ADAPTER_ABI,
++    CTF_COLLATERAL_ADAPTER,
++    PARTITION,
++    PUSD,
++    RECEIPT_TIMEOUT_S,
++    SHARE_BASE_UNITS,
++    ZERO32,
++    MergeOutcome,
++    install_adapter_merge,
++    merge_pairs_via_adapter,
++)
++from trader.paper_gateway import PaperGateway
++
++TEST_PK = "0x" + "11" * 32
++WALLET = "0x" + "22" * 20
++CONDITION = "0x" + "cd" * 32
++TX = "0x" + "ab" * 32
++UNREACHABLE = "http://127.0.0.1:9"
++
++
++def _secrets(*, builder_key: str) -> Secrets:
++    return Secrets(
++        PK=TEST_PK,
++        BROWSER_ADDRESS=WALLET,
++        POLYGON_RPC=UNREACHABLE,
++        POLY_BUILDER_KEY=builder_key,
++        POLY_BUILDER_SECRET="c2VjcmV0",
++        POLY_BUILDER_PASSPHRASE="pass",
++        POLY_RELAYER_URL=UNREACHABLE,
++    )
++
++
++def _cfg(*, builder_key: str) -> Config:
++    return Config(secrets=_secrets(builder_key=builder_key))
++
++
++class _FakeVenue:
++    def __init__(self, *, answer: object, receipt: object) -> None:
++        self.answer = answer
++        self.receipt = receipt
++        self.bodies: list[dict[str, object]] = []
++        self.waited: list[str] = []
++        self.timeouts: list[float] = []
++
++    def post(self, method: str, path: str, body: dict[str, object]) -> object:
++        del method, path
++        self.bodies.append(body)
++        if isinstance(self.answer, Exception):
++            raise self.answer
++        return self.answer
++
++    def wait(self, transaction_hash: HexStr, timeout: float, poll_latency: float) -> object:
++        del poll_latency
++        self.waited.append(transaction_hash)
++        self.timeouts.append(timeout)
++        if isinstance(self.receipt, Exception):
++            raise self.receipt
++        return self.receipt
++
++
++def _answer_nonce(client: RelayClient, signer_address: str, signer_type: str) -> dict[str, str]:
++    del client, signer_address, signer_type
++    return {"nonce": "7"}
++
++
++def _fail_nonce(client: RelayClient, signer_address: str, signer_type: str) -> dict[str, str]:
++    del client, signer_address, signer_type
++    raise RelayerApiException(error_msg="Request exception!")
++
++
++def _relayer_error(status: int, body: bytes) -> RelayerApiException:
++    response = requests.Response()
++    response.status_code = status
++    response._content = body
++    return RelayerApiException(response)
++
++
++def _install_venue(
++    monkeypatch: pytest.MonkeyPatch, *, answer: object, receipt: object
++) -> _FakeVenue:
++    venue = _FakeVenue(answer=answer, receipt=receipt)
++    monkeypatch.setattr(RelayClient, "get_nonce", _answer_nonce)
++    monkeypatch.setattr(RelayClient, "_post_request", venue.post)
++    monkeypatch.setattr(Eth, "wait_for_transaction_receipt", venue.wait)
++    return venue
++
++
++def test_merge_posts_signed_adapter_batch_and_waits_for_receipt(
++    monkeypatch: pytest.MonkeyPatch,
++) -> None:
++    venue = _install_venue(
++        monkeypatch,
++        answer={"transactionID": "id-1", "transactionHash": TX},
++        receipt={"status": 1},
++    )
++    outcome = merge_pairs_via_adapter(
++        cfg=_cfg(builder_key="key"), condition_id=CONDITION, amount_raw=20_000_000
++    )
++    assert outcome == MergeOutcome(status="merged", tx_hash=TX, reason="")
++    assert venue.waited == [TX]
++    assert venue.timeouts == [RECEIPT_TIMEOUT_S]
++    body = venue.bodies[0]
++    assert body["type"] == "WALLET"
++    assert body["nonce"] == "7"
++    params = cast(dict[str, object], body["depositWalletParams"])
++    assert params["depositWallet"] == Web3.to_checksum_address(WALLET)
++    assert abs(int(cast(str, params["deadline"])) - (time.time() + 3600)) < 60
++    (call,) = cast(list[dict[str, str]], params["calls"])
++    assert call["target"] == CTF_COLLATERAL_ADAPTER
++    assert call["value"] == "0"
++    adapter = Web3().eth.contract(
++        address=Web3.to_checksum_address(CTF_COLLATERAL_ADAPTER), abi=ADAPTER_ABI
++    )
++    function, args = adapter.decode_function_input(call["data"])
++    assert function.fn_name == "mergePositions"
++    assert args == {
++        "collateralToken": PUSD,
++        "parentCollectionId": ZERO32,
++        "conditionId": bytes.fromhex(CONDITION[2:]),
++        "partition": PARTITION,
++        "amount": 20_000_000,
++    }
++
++
++@pytest.mark.parametrize("builder_key", ["key", ""], ids=["nonce_error", "no_builder_creds"])
++def test_failure_before_post_is_failed(monkeypatch: pytest.MonkeyPatch, builder_key: str) -> None:
++    venue = _install_venue(monkeypatch, answer={"transactionHash": TX}, receipt={"status": 1})
++    monkeypatch.setattr(RelayClient, "get_nonce", _fail_nonce)
++    outcome = merge_pairs_via_adapter(
++        cfg=_cfg(builder_key=builder_key), condition_id=CONDITION, amount_raw=1
++    )
++    assert outcome.status == "failed"
++    assert outcome.reason.startswith("prepare: ")
++    assert venue.bodies == []
++
++
++@pytest.mark.parametrize(
++    ("answer", "status"),
++    [
++        (_relayer_error(429, b'{"error": "quota exceeded"}'), "failed"),
++        (_relayer_error(401, b'{"error": "invalid signature"}'), "failed"),
++        (RelayerClientException("could not generate builder headers"), "failed"),
++        (RelayerApiException(error_msg="Request exception!"), "unknown"),
++        (_relayer_error(502, b"<html>bad gateway</html>"), "unknown"),
++        (RuntimeError("socket closed"), "unknown"),
++        ({"transactionID": "id-1"}, "unknown"),
++        ("<html>ok</html>", "unknown"),
++    ],
++    ids=[
++        "quota",
++        "signature",
++        "headers",
++        "post_timeout",
++        "gateway_5xx",
++        "other_error",
++        "no_tx_hash",
++        "not_json",
++    ],
++)
++def test_relayer_answer_sets_outcome(
++    monkeypatch: pytest.MonkeyPatch, answer: object, status: str
++) -> None:
++    venue = _install_venue(monkeypatch, answer=answer, receipt={"status": 1})
++    outcome = merge_pairs_via_adapter(
++        cfg=_cfg(builder_key="key"), condition_id=CONDITION, amount_raw=1
++    )
++    assert outcome.status == status
++    assert outcome.tx_hash == ""
++    assert venue.waited == []
++
++
++@pytest.mark.parametrize(
++    ("receipt", "status"),
++    [
++        (TimeExhausted("not in the chain after 180 seconds"), "unknown"),
++        (requests.HTTPError("429 Too Many Requests"), "unknown"),
++        ({"blockNumber": 1}, "unknown"),
++        ({"status": 0}, "failed"),
++        ({"status": 1}, "merged"),
++    ],
++    ids=["receipt_timeout", "rpc_error", "no_status", "reverted", "mined"],
++)
++def test_receipt_sets_outcome_and_keeps_tx(
++    monkeypatch: pytest.MonkeyPatch, receipt: object, status: str
++) -> None:
++    _install_venue(monkeypatch, answer={"transactionHash": TX}, receipt=receipt)
++    outcome = merge_pairs_via_adapter(
++        cfg=_cfg(builder_key="key"), condition_id=CONDITION, amount_raw=1
++    )
++    assert outcome.status == status
++    assert outcome.tx_hash == TX
++
++
++def test_install_adapter_merge_stubs_the_fork_merge(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    monkeypatch.setattr("polymaker.engine.ExecutionGateway", PaperGateway)
++    cfg = Config(
++        paths=PathsConfig(db=str(tmp_path / "engine.db"), journal_dir=str(tmp_path / "journal")),
++        secrets=_secrets(builder_key="key"),
++    )
++    engine = Engine(cfg, paper=True)
++    engine.paper = False
++    meta = make_meta()
++
++    async def run() -> None:
++        install_adapter_merge(engine)
++        engine._maybe_merge(
++            meta.condition_id, meta, StrategyProfile(merge_min_size=1.0), 50.0, 50.0
++        )
++
++    try:
++        asyncio.run(run())
++        assert engine._merging == set()
++        assert engine._aux_tasks == []
++    finally:
++        engine.state.close()
++        engine.catalog.close()
++        engine.journal.close()
++        engine.gateway.close()
++
++
++def test_merge_probe_reads_the_adapter_constants_from_ctf_merge() -> None:
++    assert merge_probe.CTF_COLLATERAL_ADAPTER is CTF_COLLATERAL_ADAPTER
++    assert merge_probe.PUSD is PUSD
++    assert merge_probe.ADAPTER_ABI is ADAPTER_ABI
++    assert merge_probe.ZERO32 is ZERO32
++    assert merge_probe.PARTITION is PARTITION
++    assert merge_probe.SHARE_BASE_UNITS is SHARE_BASE_UNITS
+diff --git a/tests/test_trader_pair_merge.py b/tests/test_trader_pair_merge.py
+new file mode 100644
+index 00000000..5e6e5e48
+--- /dev/null
++++ b/tests/test_trader_pair_merge.py
+@@ -0,0 +1,480 @@
++# pyright: reportPrivateUsage=false
++
++import asyncio
++import time
++from collections.abc import Awaitable, Callable
++from pathlib import Path
++from typing import Any, cast
++
++import pytest
++from polymaker.config import Config
++from polymaker.domain import Fill, Side
++from trader_session_fixtures import AlertRecorder
++
++from shared.constants.strategy import LIVE_MAX_POSITION_LEVELS
++from strategy.policy import follow300_policy
++from strategy.types import FreshnessLimits, MarketLimits, TokenInventory
++from trader import pair_merge
++from trader.core_persistence import CoreSessionKey
++from trader.core_session_io import SessionIdentity, consume_core_outbox
++from trader.ctf_merge import MergeOutcome
++from trader.pair_merge import PairMerger, pick_merge_pause_s
++from trader.session_core import CollateralCache, LiveCore
++from trader.trading_mode import ExecutionMode
++from trader.wallet_store import WalletStateStore
++
++CID = "0xcond"
++MATCH = "8944931337"
++YES = "yes-token"
++NO = "no-token"
++TOKENS = frozenset({YES, NO})
++TX = "0xmerge"
++IDENTITY = SessionIdentity(
++    session_id=CID,
++    key=CoreSessionKey(
++        condition_id=CID, game="dota", yes_token=YES, no_token=NO, yes_is_radiant=True
++    ),
++)
++
++
++class _FakeClobClient:
++    def __init__(self) -> None:
++        self.allowance_updates = 0
++
++    def update_balance_allowance(self, params: object) -> None:
++        del params
++        self.allowance_updates += 1
++
++
++class _FakeGateway:
++    def __init__(self) -> None:
++        self._client = _FakeClobClient()
++
++    async def _io(self, fn: Callable[[object], None], arg: object) -> None:
++        fn(arg)
++
++    async def collateral_balance(self) -> float:
++        return 205.0
++
++
++class _FakeEngine:
++    def __init__(self) -> None:
++        self._chain_lock = asyncio.Lock()
++        self.cfg = object()
++        self.gateway = _FakeGateway()
++        self.woken: list[str] = []
++
++    def _wake_cid(self, condition_id: str) -> None:
++        self.woken.append(condition_id)
++
++
++class _FakeHost:
++    def __init__(self, store: WalletStateStore, core: LiveCore) -> None:
++        self.store = store
++        self.core = core
++        self.engine = _FakeEngine()
++        self._budget_cache = CollateralCache()
++        self.chain: dict[str, float] | None = {YES: 500.0, NO: 500.0}
++        self.consume_error: Exception | None = None
++        self.held_at_consume: bool | None = None
++
++    async def read_fresh_balances(self, token_ids: list[str]) -> dict[str, float] | None:
++        del token_ids
++        return self.chain
++
++    def _consume_core_outbox(self, token_id: str) -> None:
++        del token_id
++        self.held_at_consume = self.store.merge_is_held(YES) and self.store.merge_is_held(NO)
++        if self.consume_error is not None:
++            raise self.consume_error
++        consume_core_outbox(store=self.store, core=self.core, identity=IDENTITY, tokens=TOKENS)
++
++
++class _ScriptedMerge:
++    def __init__(self, outcome: MergeOutcome) -> None:
++        self.outcome = outcome
++        self.amounts: list[int] = []
++        self.held_during_call: list[bool] = []
++        self.store: WalletStateStore | None = None
++
++    def __call__(self, *, cfg: Config, condition_id: str, amount_raw: int) -> MergeOutcome:
++        del cfg, condition_id
++        if self.store is not None:
++            self.held_during_call.append(
++                self.store.merge_is_held(YES) and self.store.merge_is_held(NO)
++            )
++        self.amounts.append(amount_raw)
++        return self.outcome
++
++
++def _buy(store: WalletStateStore, *, token_id: str, size: float, price: float, key: str) -> None:
++    fill = Fill(token_id, Side.BUY, price, size, key, 1.0, is_maker=True)
++    store.apply_confirmed_fill(fill, key)
++
++
++def _open_host(tmp_path: Path, *, yes: float, no: float, price: float) -> _FakeHost:
++    store = WalletStateStore(tmp_path / "w.db")
++    _buy(store, token_id=YES, size=yes, price=price, key="t1:v1")
++    _buy(store, token_id=NO, size=no, price=price, key="t2:v2")
++    core = LiveCore(
++        policy=follow300_policy(level_usdc=65.0, debounce_ms=100, fallback_timer_s=2.0),
++        limits=MarketLimits(
++            min_order_size=5.0, tick_size=0.01, pair_sum_tolerance=0.05, radiant_token_index=0
++        ),
++        freshness=FreshnessLimits(book_stale_s=5.0, entry_stale_s=16.0, exit_stale_s=45.0),
++        yes_token=YES,
++        no_token=NO,
++        drop_sell=lambda _quote: False,
++        trace=None,
++        max_position_levels=LIVE_MAX_POSITION_LEVELS["dota"],
++    )
++    core.last_outbox_seq = store.core_outbox_after(after_seq=0, tokens=TOKENS)[-1].seq
++    core.note_recovery(now_ns=1)
++    core.drain_apply()
++    core.note_recovery_verified(
++        now_ns=2,
++        generation=core.state.recovery_generation,
++        inventory=(
++            TokenInventory(token_index=0, qty=yes, cost_basis=yes * price, last_buy_ns=None),
++            TokenInventory(token_index=1, qty=no, cost_basis=no * price, last_buy_ns=None),
++        ),
++    )
++    core.drain_apply()
++    return _FakeHost(store, core)
++
++
++def _merger_for(host: _FakeHost, *, mode: ExecutionMode) -> PairMerger:
++    merger = PairMerger(
++        host=cast(Any, host), cid=CID, match_id=MATCH, yes_token=YES, no_token=NO, mode=mode
++    )
++    merger.attach_core(host.core)
++    return merger
++
++
++def _script(monkeypatch: pytest.MonkeyPatch, outcome: MergeOutcome) -> _ScriptedMerge:
++    scripted = _ScriptedMerge(outcome)
++    monkeypatch.setattr(pair_merge, "merge_pairs_via_adapter", scripted)
++    return scripted
++
++
++def _record_alerts(monkeypatch: pytest.MonkeyPatch) -> AlertRecorder:
++    alerts = AlertRecorder()
++    monkeypatch.setattr(pair_merge, "notify_in_background", alerts)
++    return alerts
++
++
++def _released(host: _FakeHost) -> bool:
++    return not host.store.merge_is_held(YES) and not host.store.merge_is_held(NO)
++
++
++async def _schedule_and_wait(merger: PairMerger) -> None:
++    merger.schedule()
++    await merger.wait_inflight()
++
++
++MERGED = MergeOutcome(status="merged", tx_hash=TX, reason="")
++
++
++@pytest.mark.parametrize(
++    ("yes", "no", "price", "calls"),
++    [(150.0, 120.0, 0.50, 1), (150.0, 109.0, 0.50, 0), (258.0, 4.0, 0.50, 0)],
++    ids=["held_135_pairs_120", "held_129_5", "pairs_4"],
++)
++def test_schedule_merges_at_130_usdc_held_and_5_pairs(
++    tmp_path: Path,
++    monkeypatch: pytest.MonkeyPatch,
++    yes: float,
++    no: float,
++    price: float,
++    calls: int,
++) -> None:
++    _record_alerts(monkeypatch)
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=yes, no=no, price=price)
++    scripted.store = host.store
++    asyncio.run(_schedule_and_wait(_merger_for(host, mode="live")))
++    assert len(scripted.amounts) == calls
++    assert scripted.held_during_call == [True] * calls
++    assert _released(host)
++
++
++async def _block_in_flight(merger: PairMerger, host: _FakeHost) -> None:
++    del host
++    merger._task = asyncio.get_running_loop().create_task(asyncio.sleep(0.05))
++
++
++async def _block_unacked_matched(merger: PairMerger, host: _FakeHost) -> None:
++    del merger
++    late = Fill(YES, Side.BUY, 0.50, 10.0, "t3:v3", 2.0, is_maker=True)
++    host.store.apply_matched_fill(late, "t3:v3")
++
++
++async def _block_recovery(merger: PairMerger, host: _FakeHost) -> None:
++    del merger
++    host.core.note_recovery(now_ns=3)
++    host.core.drain_apply()
++
++
++async def _block_pause(merger: PairMerger, host: _FakeHost) -> None:
++    del host
++    merger._paused_until_s = time.monotonic() + 30.0
++
++
++async def _block_disabled(merger: PairMerger, host: _FakeHost) -> None:
++    del host
++    merger._disabled = True
++
++
++async def _block_quiesce(merger: PairMerger, host: _FakeHost) -> None:
++    del host
++    merger.mark_quiesced()
++
++
++@pytest.mark.parametrize(
++    "block",
++    [
++        _block_in_flight,
++        _block_unacked_matched,
++        _block_recovery,
++        _block_pause,
++        _block_disabled,
++        _block_quiesce,
++    ],
++    ids=["in_flight", "unacked_matched", "recovery", "pause", "disabled", "quiesce"],
++)
++def test_schedule_skips_each_block(
++    tmp_path: Path,
++    monkeypatch: pytest.MonkeyPatch,
++    block: Callable[[PairMerger, _FakeHost], Awaitable[None]],
++) -> None:
++    _record_alerts(monkeypatch)
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    merger = _merger_for(host, mode="live")
++
++    async def run() -> None:
++        await block(merger, host)
++        await _schedule_and_wait(merger)
++
++    asyncio.run(run())
++    assert scripted.amounts == []
++    assert _released(host)
++
++
++def test_paper_mode_never_merges(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    asyncio.run(_schedule_and_wait(_merger_for(host, mode="paper")))
++    assert scripted.amounts == []
++    assert _released(host)
++
++
++@pytest.mark.parametrize(
++    ("chain", "amounts"),
++    [
++        (None, []),
++        ({YES: 0.0, NO: 500.0}, []),
++        ({YES: 200.0, NO: 100.1234567}, [100_123_456]),
++    ],
++    ids=["stale_chain", "zero_on_chain", "chain_below_store"],
++)
++def test_merge_amount_is_clamped_to_fresh_chain_balance(
++    tmp_path: Path,
++    monkeypatch: pytest.MonkeyPatch,
++    chain: dict[str, float] | None,
++    amounts: list[int],
++) -> None:
++    _record_alerts(monkeypatch)
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    scripted.store = host.store
++    host.chain = chain
++    asyncio.run(_schedule_and_wait(_merger_for(host, mode="live")))
++    assert scripted.amounts == amounts
++    assert scripted.held_during_call == [True] * len(amounts)
++    assert _released(host)
++
++
++def test_successful_merge_moves_store_core_cash_and_telegram(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = _record_alerts(monkeypatch)
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    scripted.store = host.store
++    cash_before = host.store.running_net_cash
++    asyncio.run(_schedule_and_wait(_merger_for(host, mode="live")))
++    assert scripted.amounts == [120_000_000]
++    assert scripted.held_during_call == [True]
++    assert host.held_at_consume is True
++    assert _released(host)
++    assert host.store.position(YES).size == pytest.approx(30.0)
++    assert host.store.position(NO).size == 0.0
++    assert host.store.running_net_cash == pytest.approx(cash_before + 120.0)
++    yes_inventory, no_inventory = host.core.state.inventory
++    assert yes_inventory.qty == pytest.approx(30.0)
++    assert no_inventory.qty == 0.0
++    assert (
++        host.core.last_outbox_seq
++        == host.store.core_outbox_after(after_seq=0, tokens=TOKENS)[-1].seq
++    )
++    assert host.core.state.recovery_pending is False
++    assert host.engine.woken == [CID]
++    assert host.engine.gateway._client.allowance_updates == 1
++    assert host._budget_cache.value == 205.0
++    assert alerts.messages == [f"trader merge: match {MATCH} pairs 120.00 tx {TX}"]
++
++
++def test_core_consume_error_keeps_the_merge_booked(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = _record_alerts(monkeypatch)
++    _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    host.consume_error = RuntimeError("core snapshot write failed")
++    merger = _merger_for(host, mode="live")
++    asyncio.run(_schedule_and_wait(merger))
++    assert host.store.position(YES).size == pytest.approx(30.0)
++    assert host.held_at_consume is True
++    assert _released(host)
++    assert merger._disabled is False
++    assert merger._failures == 0
++    assert host.engine.woken == [CID]
++    assert len(alerts.messages) == 1
++
++
++def test_failed_merge_alerts_pauses_and_success_resets(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = _record_alerts(monkeypatch)
++    scripted = _script(
++        monkeypatch, MergeOutcome(status="failed", tx_hash="", reason="post: relayer 429: quota")
++    )
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    scripted.store = host.store
++    merger = _merger_for(host, mode="live")
++
++    async def run() -> None:
++        await _schedule_and_wait(merger)
++        assert merger._failures == 1
++        assert _released(host)
++        assert merger._paused_until_s - time.monotonic() == pytest.approx(30.0, abs=1.0)
++        assert alerts.messages == [
++            f"trader merge failed: match {MATCH} pause 30s tx -: post: relayer 429: quota"
++        ]
++        await _schedule_and_wait(merger)
++        assert len(scripted.amounts) == 1
++        assert host.store.position(YES).size == 150.0
++        merger._paused_until_s = 0.0
++        scripted.outcome = MERGED
++        await _schedule_and_wait(merger)
++        assert merger._failures == 0
++        assert _released(host)
++
++    asyncio.run(run())
++    assert scripted.held_during_call == [True, True]
++    assert [pick_merge_pause_s(failures) for failures in range(1, 7)] == [
++        30.0,
++        60.0,
++        120.0,
++        300.0,
++        300.0,
++        300.0,
++    ]
++
++
++def test_unknown_merge_turns_off_merges_for_the_map(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = _record_alerts(monkeypatch)
++    scripted = _script(
++        monkeypatch,
++        MergeOutcome(status="unknown", tx_hash="0xdead", reason="receipt: TimeExhausted"),
++    )
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++    scripted.store = host.store
++    merger = _merger_for(host, mode="live")
++
++    async def run() -> None:
++        await _schedule_and_wait(merger)
++        await _schedule_and_wait(merger)
++        await merger.merge_all()
++
++    asyncio.run(run())
++    assert scripted.amounts == [120_000_000]
++    assert scripted.held_during_call == [True]
++    assert _released(host)
++    assert merger._disabled is True
++    assert host.store.position(YES).size == 150.0
++    assert alerts.messages == [
++        f"trader merge unknown: match {MATCH} merges off for this map tx 0xdead: "
++        "receipt: TimeExhausted"
++    ]
++
++
++def test_merge_call_without_outcome_in_time_is_unknown(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = _record_alerts(monkeypatch)
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++
++    def hang(*, cfg: Config, condition_id: str, amount_raw: int) -> MergeOutcome:
++        del cfg, condition_id, amount_raw
++        assert host.store.merge_is_held(YES) is True
++        assert host.store.merge_is_held(NO) is True
++        time.sleep(0.3)
++        return MERGED
++
++    monkeypatch.setattr(pair_merge, "merge_pairs_via_adapter", hang)
++    monkeypatch.setattr(pair_merge, "MERGE_CALL_TIMEOUT_S", 0.05)
++    merger = _merger_for(host, mode="live")
++    asyncio.run(_schedule_and_wait(merger))
++    assert merger._disabled is True
++    assert _released(host)
++    assert host.store.position(YES).size == 150.0
++    assert "merges off for this map tx -" in alerts.messages[0]
++
++
++def test_adapter_exception_releases_the_hold(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    host = _open_host(tmp_path, yes=150.0, no=120.0, price=0.50)
++
++    def blow(*, cfg: Config, condition_id: str, amount_raw: int) -> MergeOutcome:
++        del cfg, condition_id, amount_raw
++        assert host.store.merge_is_held(YES) is True
++        assert host.store.merge_is_held(NO) is True
++        raise RuntimeError("relayer blew up")
++
++    monkeypatch.setattr(pair_merge, "merge_pairs_via_adapter", blow)
++    merger = _merger_for(host, mode="live")
++    asyncio.run(_schedule_and_wait(merger))
++    assert _released(host)
++    assert merger._disabled is False
++    assert host.store.position(YES).size == 150.0
++    assert host.held_at_consume is None
++
++
++def test_merge_all_ignores_quiesce_and_pause_and_needs_one_cent(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    _record_alerts(monkeypatch)
++    scripted = _script(monkeypatch, MERGED)
++    host = _open_host(tmp_path, yes=0.5, no=0.005, price=0.50)
++    scripted.store = host.store
++    host.chain = {YES: 0.5, NO: 0.5}
++    merger = _merger_for(host, mode="live")
++    merger.mark_quiesced()
++    merger._paused_until_s = time.monotonic() + 300.0
++
++    async def run() -> None:
++        await merger.merge_all()
++        assert scripted.amounts == []
++        assert _released(host)
++        _buy(host.store, token_id=NO, size=0.015, price=0.50, key="t4:v4")
++        await merger.merge_all()
++
++    asyncio.run(run())
++    assert scripted.amounts == [20_000]
++    assert scripted.held_during_call == [True]
++    assert _released(host)

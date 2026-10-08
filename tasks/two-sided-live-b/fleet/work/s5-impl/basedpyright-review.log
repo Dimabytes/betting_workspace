@@ -1,0 +1,9 @@
+/Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/tests/test_trader_ctf_merge.py
+  /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/tests/test_trader_ctf_merge.py:88:32 - error: Argument type is partially unknown
+    Argument corresponds to parameter "object" in function "append"
+    Argument type is "dict[Unknown, Unknown]" (reportUnknownArgumentType)
+  /Users/dimabytes/work/polymarket/dota_2_bot/esports-trader/tests/test_trader_ctf_merge.py:274:33 - error: Argument type is partially unknown
+    Argument corresponds to parameter "object" in function "append"
+    Argument type is "dict[Unknown, Unknown]" (reportUnknownArgumentType)
+2 errors, 0 warnings, 0 notes
+EXIT:1

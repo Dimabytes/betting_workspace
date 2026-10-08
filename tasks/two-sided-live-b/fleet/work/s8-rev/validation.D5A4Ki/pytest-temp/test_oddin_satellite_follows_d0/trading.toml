@@ -1,0 +1,104 @@
+[wallet]
+# 0 EOA, 1 email/magic, 2 Gnosis Safe, 3 POLY_1271 deposit wallet.
+# PK and BROWSER_ADDRESS stay in env, never here.
+signature_type = 2
+
+[engine]
+debounce_ms = 100
+quoter_tick_s = 2.0
+catalog_refresh_s = 3600.0
+reconcile_interval_s = 20.0
+
+# account_cap is ours: session_config strips it before writing the fork config.
+# daily_loss_kill stays, poly-maker reads it. Guards are 2 * account_cap / min
+# entry. Map cap is LIVE_DOTA_MAX_POSITION_LEVELS / LIVE_LOL_MAX_POSITION_LEVELS rungs of that map's clip.
+[risk]
+ws_stale_halt_s = 30.0
+user_ws_blind_halt_s = 15.0
+heartbeat_halt_failures = 3
+max_order_error_rate = 0.25
+account_cap_usdc = 30000.0
+daily_loss_kill_usdc = 100000000.0
+
+[profiles.dota-map]
+# fair value
+micro_levels = 3
+flow_ewma_halflife_s = 30.0
+
+# volatility
+vol_short_halflife_s = 10.0
+vol_long_halflife_s = 120.0
+
+# sizing / inventory
+# base_size_usdc sizes the poly-maker sweep and merge threshold. The live rung
+# is [clips.dota], pinned per map. q_max_usdc sits at the session guard floor.
+# Oddin stays on its own satellite and reads clips.dota-oddin, not this table.
+base_size_usdc = 300.0
+
+# regimes
+event_cooloff_s = 20.0
+event_jump_ticks = 9
+event_sweep_mult = 4.0
+event_sweep_frac = 0.8
+trend_flow_z = 1.5
+trend_vol_ratio = 2.0
+
+# lifecycle / exits
+end_date_taper_days = 7.0
+reduce_only_hours = 0.0
+halt_before_hours = 0.0
+exit_urgency_s = 300.0
+
+[profiles.dota-oddin-map]
+# Clip only. Other knobs copy dota-map. Independent Oddin tuning is a later full table.
+base_size_usdc = 5.0
+
+[profiles.lol-map]
+# fair value
+micro_levels = 3
+flow_ewma_halflife_s = 30.0
+
+# volatility
+vol_short_halflife_s = 10.0
+vol_long_halflife_s = 120.0
+
+# sizing / inventory
+# Same key set as dota-map. merge_min_size rides this profile clip.
+# The live rung is [clips.lol]. q_max_usdc sits at the session guard floor.
+base_size_usdc = 5.0
+
+# regimes
+event_cooloff_s = 20.0
+event_jump_ticks = 15
+event_sweep_mult = 4.0
+event_sweep_frac = 0.8
+trend_flow_z = 1.5
+trend_vol_ratio = 2.0
+
+# lifecycle / exits
+end_date_taper_days = 7.0
+reduce_only_hours = 0.0
+halt_before_hours = 0.0
+exit_urgency_s = 300.0
+
+# The clip is the Polymarket title suffix after (BOx) -. A name is a
+# case-insensitive substring of that suffix. Two hits take the smaller clip.
+# Oddin does not read this table. A name also matches qualifiers that contain it.
+[clips.dota]
+default = 5.0
+tiers = [
+  { clip = 60.0, names = ["EPL World Series"] },
+  { clip = 200.0, names = ["BLAST Slam"] },
+]
+
+[clips.lol]
+default = 5.0
+tiers = []
+
+# Satellite feeds get their own table, keyed clips.<game>-<feed>. Tiers only:
+# the satellite profile's base_size_usdc stays the default clip. clips.dota-oddin
+# covers maps quoting off the Oddin feed; it never touches GRID maps.
+[clips.dota-oddin]
+tiers = [
+  { clip = 140.0, names = ["PARI Universe"] },
+]

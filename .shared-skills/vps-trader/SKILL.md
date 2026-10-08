@@ -290,7 +290,7 @@ docker compose ps
 
 ### After start
 
-Logs, in order: `trader assigned: mode=live games=dota`, then `trader wallet: strategy=two_sided signature_type=3 funder=<BROWSER_ADDRESS_B>`. An empty BLAST Slam whitelist refuses start before the engine connects: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`. The container then restart-loops. A non-BLAST title logs `discovery skip reason=title_whitelist` once.
+Logs, in order: `trader assigned: mode=live games=dota`, then `trader wallet: strategy=two_sided signature_type=3 funder=<BROWSER_ADDRESS_B>` (`trader wallet: strategy=%s signature_type=%d funder=%s`, funder is `browser_address`). An empty `[clips.dota].tiers` name list refuses start before `engine.start`: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`. Any name other than exactly `BLAST Slam` refuses with `DOTA_STRATEGY=two_sided title whitelist must be BLAST Slam only, got <names>`. The container then restart-loops. A title that is not that league logs `discovery skip reason=title_whitelist cid=<condition_id> title=<title>` once at info; later passes for the same cid are debug.
 
 Collateral: within 20s, `trader collateral cache empty: BUY blocked until first REST read` must not be the lasting line. There is no log that prints the balance. That warning means the cache is still 0 and BUY is blocked. Reconcile is 20s, so the first REST read lands around then.
 

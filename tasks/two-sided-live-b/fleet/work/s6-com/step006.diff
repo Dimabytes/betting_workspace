@@ -1,0 +1,1021 @@
+diff --git a/src/strategy/policy.py b/src/strategy/policy.py
+index c547d346..14a7cf75 100644
+--- a/src/strategy/policy.py
++++ b/src/strategy/policy.py
+@@ -127,13 +127,16 @@ class TwoSidedPolicy:
+     reprice_now_ticks: int
+     debounce_ms: int
+     fallback_timer_s: float
++    level_usdc: float
++    sell_min_life_s: float
+ 
+ 
+ Policy = Follow300Policy | TwoSidedPolicy
+ 
+ 
+-def two_sided_policy(*, debounce_ms: int, fallback_timer_s: float) -> TwoSidedPolicy:
+-    """Two-sided maker. Adapters pass cadence; the quote knobs are the module constants."""
++def two_sided_policy(
++    *, level_usdc: float, debounce_ms: int, fallback_timer_s: float
++) -> TwoSidedPolicy:
+     return TwoSidedPolicy(
+         order_shares=ORDER_SHARES,
+         net_max_shares=NET_MAX_SHARES,
+@@ -147,4 +150,6 @@ def two_sided_policy(*, debounce_ms: int, fallback_timer_s: float) -> TwoSidedPo
+         reprice_now_ticks=REPRICE_NOW_TICKS,
+         debounce_ms=debounce_ms,
+         fallback_timer_s=fallback_timer_s,
++        level_usdc=level_usdc,
++        sell_min_life_s=0.0,
+     )
+diff --git a/src/trader/dust_sweep.py b/src/trader/dust_sweep.py
+index 61b656a1..da1a322e 100644
+--- a/src/trader/dust_sweep.py
++++ b/src/trader/dust_sweep.py
+@@ -19,6 +19,7 @@ from polymaker.domain import Side
+ from shared.utils.log import get_logger
+ from shared.utils.trading import share_floor
+ from strategy.lifecycle import is_settling
++from strategy.policy import Follow300Policy
+ from strategy.types import OwnershipResolved
+ from trader.execution_policy import SELL_REJECT_HOLD_SECONDS
+ from trader.session_core import LiveCore, core_now_ns
+@@ -298,9 +299,9 @@ class DustSweeper:
+                 break
+         if working:
+             return True
+-        return is_settling(
+-            state=core.state, policy=core.policy, now_ns=now_ns, token_index=token_index
+-        )
++        policy = core.policy
++        assert isinstance(policy, Follow300Policy)
++        return is_settling(state=core.state, policy=policy, now_ns=now_ns, token_index=token_index)
+ 
+ 
+ def _venue_order_id(resp: dict[str, Any]) -> str | None:
+diff --git a/src/trader/match_worker.py b/src/trader/match_worker.py
+index 098116db..0e7dbfa6 100644
+--- a/src/trader/match_worker.py
++++ b/src/trader/match_worker.py
+@@ -73,6 +73,7 @@ from trader.notify import (
+     notify_session_finished,
+     session_alert_from_match,
+ )
++from trader.pair_merge import PairMerger
+ from trader.sell_drop_watch import SellDropWatch
+ from trader.session_binding import (
+     build_sidecar_meta,
+@@ -225,7 +226,9 @@ class MatchWorker:
+         self._recovery_proof_at = 0.0
+         self._sell_drops = SellDropWatch()
+         self._horn_pinned = False
+-        self._dust = DustSweeper(host, self._cid, self._yes, self._no, mode)
++        self._dust: DustSweeper | PairMerger = DustSweeper(
++            host, self._cid, self._yes, self._no, mode
++        )
+ 
+     @property
+     def core(self) -> LiveCore | None:
+@@ -418,7 +421,7 @@ class MatchWorker:
+             level_usdc=clip.clip_usdc,
+             min_order_size=sidecar_meta.meta.min_order_size,
+             tick_size=sidecar_meta.meta.tick_size,
+-            trace=try_open_trace(archive_dir),
++            trace=self._open_trace(archive_dir),
+         )
+         self._attached = True
+         self._restore_open_round(journal)
+@@ -453,7 +456,6 @@ class MatchWorker:
+         self._quote_pm(event, arrived_at, fresh, received_ns)
+ 
+     def _quote_pm(self, event: FeedEvent, arrived_at: float, fresh: bool, source_ns: int) -> None:
+-        """Publish the PM cell and wake the quoter. Returns early if journal write fails."""
+         gated = self._gate_pair(window_reason(event.snapshot, fresh))
+         latched = self._latch_fair(event.snapshot, gated.market_p_radiant, gated.reason)
+         reason = latched.reason if latched.reason is not None else SignalReason.MODEL
+@@ -462,6 +464,9 @@ class MatchWorker:
+         self._cell.publish(model_fair.yes if model_fair is not None else None)
+         self._enqueue_core_signal(event, reason, gated.market_p_radiant, core_now_ns(), source_ns)
+         decision = self._compute_decision(event, arrived_at, gated, latched, reason)
++        self._write_decision(decision)
++
++    def _write_decision(self, decision: SignalDecision) -> None:
+         if self._journal is not None:
+             try:
+                 self._journal.write_signal(decision)
+@@ -1106,6 +1111,9 @@ class MatchWorker:
+             )
+         return reason is not None
+ 
++    def _open_trace(self, archive_dir: Path) -> CoreTrace | None:
++        return try_open_trace(archive_dir)
++
+     def open_core(
+         self,
+         *,
+@@ -1114,24 +1122,14 @@ class MatchWorker:
+         tick_size: float,
+         trace: CoreTrace | None,
+     ) -> None:
+-        """Build this market's Follow300 core. Attach and tests call this."""
+         cadence = read_engine_cadence()
+         policy = follow300_policy(
+             level_usdc=level_usdc,
+             debounce_ms=cadence.debounce_ms,
+             fallback_timer_s=cadence.quoter_tick_s,
+         )
+-        limits = MarketLimits(
+-            min_order_size=min_order_size,
+-            tick_size=tick_size,
+-            pair_sum_tolerance=PAIR_SUM_TOLERANCE,
+-            radiant_token_index=0 if self._yes_is_radiant else 1,
+-        )
+-        freshness = FreshnessLimits(
+-            book_stale_s=MAX_BOOK_AGE_SECONDS,
+-            entry_stale_s=self._watchdog.entry_timeout_seconds,
+-            exit_stale_s=EXIT_FEED_STALE_SECONDS,
+-        )
++        limits = self._core_limits(min_order_size=min_order_size, tick_size=tick_size)
++        freshness = self._core_freshness()
+         header = (
+             None
+             if trace is None
+@@ -1151,7 +1149,7 @@ class MatchWorker:
+             )
+         )
+         trace = start_market_trace(trace, header)
+-        self._core = LiveCore(
++        core = LiveCore(
+             policy=policy,
+             limits=limits,
+             freshness=freshness,
+@@ -1161,13 +1159,32 @@ class MatchWorker:
+             trace=trace,
+             max_position_levels=LIVE_MAX_POSITION_LEVELS[self._discovered.game],
+         )
+-        self._core.session_id = self._cid
+-        self._dust.attach_core(self._core)
++        self._adopt_core(core)
+         store = _wallet_store(self._host.store)
+         if store is not None:
+             with suppress(CoreSchemaError):
+-                load_core_snapshot(store=store, core=self._core, session_id=self._cid)
+-        self._cell.core = self._core
++                load_core_snapshot(store=store, core=core, session_id=self._cid)
++
++    def _core_limits(self, *, min_order_size: float, tick_size: float) -> MarketLimits:
++        return MarketLimits(
++            min_order_size=min_order_size,
++            tick_size=tick_size,
++            pair_sum_tolerance=PAIR_SUM_TOLERANCE,
++            radiant_token_index=0 if self._yes_is_radiant else 1,
++        )
++
++    def _core_freshness(self) -> FreshnessLimits:
++        return FreshnessLimits(
++            book_stale_s=MAX_BOOK_AGE_SECONDS,
++            entry_stale_s=self._watchdog.entry_timeout_seconds,
++            exit_stale_s=EXIT_FEED_STALE_SECONDS,
++        )
++
++    def _adopt_core(self, core: LiveCore) -> None:
++        core.session_id = self._cid
++        self._core = core
++        self._dust.attach_core(core)
++        self._cell.core = core
+ 
+     def _set_sidecar_usable(self, usable: bool) -> None:
+         self._sidecar_usable = usable
+diff --git a/src/trader/pair_merge.py b/src/trader/pair_merge.py
+index b1f501dc..6941be27 100644
+--- a/src/trader/pair_merge.py
++++ b/src/trader/pair_merge.py
+@@ -88,6 +88,9 @@ class PairMerger:
+             return
+         await asyncio.shield(task)
+ 
++    async def sweep(self, *, force: bool) -> None:
++        del force
++
+     async def merge_all(self) -> None:
+         await self.wait_inflight()
+         if await self._merge_final_once():
+diff --git a/src/trader/session_core.py b/src/trader/session_core.py
+index c865a846..fa49320e 100644
+--- a/src/trader/session_core.py
++++ b/src/trader/session_core.py
+@@ -1,4 +1,4 @@
+-"""Live/paper adapter: one market's Follow300 core, inbound queue, and venue plan."""
++"""Live/paper adapter: one market's strategy core, inbound queue, and venue plan."""
+ 
+ # pyright: reportPrivateUsage=false
+ 
+@@ -17,7 +17,7 @@ from shared.utils.log import get_logger
+ from strategy.budget import reserve_buy_notional
+ from strategy.engine import step
+ from strategy.lifecycle import already_canceling, empty_state
+-from strategy.policy import Follow300Policy
++from strategy.policy import Policy
+ from strategy.signals import price_cents
+ from strategy.types import (
+     BlockReason,
+@@ -160,6 +160,7 @@ _ENTRY_BLOCK: Final[dict[str, EntryBlock]] = {
+     "halt": EntryBlock.HALT,
+     "mid_spike": EntryBlock.MID_SPIKE,
+     "kill": EntryBlock.KILL,
++    "band": EntryBlock.BAND,
+ }
+ 
+ 
+@@ -347,12 +348,12 @@ def permissions_from_quote(
+ 
+ 
+ class LiveCore:
+-    """One market's Follow300 core: inbound queue, id map, plan for this cycle."""
++    """One market's strategy core: inbound queue, id map, plan for this cycle."""
+ 
+     def __init__(
+         self,
+         *,
+-        policy: Follow300Policy,
++        policy: Policy,
+         limits: MarketLimits,
+         freshness: FreshnessLimits,
+         yes_token: str,
+@@ -410,7 +411,7 @@ class LiveCore:
+         return self._state
+ 
+     @property
+-    def policy(self) -> Follow300Policy:
++    def policy(self) -> Policy:
+         return self._policy
+ 
+     def token_id(self, token_index: int) -> str:
+diff --git a/src/trader/session_types.py b/src/trader/session_types.py
+index b8922d16..29790f67 100644
+--- a/src/trader/session_types.py
++++ b/src/trader/session_types.py
+@@ -18,6 +18,7 @@ class SignalReason(StrEnum):
+     """Per-snapshot decision label. A member IS its journal wire string."""
+ 
+     MODEL = "model"
++    BOOK = "book"
+     PRE_HORN = "pre_horn"
+     PAUSED = "paused"
+     FINISHED = "finished"
+@@ -57,6 +58,7 @@ class EntryBlock(StrEnum):
+     RECOVERY = "recovery"
+     MIN_PRICE = "min_price"
+     MAX_PRICE = "max_price"
++    BAND = "band"
+     WIDE_SPREAD = "wide_spread"
+     WINDING_DOWN = "winding_down"
+     OWNERSHIP_UNRESOLVED = "ownership_unresolved"
+diff --git a/src/trader/two_sided_worker.py b/src/trader/two_sided_worker.py
+new file mode 100644
+index 00000000..1bb596a1
+--- /dev/null
++++ b/src/trader/two_sided_worker.py
+@@ -0,0 +1,153 @@
++# pyright: reportPrivateUsage=false
++
++import asyncio
++import time
++from pathlib import Path
++from typing import TYPE_CHECKING
++
++from polymaker.domain import Quote, Side
++
++from shared.constants.strategy import LIVE_MAX_POSITION_LEVELS
++from shared.utils.engine_cadence import read_engine_cadence
++from shared.utils.log import get_logger
++from strategy.policy import two_sided_policy
++from trader.bindings import DiscoveredMatch
++from trader.core_trace import CoreTrace
++from trader.live_feed import FeedEvent, LiveFeed
++from trader.match_worker import MatchWorker, _LatchedFair, _outbox_head, _wallet_store
++from trader.model_server import ModelServer, yes_fair_from_model
++from trader.notify import notify_in_background
++from trader.pair_merge import MergeAccountingError, PairMerger
++from trader.session_core import LiveCore, core_now_ns
++from trader.session_quoting import window_reason
++from trader.session_types import SignalReason
++from trader.trading_mode import ExecutionMode
++
++if TYPE_CHECKING:
++    from trader.wallet_host import WalletHost
++
++logger = get_logger(__name__)
++
++FINAL_MERGE_BACKOFF_START_S = 1.0
++FINAL_MERGE_BACKOFF_CAP_S = 8.0
++
++
++def _refuse_sell(quote: Quote) -> bool:
++    return quote.side is Side.SELL
++
++
++class TwoSidedWorker(MatchWorker):
++    def __init__(
++        self,
++        host: "WalletHost",
++        discovered: DiscoveredMatch,
++        model: ModelServer,
++        mode: ExecutionMode,
++        feed: LiveFeed,
++        feed_timeout_seconds: float,
++        exit_timeout_seconds: float | None = None,
++    ) -> None:
++        super().__init__(
++            host, discovered, model, mode, feed, feed_timeout_seconds, exit_timeout_seconds
++        )
++        self._merger = PairMerger(
++            host=host,
++            cid=self._cid,
++            match_id=discovered.match_id,
++            yes_token=self._yes,
++            no_token=self._no,
++            mode=mode,
++        )
++        self._dust = self._merger
++
++    def open_core(
++        self,
++        *,
++        level_usdc: float,
++        min_order_size: float,
++        tick_size: float,
++        trace: CoreTrace | None,
++    ) -> None:
++        del trace
++        cadence = read_engine_cadence()
++        core = LiveCore(
++            policy=two_sided_policy(
++                level_usdc=level_usdc,
++                debounce_ms=cadence.debounce_ms,
++                fallback_timer_s=cadence.quoter_tick_s,
++            ),
++            limits=self._core_limits(min_order_size=min_order_size, tick_size=tick_size),
++            freshness=self._core_freshness(),
++            yes_token=self._yes,
++            no_token=self._no,
++            drop_sell=_refuse_sell,
++            trace=None,
++            max_position_levels=LIVE_MAX_POSITION_LEVELS[self._discovered.game],
++        )
++        self._adopt_core(core)
++        store = _wallet_store(self._host.store)
++        if store is not None:
++            core.last_outbox_seq = _outbox_head(store)
++
++    def _open_trace(self, archive_dir: Path) -> CoreTrace | None:
++        del archive_dir
++        return None
++
++    async def _on_event(self, event: FeedEvent) -> None:
++        self._maybe_verify_recovery()
++        source_ns = core_now_ns()
++        fresh = self._watchdog.consume()
++        self._quote_pm(event, time.time(), fresh, source_ns)
++
++    def _quote_pm(self, event: FeedEvent, arrived_at: float, fresh: bool, source_ns: int) -> None:
++        gated = self._gate_pair(window_reason(event.snapshot, fresh))
++        market_p_radiant = gated.market_p_radiant
++        yes_fair = (
++            None
++            if market_p_radiant is None
++            else yes_fair_from_model(market_p_radiant, self._yes_is_radiant)
++        )
++        reason = SignalReason.BOOK if gated.reason is None else gated.reason
++        self._last_second = event.snapshot.second
++        self._cell.publish(yes_fair)
++        self._enqueue_core_signal(event, reason, market_p_radiant, core_now_ns(), source_ns)
++        decision = self._compute_decision(
++            event, arrived_at, gated, _LatchedFair(None, None), reason
++        )
++        self._write_decision(decision)
++
++    async def _finish_final(self) -> None:
++        if self._attached:
++            await self._await_final_merge()
++        await super()._finish_final()
++
++    async def _await_final_merge(self) -> None:
++        delay_s = FINAL_MERGE_BACKOFF_START_S
++        while True:
++            try:
++                await self._merger.merge_all()
++            except asyncio.CancelledError:
++                raise
++            except MergeAccountingError as exc:
++                self._alert_unbooked_merge(exc)
++                await asyncio.sleep(delay_s)
++                delay_s = min(delay_s * 2.0, FINAL_MERGE_BACKOFF_CAP_S)
++                continue
++            except Exception as exc:
++                logger.warning(
++                    "trader final merge failed match=%s err=%s",
++                    self._discovered.match_id,
++                    type(exc).__name__,
++                )
++            return
++
++    def _alert_unbooked_merge(self, exc: MergeAccountingError) -> None:
++        logger.warning(
++            "trader final merge unbooked match=%s tx=%s",
++            self._discovered.match_id,
++            exc.tx_hash,
++        )
++        notify_in_background(
++            "trader final merge unbooked: "
++            f"match {self._discovered.match_id} tx {exc.tx_hash} pairs {exc.qty:.2f}"
++        )
+diff --git a/tests/test_strategy_two_sided.py b/tests/test_strategy_two_sided.py
+index fe0032aa..6d02f782 100644
+--- a/tests/test_strategy_two_sided.py
++++ b/tests/test_strategy_two_sided.py
+@@ -78,8 +78,10 @@ def test_inventory_skew_at_even_fair() -> None:
+ 
+ 
+ def test_two_sided_policy_bakes_live_constants() -> None:
+-    policy = two_sided_policy(debounce_ms=250, fallback_timer_s=1.0)
++    policy = two_sided_policy(level_usdc=20.0, debounce_ms=250, fallback_timer_s=1.0)
+     assert isinstance(policy, TwoSidedPolicy)
++    assert policy.level_usdc == 20.0
++    assert policy.sell_min_life_s == 0.0
+     assert policy.order_shares == ORDER_SHARES == 20
+     assert policy.net_max_shares == NET_MAX_SHARES == 50
+     assert policy.half_spread_ticks == HALF_SPREAD_TICKS == 3
+@@ -94,7 +96,7 @@ def test_two_sided_policy_bakes_live_constants() -> None:
+ NS = 1_000_000_000
+ T0 = 10 * NS
+ T1 = T0 + 1_000_000
+-POLICY = two_sided_policy(debounce_ms=100, fallback_timer_s=1.0)
++POLICY = two_sided_policy(level_usdc=20.0, debounce_ms=100, fallback_timer_s=1.0)
+ PERMISSIONS = Permissions(
+     halt=False, reduce_only=False, allow_buy=True, allow_sell=True, sell_unconfirmed=False
+ )
+diff --git a/tests/test_trader_two_sided_worker.py b/tests/test_trader_two_sided_worker.py
+new file mode 100644
+index 00000000..45bac28e
+--- /dev/null
++++ b/tests/test_trader_two_sided_worker.py
+@@ -0,0 +1,533 @@
++# pyright: reportPrivateUsage=false
++
++import asyncio
++import time
++from pathlib import Path
++from types import SimpleNamespace
++from typing import Any, cast
++
++import pytest
++from polymaker.config import StrategyProfile
++from polymaker.domain import Fill, OpenOrder, Position, Quote, Regime, Side, TargetQuotes
++from polymaker.marketdata.orderbook import BookView
++from polymaker.strategy.quoting import QuoteInputs
++from trader_session_fixtures import (
++    NO_TOKEN,
++    YES_TOKEN,
++    AlertRecorder,
++    FakeModelServer,
++    build_attached_worker,
++    build_event,
++    make_binding,
++    make_meta,
++    read_session_records,
++)
++
++from shared.constants.dataset import MODEL_START_SECOND
++from strategy.policy import TwoSidedPolicy
++from strategy.two_sided import QUOTE_FROM_SECOND
++from strategy.types import GameClock, SignalUpdate
++from trader import match_worker, session_journal, two_sided_worker
++from trader.core_session_io import consume_core_outbox
++from trader.fill_parsing import fill_key
++from trader.live_feed import FeedEvent, MatchPhase
++from trader.pair_merge import MergeAccountingError, PairMerger
++from trader.paths import CORE_TRACE_FILENAME
++from trader.session_core import (
++    CollateralCache,
++    LiveCore,
++    books_from_views,
++    core_now_ns,
++    entry_block_from_reason,
++    quote_cycle,
++)
++from trader.session_types import EntryBlock, SessionEndSnapshot, SidecarMeta
++from trader.two_sided_worker import (
++    FINAL_MERGE_BACKOFF_CAP_S,
++    FINAL_MERGE_BACKOFF_START_S,
++    TwoSidedWorker,
++)
++from trader.wallet_store import WalletStateStore
++
++TOKENS = frozenset({YES_TOKEN, NO_TOKEN})
++
++
++def _attach_two_sided(
++    tmp_path: Path, request: pytest.FixtureRequest, *, yes_is_radiant: bool
++) -> tuple[Any, Any, FakeModelServer]:
++    model = FakeModelServer()
++    worker, fake = build_attached_worker(
++        tmp_path,
++        request,
++        model=model,
++        level_usdc=20.0,
++        worker_class=TwoSidedWorker,
++        yes_is_radiant=yes_is_radiant,
++    )
++    return worker, fake, model
++
++
++def _seed_books(worker: Any, *, yes_mid: float) -> None:
++    readiness = worker._host.readiness
++    for token_id, mid in ((YES_TOKEN, yes_mid), (NO_TOKEN, round(1.0 - yes_mid, 2))):
++        book = worker._host.engine.md.book(token_id)
++        book.apply_snapshot(
++            [(round(mid - 0.01, 2), 10.0)], [(round(mid + 0.01, 2), 10.0)], 100.0, "hash"
++        )
++        readiness.attach_token(token_id)
++        readiness.note_snapshot(token_id)
++
++
++def _use_wallet_store(
++    tmp_path: Path, request: pytest.FixtureRequest, worker: Any, fake: Any
++) -> WalletStateStore:
++    store = WalletStateStore(tmp_path / "wallet.db")
++    request.addfinalizer(store.close)
++    fake.state = store
++    worker._host.store = store
++    return store
++
++
++def _buy(store: WalletStateStore, *, token_id: str, size: float, price: float, key: str) -> None:
++    store.apply_confirmed_fill(Fill(token_id, Side.BUY, price, size, key, 1.0, is_maker=True), key)
++
++
++def _view(bid: float, ask: float) -> BookView:
++    return BookView(
++        best_bid=bid,
++        best_bid_size=100.0,
++        best_ask=ask,
++        best_ask_size=100.0,
++        second_bid=None,
++        second_ask=None,
++        bid_depth=100.0,
++        ask_depth=100.0,
++    )
++
++
++def _cycle(core: LiveCore, store: WalletStateStore) -> TargetQuotes:
++    now_ns = core_now_ns()
++    view = _view(0.50, 0.52)
++    inputs = QuoteInputs(
++        meta=make_meta(),
++        regime=Regime.QUIET,
++        fv=0.51,
++        vol_short=0.0,
++        toxicity=0.0,
++        yes_view=view,
++        no_view=view,
++        pos_yes=Position(YES_TOKEN, 0.0, 0.0),
++        pos_no=Position(NO_TOKEN, 0.0, 0.0),
++        profile=StrategyProfile(),
++        now=0.0,
++    )
++    return quote_cycle(
++        core,
++        inputs,
++        now_ns=now_ns,
++        books=books_from_views(yes=_view(0.50, 0.52), no=_view(0.48, 0.50), ts_ns=now_ns),
++        clock=GameClock(now_ns=now_ns, game_second=100, paused=False, game_ended=False),
++        limits=core.state.limits,
++        store=store,
++        cache=CollateralCache(value=190.0),
++        cores=[core],
++        account_cap_usdc=100_000.0,
++    )
++
++
++def _backoff_prefix(n: int) -> list[float]:
++    delay = FINAL_MERGE_BACKOFF_START_S
++    slept: list[float] = []
++    for _ in range(n):
++        slept.append(delay)
++        delay = min(delay * 2.0, FINAL_MERGE_BACKOFF_CAP_S)
++    return slept
++
++
++def test_two_sided_worker_builds_a_two_sided_core_without_trace(
++    tmp_path: Path, request: pytest.FixtureRequest
++) -> None:
++    worker, _fake, _model = _attach_two_sided(tmp_path, request, yes_is_radiant=True)
++    core = worker.core
++    assert isinstance(core.policy, TwoSidedPolicy)
++    assert core.policy.level_usdc == 20.0
++    assert core._trace is None
++    assert isinstance(worker._dust, PairMerger)
++    assert worker._dust is worker._merger
++    assert worker._merger._core is core
++    assert worker._cell.core is core
++    probe = tmp_path / "trace_probe"
++    assert worker._open_trace(probe) is None
++    assert not (probe / CORE_TRACE_FILENAME).exists()
++    assert core._drop_sell(Quote(YES_TOKEN, Side.SELL, 0.50, 5.0)) is True
++    assert core._drop_sell(Quote(YES_TOKEN, Side.BUY, 0.50, 5.0)) is False
++    assert entry_block_from_reason("band") is EntryBlock.BAND
++
++
++@pytest.mark.parametrize("yes_is_radiant", [True, False], ids=["yes_radiant", "yes_dire"])
++@pytest.mark.parametrize(
++    ("event", "reason"),
++    [
++        (build_event(100), "book"),
++        (build_event(QUOTE_FROM_SECOND, phase=MatchPhase.PRE_HORN), "book"),
++        (build_event(QUOTE_FROM_SECOND - 1, phase=MatchPhase.PRE_HORN), "pre_horn"),
++        (build_event(0, phase=MatchPhase.PRE_MATCH), "pre_horn"),
++        (build_event(100, paused=True), "paused"),
++        (build_event(2000, phase=MatchPhase.FINISHED), "finished"),
++    ],
++    ids=["live", "minus_60", "minus_61", "draft", "paused", "finished"],
++)
++def test_book_fair_is_published_only_inside_the_quote_window(
++    tmp_path: Path,
++    request: pytest.FixtureRequest,
++    event: FeedEvent,
++    reason: str,
++    yes_is_radiant: bool,
++) -> None:
++    worker, _fake, model = _attach_two_sided(tmp_path, request, yes_is_radiant=yes_is_radiant)
++    _seed_books(worker, yes_mid=0.40)
++    asyncio.run(worker.handle_event(event))
++    published = reason == "book"
++    assert QUOTE_FROM_SECOND == MODEL_START_SECOND
++    if published:
++        assert worker._cell.yes_fair == pytest.approx(0.40)
++    else:
++        assert worker._cell.yes_fair is None
++    assert model.calls == 0
++    updates = [item for item in worker.core._pending if isinstance(item, SignalUpdate)]
++    assert updates[-1].signal is None
++    assert worker.core.latest_clock.game_second == event.snapshot.second
++    signals = [r for r in read_session_records(tmp_path / "journal") if r["kind"] == "signal"]
++    assert signals[-1]["reason"] == reason
++    assert signals[-1]["model_evaluated"] is False
++    assert signals[-1]["yes_fair"] is None
++    if published:
++        assert signals[-1]["market_p_radiant"] == pytest.approx(0.40 if yes_is_radiant else 0.60)
++
++
++def test_history_gap_tick_reaches_the_core(tmp_path: Path, request: pytest.FixtureRequest) -> None:
++    worker, _fake, model = _attach_two_sided(tmp_path, request, yes_is_radiant=True)
++    _seed_books(worker, yes_mid=0.40)
++
++    async def scenario() -> None:
++        for second in (60, 70, 500):
++            event = build_event(second)
++            worker._record_history(event.snapshot)
++            await worker.handle_event(event)
++
++    asyncio.run(scenario())
++    assert worker._history.check_required_lags(500) is False
++    records = read_session_records(tmp_path / "journal")
++    assert "history_gap" not in [record["kind"] for record in records]
++    assert [r["second"] for r in records if r["kind"] == "signal"] == [60, 70, 500]
++    assert worker.core.latest_clock.game_second == 500
++    assert worker._cell.yes_fair == pytest.approx(0.40)
++    assert model.calls == 0
++
++
++def _restart_attach(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> tuple[Any, WalletStateStore, int]:
++    worker, fake, _model = _attach_two_sided(tmp_path, request, yes_is_radiant=True)
++    host = worker._host
++    host.unregister_worker(worker._cid)
++    fake.metas.pop(worker._cid, None)
++    worker._attached = False
++    worker._quoting = False
++    store = _use_wallet_store(tmp_path, request, worker, fake)
++    _buy(store, token_id=YES_TOKEN, size=20.0, price=0.40, key="t1:before-yes")
++    _buy(store, token_id=NO_TOKEN, size=10.0, price=0.55, key="t2:before-no")
++    store.apply_merge(tx_hash="0xbefore", token_ids=(YES_TOKEN, NO_TOKEN), qty=5.0)
++    head = store.core_outbox_after(after_seq=0, tokens=TOKENS)[-1].seq
++
++    def fake_attach(*_args: object, **_kwargs: object) -> None:
++        fake.metas[worker._cid] = make_meta()
++
++    def fake_sidecar_meta(*_args: object, **_kwargs: object) -> SidecarMeta:
++        return SidecarMeta(make_meta(), "0.01", make_binding())
++
++    def first_start(*_args: object) -> SimpleNamespace:
++        return SimpleNamespace(
++            binding=make_binding(), clip=SimpleNamespace(clip_usdc=20.0, reason="pinned")
++        )
++
++    def scan_open_round(
++        yes_token_id: str, no_token_id: str, min_order_size: float
++    ) -> session_journal.JournalRound:
++        del yes_token_id, no_token_id, min_order_size
++        return session_journal.JournalRound(15.0, 5.0, None)
++
++    monkeypatch.setattr(match_worker, "attach_market", fake_attach)
++    monkeypatch.setattr(match_worker, "build_sidecar_meta", fake_sidecar_meta)
++    journal = SimpleNamespace(first_start=first_start, scan_open_round=scan_open_round)
++    archive_dir = tmp_path / "restart_archive"
++    archive_dir.mkdir()
++    asyncio.run(worker._try_attach(archive_dir, cast(Any, journal)))
++    assert not (archive_dir / CORE_TRACE_FILENAME).exists()
++    return worker, store, head
++
++
++def _prove_chain(worker: Any) -> None:
++    async def chain_balances(token_ids: list[str]) -> dict[str, float]:
++        del token_ids
++        return {YES_TOKEN: 15.0, NO_TOKEN: 5.0}
++
++    worker._host.read_fresh_balances = chain_balances
++    assert asyncio.run(worker.continue_recovery_async()) is True
++
++
++def test_restart_takes_inventory_from_chain_then_bids_both_sides(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    worker, store, head = _restart_attach(tmp_path, request, monkeypatch)
++    core = worker.core
++    assert core.last_outbox_seq == head
++    assert core.state.recovery_pending is True
++    consume_core_outbox(store=store, core=core, identity=worker._identity(), tokens=TOKENS)
++    assert [item.qty for item in core.state.inventory] == [0.0, 0.0]
++    _prove_chain(worker)
++    assert core.state.recovery_pending is False
++    assert [item.qty for item in core.state.inventory] == [15.0, 5.0]
++    targets = _cycle(core, store)
++    bids = {quote.token_id: quote for quote in targets.quotes}
++    assert set(bids) == {YES_TOKEN, NO_TOKEN}
++    assert all(quote.side is Side.BUY for quote in targets.quotes)
++    assert bids[YES_TOKEN].size < bids[NO_TOKEN].size
++
++
++def test_late_fill_of_a_pre_restart_order_pulls_both_bids(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    worker, store, _head = _restart_attach(tmp_path, request, monkeypatch)
++    core = worker.core
++    _prove_chain(worker)
++    _cycle(core, store)
++    planned = core.take_plan()
++    assert planned is not None
++    placed = [
++        OpenOrder(
++            f"v-{item.quote.token_id}",
++            item.quote.token_id,
++            item.quote.side,
++            item.quote.price,
++            item.quote.size,
++        )
++        for item in planned.to_place
++    ]
++    core.note_placed(placed, core_now_ns())
++    core.drain_apply()
++    late_key = fill_key("t-late", "order-before-restart")
++    late = Fill(YES_TOKEN, Side.BUY, 0.40, 5.0, late_key, time.time(), is_maker=True)
++    store.apply_matched_fill(late, late_key)
++    consume_core_outbox(store=store, core=core, identity=worker._identity(), tokens=TOKENS)
++    assert core.state.ownership_unresolved is True
++    targets = _cycle(core, store)
++    pulled = core.take_plan()
++    assert targets.quotes == ()
++    assert pulled is not None
++    assert set(pulled.to_cancel) == {f"v-{YES_TOKEN}", f"v-{NO_TOKEN}"}
++    assert core.last_block == "ownership_unresolved"
++    assert entry_block_from_reason(core.preview_block_reason()) is EntryBlock.OWNERSHIP_UNRESOLVED
++
++
++def _install_final_watch(
++    tmp_path: Path,
++    request: pytest.FixtureRequest,
++    monkeypatch: pytest.MonkeyPatch,
++    merge_all: Any,
++) -> tuple[Any, WalletStateStore, list[str], list[tuple[object, ...]]]:
++    monkeypatch.setattr(match_worker, "TRADER_DIR", tmp_path)
++    monkeypatch.setattr("trader.match_meta.TRADER_DIR", tmp_path)
++    worker, fake, _model = _attach_two_sided(tmp_path, request, yes_is_radiant=True)
++    store = _use_wallet_store(tmp_path, request, worker, fake)
++    _buy(store, token_id=YES_TOKEN, size=12.0, price=0.40, key="t1:yes")
++    _buy(store, token_id=NO_TOKEN, size=10.0, price=0.55, key="t2:no")
++    worker._cell.publish(0.40)
++    host = worker._host
++    calls: list[str] = []
++    finished: list[tuple[object, ...]] = []
++
++    async def wait_inflight() -> None:
++        calls.append(f"wait forced={worker._cell.forced}")
++
++    async def fence_market(token_ids: set[str], timeout_s: float) -> bool:
++        del token_ids, timeout_s
++        calls.append("fence")
++        return True
++
++    end_snapshot = worker.end_snapshot
++
++    def record_end_snapshot() -> SessionEndSnapshot:
++        calls.append("end_snapshot")
++        return end_snapshot()
++
++    zero = store.zero_token_sizes
++
++    def record_zero(token_ids: set[str]) -> None:
++        calls.append("zero")
++        zero(token_ids)
++
++    unregister = host.unregister_worker
++
++    def record_unregister(cid: str) -> None:
++        calls.append("unregister")
++        unregister(cid)
++
++    async def market_order(*args: object, **kwargs: object) -> dict[str, object]:
++        del args, kwargs
++        calls.append("market_order")
++        return {}
++
++    def record_finished(*args: object) -> None:
++        finished.append(args)
++
++    monkeypatch.setattr(worker._merger, "wait_inflight", wait_inflight)
++    monkeypatch.setattr(worker._merger, "merge_all", merge_all)
++    monkeypatch.setattr(host, "fence_market", fence_market)
++    monkeypatch.setattr(worker, "end_snapshot", record_end_snapshot)
++    monkeypatch.setattr(store, "zero_token_sizes", record_zero)
++    monkeypatch.setattr(host, "unregister_worker", record_unregister)
++    monkeypatch.setattr(fake.gateway, "market_order", market_order)
++    monkeypatch.setattr(match_worker, "notify_session_finished", record_finished)
++    return worker, store, calls, finished
++
++
++def test_final_merge_runs_after_the_fence_and_before_the_summary_and_zeroing(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    holder: dict[str, Any] = {}
++
++    async def merge_all() -> None:
++        holder["calls"].append("merge_all")
++        holder["store"].apply_merge(tx_hash="0xfinal", token_ids=(YES_TOKEN, NO_TOKEN), qty=10.0)
++
++    worker, store, calls, finished = _install_final_watch(tmp_path, request, monkeypatch, merge_all)
++    holder["store"] = store
++    holder["calls"] = calls
++    cash_before = store.ledger_net_cash_for_tokens({YES_TOKEN, NO_TOKEN})
++    asyncio.run(worker._quiesce(True))
++    assert "market_order" not in calls
++    assert calls == [
++        "wait forced=True",
++        "fence",
++        "merge_all",
++        "end_snapshot",
++        "zero",
++        "unregister",
++    ]
++    _alert, realized, _imv, _rebate, leftover_yes, leftover_no = finished[0]
++    assert realized == pytest.approx(cash_before + 10.0)
++    assert leftover_yes == pytest.approx(2.0)
++    assert leftover_no == 0.0
++    assert store.position(YES_TOKEN).size == 0.0
++
++
++def _record_backoff(monkeypatch: pytest.MonkeyPatch) -> tuple[list[float], Any]:
++    sleeps: list[float] = []
++    original_sleep = asyncio.sleep
++
++    async def recorded_sleep(delay: float) -> None:
++        sleeps.append(delay)
++        await original_sleep(0)
++
++    monkeypatch.setattr(two_sided_worker.asyncio, "sleep", recorded_sleep)
++    return sleeps, original_sleep
++
++
++def test_unbooked_final_merge_retries_then_cleans_up(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = AlertRecorder()
++    monkeypatch.setattr(two_sided_worker, "notify_in_background", alerts)
++    sleeps, _original_sleep = _record_backoff(monkeypatch)
++    holder: dict[str, Any] = {"n": 0}
++
++    async def merge_all() -> None:
++        holder["calls"].append("merge_all")
++        holder["n"] += 1
++        if holder["n"] < 3:
++            raise MergeAccountingError(tx_hash="0xbook", qty=10.0)
++        holder["store"].apply_merge(tx_hash="0xbook", token_ids=(YES_TOKEN, NO_TOKEN), qty=10.0)
++
++    worker, store, calls, finished = _install_final_watch(tmp_path, request, monkeypatch, merge_all)
++    holder["store"] = store
++    holder["calls"] = calls
++    asyncio.run(worker._quiesce(True))
++    assert calls == [
++        "wait forced=True",
++        "fence",
++        "merge_all",
++        "merge_all",
++        "merge_all",
++        "end_snapshot",
++        "zero",
++        "unregister",
++    ]
++    assert sleeps == _backoff_prefix(2)
++    assert [message for message in alerts.messages if "0xbook" in message] == [
++        f"trader final merge unbooked: match {worker._discovered.match_id} tx 0xbook pairs 10.00",
++        f"trader final merge unbooked: match {worker._discovered.match_id} tx 0xbook pairs 10.00",
++    ]
++    assert finished
++    assert store.position(YES_TOKEN).size == 0.0
++
++
++def test_unbooked_final_merge_keeps_the_hold_and_skips_cleanup(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    alerts = AlertRecorder()
++    monkeypatch.setattr(two_sided_worker, "notify_in_background", alerts)
++    sleeps, original_sleep = _record_backoff(monkeypatch)
++    holder: dict[str, Any] = {}
++
++    async def merge_all() -> None:
++        holder["calls"].append("merge_all")
++        raise MergeAccountingError(tx_hash="0xstuck", qty=10.0)
++
++    worker, store, calls, finished = _install_final_watch(tmp_path, request, monkeypatch, merge_all)
++    holder["calls"] = calls
++    store.hold_merge(token_ids=(YES_TOKEN, NO_TOKEN))
++
++    async def scenario() -> None:
++        task = asyncio.create_task(worker._quiesce(True))
++        while calls.count("merge_all") < 4:
++            await original_sleep(0)
++        task.cancel()
++        with pytest.raises(asyncio.CancelledError):
++            await task
++
++    asyncio.run(scenario())
++    assert calls.count("merge_all") == 4
++    assert "end_snapshot" not in calls
++    assert "zero" not in calls
++    assert "unregister" not in calls
++    assert finished == []
++    assert sleeps == _backoff_prefix(4)
++    assert store.merge_is_held(YES_TOKEN) is True
++    assert store.merge_is_held(NO_TOKEN) is True
++    assert len(alerts.messages) == 4
++
++
++def test_other_final_merge_errors_still_finish(
++    tmp_path: Path, request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    holder: dict[str, Any] = {}
++
++    async def merge_all() -> None:
++        holder["calls"].append("merge_all")
++        raise RuntimeError("boom")
++
++    worker, _store, calls, finished = _install_final_watch(
++        tmp_path, request, monkeypatch, merge_all
++    )
++    holder["calls"] = calls
++    asyncio.run(worker._quiesce(True))
++    assert calls == [
++        "wait forced=True",
++        "fence",
++        "merge_all",
++        "end_snapshot",
++        "zero",
++        "unregister",
++    ]
++    assert finished
+diff --git a/tests/trader_session_fixtures.py b/tests/trader_session_fixtures.py
+index 58710120..c374833d 100644
+--- a/tests/trader_session_fixtures.py
++++ b/tests/trader_session_fixtures.py
+@@ -570,6 +570,8 @@ def build_attached_worker(
+     trace: CoreTrace | None = None,
+     level_usdc: float = 65.0,
+     game: str = "dota",
++    worker_class: type[MatchWorker] = MatchWorker,
++    yes_is_radiant: bool = True,
+ ) -> tuple[Any, FakeEngine]:
+     """One MatchWorker attached to a FakeEngine, ready for sidecar/watchdog tests."""
+     patcher = patch("trader.core_trace.model_file_sha", _test_model_sha)
+@@ -588,9 +590,9 @@ def build_attached_worker(
+     fake = FakeEngine(cfg, meta)
+     request.addfinalizer(lambda: close_fake_engine(fake))
+     host = FakeWalletHost(fake, archive_root, git_commit)
+-    worker = MatchWorker(
++    worker = worker_class(
+         cast(Any, host),
+-        build_discovered(game=game),
++        build_discovered(yes_is_radiant=yes_is_radiant, game=game),
+         cast(Any, model or FakeModelServer()),
+         "paper",
+         feed if feed is not None else FakeLiveFeed(),

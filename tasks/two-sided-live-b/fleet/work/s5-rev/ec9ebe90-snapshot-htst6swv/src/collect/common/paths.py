@@ -1,0 +1,26 @@
+from shared.constants.paths import (
+    DOTA_UNIVERSE_PATH,
+    NEW_PROCESSED_DIR,
+    RAW_DIR,
+    RAW_POLYMARKET_DOTA_DIR,
+)
+
+RAW_POLYMARKET_DOTA_PRICES_HISTORY_DIR = RAW_POLYMARKET_DOTA_DIR / "prices_history"
+RAW_UNIVERSE_DIR = RAW_POLYMARKET_DOTA_DIR / "universe"
+RAW_OPENDOTA_CANDIDATE_PAGES_DIR = RAW_DIR / "opendota_candidate_index" / "pages"
+
+UNIVERSE_DIR = NEW_PROCESSED_DIR / "universe"
+UNIVERSE_PATH = DOTA_UNIVERSE_PATH
+UNIVERSE_MANIFEST_PATH = UNIVERSE_DIR / "universe_manifest.json"
+OPENDOTA_LINKS_DIR = NEW_PROCESSED_DIR / "opendota_links"
+OPENDOTA_LINKS_PATH = OPENDOTA_LINKS_DIR / "opendota_links.parquet"
+OPENDOTA_LINK_AUDIT_PATH = OPENDOTA_LINKS_DIR / "opendota_link_audit.parquet"
+MATCH_LINKS_DIR = NEW_PROCESSED_DIR / "match_links"
+MATCH_LINKS_PATH = MATCH_LINKS_DIR / "match_links.parquet"
+MATCH_LINK_AUDIT_PATH = MATCH_LINKS_DIR / "match_link_audit.parquet"
+NEW_STRATZ_MATCH_INDEX_DIR = NEW_PROCESSED_DIR / "stratz_match_index"
+STRATZ_MATCH_INDEX_PATH = NEW_STRATZ_MATCH_INDEX_DIR / "stratz_match_index.parquet"
+GRID_GAME_WINDOWS_DIR = NEW_PROCESSED_DIR / "grid_game_starts"
+GRID_GAME_WINDOWS_PATH = GRID_GAME_WINDOWS_DIR / "grid_game_windows.parquet"
+PREGAME_QUOTES_DIR = NEW_PROCESSED_DIR / "pregame_quotes"
+PREGAME_QUOTES_PATH = PREGAME_QUOTES_DIR / "pregame_quotes.parquet"

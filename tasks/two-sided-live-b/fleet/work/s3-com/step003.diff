@@ -1,0 +1,373 @@
+diff --git a/src/dashboard/summarize.py b/src/dashboard/summarize.py
+index 003211a6..39c9ff48 100644
+--- a/src/dashboard/summarize.py
++++ b/src/dashboard/summarize.py
+@@ -672,12 +672,15 @@ def cmd_wallet() -> None:
+     conn = sqlite3.connect(f"file:{wallet}?mode=ro", uri=True)
+     conn.row_factory = sqlite3.Row
+     cash = conn.execute(
+-        "SELECT COALESCE(SUM(cash_delta), 0) AS s FROM fill_ledger WHERE status IN ('MATCHED', 'CONFIRMED')"
++        "SELECT COALESCE(SUM(cash_delta), 0) AS s FROM fill_ledger"
++        " WHERE status IN ('MATCHED', 'CONFIRMED', 'MERGED')"
+     ).fetchone()["s"]
+     positions = list(
+         conn.execute("SELECT token_id, size, avg_price FROM positions WHERE size != 0")
+     )
+-    n_fills = conn.execute("SELECT COUNT(*) AS n FROM fill_ledger").fetchone()["n"]
++    n_fills = conn.execute(
++        "SELECT COUNT(*) AS n FROM fill_ledger WHERE status != 'MERGED'"
++    ).fetchone()["n"]
+     print(f"wallet {wallet}")
+     print(f"  ledger_net_cash={cash:+.4f}  fill_rows={n_fills}  nonzero_positions={len(positions)}")
+     print("  this is inventory cash, not day PnL")
+diff --git a/src/trader/wallet_store.py b/src/trader/wallet_store.py
+index 89960394..20766535 100644
+--- a/src/trader/wallet_store.py
++++ b/src/trader/wallet_store.py
+@@ -55,6 +55,9 @@ _LEDGER_FAILED = TradeState.FAILED.value
+ # down. Applying it would subtract the same shares twice, so the row is kept
+ # for the audit trail with no position, cash, or outbox effect.
+ _LEDGER_SUPERSEDED = "SUPERSEDED"
++_LEDGER_MERGED = "MERGED"
++_MERGE_SIDE = "MERGE"
++_MERGE_LEG_PRICE = 0.5
+ 
+ _LEDGER_SCHEMA = """
+ CREATE TABLE IF NOT EXISTS fill_ledger (
+@@ -223,26 +226,28 @@ class WalletStateStore(StateStore):
+         return max(self._boot_wall, self._settled_wall.get(token_id, 0.0))
+ 
+     def ledger_position(self, token_id: str) -> Position:
+-        """Replay MATCHED and CONFIRMED fills in outbox order. sqlite is not an input."""
+         rows = self._conn.execute(
+-            "SELECT l.side, l.price, l.size, l.ts FROM fill_ledger l "
++            "SELECT l.status, l.side, l.price, l.size, l.ts FROM fill_ledger l "
+             "JOIN (SELECT fill_key, MIN(seq) AS seq FROM fill_outbox GROUP BY fill_key) o "
+             "ON o.fill_key = l.fill_key "
+-            "WHERE l.token_id=? AND l.status IN (?, ?) ORDER BY o.seq",
+-            (token_id, _LEDGER_MATCHED, _LEDGER_CONFIRMED),
++            "WHERE l.token_id=? AND l.status IN (?, ?, ?) ORDER BY o.seq",
++            (token_id, _LEDGER_MATCHED, _LEDGER_CONFIRMED, _LEDGER_MERGED),
+         ).fetchall()
+         pos = Position(token_id, 0.0, 0.0)
+         for row in rows:
+-            replay = Fill(
+-                token_id,
+-                Side(row["side"]),
+-                row["price"],
+-                row["size"],
+-                "",
+-                row["ts"],
+-                is_maker=True,
+-            )
+-            pos = _position_after_fill(pos, replay)
++            if row["status"] == _LEDGER_MERGED:
++                pos = _subtract_merged_shares(pos, row["size"])
++            else:
++                replay = Fill(
++                    token_id,
++                    Side(row["side"]),
++                    row["price"],
++                    row["size"],
++                    "",
++                    row["ts"],
++                    is_maker=True,
++                )
++                pos = _position_after_fill(pos, replay)
+         return pos
+ 
+     def restore_ledger_position(self, token_id: str, block_ts: float) -> None:
+@@ -483,9 +488,33 @@ class WalletStateStore(StateStore):
+         self.note_chain_floor(token_id, time.time())
+         return True
+ 
++    def apply_merge(self, *, tx_hash: str, token_ids: tuple[str, str], qty: float) -> bool:
++        now = time.time()
++        self.ensure_utc_day()
++        merged: list[Position] = []
++        with self._conn:
++            if self.ledger_status(_format_merge_key(tx_hash, token_ids[0])) is not None:
++                return False
++            for token_id in token_ids:
++                pos = self.position(token_id)
++                new_pos = _subtract_merged_shares(pos, qty)
++                self._insert_merge_leg(
++                    key=_format_merge_key(tx_hash, token_id),
++                    tx_hash=tx_hash,
++                    pos=pos,
++                    qty=qty,
++                    ts=now,
++                )
++                self._write_position_row(new_pos)
++                merged.append(new_pos)
++        for new_pos in merged:
++            self.positions[new_pos.token_id] = new_pos
++            self.note_chain_floor(new_pos.token_id, now)
++        self._net_cash += qty
++        return True
++
+     @property
+     def running_net_cash(self) -> float:
+-        """In-memory MATCHED+CONFIRMED cash, restored once from the ledger at open."""
+         return self._net_cash
+ 
+     def set_equity_snapshot(self, snapshot: Callable[[], float]) -> None:
+@@ -505,22 +534,20 @@ class WalletStateStore(StateStore):
+         self._fill_failed_handler = handler
+ 
+     def ledger_net_cash(self) -> float:
+-        """Signed cash of MATCHED and CONFIRMED fills. FAILED rows contribute 0."""
+         row = self._conn.execute(
+-            "SELECT COALESCE(SUM(cash_delta), 0) FROM fill_ledger WHERE status IN (?, ?)",
+-            (_LEDGER_MATCHED, _LEDGER_CONFIRMED),
++            "SELECT COALESCE(SUM(cash_delta), 0) FROM fill_ledger WHERE status IN (?, ?, ?)",
++            (_LEDGER_MATCHED, _LEDGER_CONFIRMED, _LEDGER_MERGED),
+         ).fetchone()
+         return float(row[0])
+ 
+     def ledger_net_cash_for_tokens(self, tokens: set[str]) -> float:
+-        """Signed cash of MATCHED and CONFIRMED fills on this market's tokens."""
+         if not tokens:
+             return 0.0
+         placeholders = ",".join("?" * len(tokens))
+         row = self._conn.execute(
+             "SELECT COALESCE(SUM(cash_delta), 0) FROM fill_ledger"
+-            f" WHERE status IN (?, ?) AND token_id IN ({placeholders})",
+-            (_LEDGER_MATCHED, _LEDGER_CONFIRMED, *tokens),
++            f" WHERE status IN (?, ?, ?) AND token_id IN ({placeholders})",
++            (_LEDGER_MATCHED, _LEDGER_CONFIRMED, _LEDGER_MERGED, *tokens),
+         ).fetchone()
+         return float(row[0])
+ 
+@@ -567,10 +594,10 @@ class WalletStateStore(StateStore):
+         return int(row["seq"])
+ 
+     def fill_for_key(self, key: str) -> Fill | None:
+-        """Rebuild the Fill recorded under this ledger key, if any."""
+         row = self._conn.execute(
+-            "SELECT token_id, side, price, size, ts, is_maker FROM fill_ledger WHERE fill_key=?",
+-            (key,),
++            "SELECT token_id, side, price, size, ts, is_maker FROM fill_ledger"
++            " WHERE fill_key=? AND status != ?",
++            (key, _LEDGER_MERGED),
+         ).fetchone()
+         if row is None:
+             return None
+@@ -808,6 +835,35 @@ class WalletStateStore(StateStore):
+             (key, event),
+         )
+ 
++    def _insert_merge_leg(
++        self, *, key: str, tx_hash: str, pos: Position, qty: float, ts: float
++    ) -> None:
++        self._conn.execute(
++            "INSERT INTO fill_ledger("
++            "fill_key, clob_trade_id, maker_order_id, token_id, side, price, size, ts,"
++            " status, pre_size, pre_avg, cash_delta, is_maker)"
++            " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
++            (
++                key,
++                tx_hash,
++                "",
++                pos.token_id,
++                _MERGE_SIDE,
++                _MERGE_LEG_PRICE,
++                qty,
++                ts,
++                _LEDGER_MERGED,
++                pos.size,
++                pos.avg_price,
++                _MERGE_LEG_PRICE * qty,
++                0,
++            ),
++        )
++        self._conn.execute(
++            "INSERT INTO fill_outbox(fill_key, event, acked) VALUES(?,?,1)",
++            (key, "merged"),
++        )
++
+     def _stamp_settle(self, token_id: str, ts: float) -> None:
+         """Record the fill time used by the 10s divergence skip and clear a SELL freeze."""
+         self._last_fill_ts[token_id] = ts
+@@ -922,6 +978,17 @@ def _position_after_fill(pos: Position, fill: Fill) -> Position:
+     return Position(fill.token_id, new_size, avg_price)
+ 
+ 
++def _subtract_merged_shares(pos: Position, qty: float) -> Position:
++    new_size = pos.size - qty
++    if new_size <= 0:
++        return Position(pos.token_id, 0.0, 0.0)
++    return Position(pos.token_id, new_size, pos.avg_price)
++
++
++def _format_merge_key(tx_hash: str, token_id: str) -> str:
++    return f"merge:{tx_hash}:{token_id}"
++
++
+ def _utc_day() -> str:
+     """Calendar date in UTC used as the wallet_day primary key."""
+     return datetime.now(UTC).strftime("%Y-%m-%d")
+diff --git a/tests/test_trader_wallet_store.py b/tests/test_trader_wallet_store.py
+index 42954270..e27c9a86 100644
+--- a/tests/test_trader_wallet_store.py
++++ b/tests/test_trader_wallet_store.py
+@@ -10,6 +10,7 @@ from polymaker.domain import Fill, OpenOrder, Side, TradeState
+ from polymaker.state.store import StateStore
+ from polymaker.state.tracker import TradeEvent
+ 
++from dashboard import summarize
+ from trader import wallet_store
+ from trader.fill_parsing import (
+     fill_key,
+@@ -723,3 +724,151 @@ def test_apply_backfilled_fill_skips_a_superseded_key(tmp_path: Path) -> None:
+     rows = store._conn.execute("SELECT COUNT(*) AS n FROM fill_ledger").fetchone()
+     assert int(rows["n"]) == 1
+     store.close()
++
++
++MERGE_TX = "0xmerge1"
++
++
++def _open_store_with_pair(db_path: Path) -> WalletStateStore:
++    store = WalletStateStore(db_path)
++    yes_key = fill_key("clob-y", "order-y")
++    no_key = fill_key("clob-n", "order-n")
++    yes_buy = Fill(YES_TOKEN, Side.BUY, 0.40, 30.0, yes_key, 10.0, is_maker=True)
++    no_buy = Fill(NO_TOKEN, Side.BUY, 0.55, 20.0, no_key, 11.0, is_maker=True)
++    assert store.apply_confirmed_fill(yes_buy, yes_key).applied_new is True
++    assert store.apply_confirmed_fill(no_buy, no_key).applied_new is True
++    return store
++
++
++def _merge_key(token_id: str) -> str:
++    return f"merge:{MERGE_TX}:{token_id}"
++
++
++def test_apply_merge_moves_sizes_and_cash_once(tmp_path: Path) -> None:
++    store = _open_store_with_pair(tmp_path / "wallet.db")
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    yes = store.position(YES_TOKEN)
++    no = store.position(NO_TOKEN)
++    assert (yes.size, yes.avg_price) == (pytest.approx(10.0), pytest.approx(0.40))
++    assert (no.size, no.avg_price) == (pytest.approx(0.0), pytest.approx(0.0))
++    ledger_yes = store.ledger_position(YES_TOKEN)
++    ledger_no = store.ledger_position(NO_TOKEN)
++    assert (ledger_yes.size, ledger_yes.avg_price) == (pytest.approx(10.0), pytest.approx(0.40))
++    assert (ledger_no.size, ledger_no.avg_price) == (pytest.approx(0.0), pytest.approx(0.0))
++    assert store.running_net_cash == pytest.approx(-3.0)
++    assert store.ledger_net_cash() == pytest.approx(-3.0)
++    assert store.ledger_net_cash_for_tokens({YES_TOKEN}) == pytest.approx(-2.0)
++    assert store.ledger_net_cash_for_tokens({NO_TOKEN}) == pytest.approx(-1.0)
++    row = store._conn.execute(
++        "SELECT side, price, size, status, cash_delta, pre_size, pre_avg, is_maker,"
++        " clob_trade_id, maker_order_id FROM fill_ledger WHERE fill_key=?",
++        (_merge_key(YES_TOKEN),),
++    ).fetchone()
++    assert (
++        row["side"],
++        row["price"],
++        row["size"],
++        row["status"],
++        row["cash_delta"],
++        row["pre_size"],
++        row["pre_avg"],
++        row["is_maker"],
++        row["clob_trade_id"],
++        row["maker_order_id"],
++    ) == ("MERGE", 0.5, 20.0, "MERGED", 10.0, 30.0, 0.40, 0, MERGE_TX, "")
++    outbox = store._conn.execute(
++        "SELECT event, acked FROM fill_outbox WHERE fill_key LIKE 'merge:%' ORDER BY seq"
++    ).fetchall()
++    assert [(item["event"], item["acked"]) for item in outbox] == [("merged", 1), ("merged", 1)]
++    ledger_n = int(store._conn.execute("SELECT COUNT(*) AS n FROM fill_ledger").fetchone()["n"])
++    outbox_n = int(store._conn.execute("SELECT COUNT(*) AS n FROM fill_outbox").fetchone()["n"])
++    cash = store.running_net_cash
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is False
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(NO_TOKEN, YES_TOKEN), qty=20.0) is False
++    ledger_after = store._conn.execute("SELECT COUNT(*) AS n FROM fill_ledger").fetchone()
++    outbox_after = store._conn.execute("SELECT COUNT(*) AS n FROM fill_outbox").fetchone()
++    assert int(ledger_after["n"]) == ledger_n
++    assert int(outbox_after["n"]) == outbox_n
++    yes_again = store.position(YES_TOKEN)
++    no_again = store.position(NO_TOKEN)
++    assert yes_again.size == pytest.approx(yes.size)
++    assert yes_again.avg_price == pytest.approx(yes.avg_price)
++    assert no_again.size == pytest.approx(no.size)
++    assert no_again.avg_price == pytest.approx(no.avg_price)
++    assert store.running_net_cash == cash
++    store.close()
++
++
++def test_merge_rows_stay_out_of_fill_readers(tmp_path: Path) -> None:
++    store = _open_store_with_pair(tmp_path / "wallet.db")
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    assert store.fill_for_key(_merge_key(YES_TOKEN)) is None
++    assert store.ledger_status(_merge_key(YES_TOKEN)) == "MERGED"
++    assert store.matched_keys_for_tokens({YES_TOKEN, NO_TOKEN}) == ()
++    assert store.has_unacked_matched({YES_TOKEN, NO_TOKEN}) is False
++    assert [item.event for item in store.pending_outbox()] == ["confirmed", "confirmed"]
++    tail = store.core_outbox_after(after_seq=0, tokens=frozenset({YES_TOKEN, NO_TOKEN}))[-2:]
++    assert [item.event for item in tail] == ["merged", "merged"]
++    assert [item.fill_key for item in tail] == [_merge_key(YES_TOKEN), _merge_key(NO_TOKEN)]
++    store.close()
++
++
++def test_reopen_restores_positions_and_cash_after_merge(tmp_path: Path) -> None:
++    db_path = tmp_path / "wallet.db"
++    store = _open_store_with_pair(db_path)
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    store.close()
++    reopened = WalletStateStore(db_path)
++    assert reopened.position(YES_TOKEN).size == pytest.approx(10.0)
++    assert reopened.position(NO_TOKEN).size == pytest.approx(0.0)
++    assert reopened.running_net_cash == pytest.approx(-3.0)
++    assert reopened.inflight(YES_TOKEN) == 0
++    assert reopened._last_fill_ts[YES_TOKEN] == 10.0
++    reopened.close()
++
++
++def test_failed_fill_after_merge_replays_the_merge(tmp_path: Path) -> None:
++    store = WalletStateStore(tmp_path / "wallet.db")
++    yes_key = fill_key("clob-y", "order-y")
++    no_key = fill_key("clob-n", "order-n")
++    late_key = fill_key("clob-late", "order-late")
++    yes_buy = Fill(YES_TOKEN, Side.BUY, 0.40, 20.0, yes_key, 10.0, is_maker=True)
++    late_buy = Fill(YES_TOKEN, Side.BUY, 0.45, 10.0, late_key, 12.0, is_maker=True)
++    no_buy = Fill(NO_TOKEN, Side.BUY, 0.55, 20.0, no_key, 11.0, is_maker=True)
++    assert store.apply_confirmed_fill(yes_buy, yes_key).applied_new is True
++    assert store.apply_matched_fill(late_buy, late_key) is True
++    assert store.apply_confirmed_fill(no_buy, no_key).applied_new is True
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    assert store.apply_failed_fill(late_buy, late_key) is True
++    assert store.position(YES_TOKEN).size == pytest.approx(0.0)
++    assert store.running_net_cash == pytest.approx(1.0)
++    assert store.ledger_net_cash() == pytest.approx(1.0)
++    store.close()
++
++
++def test_merge_moves_the_chain_floor_for_both_tokens(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    clock = {"now": 1_000.0}
++    monkeypatch.setattr(wallet_store.time, "time", lambda: clock["now"])
++    store = _open_store_with_pair(tmp_path / "wallet.db")
++    clock["now"] = 1_100.0
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    assert store.chain_read_floor(YES_TOKEN) == 1_100.0
++    assert store.chain_read_floor(NO_TOKEN) == 1_100.0
++    store.close()
++
++
++def test_summarize_wallet_counts_merge_cash_not_fill_rows(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
++) -> None:
++    db_path = tmp_path / "wallet.db"
++    store = _open_store_with_pair(db_path)
++    assert store.apply_merge(tx_hash=MERGE_TX, token_ids=(YES_TOKEN, NO_TOKEN), qty=20.0) is True
++    store.close()
++    monkeypatch.setattr(summarize, "LIVE_WALLET_CANDIDATES", (db_path,))
++    summarize.cmd_wallet()
++    output = capsys.readouterr().out
++    assert "ledger_net_cash=-3.0000" in output
++    assert "fill_rows=2" in output
++    assert "nonzero_positions=1" in output

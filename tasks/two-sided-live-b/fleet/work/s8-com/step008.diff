@@ -1,0 +1,370 @@
+diff --git a/compose.yaml b/compose.yaml
+index e89dbeb2..1245464f 100644
+--- a/compose.yaml
++++ b/compose.yaml
+@@ -48,6 +48,54 @@ services:
+         max-size: "10m"
+         max-file: "5"
+ 
++  live_b:
++    build:
++      context: ..
++      dockerfile: esports-trader/Dockerfile
++    init: true
++    restart: unless-stopped
++    command:
++      [
++        "uv",
++        "run",
++        "--frozen",
++        "--no-dev",
++        "python",
++        "-m",
++        "trader.orchestrator",
++        "daemon",
++        "--mode",
++        "live",
++      ]
++    stop_grace_period: 240s
++    environment:
++      DOTA_ARCHIVE_ROOT: /archive/dota
++      DOTA_TRADING_MODE: live
++      LOL_TRADING_MODE: "off"
++      DOTA_STRATEGY: two_sided
++      STEAM_KEYS: ${STEAM_KEYS}
++      TG_BOT_API_TOKEN: ${TG_BOT_API_TOKEN}
++      TG_CHAT_ID: ${TG_CHAT_ID_B}
++      PK: ${PK_WALLET_B}
++      BROWSER_ADDRESS: ${BROWSER_ADDRESS_B}
++      POLY_BUILDER_KEY: ${POLY_BUILDER_KEY_B}
++      POLY_BUILDER_SECRET: ${POLY_BUILDER_SECRET_B}
++      POLY_BUILDER_PASSPHRASE: ${POLY_BUILDER_PASSPHRASE_B}
++      ODDIN_BRAND_TOKEN: ${ODDIN_BRAND_TOKEN}
++      POLYGON_RPC: ${POLYGON_RPC}
++    volumes:
++      - /var/lib/polymarket-dota-archive:/archive/dota:ro
++      - ./data/trader_live_b:/app/data/trader
++      - ./data/new_model:/app/data/new_model:ro
++      - ./src:/app/src:ro
++      - ./config_b:/app/config:ro
++      - ./.git:/app/.git:ro
++    logging:
++      driver: local
++      options:
++        max-size: "10m"
++        max-file: "5"
++
+   paper:
+     build:
+       context: ..
+@@ -110,11 +158,14 @@ services:
+         "/app/data/trader_live",
+         "--root",
+         "/app/data/trader_paper",
++        "--root",
++        "/app/data/trader_live_b",
+       ]
+     stop_grace_period: 30s
+     volumes:
+       - ./data/trader_live:/app/data/trader_live
+       - ./data/trader_paper:/app/data/trader_paper
++      - ./data/trader_live_b:/app/data/trader_live_b
+       - ./src:/app/src:ro
+     logging:
+       driver: local
+diff --git a/config_b/trading.toml b/config_b/trading.toml
+new file mode 100644
+index 00000000..de986116
+--- /dev/null
++++ b/config_b/trading.toml
+@@ -0,0 +1,106 @@
++[wallet]
++# 0 EOA, 1 email/magic, 2 Gnosis Safe, 3 POLY_1271 deposit wallet.
++# PK and BROWSER_ADDRESS stay in env, never here.
++signature_type = 3
++
++[engine]
++debounce_ms = 100
++quoter_tick_s = 2.0
++catalog_refresh_s = 3600.0
++reconcile_interval_s = 20.0
++
++# account_cap is ours: session_config strips it before writing the fork config.
++# daily_loss_kill stays, poly-maker reads it. Guards are 2 * account_cap / min
++# entry. Wallet B: the two-sided core enforces neither cap (see profiles.dota-map).
++[risk]
++ws_stale_halt_s = 30.0
++user_ws_blind_halt_s = 15.0
++heartbeat_halt_failures = 3
++max_order_error_rate = 0.25
++account_cap_usdc = 100000.0
++daily_loss_kill_usdc = 100000000.0
++
++[profiles.dota-map]
++# fair value
++micro_levels = 3
++flow_ewma_halflife_s = 30.0
++
++# volatility
++vol_short_halflife_s = 10.0
++vol_long_halflife_s = 120.0
++
++# sizing / inventory
++# Wallet B: base_size_usdc 20 matches the $20 BLAST Slam clip, the map level unit.
++# 9 x $20 = $180 is reported as map room but not enforced: the two-sided brakes
++# are NET_MAX_SHARES, pair merges and the wallet's cash. A bid is ORDER_SHARES = 20
++# shares (src/strategy/two_sided.py), not dollars. Pairs merge through the pUSD
++# adapter, so poly-maker's merge_min_size is unused.
++base_size_usdc = 20.0
++
++# regimes
++event_cooloff_s = 20.0
++event_jump_ticks = 15
++event_sweep_mult = 4.0
++event_sweep_frac = 0.8
++trend_flow_z = 1.5
++trend_vol_ratio = 2.0
++
++# lifecycle / exits
++end_date_taper_days = 7.0
++reduce_only_hours = 0.0
++halt_before_hours = 0.0
++exit_urgency_s = 300.0
++
++[profiles.dota-oddin-map]
++# Clip only. Other knobs copy dota-map. Independent Oddin tuning is a later full table.
++base_size_usdc = 20.0
++
++[profiles.lol-map]
++# fair value
++micro_levels = 3
++flow_ewma_halflife_s = 30.0
++
++# volatility
++vol_short_halflife_s = 10.0
++vol_long_halflife_s = 120.0
++
++# sizing / inventory
++# Same key set as dota-map. merge_min_size rides this profile clip.
++# The live rung is [clips.lol]. q_max_usdc sits at the session guard floor.
++base_size_usdc = 5.0
++
++# regimes
++event_cooloff_s = 20.0
++event_jump_ticks = 15
++event_sweep_mult = 4.0
++event_sweep_frac = 0.8
++trend_flow_z = 1.5
++trend_vol_ratio = 2.0
++
++# lifecycle / exits
++end_date_taper_days = 7.0
++reduce_only_hours = 0.0
++halt_before_hours = 0.0
++exit_urgency_s = 300.0
++
++# The clip is the Polymarket title suffix after (BOx) -. A name is a
++# case-insensitive substring of that suffix. Two hits take the smaller clip.
++# Oddin does not read this table. A name also matches qualifiers that contain it.
++# Wallet B: these tier names are also the title whitelist (DOTA_STRATEGY=two_sided).
++[clips.dota]
++default = 5.0
++tiers = [
++  { clip = 20.0, names = ["BLAST Slam"] },
++]
++
++[clips.lol]
++default = 5.0
++tiers = []
++
++# Satellite feeds get their own table, keyed clips.<game>-<feed>. Tiers only:
++# the satellite profile's base_size_usdc stays the default clip. clips.dota-oddin
++# covers maps quoting off the Oddin feed; it never touches GRID maps.
++[clips.dota-oddin]
++tiers = [
++  { clip = 20.0, names = ["BLAST Slam"] },
++]
+diff --git a/tests/test_trader_compose.py b/tests/test_trader_compose.py
+index ed967689..27c073b1 100644
+--- a/tests/test_trader_compose.py
++++ b/tests/test_trader_compose.py
+@@ -10,16 +10,51 @@ import re
+ import subprocess
+ from pathlib import Path
+ 
++from trader.engine_seams import DRAIN_TIMEOUT_S
++from trader.match_worker import FENCE_TIMEOUT_S
++from trader.pair_merge import MERGE_CALL_TIMEOUT_S
++
+ REPO = Path(__file__).resolve().parents[1]
+ COMPOSE_PATH = REPO / "compose.yaml"
+ MAKEFILE_PATH = REPO / "Makefile"
+-SERVICE_KEY = re.compile(r"^  ([a-z0-9-]+):", re.MULTILINE)
++SERVICE_KEY = re.compile(r"^  ([a-z0-9_-]+):", re.MULTILINE)
+ SHARED_ENV_KEYS = (
+     "DOTA_TRADING_MODE",
+     "LOL_TRADING_MODE",
+     "DOTA_ARCHIVE_ROOT",
+     "LOL_ARCHIVE_ROOT",
+ )
++WALLET_ENV_KEYS = (
++    "PK",
++    "BROWSER_ADDRESS",
++    "POLY_BUILDER_KEY",
++    "POLY_BUILDER_SECRET",
++    "POLY_BUILDER_PASSPHRASE",
++)
++LIVE_B_ENVIRONMENT = {
++    "DOTA_ARCHIVE_ROOT": "/archive/dota",
++    "DOTA_TRADING_MODE": "live",
++    "LOL_TRADING_MODE": "off",
++    "DOTA_STRATEGY": "two_sided",
++    "STEAM_KEYS": "${STEAM_KEYS}",
++    "TG_BOT_API_TOKEN": "${TG_BOT_API_TOKEN}",
++    "TG_CHAT_ID": "${TG_CHAT_ID_B}",
++    "PK": "${PK_WALLET_B}",
++    "BROWSER_ADDRESS": "${BROWSER_ADDRESS_B}",
++    "POLY_BUILDER_KEY": "${POLY_BUILDER_KEY_B}",
++    "POLY_BUILDER_SECRET": "${POLY_BUILDER_SECRET_B}",
++    "POLY_BUILDER_PASSPHRASE": "${POLY_BUILDER_PASSPHRASE_B}",
++    "ODDIN_BRAND_TOKEN": "${ODDIN_BRAND_TOKEN}",
++    "POLYGON_RPC": "${POLYGON_RPC}",
++}
++LIVE_B_BIND_SOURCES = {
++    "/archive/dota": "/var/lib/polymarket-dota-archive",
++    "/app/data/trader": "/data/trader_live_b",
++    "/app/data/new_model": "/data/new_model",
++    "/app/src": "/src",
++    "/app/config": "/config_b",
++    "/app/.git": "/.git",
++}
+ 
+ 
+ def _compose_text() -> str:
+@@ -133,6 +168,7 @@ def test_compose_commands_set_mode_per_service() -> None:
+     assert _mode_after_flag(live_tokens) == "live"
+     assert "--mode" in paper_tokens
+     assert _mode_after_flag(paper_tokens) == "paper"
++    assert _mode_after_flag(_command_tokens(blocks["live_b"])) == "live"
+ 
+ 
+ def test_compose_mounts_both_archives_and_isolated_state() -> None:
+@@ -174,7 +210,7 @@ def test_docker_compose_config_services_isolated_state() -> None:
+     services_obj: object = cfg.get("services")
+     assert isinstance(services_obj, dict)
+     names = set(services_obj)
+-    assert names == {"live", "paper", "compress"}, sorted(names)
++    assert names == {"live", "live_b", "paper", "compress"}, sorted(names)
+     live = services_obj["live"]
+     paper = services_obj["paper"]
+     compress = services_obj["compress"]
+@@ -190,15 +226,21 @@ def test_docker_compose_config_services_isolated_state() -> None:
+     assert "PK" in live_keys
+     assert "BROWSER_ADDRESS" in live_keys
+     for keys in (paper_keys, compress_keys):
+-        assert "PK" not in keys, sorted(keys)
+-        assert "BROWSER_ADDRESS" not in keys, sorted(keys)
+-        assert "LIVE_TRADING" not in keys, sorted(keys)
++        for key in (*WALLET_ENV_KEYS, "LIVE_TRADING"):
++            assert key not in keys, sorted(keys)
+     compress_volumes: object = compress.get("volumes") or []
+     assert isinstance(compress_volumes, list)
+     compress_targets = {
+         volume.get("target") for volume in compress_volumes if isinstance(volume, dict)
+     }
+-    assert compress_targets >= {"/app/data/trader_live", "/app/data/trader_paper"}
++    assert compress_targets >= {
++        "/app/data/trader_live",
++        "/app/data/trader_paper",
++        "/app/data/trader_live_b",
++    }
++    compress_command: object = compress.get("command")
++    assert isinstance(compress_command, list)
++    assert "/app/data/trader_live_b" in compress_command
+     for service in (live, paper):
+         volumes: object = service.get("volumes") or []
+         assert isinstance(volumes, list)
+@@ -227,7 +269,38 @@ def test_docker_compose_config_services_stdout() -> None:
+         capture_output=True,
+         text=True,
+     )
+-    assert set(completed.stdout.split()) == {"live", "paper", "compress"}
++    assert set(completed.stdout.split()) == {"live", "live_b", "paper", "compress"}
++
++
++def _binds_by_target(service: object) -> dict[str, dict[str, object]]:
++    assert isinstance(service, dict)
++    volumes: object = service.get("volumes") or []
++    assert isinstance(volumes, list)
++    binds: dict[str, dict[str, object]] = {}
++    for volume in volumes:
++        assert isinstance(volume, dict)
++        binds[str(volume["target"])] = volume
++    return binds
++
++
++def test_docker_compose_config_live_b_is_wallet_b() -> None:
++    services: object = _load_compose_config().get("services")
++    assert isinstance(services, dict)
++    live_b = services["live_b"]
++    assert isinstance(live_b, dict)
++    assert live_b.get("environment") == LIVE_B_ENVIRONMENT
++    binds = _binds_by_target(live_b)
++    assert set(binds) == set(LIVE_B_BIND_SOURCES)
++    for target, source_suffix in LIVE_B_BIND_SOURCES.items():
++        assert str(binds[target]["source"]).endswith(source_suffix), target
++        assert (binds[target].get("read_only") is True) == (target != "/app/data/trader"), target
++    grace_s = int(str(live_b.get("stop_grace_period")).removesuffix("s"))
++    assert grace_s >= MERGE_CALL_TIMEOUT_S + FENCE_TIMEOUT_S + DRAIN_TIMEOUT_S
++    for name, service in services.items():
++        if name == "live_b":
++            continue
++        assert "DOTA_STRATEGY" not in _environment_keys(service), name
++        assert "_B}" not in json.dumps(service), name
+ 
+ 
+ def test_makefile_trader_target_forms_mode() -> None:
+diff --git a/tests/test_trader_session_config.py b/tests/test_trader_session_config.py
+index d296c008..c8342eee 100644
+--- a/tests/test_trader_session_config.py
++++ b/tests/test_trader_session_config.py
+@@ -20,12 +20,13 @@ import pytest
+ from polymaker.config import Config, MarketEntry, StrategyProfile
+ from trader_session_fixtures import CONDITION_ID
+ 
++from shared.constants.paths import BASE_DIR
+ from shared.constants.strategy import MIN_ENTRY_PRICE
+ from trader import (
+     session_config,
+     session_types,
+ )
+-from trader.clip_rules import choose_clip
++from trader.clip_rules import ClipChoice, ClipTable, ClipTier, choose_clip
+ from trader.game_profile import GAME_PROFILES, GameProfile
+ 
+ DOTA = (GAME_PROFILES["dota"],)
+@@ -321,6 +322,24 @@ def test_read_template_satellite_clips_default_to_profile_clip() -> None:
+     )
+ 
+ 
++def test_config_b_is_a_deposit_wallet_on_blast_slam(monkeypatch: pytest.MonkeyPatch) -> None:
++    config_a = tomllib.loads(session_config.TEMPLATE_PATH.read_text(encoding="utf-8"))
++    monkeypatch.setattr(session_config, "TEMPLATE_PATH", BASE_DIR / "config_b" / "trading.toml")
++    document = session_config.read_template(DOTA)
++    blast_slam = (ClipTier(20.0, ("BLAST Slam",)),)
++    assert document.wallet == {"signature_type": 3}
++    assert document.engine == config_a["engine"]
++    assert document.account_cap_usdc == 100000.0
++    assert document.profiles["dota-map"]["base_size_usdc"] == 20.0
++    assert document.profiles["dota-oddin-map"]["base_size_usdc"] == 20.0
++    assert document.clips == {
++        "dota-map": ClipTable(5.0, blast_slam),
++        "dota-oddin-map": ClipTable(20.0, blast_slam),
++    }
++    title = "Dota 2: Team Falcons vs Tundra Esports (BO3) - BLAST Slam IV Group Stage"
++    assert choose_clip(document.clips["dota-map"], title) == ClipChoice(20.0, "BLAST Slam")
++
++
+ def test_read_template_requires_satellite_clip_table(
+     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+ ) -> None:

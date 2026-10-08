@@ -1,0 +1,62 @@
+[wallet]
+signature_type = 2
+[engine]
+debounce_ms = 100
+quoter_tick_s = 2.0
+catalog_refresh_s = 3600.0
+reconcile_interval_s = 20.0
+[risk]
+ws_stale_halt_s = 30.0
+user_ws_blind_halt_s = 15.0
+heartbeat_halt_failures = 3
+max_order_error_rate = 0.25
+account_cap_usdc = 30000.0
+daily_loss_kill_usdc = 100000000.0
+[profiles.dota-map]
+micro_levels = 3
+flow_ewma_halflife_s = 30.0
+vol_short_halflife_s = 10.0
+vol_long_halflife_s = 120.0
+base_size_usdc = 300.0
+event_cooloff_s = 20.0
+event_jump_ticks = 15
+event_sweep_mult = 4.0
+event_sweep_frac = 0.8
+trend_flow_z = 1.5
+trend_vol_ratio = 2.0
+end_date_taper_days = 7.0
+reduce_only_hours = 0.0
+halt_before_hours = 0.0
+exit_urgency_s = 300.0
+[profiles.dota-oddin-map]
+base_size_usdc = 5.0
+event_jump_ticks = 15
+[profiles.lol-map]
+micro_levels = 3
+flow_ewma_halflife_s = 30.0
+vol_short_halflife_s = 10.0
+vol_long_halflife_s = 120.0
+base_size_usdc = 5.0
+event_cooloff_s = 20.0
+event_jump_ticks = 15
+event_sweep_mult = 4.0
+event_sweep_frac = 0.8
+trend_flow_z = 1.5
+trend_vol_ratio = 2.0
+end_date_taper_days = 7.0
+reduce_only_hours = 0.0
+halt_before_hours = 0.0
+exit_urgency_s = 300.0
+[clips.dota]
+default = 5.0
+tiers = [
+  { clip = 60.0, names = ["EPL World Series"] },
+  { clip = 200.0, names = ["BLAST Slam"] },
+]
+[clips.lol]
+default = 5.0
+tiers = []
+[clips.dota-oddin]
+tiers = [
+  { clip = 140.0, names = ["PARI Universe"] },
+]
