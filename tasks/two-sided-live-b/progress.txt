@@ -252,3 +252,8 @@
 ## 2026-10-08 - NET_MAX_SHARES 30
 
 - Owner decision after the n30 sweep: NET_MAX_SHARES = 30 (E b53ba94b). Four test expectations in tests/test_strategy_two_sided.py moved to the cap-30 sizes. SKILL.md brakes line updated.
+
+## 2026-10-08 - PARI Universe for B, no $180
+
+- Owner decision: B trades BLAST Slam and PARI Universe. The BLAST-only check from the STEP-007 review fix is gone; the whitelist is every name in config_b [clips.dota].tiers (E f0fe4d33). PARI is also in [clips.dota-oddin] for Oddin-feed maps. PARI was not in the backtest.
+- config_b and SKILL.md drop the 9 x $20 = $180 map-room text: the two-sided core never reads that budget.

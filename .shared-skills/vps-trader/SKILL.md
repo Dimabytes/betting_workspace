@@ -11,7 +11,7 @@ Answer first with the match, PnL, and whether anything is actually wrong. Then t
 
 Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-only LoL, GRID/Oddin Dota. Steam only links Dota markets in discovery; it is never a live feed.
 
-Wallet B is a second live daemon, service `live_b`, for the two-sided BLAST Slam strategy. It is not paper and it is not wallet A. Use the Wallet B section for its PnL, restart gate, and deploy.
+Wallet B is a second live daemon, service `live_b`, for the two-sided strategy on BLAST Slam and PARI Universe. It is not paper and it is not wallet A. Use the Wallet B section for its PnL, restart gate, and deploy.
 
 ## Layout
 
@@ -200,7 +200,7 @@ python3 /root/work/esports-trader/src/dashboard/summarize.py \
 
 `--root` swaps the live tree and `DIR/wallet/live.db` only. Rows tagged `[paper]` or `[legacy]` are still A's trees. `polymarket_today` uses the funder in B's `live.db`, and its cash includes Polymarket `MERGE` activity. `--wallet` sums sqlite `MATCHED+CONFIRMED+MERGED`; that is inventory, not the day. `--two-sided --restart-check` prints `restart_check UNSAFE open_map <id>` for every open session. A flat map past second 480 is still unsafe. `restart_check SAFE` is the only restart gate.
 
-`9 × $20 = $180` is the map room `config_b` reports. The two-sided core does not enforce it. B's brakes are `NET_MAX_SHARES` 30, pair merges when held value is at least $130 and at least 5 pairs, and the wallet's cash.
+B has no per-map dollar cap. A YES+NO pair settles to $1, so only the unpaired tail is at risk. B's brakes are `NET_MAX_SHARES` 30, pair merges when held value is at least $130 and at least 5 pairs, and the wallet's cash.
 
 After a B restart, a late fill of a pre-restart order pulls both bids for the rest of that map. That is a fail-safe (`ownership_unresolved`). The start `cancel_all` makes those orders terminal, so B stops quoting that map and keeps the inventory. Do not restart B to clear it. The final merge still runs at map end.
 
@@ -290,7 +290,7 @@ docker compose ps
 
 ### After start
 
-Logs, in order: `trader assigned: mode=live games=dota`, then `trader wallet: strategy=two_sided signature_type=3 funder=<BROWSER_ADDRESS_B>` (`trader wallet: strategy=%s signature_type=%d funder=%s`, funder is `browser_address`). An empty `[clips.dota].tiers` name list refuses start before `engine.start`: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`. Any name other than exactly `BLAST Slam` refuses with `DOTA_STRATEGY=two_sided title whitelist must be BLAST Slam only, got <names>`. The container then restart-loops. A title that is not that league logs `discovery skip reason=title_whitelist cid=<condition_id> title=<title>` once at info; later passes for the same cid are debug.
+Logs, in order: `trader assigned: mode=live games=dota`, then `trader wallet: strategy=two_sided signature_type=3 funder=<BROWSER_ADDRESS_B>` (`trader wallet: strategy=%s signature_type=%d funder=%s`, funder is `browser_address`). The whitelist is every name in `[clips.dota].tiers` of `config_b` (now `BLAST Slam`, `PARI Universe`); a new league is one config line. An empty `[clips.dota].tiers` name list refuses start before `engine.start`: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`. The container then restart-loops. A title outside those leagues logs `discovery skip reason=title_whitelist cid=<condition_id> title=<title>` once at info; later passes for the same cid are debug.
 
 Collateral: within 20s, `trader collateral cache empty: BUY blocked until first REST read` must not be the lasting line. There is no log that prints the balance. That warning means the cache is still 0 and BUY is blocked. Reconcile is 20s, so the first REST read lands around then.
 
