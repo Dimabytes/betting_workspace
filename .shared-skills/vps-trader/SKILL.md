@@ -11,11 +11,14 @@ Answer first with the match, PnL, and whether anything is actually wrong. Then t
 
 Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-only LoL, GRID/Oddin Dota. Steam only links Dota markets in discovery; it is never a live feed.
 
+Wallet B is a second live daemon, service `live_b`, for the two-sided BLAST Slam strategy. It is not paper and it is not wallet A. Use the Wallet B section for its PnL, restart gate, and deploy.
+
 ## Layout
 
 | What | Where |
 |---|---|
 | Live trader | `/root/work/esports-trader` service `live` (`WalletHost`, `--mode live`). Container `esports-trader-live-1`, host `data/trader_live` |
+| Wallet B | service `live_b`, container `esports-trader-live_b-1`, host `data/trader_live_b`, config `config_b`, chat `TG_CHAT_ID_B`. See Wallet B |
 | Paper trader | same compose, service `paper` (`--mode paper`). Container `esports-trader-paper-1`, host `data/trader_paper` |
 | Pre-rollout tape | host `./data/live_paper` is the leftover pre-rollout tape. Read-only history; `--live` omits it. Do not delete |
 | Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain` |
@@ -88,7 +91,7 @@ Read-only Streamlit dashboard: `make dashboard` in `/root/work/esports-trader`, 
 
 ## PnL rules (strong)
 
-1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + rebate`) plus open position marks. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs.
+1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + merge + rebate`) plus open position marks. `MERGE` activity is cash in (collateral from a YES+NO merge), same sign as redeem. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs. Wallet B is the same line with `--root /root/work/esports-trader/data/trader_live_b` so the funder comes from B's `live.db`.
 2. Telegram `net` (`realized + imv + rebate`) is one map **when `session_end` exists**. `sum_net` on `--today` is only those maps. Maps without `session_end` can still settle on Polymarket. Never call telegram `sum_net` the day.
 3. `match.json` `final.pnl` is often `0.0` after flatten. Ignore it for "сколько заработали".
 4. Sqlite `SUM(cash_delta)` and `wallet_day` equity are inventory accounting, not exchange-settled day PnL. A leftover position looks like a cash loss in sqlite even after Polymarket `REDEEM`. Positions API / activity is source of truth for leftover size.
@@ -168,6 +171,141 @@ Steps 001–004 go out together, and only on a separate user command. This note 
 ## Size change
 
 Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale that profile (`q_max_usdc`, `merge_min_size`) and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. `merge_min_size` is the fork's inventory merge threshold, not the clip size.
+
+## Wallet B (live_b)
+
+Second live daemon beside Follow300 on wallet A. Same image, `daemon --mode live`, its own state and config. `stop_grace_period` is 240s (one merge can take up to 190s, then the fence and the drain), not 200s. A stop with nothing in flight is about 25–30s. Docker waits until the process exits.
+
+| What | Where |
+|---|---|
+| Service / container | `live_b`, `esports-trader-live_b-1` |
+| Host state | `/root/work/esports-trader/data/trader_live_b` (in-container `data/trader`) |
+| Config | `config_b` mounted at `/app/config` |
+| Telegram | `TG_CHAT_ID_B` mapped to `TG_CHAT_ID`. A blank chat does not stop the process |
+| Strategy | `DOTA_STRATEGY=two_sided`, Dota only, `signature_type` 3 |
+
+`scripts/core_state.py` does not apply to B. B opens the core with no trace, so the script has nothing to replay. Do not run it for a B match.
+
+Logs and the day:
+
+```bash
+docker compose -f /root/work/esports-trader/compose.yaml logs --since 30m live_b
+python3 /root/work/esports-trader/src/dashboard/summarize.py \
+  --root /root/work/esports-trader/data/trader_live_b --today
+python3 /root/work/esports-trader/src/dashboard/summarize.py \
+  --root /root/work/esports-trader/data/trader_live_b --two-sided --restart-check
+python3 /root/work/esports-trader/src/dashboard/summarize.py \
+  --root /root/work/esports-trader/data/trader_live_b --wallet
+```
+
+`--root` swaps the live tree and `DIR/wallet/live.db` only. Rows tagged `[paper]` or `[legacy]` are still A's trees. `polymarket_today` uses the funder in B's `live.db`, and its cash includes Polymarket `MERGE` activity. `--wallet` sums sqlite `MATCHED+CONFIRMED+MERGED`; that is inventory, not the day. `--two-sided --restart-check` prints `restart_check UNSAFE open_map <id>` for every open session. A flat map past second 480 is still unsafe. `restart_check SAFE` is the only restart gate.
+
+`9 × $20 = $180` is the map room `config_b` reports. The two-sided core does not enforce it. B's brakes are `NET_MAX_SHARES` 50, pair merges when held value is at least $130 and at least 5 pairs, and the wallet's cash.
+
+After a B restart, a late fill of a pre-restart order pulls both bids for the rest of that map. That is a fail-safe (`ownership_unresolved`). The start `cancel_all` makes those orders terminal, so B stops quoting that map and keeps the inventory. Do not restart B to clear it. The final merge still runs at map end.
+
+Never print secrets. `docker compose config` interpolates `.env` and writes private keys into the output. Use `docker compose config --services` or `docker compose config --no-interpolate`. Do not `cat` `.env`.
+
+### Env check before start
+
+Prints `set` or `empty` and nothing else. Every line must say `set`. `TG_CHAT_ID_B empty` does not crash B: the log is `telegram message skipped: TG_BOT_API_TOKEN or TG_CHAT_ID not set`, and B trades with no Telegram. Do not start until that line says `set`. A blank `PK_WALLET_B` or builder key does fail closed at start.
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+keys = (
+    "PK_WALLET_B",
+    "BROWSER_ADDRESS_B",
+    "POLY_BUILDER_KEY_B",
+    "POLY_BUILDER_SECRET_B",
+    "POLY_BUILDER_PASSPHRASE_B",
+    "TG_CHAT_ID_B",
+)
+found: dict[str, str] = {}
+for line in Path("/root/work/esports-trader/.env").read_text(encoding="utf-8").splitlines():
+    text = line.strip()
+    if not text or text.startswith("#") or "=" not in text:
+        continue
+    name, _, value = text.partition("=")
+    found[name.strip()] = value.strip().strip('"').strip("'")
+for key in keys:
+    print(f"{key}={'set' if found.get(key) else 'empty'}")
+PY
+```
+
+### Deploy
+
+From `/root/work/esports-trader`, after the owner has pushed. A stays up the whole time. Never `compose down`. Never `docker compose build` (no `.dockerignore`, so a host `.env` can bake into the image). The first `up` builds the `live_b` image when it is missing.
+
+```bash
+cd /root/work/esports-trader
+git pull
+if [ -d data/trader_live_b ] && [ -n "$(find data/trader_live_b -mindepth 1 -print -quit)" ]; then
+  echo "trader_live_b is not empty; stop"
+  exit 1
+fi
+mkdir -p data/trader_live_b
+docker compose config --services
+# live, live_b, paper, compress
+```
+
+Adapter read, no `--send`, no `--approve`, no `--buy-pairs`. `--slug` is a current binary CTF v1 market (not neg-risk). Expect `adapter approved: True` and pUSD about 190. The probe prints the funder address; that is not a key. If approved is not True, stop. Do not send an approval.
+
+```bash
+python3 - <<'PY'
+import os
+import subprocess
+from pathlib import Path
+mapping = {
+    "PK_WALLET_B": "PK",
+    "BROWSER_ADDRESS_B": "BROWSER_ADDRESS",
+    "POLY_BUILDER_KEY_B": "POLY_BUILDER_KEY",
+    "POLY_BUILDER_SECRET_B": "POLY_BUILDER_SECRET",
+    "POLY_BUILDER_PASSPHRASE_B": "POLY_BUILDER_PASSPHRASE",
+}
+env = os.environ.copy()
+for line in Path(".env").read_text(encoding="utf-8").splitlines():
+    text = line.strip()
+    if not text or text.startswith("#") or "=" not in text:
+        continue
+    name, _, value = text.partition("=")
+    env[name.strip()] = value.strip().strip('"').strip("'")
+missing = [src for src in mapping if not env.get(src)]
+if missing:
+    raise SystemExit("empty " + " ".join(missing))
+for src, dst in mapping.items():
+    env[dst] = env[src]
+slug = "PUT_A_BINARY_CTF_V1_SLUG_HERE"
+raise SystemExit(subprocess.call(
+    ["uv", "run", "python", "scripts/merge_probe.py",
+     "--config-dir", "config_b", "--signature-type", "3", "--slug", slug],
+    env=env,
+))
+PY
+live_id=$(docker compose ps -q live)
+docker compose up -d --no-deps live_b compress
+test "$(docker compose ps -q live)" = "$live_id"
+docker compose ps
+```
+
+### After start
+
+Logs, in order: `trader assigned: mode=live games=dota`, then `trader wallet: strategy=two_sided signature_type=3 funder=<BROWSER_ADDRESS_B>`. An empty BLAST Slam whitelist refuses start before the engine connects: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`. The container then restart-loops. A non-BLAST title logs `discovery skip reason=title_whitelist` once.
+
+Collateral: within 20s, `trader collateral cache empty: BUY blocked until first REST read` must not be the lasting line. There is no log that prints the balance. That warning means the cache is still 0 and BUY is blocked. Reconcile is 20s, so the first REST read lands around then.
+
+First map: two post-only BUY orders of 20 shares, prices sum to at most 0.99, no SELL. Bids come off on pause and at map end. The first fill is in `session.jsonl` and in `fill_ledger`. At held pairs worth at least $130 the log is `merge match=<id> pairs=… tx=…` and Telegram is `trader merge: match <id> pairs … tx …`. The final merge runs before the Telegram map total, `trader session finished`.
+
+### Rollback and restart
+
+```bash
+docker compose stop live_b
+docker compose ps
+```
+
+A is still up. In the Polymarket UI for wallet B, confirm there is no open order. Do not place or cancel orders from here. Redeem an unpaired tail by hand in the UI after each map.
+
+Restart B only when the two-sided restart check says `restart_check SAFE`. Then `docker compose restart live_b` for a bind-mounted code change, or `docker compose up -d --no-deps --force-recreate live_b` when `.env` changed (`restart` does not re-read the environment). Do not recreate `live`.
 
 ## Tests on this VPS
 
