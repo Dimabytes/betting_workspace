@@ -42,3 +42,5 @@ Log:
 - STEP-007 review: sol 1 major (admission accepts non-BLAST clip tiers); devin comments. Sent to s7-impl 07:10.
 - STEP-007 passes: d9b6d3f0 on two-sided-s7 (cherry-pick TODO after s6 fix commit).
 - 07:20 STEP-006 passes (5ed8a8a3). STEP-007 cherry-picked as 2275bbb2 (255 tests ok), worktree s7 removed. STEP-010 gate launched (s10-grok).
+- 07:43 STEP-010 green (E a7d72621, W f20b455). bt-sweep launched (grok).
+- 08:23 bt-sweep done (E 903e0e57): n30 win, g4e-4 not, run 3 skipped. Orchestrator recheck of engine_pnl worst map/t matches. Final W commit next.

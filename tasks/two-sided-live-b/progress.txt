@@ -240,3 +240,11 @@
 - `git push` in `../esports-trader`
 - `git push` in `betting_workspace`
 - Then the wallet B runbook in `.shared-skills/vps-trader/SKILL.md`
+
+## 2026-10-08 - Owner backtests (n30, g4e-4)
+
+- Report: fleet/reports/bt-sweep.md. E record commit 903e0e57.
+- n30 (--net-max-shares 30): win on both queues. Worst map -46.21 -> -32.94 strict, -36.23 -> -28.86 free; p5 better; PnL with rebate +$45 (t=0.61) and -$105 (t=-1.40), noise.
+- g4e-4 (--skew-per-share 0.0004 at n50): not a win. PnL noise, leftover tail not smaller on both queues.
+- Run 3 (n30 + g4e-4) not run: run 2 did not win.
+- Code still has NET_MAX_SHARES = 50. Changing it to 30 is the owner decision.

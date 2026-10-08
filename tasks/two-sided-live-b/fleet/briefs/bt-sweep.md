@@ -1,7 +1,7 @@
 # Brief: bt-sweep — two-sided param backtests (owner request, runs AFTER STEP-010)
 
 Run after every feature.json step passes and STEP-010 is committed. Code = E main HEAD at that time.
-Backtests are allowed for this brief (that overrides the "no backtests" default). Commits: none in code; results dirs stay on disk.
+Backtests are allowed for this brief (that overrides the "no backtests" default). All feature steps are done; E main is clean at HEAD `a7d72621`. At the end, record the new run dirs the way the repo does it (see commit `01d33aca` "Record the two-sided n50 runs": fills, results, manifest, summary; quote_events.parquet is gitignored) in ONE commit on E main, so `git status` is clean again. No code changes. Do not commit in W (the orchestrator does).
 
 ## Owner's request (verbatim, Russian)
 
