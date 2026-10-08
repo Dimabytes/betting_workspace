@@ -135,7 +135,7 @@ Trading window: phase `in_progress` and `0 <= second <= 599`. A draft clock is o
 
 Tables: `fill_ledger`, `fill_outbox`, `positions`, `token_cid`, `wallet_day`, `wallet_identity`.
 
-`fill_ledger.cash_delta` is signed engine cash. `SUM` over MATCHED+CONFIRMED is wallet inventory, not a match report. Map tokens to a match via `session_start.sidecar_binding.outcomes[].tokenId` or `match.json` `yes_token_id` / `no_token_id`.
+`fill_ledger.cash_delta` is signed engine cash. `SUM` over MATCHED+CONFIRMED+MERGED is wallet inventory, not a match report. B's pair merges are `MERGED` rows and are included. A writes no `MERGED` rows. Map tokens to a match via `session_start.sidecar_binding.outcomes[].tokenId` or `match.json` `yes_token_id` / `no_token_id`.
 
 Do not print PK, browser address, Steam keys, or Telegram tokens. `.env` stays closed unless a health check specifically needs `STEAM_KEYS` presence (yes/no only).
 

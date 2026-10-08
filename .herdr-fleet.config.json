@@ -29,6 +29,12 @@
       "args": ["-c", "model_reasoning_effort=\"high\"", "--approve-for-me"],
       "notes": "GPT-6.1-Sol, high effort, default tier, not fast (= gpt-6.1-sol-high). feature-json: planner."
     },
+    "sol-xhigh": {
+      "kind": "codex",
+      "model": "gpt-6.1-sol",
+      "args": ["-c", "model_reasoning_effort=\"xhigh\"", "--approve-for-me"],
+      "notes": "GPT-6.1-Sol, xhigh effort, default tier (= gpt-6.1-sol-xhigh). feature-json: step reviewer."
+    },
     "composer": {
       "kind": "cursor",
       "model": "composer-2.5",

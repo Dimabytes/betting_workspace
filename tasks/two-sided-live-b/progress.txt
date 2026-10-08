@@ -1,0 +1,242 @@
+## 2026-10-08 03:05 +0200 - STEP-001
+
+- Moved `BidTicks`, `price_bids`, `inventory_skew`, `scale_order_size`, and the two-sided constants into `src/strategy/two_sided.py`. Backtest imports them. Added `TwoSidedPolicy` and `two_sided_policy(*, debounce_ms, fallback_timer_s)`.
+- Regression before, HEAD `ac475db2`: `PYTHONPATH=src:../prediction-market-backtesting uv run --group backtest python -m backtest.run --match-ids-file /Users/dimabytes/work/polymarket/dota_2_bot/betting_workspace/reports/2026-10-07-two-sided-merge/work/wave1-maps.txt --strategy two-sided --name ts-regress-before`
+- Before result: `data/backtests/dota_maker/validation_join_delta02_x015_cut480_p45_ts-regress-before/seed0` (strict queue, CLI net max 100).
+- After, same flags, `--name ts-regress-after`. `fills.parquet` matches before on every row and value (1349 rows). `results.parquet` and `quote_events.parquet` match too.
+- **Learnings for future iterations:**
+  - Strict queue is the default. Do not pass `--no-queue-position`.
+  - `NET_MAX_SHARES = 50` is the live constant. This step does not change the backtest CLI default of 100.
+  - `backtest/two_sided.py` still owns `Inventory`, `apply_buy`, `merge_pairs`, `settle_cash`, and the self-check.
+  - `two_sided_policy` bakes quote knobs from the module constants. Core signatures stay `Follow300Policy` until STEP-002.
+  - The match-id reader skips `#` lines, so `wave1-maps.txt` is passed as-is. The run dir is `validation_join_delta02_x015_cut480_p45_<name>/seed0`.
+
+---
+
+## 2026-10-08 03:24 +0200 - STEP-002
+
+- Two-sided quoting is in `src/strategy/two_sided_quoting.py`. `engine.step` calls `requote_two_sided` for `TwoSidedPolicy`. Scheduling deadlines for that policy are debounce, fallback, and the one-tick hold. Commit `1d380527`. `passes` left false for review.
+- **Learnings for future iterations:**
+  - Decision 1: quoting is not in `two_sided.py`. `policy.py` imports `two_sided`, and quoting needs `policy`. A cycle. `two_sided.py` stays pure math.
+  - Decision 4: do not call `quoting.reconcile`. `_skip_reprice` would freeze a partly filled bid. Two-sided matches its own bids and calls `place_missing`.
+  - Decision 5: `reprice_since_ns` is not in the checkpoint or the trace digest. It is monotonic ns. A restored value is meaningless after restart, and putting it in the digest would change Follow300 goldens.
+  - YES is the Radiant token. `scale_order_size` gets the leg index (0 Radiant, 1 Dire). `level_index` is the venue token index.
+  - `books_unusable` and `place_missing` are public. `place_missing` no longer takes `policy`. `tick_gap` lives in `strategy.two_sided`.
+  - `LiveCore` is still `Follow300Policy`. Widening it is STEP-006.
+
+---
+
+## 2026-10-08 03:45 +0200 - STEP-002 review
+
+- Amended to `b86cdcdc`. A new bid waits if its price plus any opposite BUY still in `state.orders` exceeds 99 ticks. `clock.now_ns == 0` is `stale_signal`. Deleted the refactored scheduling comments and named waking versus tightening deadlines. Dropped the `_should_reprice` docstring and the stale test-module docstring.
+- **Learnings for future iterations:**
+  - The desired pair is capped. The old/new pair during a one-sided replace is not, until this check.
+  - `is_fresh` treats a zero clock as fresh for the first `entry_stale_s` of uptime. Two-sided must special-case `now_ns == 0`.
+
+---
+
+## 2026-10-08 - STEP-002 review
+
+- Review: sol-xhigh 1 major (opposite unresolved bid price in replacement) + 1 minor (clock now_ns==0 fresh), devin 4 comment findings. All fixed by implementer, amended commit b86cdcdc.
+
+---
+
+## 2026-10-08 04:01 +0200 - STEP-003
+
+- `WalletStateStore.apply_merge` writes two `fill_ledger` rows in one commit: key `merge:{tx}:{token_id}`, side `MERGE`, status `MERGED`, cash `+0.5 * qty` each, acked outbox event `merged`. Positions drop by qty (clamp at 0, avg kept, avg 0 at size 0). `_net_cash += qty`. Repeat of the same tx returns False. Commit `4a4018fb`. `passes` left false for review.
+- **Learnings for future iterations:**
+  - Decision 1: merge `side` is `MERGE`, not `SELL`. Only `ledger_position` and `fill_for_key` parse `Side` from the ledger. `fill_for_key` excludes MERGED in SQL.
+  - Decision 4: a short store clamps size to 0 and still credits the full cash. The merge already happened on chain.
+  - Decision 8: `fill_for_key` returns None for a merge key. It has no new branch.
+  - STEP-004: `consume_core_outbox` must branch on `event == "merged"` before `fill_for_key`. Add a reader such as `merge_leg_for_key` (`token_id`, `qty`). `size` is the full qty, not the clamped position. Until that branch, the core cursor stops on the first merged row. Nothing calls `apply_merge` yet.
+  - `cmd_wallet` cash is MATCHED+CONFIRMED+MERGED. `fill_rows` skips MERGED. `wallet_store.py` is 999 lines.
+
+---
+
+## 2026-10-08 04:20 +0200 - STEP-003 review
+
+- Amended to `c779fa21`. A chain size-down during a held merge is skipped, so `apply_merge` subtracts once. `hold_merge` / `release_merge` are in-memory. Deleted the SUPERSEDED comment. Did not turn statuses into sets.
+- **Learnings for future iterations:**
+  - STEP-005 must call `hold_merge` before the relayer submit and `release_merge` on every terminal outcome, after core delivery. The nonce lock does not cover chain divergence. The hold dies on process restart.
+
+## 2026-10-08 - STEP-003 review
+
+- Review: sol-xhigh 1 major (chain reconcile could subtract a merge before apply_merge) fixed with hold_merge/release_merge; devin 1 comment finding, comment deleted, set reshape skipped. Amended commit c779fa21.
+
+---
+
+## 2026-10-08 04:31 +0200 - STEP-004
+
+- Core learns a merge from the outbox. `Merged` lowers one token's inventory. `consume_core_outbox` handles `merged` before `fill_for_key`. Cursor and snapshot move. No Recovery. Commit `624fb55f`. `passes` left false for review.
+- **Learnings for future iterations:**
+  - Decision 1: `Merged` joins the existing or-pattern in `_apply_fill_path`, then `_apply_session_event`. A separate case there is McCabe 11.
+  - Decision 2: `apply_merged` calls `_credit_sell_inventory`. Qty and cost drop like a sell. `sell_only`, recovery, and orders stay. Two-sided `episode_id` is 0, so `winding_down` does not flip.
+  - Decision 6: `read_merge_leg` lives in `core_persistence.py`. `wallet_store.py` is 999 lines.
+  - Decision 8: the consume loop calls `_note_outbox_item`. `False` stops the cursor. `merged` is checked before `fill_for_key`.
+  - STEP-006: a clean core starts at `last_outbox_seq` 0. `open_core` must set it to the outbox head before registration, or old fills and merges replay.
+
+---
+
+## 2026-10-08 04:45 +0200 - STEP-004 review
+
+- Amended to `7b1b6990`. `accept_if_proven` replays a lagging outbox before it copies ledger sizes, so a checkpointed first merge leg is not subtracted again after recovery. Comment review had no findings. `passes` still false.
+
+## 2026-10-08 - STEP-004 review
+
+- Review: sol-xhigh 1 major (recovery could adopt a ledger baseline then subtract an undelivered merge again) fixed: accept_if_proven replays pending outbox rows first. devin: no findings. Amended commit 7b1b6990.
+
+---
+
+## 2026-10-08 05:00 +0200 - STEP-005
+
+- Deposit-wallet merge is `merge_pairs_via_adapter` in `src/trader/ctf_merge.py`. `PairMerger` schedules it. Nothing in production calls them yet. Commit `da5ce546`. `passes` left false for review.
+- **Learnings for future iterations:**
+  - Decision 1: phase 1 signs with `build_deposit_wallet_batch_request`. Phase 2 posts with `RelayClient._post_request`. A signing error sends nothing and is `failed`.
+  - Decision 2: a 4xx body is `failed`. A 5xx, a non-200, or a transport error (`RelayerApiException` with `status_code is None`) is `unknown`. `RelayerClientException` is raised before the POST, so it is `failed`. Catch `RelayerApiException` first.
+  - Decision 5: no proxy code. `requests` and web3 already read `ALL_PROXY` and `HTTPS_PROXY`. Do not write `os.environ` from a worker thread.
+  - Decision 8: `MERGE_CALL_TIMEOUT_S` is 190s. A timeout is `unknown`. The leaked thread books nothing.
+  - Decision 9: in-flight is `self._task` still running, including the collateral refresh. No second flag.
+  - `hold_merge` for both tokens runs before the relayer submit. `release_merge` runs on merged, failed, unknown, and an exception, after `consume_core_outbox`. The hold is process memory and dies on restart.
+  - An exception from the adapter thread releases the hold and propagates. It does not turn the map off. `merge_pairs_via_adapter` itself does not raise.
+  - STEP-006: widen the dust slot to `DustSweeper | PairMerger` and add a no-op `sweep`. `merge_all` runs after the proven fence, before the Telegram net snapshot, before `zero_token_sizes`, and before `unregister_worker`. `_quiesce` awaits `wait_inflight` before cancel. That wait can last 190s.
+
+---
+
+## 2026-10-08 05:30 +0200 - STEP-005 review
+
+- Amended to `2fe56a67`. The merge thread keeps the wallet lock and the token hold until it returns. `cancel()` only stops a new submit. Builder headers are signed before POST. A relayer rejection is a parsed `error` string, not an HTTP class. A mined merge whose `apply_merge` raises stays held and is booked locally on the next schedule, with no second submit. `passes` still false.
+
+---
+
+## 2026-10-08 05:49 +0200 - STEP-008
+
+- `config_b/trading.toml` (A's file + signature_type 3, account_cap 100000, $20 clips, BLAST Slam only) and service `live_b` in `compose.yaml`. `compress` also scans `data/trader_live_b`. The `live` block and `config/trading.toml` are unchanged. Commit `be0cc83c` on branch `two-sided-s8` in worktree `esports-trader-s8`. `passes` left false for review.
+- LoL check on parent `2fe56a67` (STEP-007 is not in this worktree): with `LOL_TRADING_MODE=off` the host reads neither `config/lol_league_whitelist.json` nor the LoL archive nor `data/lol/models`. `assigned_games` gives `(dota,)`. `archive_by_game` (host_resources.py:230), `LolLeagueFilter` (discovery.py:195, wallet_host `_sync_lol_book_watch` at wallet_host.py:841) and `_load_strategy_models` follow the assigned games. `config_b` has only `trading.toml`, and `live_b` has no LoL mounts.
+- **Learnings for future iterations:**
+  - Decision 1: `stop_grace_period: 240s`, not 200 s. One in-flight merge (190 s) + cancel + fence 20 s + drain 5 s + cancel_all ≈ 230 s. A test pins grace ≥ MERGE_CALL_TIMEOUT_S + FENCE_TIMEOUT_S + DRAIN_TIMEOUT_S. Two maps merging at once, or SIGTERM during the final merge, are not covered. Guard: restart-check SAFE.
+  - Decision 2 (owner): 9 × $20 = $180 is shown as map room but not enforced. B's real brakes are NET_MAX_SHARES 50, merges at $130 held, and the wallet's pUSD.
+  - Decision 3: no `${VAR:?}`. A missing B key would break every compose command for A. A blank PK / builder key fails closed at start. A blank TG_CHAT_ID_B does not: the runbook must check it.
+  - `test_trader_compose.SERVICE_KEY` now allows `_`. Before, `live_b` was folded into `blocks["live"]`.
+  - `config_b` [engine] must equal `config` [engine]: the backtest reads A's file through `read_engine_cadence`.
+  - Env names are `DOTA_STRATEGY` / `two_sided` from feature.json and plans/STEP-007.md. Nothing in this worktree reads `DOTA_STRATEGY` yet.
+
+---
+
+## 2026-10-08 06:00 +0200 - STEP-008 review
+
+- Amended to `56af02ed`. s8-rev: no findings. Comment review: deleted copied narration in `config_b/trading.toml`. Kept the signature_type legend, the env-credential line, and the Wallet B notes the feature requires (neither cap, $20 / $180 / ORDER_SHARES, tier names are the whitelist). MUST KILL reshapes skipped: they touch `session_config`, A's `config/trading.toml`, or the two-sided core. `passes` still false.
+
+---
+
+
+## 2026-10-08 - STEP-008 review
+
+- Built in worktree esports-trader-s8, branch two-sided-s8, commit 56af02ed (to cherry-pick onto main). Review: sol no findings; devin 11 comment findings in config_b/trading.toml, most deleted, MUST KILL reshapes of shared schema skipped (out of scope).
+
+---
+
+## 2026-10-08 06:01 +0200 - STEP-005 review 2
+
+- Amended to `ec9ebe90`. The 190s deadline covers receipt polling and a trickled relayer body; the merge thread still runs until the socket returns. `merge_all` raises `MergeAccountingError` while a mined merge is unbooked, then the same call books any pending receipt and sends the remaining final tail. Retry is `apply_merge` only. `passes` still false.
+
+---
+
+## 2026-10-08 - STEP-005 review
+
+- Review: sol-xhigh 1 blocker + 4 major (lock vs tx thread, eligibility at send, mined merge lost on booking failure, builder signing phase, HTTP status as rejection). Fixed in two rounds (sol verified round 1: F2/F4/F5 resolved, F1/F3 partly, new N1; round 2 fixed F1/F3/N1). devin: no findings. Final commit ec9ebe90.
+- STEP-008 cherry-picked onto main as a58d19c9.
+
+---
+
+## 2026-10-08 06:14 +0200 - STEP-009
+
+- `summarize.py --root` reads that live tree and `DIR/wallet/live.db`. `--two-sided --restart-check` marks every open session `open_map`. Day fold counts Polymarket `MERGE` usdcSize as cash in. Commit `276798f1` on `two-sided-s8`.
+- Wallet B runbook is in `.shared-skills/vps-trader/SKILL.md`. Commit `7fee213` on betting_workspace `main`. `passes` set true. Not committed: this file and `feature.json`.
+- **Learnings for future iterations:**
+  - `--root` does not hide paper or legacy. Restart-check ignores them. `polymarket_today` uses B's funder.
+  - Activity type `MERGE` was not checked against a live data-api row. No SSH.
+  - Start line `trader wallet: strategy=… signature_type=… funder=…` and the empty-whitelist refusal are from `plans/STEP-007.md`. They are not in the s8 worktree.
+  - A late pre-restart fill pulling both bids is STEP-006. `ownership_unresolved` already exists in `two_sided_quoting.py`.
+  - `test_home_renders_all_sections` still fails looking for `доступно`. Same failure on `56af02ed` before this step.
+  - `log-map.md` still says wallet cash is MATCHED+CONFIRMED. For B it is MATCHED+CONFIRMED+MERGED. Left unedited so the skill commit stayed one file.
+
+---
+
+## 2026-10-08 06:22 +0200 - STEP-006
+
+- `TwoSidedWorker` quotes the book inside the window, opens a clean core with the outbox cursor at the head, and calls `merge_all` after a proven fence. Commit `77a85364`. `passes` left false.
+- **Learnings for future iterations:**
+  - `TwoSidedPolicy.level_usdc` is the clip. `sell_min_life_s` is 0.0. `LiveCore.policy` is `Policy`. `DustSweeper` asserts `Follow300Policy` before `is_settling`.
+  - `_open_trace` returns None, so B writes no `core_trace.jsonl`. `open_core` sets `last_outbox_seq` to `_outbox_head` before `register_worker`.
+  - Journal reason is `book` when the book fair is published. `yes_fair` and `radiant_fair` stay null. `model_evaluated` is false. `entry_block` `band` maps to `EntryBlock.BAND`. `drop_sell` refuses every SELL.
+  - No `_quiesce` override. The cell is cleared before `wait_inflight`, so both bids are already pulled. A late fill of a pre-restart order sets `ownership_unresolved` for the rest of the map.
+  - `merge_all` raises `MergeAccountingError` while a mined merge is unbooked. The worker retries that call (booking only, no second submit) at 1s, 2s, 4s, then 8s. It does not snapshot, zero, or unregister until `merge_all` returns. Other exceptions still finish. A permanent sqlite failure blocks finalization until the process dies. The hold is in-memory.
+  - STEP-007: `_pick_and_run` builds `TwoSidedWorker` for `two_sided` with the same six positional args. B still loads the dota model. `install_adapter_merge` only for `two_sided`.
+  - The two-sided core does not enforce the 9 × $20 map room. STEP-008 is already on main (`a58d19c9`).
+  - STEP-009: `reason=book`, null fairs, `entry_block=band`. After a crash restart, `ownership_unresolved` for the rest of that map is expected. An unproven fence or a feed drop means no final merge.
+
+---
+
+## 2026-10-08 06:44 +0200 - STEP-005 review fixes
+
+- Header reads and deadline aborts now share one socket watcher. The duplicated descriptor is closed after shutdown. Commit `f605a6b9`. `passes` left false.
+
+---
+
+## 2026-10-08 06:57 +0200 - STEP-007
+
+- `DOTA_STRATEGY` selects the worker. Unset or blank is follow300. `two_sided` builds `TwoSidedWorker`, stubs the fork merge, and whitelists `[clips.dota].tiers` names. Commit `629657b0` on `two-sided-s7` (worktree `esports-trader-s7`, base `f605a6b9`). `passes` left false.
+- **Learnings for future iterations:**
+  - Decision 1: the parser is `read_dota_strategy()`.
+  - Decision 2: only `two_sided` after `strip()`. The literal `follow300` raises `TradingDisabled`. Unset, empty, or whitespace is follow300.
+  - Decision 5: an idle process (no game assigned) stays idle under `two_sided`.
+  - Decision 7: an empty tier-name whitelist under `two_sided` raises `TradingDisabled` in `WalletHost.run` before `engine.start`. Text: `DOTA_STRATEGY=two_sided needs names in [clips.dota].tiers: they are the title whitelist`.
+  - Decision 8: `league_matches` uses `casefold()`.
+  - Decision 11: every open logs `trader wallet: strategy=%s signature_type=%d funder=%s`. Funder is `cfg.secrets.browser_address`.
+  - STEP-008 and STEP-009 are already on this branch. The three runbook strings were kept exact.
+  - E7 has no `.env` and no `data/` symlinks. Existing `run()` tests that call `require_brand_token` fail with `ODDIN_BRAND_TOKEN is not set`. `test_follow300_replay` fails because the validation parquet is not in this worktree. Left those tests unchanged.
+  - `grep DOTA_STRATEGY src` also hits `wallet_host.py`: that is the empty-whitelist refusal text.
+
+---
+
+## 2026-10-08 07:19 +0200 - STEP-006 review fixes
+
+- A clean restart now seeds `next_order_seq` above checkpoint, binding, and command ids before the core is published. A second quiesce drains an in-flight merge before the match task ends. Commit `5ed8a8a3`. `passes` left false.
+
+---
+
+## 2026-10-08 07:20 +0200 - STEP-007 review fixes
+
+- Amended to `d9b6d3f0`. A two-sided whitelist must be nonempty and every tier name must be exactly `BLAST Slam`; other names raise `TradingDisabled` before `engine.start`. Deleted the narration comments the comment review listed, and dropped unused `WalletHost.archive_root`. `passes` still false.
+- **Learnings for future iterations:**
+  - follow300 still returns `()` and does not read clip tables. The empty-tier sentence is unchanged.
+  - `config_b` already lists only `BLAST Slam`, so this guard matches that file. A's template still has EPL; A does not set `DOTA_STRATEGY`.
+
+---
+
+## 2026-10-08 - STEP-007 review
+
+- Built in worktree esports-trader-s7, branch two-sided-s7, commit d9b6d3f0 (to cherry-pick onto main). Review: sol 1 major (admission accepted non-BLAST clip tiers) fixed: whitelist must be exactly BLAST Slam. devin 13 comment findings fixed. 12 wallet_host run() tests need .env (ODDIN_BRAND_TOKEN) and fail only in the worktree.
+
+## 2026-10-08 - STEP-006 review
+
+- Review: sol 2 major (clean restart reused order ids; cancelled final merge could outlive the worker) + 1 minor (test holder typing), devin 2 docstrings. All fixed in new commit 5ed8a8a3 (77a85364 + fix).
+
+---
+
+## 2026-10-08 07:40 +0200 - STEP-010
+
+- Serial pytest: 3069 passed, 9 warnings, 2 subtests passed, 422.84s. `PYTEST_N` was unset. basedpyright 0 errors. ruff check and ruff format --check passed. `backtest.two_sided` printed `two_sided ok`. `NET_MAX_SHARES = 50`.
+- `ts-regress-final` matches `ts-regress-before`: fills 1349, results 20, quote_events 114533, `pyarrow.Table.equals` true on each. Record commit `a7d72621`. `quote_events.parquet` stays gitignored.
+- Test fixes: `d86e516d` (host run path sets `_mode` and does not scan the real trader tree), `37fcb72e` (home strip hides `доступно` when it equals cash).
+- Runbook: non-BLAST whitelist refusal is `DOTA_STRATEGY=two_sided title whitelist must be BLAST Slam only, got <names>`. log-map wallet cash is MATCHED+CONFIRMED+MERGED.
+- **Learnings for future iterations:**
+  - `WalletHost.run` reads `_mode` in `close_ended_oddin_archives` before `_boot_scan`. A partial host must set `_mode` and must not point that scan at `data/trader`.
+  - The home strip omits `доступно` when `available_cash == collateral_usdc` (`357cb989`).
+  - `data/backtests/**/quote_events.parquet` is gitignored. The tracked record is fills, results, manifest, summary.
+
+## Owner
+
+- `git push` in `../esports-trader`
+- `git push` in `betting_workspace`
+- Then the wallet B runbook in `.shared-skills/vps-trader/SKILL.md`
