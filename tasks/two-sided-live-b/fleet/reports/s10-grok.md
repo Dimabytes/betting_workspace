@@ -206,7 +206,18 @@ d59dc77c Track the per-market fee terms the two-sided backtest needs.
 e845325f Record the live vs backtest gap experiment: no execution gap at live's rung.
 ```
 
-W commit hash is in the next paragraph after `git log -1`. `poly-maker` status empty. No push.
+W gate commit `385059baf641cda588c7a5904138cc22c250fa45` adds the task folder, the runbook fixes, and this report. The commit on top of it only inserts that hash into this file. Not pushed. `git log --oneline origin/main..385059ba`:
+
+```
+385059ba Record the two-sided live-b gate and correct the wallet B runbook.
+7fee213 Describe wallet B in the VPS trader skill: day PnL, restart gate, and deploy.
+fad260b Record the n50 result: net cap 50 for the live pilot.
+f836ae8 Merge branch 'main' of github.com:Dimabytes/betting_workspace
+e922738 Keep the two-sided maker investigation: plan, fleet reports, wave 2 runbook.
+e8844b9 Keep the live vs backtest gap report: no gap at live's clip.
+```
+
+`poly-maker` status empty. No push.
 
 ## Open issues
 
