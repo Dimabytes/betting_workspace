@@ -200,7 +200,7 @@ python3 /root/work/esports-trader/src/dashboard/summarize.py \
 
 `--root` swaps the live tree and `DIR/wallet/live.db` only. Rows tagged `[paper]` or `[legacy]` are still A's trees. `polymarket_today` uses the funder in B's `live.db`, and its cash includes Polymarket `MERGE` activity. `--wallet` sums sqlite `MATCHED+CONFIRMED+MERGED`; that is inventory, not the day. `--two-sided --restart-check` prints `restart_check UNSAFE open_map <id>` for every open session. A flat map past second 480 is still unsafe. `restart_check SAFE` is the only restart gate.
 
-`9 × $20 = $180` is the map room `config_b` reports. The two-sided core does not enforce it. B's brakes are `NET_MAX_SHARES` 50, pair merges when held value is at least $130 and at least 5 pairs, and the wallet's cash.
+`9 × $20 = $180` is the map room `config_b` reports. The two-sided core does not enforce it. B's brakes are `NET_MAX_SHARES` 30, pair merges when held value is at least $130 and at least 5 pairs, and the wallet's cash.
 
 After a B restart, a late fill of a pre-restart order pulls both bids for the rest of that map. That is a fail-safe (`ownership_unresolved`). The start `cancel_all` makes those orders terminal, so B stops quoting that map and keeps the inventory. Do not restart B to clear it. The final merge still runs at map end.
 

@@ -248,3 +248,7 @@
 - g4e-4 (--skew-per-share 0.0004 at n50): not a win. PnL noise, leftover tail not smaller on both queues.
 - Run 3 (n30 + g4e-4) not run: run 2 did not win.
 - Code still has NET_MAX_SHARES = 50. Changing it to 30 is the owner decision.
+
+## 2026-10-08 - NET_MAX_SHARES 30
+
+- Owner decision after the n30 sweep: NET_MAX_SHARES = 30 (E b53ba94b). Four test expectations in tests/test_strategy_two_sided.py moved to the cap-30 sizes. SKILL.md brakes line updated.
