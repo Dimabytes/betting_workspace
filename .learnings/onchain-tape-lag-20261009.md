@@ -68,6 +68,45 @@
 - The grain argument was right and stays: onchain rows remain the tape. What the
   switch lost was the clock. The fix borrows only the clock from `trades`.
 
+## Aggressor side: take it from the maker (fixed esports-trader `b73bbd8a`, 2026-10-09)
+
+- The onchain day file holds each OrderFilled in the files of both tokens. A row
+  without `mirrored` has `maker_asset_id == asset_id`; a mirrored row has
+  `maker_asset_id == sibling_asset_id`. Checked on all 33,860 local day files
+  (Dota and LoL): no exception, no nulls, `maker_side` only buy or sell.
+- `taker_asset_id` changed meaning on 2026-09-18, when the source changed.
+  Days up to 2026-09-17 are Telonex downloads (the collector's legacy import):
+  there it is the maker's token on a direct trade and the other token on a mint
+  or merge. From 2026-09-18 (first collector-owned day by the data; the VPS
+  `ONCHAIN_START_DATE` not checked) our `polymarket-collector`
+  decodes the logs itself and writes `taker_asset_id: mirrored ? tokenId :
+  siblingTokenId` (`src/onchain-decode.ts`), the token opposite the maker on
+  every row. That is a collector bug: the taker's token is in `OrdersMatched`
+  (`matched.token_id`), which the collector already reads for `taker_side`.
+  `maker_asset_id` and `maker_side` come straight from OrderFilled and are right.
+- The rule of `69499bd6` read `taker_asset_id`, so from 2026-09-18 it flipped
+  the aggressor of every direct trade: a sale into our bid reached Nautilus as
+  a buy and never filled a BUY. 463,358 of 1,944,524 rows over 21 days to
+  2026-10-08. On every earlier row the old and the new rule agree.
+- The rule now: maker on the file token -> aggressor = opposite `maker_side`;
+  mirrored row -> aggressor = `maker_side`. Each trade gives one buy and one
+  sell over the two books (6,363,495 each over all files).
+- Proof: replaying wallet B's 4,862 real orders of 2026-10-08 fills all 63
+  orders live filled, 1,048.4 shares on both sides (58 of 63 before). The 7
+  extra sim orders are in
+  `investigations/2026-10-08-liveb-postmortem/SIMULATOR-PLAN.md`.
+- Cache trap for A/B runs of onchain code: a tree-cache miss evicts the
+  market's framework `trade-ticks-v1`, a hit does not. Switch the code back to
+  a version whose tree files are cached and the framework replays the ticks of
+  the other version. Delete `~/.cache/nautilus_trader/telonex/trade-ticks-v1`
+  (287 MB, rebuilt on use) before each run of an A/B pair.
+- Effect on Dota follow300 seed 0 (`tapefix`, framework `e2cfebb`, not
+  promoted): against `rawfix` (same framework, old side rule) the 653 maps that
+  ended before 2026-09-18 match to the cent; 135 of the 224 later maps moved,
+  PnL before rebate +$11,573 -> +$13,621, BUY fills 3,861 -> 4,266. Against
+  `LIVE` (`strip-fix2`) on 868 maps: +$33,269 -> +$34,230, Wilcoxon p 0.83;
+  the integer book prices give -$1,087 and the side fix +$2,048.
+
 ## WS prints are not a tape
 
 - One `last_trade_price` per tx: one price and the total size, even when the taker
