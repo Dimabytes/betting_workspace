@@ -275,6 +275,7 @@ if missing:
     raise SystemExit("empty " + " ".join(missing))
 for src, dst in mapping.items():
     env[dst] = env[src]
+env["PYTHONPATH"] = "src"
 slug = "PUT_A_BINARY_CTF_V1_SLUG_HERE"
 raise SystemExit(subprocess.call(
     ["uv", "run", "python", "scripts/merge_probe.py",
