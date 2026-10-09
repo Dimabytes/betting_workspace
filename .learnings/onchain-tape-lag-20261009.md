@@ -20,7 +20,7 @@
 - Every backtest built on the block-time tape is suspect, including the 307-map
   two-sided sweeps of 2026-10-07/08.
 
-## Fix (esports-trader, uncommitted on 2026-10-09)
+## Fix (esports-trader `4773d0b1`, 2026-10-09)
 
 - `scripts/sync_collector_parquet.py` now pulls the `trades` channel too (it was
   excluded since the onchain switch; local `trades` stop at 2026-09-17).
@@ -76,3 +76,30 @@
 - 412 of our 519 joined fills show no print on our token at all: the taker bought the
   sibling token (mint match). The onchain rows carry the maker token and price exactly.
   Use onchain rows for what traded, WS prints for when.
+
+## Effect on the Dota follow300 validation (2026-10-09 rebuild)
+
+- Same models on both tapes, seeds 0 and 1, 822 shared maps: block-time LIVE
+  `book-prior-85` +$35,913 per seed before rebate, print-time
+  `book-prior-85-retime` +$32,194: -$3,719 per seed (-10%), -$4.53 per map,
+  net per 100 shares $4.16 -> $3.42, buy volume +$67k (+11%), worst map
+  -$989 -> -$1,341. Pooled Wilcoxon p 0.045, t p 0.26. The run also moved to
+  `feed-schedule-v9`, which shifts the horn of 3 maps only.
+- The new 2026-10-09 models against the old ones on the print tape, seeds 0, 1
+  and 3, 865 maps: -$305 per seed, Wilcoxon p 0.45; 742 maps identical. The drop
+  is the tape, not the model.
+- LIVE now points at `rebuild-1009` (esports-trader `c718aeef`). Seed 2 dies on
+  the Nautilus `PositionOpened` assert on `dota2-ty-pari-2026-07-18-game2` with
+  both models on the print tape; seed 3 replaces it. 0 of 892 validation maps
+  dropped for a missing `trades` day.
+- The first run on the new tape builds every onchain tree from scratch: the
+  archive stage took 50 min on 4 shards instead of 7. Later seeds ran in ~10 min.
+
+## STRATZ cache froze unparsed matches (fixed `8b0b51d8`)
+
+- `make stratz` skipped every cached match, so a match cached before STRATZ
+  parsed its replay (`missing_leads`) stayed unusable forever. On 2026-10-09
+  11 of 51 such matches were already parsed upstream. The fetch now re-asks
+  `missing_leads` matches each run (~2 min).
+- 16 maps of 2026-10-07/08 (7 of wallet B's 12) and ~25 of late September are
+  still unparsed at STRATZ, so they are not in the catalog or the backtest.
