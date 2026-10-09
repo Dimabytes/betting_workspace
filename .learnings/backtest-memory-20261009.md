@@ -41,3 +41,13 @@
   killed by hand at 24.7 GB swap used, 60 MB pages free.
 - `backtest.run --warm-cache` materializes without the engine; run it first
   after a mass eviction if memory is tight.
+
+## First full run after the changes (strip-fix2, 2026-10-09 evening)
+
+- Archive stage (349 maps, every framework book cache cold) plus seed 0 on
+  4 shards: 47 min wall, swap never above 1.4 GB, free memory 86-91%. The
+  morning run with warm caches took 1 h 45 for archives plus three seeds.
+- Grid maps and unaffected archive maps identical to `LIVE` to the cent, so the
+  native loader, the window trim and one loader worker change nothing in the
+  results.
+

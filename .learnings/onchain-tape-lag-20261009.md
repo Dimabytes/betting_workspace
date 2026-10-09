@@ -113,8 +113,13 @@
   Levels went to zero, Nautilus reset the queue, the sim filled on the next print.
   On 9034957701 at 14:26:11 UTC the strip held 4,957 shares at 0.45 and 2,130 at
   0.46 for A; the raw book had 0 and 23. 200 of 735 archives (every one after
-  2026-09-29) carry `CancelUnsettled`, 16,109 events. Every follow300 archive
-  backtest since then, `LIVE` included, is inflated. Re-run before trusting them.
+  2026-09-29) carry `CancelUnsettled`, 16,109 events. Measured on `LIVE` seed 0
+  (`strip-fix2`, 2026-10-09 evening): the bug cut trading, it did not inflate it.
+  The over-strip removed other makers' size with ours, the best bid vanished,
+  the spread gate blocked entries. 82 affected archive maps: PnL −$1,262 ->
+  +$1,376, buy fills 1,228 -> 1,656; the other 267 archive maps and all 519
+  grid maps identical to the cent, fills row for row. Seed 0 total $30,631 ->
+  $33,269 before rebate.
 - Two-sided replays never strip wallet A: it is another maker for B. B's own
   resting comes from `<root>/<archive>/core_trace.jsonl` via
   `backtest.run --own-archive-root`; `scripts/journal_to_core_trace.py` writes
