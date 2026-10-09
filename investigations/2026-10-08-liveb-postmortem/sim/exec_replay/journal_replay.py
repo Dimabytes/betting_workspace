@@ -1,11 +1,13 @@
 """Replay wallet B's real orders through the Nautilus matching engine, no strategy logic.
 
-JournalReplayStrategy keeps TwoSidedMakerStrategy's order plumbing and fill
-records but makes no decisions: it reads the orders for its match from the JSON
-file in REPLAY_ORDERS and, for each one, submits a post-only GTC BUY so the
-venue accepts it at the live exchange PLACEMENT time (submit = placed -
-order latency) and cancels it at the live exchange end time (engine cancel
-latency is 0). It logs client order id -> live order id to REPLAY_LOG.
+JournalReplayStrategy keeps the two-sided adapter's order plumbing and fill
+records but makes no decisions: it never wakes the core. It reads the orders
+for its match from the JSON file in REPLAY_ORDERS and, for each one, submits a
+post-only GTC BUY so the venue accepts it at the live exchange PLACEMENT time
+(submit = placed - order latency) and cancels it at the live exchange end time
+(engine cancel latency is 0). The core does not own these orders: their fills
+pend as unknown and a venue cancel only drops the order. It logs client order
+id -> live order id to REPLAY_LOG.
 """
 
 import json
@@ -15,13 +17,14 @@ from typing import Any
 from nautilus_trader.common.events import TimeEvent
 from nautilus_trader.model.events import OrderAccepted
 
-from backtest.two_sided_strategy import TwoSidedMakerStrategy
+from backtest.two_sided_core import TwoSidedCoreStrategy
+from strategy.types import PlaceOrder
 
 SUBMIT = "REPLAY_SUBMIT:"
 CANCEL = "REPLAY_CANCEL:"
 
 
-class JournalReplayStrategy(TwoSidedMakerStrategy):
+class JournalReplayStrategy(TwoSidedCoreStrategy):
     def on_start(self) -> None:
         for instrument_id in self._config.instrument_ids:
             instrument = self.cache.instrument(instrument_id)
@@ -61,9 +64,18 @@ class JournalReplayStrategy(TwoSidedMakerStrategy):
     def _on_submit(self, event: TimeEvent) -> None:
         live_id = event.name.removeprefix(SUBMIT)
         order = self._replay[live_id]
-        before = set(self._submitted)
-        self._submit(int(event.ts_event), order["token_index"], (order["price"], order["size"]))
-        (cid,) = set(self._submitted) - before
+        place = PlaceOrder(
+            order_id=f"replay:{live_id}",
+            episode_id=0,
+            token_index=order["token_index"],
+            side="BUY",
+            price=order["price"],
+            quantity=order["size"],
+            level_index=None,
+            reduce_only=False,
+        )
+        self._submit_place(now_ns=int(event.ts_event), place=place)
+        cid = self._core_to_venue[place.order_id]
         self._cid_of[live_id] = cid
         self._write({"kind": "submit", "match_id": self._config.match_id, "cid": cid,
                      "live_id": live_id, "ts": int(event.ts_event)})
@@ -79,12 +91,12 @@ class JournalReplayStrategy(TwoSidedMakerStrategy):
         live = self._live.get(cid)
         if live is not None:
             live.accepted = True
-        self._record_lifecycle("accepted", int(event.ts_event), "", cid)
+        self._record_order_lifecycle(kind="accepted", event_ts_ns=int(event.ts_event), reason="", client_order_id=cid)
 
-    def _arm_requote(self, now_ns: int) -> None:
-        return
+    def _ack_venue_cancel(self, *, now_ns: int, client_order_id: str) -> None:
+        self._detach_live(client_order_id)
 
-    def _requote(self, now_ns: int) -> None:
+    def _evaluate(self, *, now_ns: int) -> None:
         return
 
     def on_stop(self) -> None:

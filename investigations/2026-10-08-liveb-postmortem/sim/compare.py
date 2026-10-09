@@ -1,5 +1,6 @@
 """Live wallet B vs backtest per map: fills, shares, avg bid per side, PnL, 30 s markout (c/share)."""
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -77,7 +78,7 @@ FAR = 2**62
 
 def build_segments(variant: str) -> list[tuple[int, str, int, int, Path]]:
     """(match_id, label, from_us, to_us, run_dir). 9034957701 switched h3 -> h6 at 14:47-14:48 UTC."""
-    root = Path("data/backtests/dota_maker")
+    root = Path(os.environ.get("SIM_RUNS", "data/backtests/dota_maker"))
     run = lambda name: root / f"validation_join_delta02_x015_cut480_p45_liveb1008-{name}-{variant}" / "seed0"
     segments = [(9034957701, "h3 to 14:47", 0, SWITCH_H3_END, run("h3")),
                 (9034957701, "h6 from 14:48", SWITCH_H6_START, FAR, run("957-h6"))]
