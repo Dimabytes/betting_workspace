@@ -103,3 +103,26 @@
   `missing_leads` matches each run (~2 min).
 - 16 maps of 2026-10-07/08 (7 of wallet B's 12) and ~25 of late September are
   still unparsed at STRATZ, so they are not in the catalog or the backtest.
+
+## Own-book strip: CancelUnsettled (fixed 2026-10-09, esports-trader)
+
+- `strip_own_book.iter_resting_events` removed a resting order on `CancelAck` and
+  `OrderRejected` only. Since `54b7ce50` (2026-09-29) a BUY cancel acks as
+  `CancelUnsettled` (`session_core.note_cancel`), so every canceled wallet A BUY
+  stayed in the reconstructed resting set and was subtracted from the book forever.
+  Levels went to zero, Nautilus reset the queue, the sim filled on the next print.
+  On 9034957701 at 14:26:11 UTC the strip held 4,957 shares at 0.45 and 2,130 at
+  0.46 for A; the raw book had 0 and 23. 200 of 735 archives (every one after
+  2026-09-29) carry `CancelUnsettled`, 16,109 events. Every follow300 archive
+  backtest since then, `LIVE` included, is inflated. Re-run before trusting them.
+- Two-sided replays never strip wallet A: it is another maker for B. B's own
+  resting comes from `<root>/<archive>/core_trace.jsonl` via
+  `backtest.run --own-archive-root`; `scripts/journal_to_core_trace.py` writes
+  that file from the wallet engine journal because `TwoSidedWorker` writes no trace.
+- On the 5 catalog maps of 2026-10-08 the two-sided sim still over-fills live:
+  105 fills / +$10.43 / markout −0.93 c against 66 / −$12.97 / −1.30. 66 fills
+  match live one to one. 17 fills have no seller print at or below our price:
+  Nautilus fills a post-only bid when the mirrored ask crosses it. 17 fills had
+  more queue ahead than every print at our price: Nautilus seems to count the
+  whole sweep against the queue. The rest is position drift. Details in
+  `investigations/2026-10-08-liveb-postmortem/SIMULATOR-PLAN.md`.
