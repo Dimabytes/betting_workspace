@@ -88,7 +88,10 @@
 - The new 2026-10-09 models against the old ones on the print tape, seeds 0, 1
   and 3, 865 maps: -$305 per seed, Wilcoxon p 0.45; 742 maps identical. The drop
   is the tape, not the model.
-- LIVE now points at `rebuild-1009` (esports-trader `c718aeef`). Seed 2 dies on
+- LIVE pointed at `rebuild-1009` (esports-trader `c718aeef`) until the evening of
+  2026-10-09; it now points at `strip-fix2` (own-book strip fix, native book
+  loader), seeds 0, 1 and 3, +$2,638 per seed over `rebuild-1009` on the 82
+  strip-affected archive maps and identical elsewhere. Seed 2 dies on
   the Nautilus `PositionOpened` assert on `dota2-ty-pari-2026-07-18-game2` with
   both models on the print tape; seed 3 replaces it. 0 of 892 validation maps
   dropped for a missing `trades` day.
