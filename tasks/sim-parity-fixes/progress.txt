@@ -40,3 +40,4 @@
   - If `/nonce` is still stale, the second post fails and PairMerger pauses 30s. Parsing the on-chain nonce out of the error text is the upgrade path.
 
 ---
+2026-10-11 00:35 STEP-003 review: step review and comments review: no findings.
