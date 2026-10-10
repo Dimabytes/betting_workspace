@@ -114,3 +114,26 @@ STEP-010 review: step review (sol-xhigh) REQUEST_CHANGES, two P2 and one leftove
 
 ---
 STEP-010 (external review cleanup): step review (sol-xhigh) REQUEST_CHANGES 2xP2 (two gunzip pipelines + message-prefix parsing; duplicated book/price_change fold) + P3 JSDoc; comments review (swe-high) clean; fix 08fd7c7 one gunzipStream with tagged stage, one book-fold branch.
+
+## 2026-10-10 20:03 CEST - STEP-007
+
+- VPS `/root/work/polymarket-collector` HEAD `08fd7c7` = `origin/main`, tree clean. The owner's `git pull` fast-forwarded it at 17:47:51 UTC.
+- `docker compose build archive-dota` exit 0, `yarn check` green in the build. Image `sha256:20b8daedde02`.
+- `docker compose up -d` at 17:52:27 UTC. All 5 containers started 17:52:29 UTC on `20b8daedde02`. 0 restarts at 18:02:50 UTC.
+- No onchain-import ran. Compactors were idle. 17:52 UTC is outside both compaction windows.
+- archive-*: `journal ready` on the current hour 17 partial. Dota recovered 102824 records, LoL 1244793, `truncatedBytes` 0 in both. No stale partial, no WARN, no ERROR.
+- Rotation 18:00 UTC: `journal hour rotated` INFO `trigger=loop`, `wakeLagMs` Dota 1, LoL 0. `17.jsonl.gz` landed at 18:00:01 (Dota) and 18:00:17 (LoL). Only the hour 18 `.partial` exists.
+- compact-*: catch-up compacted 0 days in both games. No `seed.missing`. `compaction ok` with `rowsOutsideDate`/`missingHours` first shows at the 2026-10-10 compaction: Dota 03:00 UTC, LoL 09:00 UTC on 2026-10-11.
+- onchain: start pruned 1099 catalog snapshots (2254591738 bytes). `catalogs/` holds 27 files after 3 passes. 0 WARN/ERROR. Passes 17:52, 17:57, 18:02 UTC wrote reconcile files for 2026-09-20..2026-10-09 in both games.
+- STALL dates (lost hour 00): only LoL 2026-10-01, window 00:00:17–01:00:02 UTC, 970 unmatched.
+- STALL dates (other): Dota 09-21, 09-23 (14:53), 09-24, 09-25, 09-26, 09-27, 09-29, 09-30, 10-03, 10-08. LoL 09-24, 09-25, 09-26, 09-27, 09-28, 09-29, 10-04, 10-07.
+- **Learnings for future iterations:**
+  - Of the 10 lost days, only Dota 09-20, Dota 09-23 and LoL 10-01 have a reconcile file. The other 7 are before the first onchain manifest (2026-09-20), so the service skips them.
+  - Dota 09-20 has 530 onchain txs (onchain start day) and no hour-00 window. Dota 09-23 hour 00 had 21173 market events and no window either.
+  - STEP-008: move only those 3 reconcile files. Only LoL 10-01 can show the hour-00 STALL disappear.
+  - Several stall windows on normal days start in the same minute in both games: 09-24 15:57, 09-25 17:00, 09-26 18:05 and 19:39. LoL 09-28 18:53–19:20 has 881 unmatched.
+  - LoL 2026-10-10 has no `12.jsonl.gz`: the old code skipped that rotation before the deploy. `11.jsonl.gz` ends at 12:59:59.999 UTC, so the hour 12 records are kept and stay in the same date. The 10-10 manifest will still list `missingHours=12`.
+  - Every daemon holds its lock directory for its whole life. A fresh `.onchain.lock` is the onchain service, not an import.
+  - `git fetch` from the agent shell fails with `Permission denied (publickey)`. Read the `origin/main` reflog to see the owner's last pull.
+
+---

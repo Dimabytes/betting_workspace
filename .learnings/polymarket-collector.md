@@ -35,6 +35,41 @@ writes `parquet/onchain_fills` plus `manifests/onchain/<date>.json`. Import
 refreshes the image via `docker compose build archive-dota`. `ONCHAIN_RPC_URL_*`
 and `ONCHAIN_START_DATE` stay in `.env` (never commit or echo the URLs).
 
+Each daemon holds its lock directory for its whole life: `archive-*` holds
+`.collector.lock`, `compact-*` holds `.compactor.lock`, `onchain` holds `.onchain.lock`.
+A present lock directory with a fresh mtime is the running service, not a running import.
+To see if an import runs, look for an `onchain-import` process or a `docker compose run` container.
+
+## Journal resplit
+
+`journal-resplit` ships in the image as `dist/journal-resplit-main.js`. It repairs a lost hour 00.
+When the midnight rotation was skipped, hour 00 of day D sits at the end of `events/<D-1>/23.jsonl.gz`.
+
+- Run: `docker compose run --rm --no-deps archive-<game> node dist/journal-resplit-main.js --root /data --date <D> [--dry-run]`.
+- It cuts `events/<D-1>/23.jsonl.gz` at the first record with `receivedAtUs ≥ D 00:00`.
+  The tail becomes `events/<D>/00.jsonl.gz`.
+- It publishes only if `gunzip(head) ++ gunzip(tail)` equals `gunzip(original)`.
+- The original goes to `<root>/.recovery/<ISO ts>/events/<D-1>/23.jsonl.gz`. `--backup-dir` overrides `<root>/.recovery/<ISO ts>`.
+- `--dry-run` only reports counts and takes no lock.
+- A real run takes `.compactor.lock`. `compact-<game>` holds it while it runs, so stop `compact-<game>` first.
+- It refuses if `events/<D>/00.jsonl.gz` or `00.jsonl.partial` exists, or if no record of D sits in the file.
+  It also refuses if a tail record falls outside hour 00 of D.
+- After a resplit, recompact D-1 and D in date order. Move both manifests out of `manifests/`.
+  Leave `checkpoints/` alone: `publishDay` rewrites them.
+
+## WS↔onchain reconcile
+
+The `onchain` service, not compact, writes `manifests/reconcile/<date>.json` in each game's archive root.
+
+- A date qualifies when `manifests/onchain/<date>.json` is ready, `manifests/<date>.json` is complete, and no reconcile file exists.
+- Dates go in ascending order, at most 7 per game per pass. A pass runs every 5 minutes. No RPC calls.
+- The report joins WS `trades.trade_id` with onchain `tx_hash`. An onchain tx with no WS trade is a miss.
+- Five or more misses, each within 120 s of the previous one, form a stall window.
+- The Telegram `onchain pass` message gets `reconcile=<game>/<date> unmatched=<n>/<txs> windows=<k>`.
+  A line with stall windows starts with `STALL`.
+- The service never recomputes an existing file. To recompute after a recompaction, move the file out of `manifests/reconcile/`.
+- Both manifests must exist. Days before the first `manifests/onchain/<date>.json` (2026-09-20) get no reconcile report.
+
 ## What it produces
 
 `ARCHIVE_ROOT` (env) holds every output. Docker is a way to run it, not a storage format:

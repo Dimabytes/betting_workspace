@@ -251,7 +251,7 @@
         "Записать в `.learnings/polymarket-collector.md` (betting_workspace) короткую заметку о CLI `journal-resplit` и `manifests/reconcile/`; зафиксировать в progress.txt хэш, время рестарта и результаты проверок."
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
