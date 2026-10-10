@@ -41,3 +41,16 @@
 
 ---
 2026-10-11 00:35 STEP-003 review: step review and comments review: no findings.
+
+## 2026-10-11 01:04 CEST - STEP-004
+
+- A held position with a stale fair or a silent feed cancels BUYs only and moves the SELL to the join ask through `_sell_at_ask` → `_reconcile_choice(fair=None)`. No position still calls `_blocked`.
+- Commit `94f7122033ceadc3de33dc19f03fa98af47c1678` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - `decide_sell` can return a held SELL on zero inventory (`unconfirmed_hold`, `_min_life_hold`). The `total_qty == 0` guard has to stay or those SELLs survive. `test_kill_gate_inactive_without_signal` pins it.
+  - `fair_valid=False` is the same line as a 45s stale fair. A first signal that fails the anchor also sells at the ask. The no-valid-fair test holds NO: a YES SELL off fabricated fair 0.0 is token fair 1.0 and places nothing.
+  - A SELL already at the ask is kept. A different price is a `reprice` cancel; the ask SELL is placed after that cancel is acked (`sell_occupied`).
+  - The kill gate is empty when `state.signal is None`. Hold tests use the anchor path, not the silent feed.
+  - Golden follow300 smoke stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+
+---
