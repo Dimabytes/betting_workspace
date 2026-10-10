@@ -12,3 +12,16 @@
 
 ---
 2026-10-10 23:23 STEP-001 review: step review: 3 findings (1 fixed in 95c431e3, docstring and HALF_SHARE_TICK skipped by implementer with reasons); comments review: findings, kept docstring under keep clauses.
+
+## 2026-10-10 23:58 CEST - STEP-002
+
+- A proof below CONFIRMED is accepted at the CONFIRMED size when that venue id has no MATCHED BUY rows. A MATCHED row still leaves the proof ignored.
+- A successful HTTP cancel records monotonic ack time. The first `open_orders` snapshot sent at least 2s later, and missing that id, proves the row from MATCHED + CONFIRMED. A 2s timer sets `_reconcile_now` only if the row is still unproven.
+- Commit `1d0edfe94ae658ded5672dc9021739ef9af51d4a` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - A reconcile pass checks unsettled BUYs before that pass's `open_orders` snapshot. The ledger proof has to wrap `gateway.open_orders`.
+  - Setting `_reconcile_now` immediately after cancel snapshots inside the 2s WS-lag window and proves nothing.
+  - Ack time is memory only. After a restart the row waits on the REST path (60s and a second zero).
+  - Fake hosts built with `object.__new__(WalletHost)` that cancel a BUY need `_cancel_acked_at` and `_closed`.
+
+---
