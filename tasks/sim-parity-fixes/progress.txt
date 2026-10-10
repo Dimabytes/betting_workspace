@@ -26,3 +26,17 @@
 
 ---
 2026-10-11 00:05 STEP-002 review: step review: named-return finding fixed in fe6b713c; comments review: wake docstring deleted in fe6b713c, _bind_order_terminal docstring kept (external-dependency clause).
+
+## 2026-10-11 00:30 CEST - STEP-003
+
+- A core exception inside the follow300 book guard logs `_quote_fault`, cancels every fork order on both tokens, and writes `book_guard` with `error` set to the exception type. `guard` stays the book check.
+- A relayer `failed` whose reason contains `does not match on-chain nonce` reads the nonce again, re-signs, and posts once. A second failure still pauses 30s. An `unknown` outcome is not retried.
+- Commit `e0422758104315d403006a6f8915d66cdf2e1bfb` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - `guard` stays `one_sided` / `crossed` / `empty` / `missing`. `error` is the exception type, or None. `guard="fault"` would drop which book check fired.
+  - Retry the whole `_merge_once`. The nonce is inside the signed batch.
+  - Retry only `failed`. `unknown` may already be on chain.
+  - The retry runs in the same `asyncio.to_thread` call, under `_chain_lock` and the 190s deadline.
+  - If `/nonce` is still stale, the second post fails and PairMerger pauses 30s. Parsing the on-chain nonce out of the error text is the upgrade path.
+
+---
