@@ -70,3 +70,4 @@
   - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
 
 ---
+2026-10-11 01:56 STEP-005 review: step review: P1 journal failure blocking cancel fixed in 420b2ec3; comments review: no findings.
