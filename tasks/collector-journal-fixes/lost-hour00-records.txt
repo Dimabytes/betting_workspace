@@ -1,0 +1,12 @@
+dota 2026-08-09 no-prev-23
+dota 2026-08-15 records_after_midnight 45270 by_kind {"catalog_event": 4369, "market_event": 40901}
+dota 2026-09-04 records_after_midnight 11098 by_kind {"catalog_event": 2842, "market_event": 8256}
+dota 2026-09-15 records_after_midnight 22913 by_kind {"catalog_event": 2594, "collector_event": 9, "market_event": 20310}
+dota 2026-09-20 records_after_midnight 951247 by_kind {"catalog_event": 2943, "market_event": 948304}
+dota 2026-09-23 records_after_midnight 24171 by_kind {"catalog_event": 2998, "market_event": 21173}
+lol 2026-08-30 no-prev-23
+lol 2026-09-07 records_after_midnight 231557 by_kind {"catalog_event": 11644, "collector_event": 3, "market_event": 219910}
+lol 2026-09-10 records_after_midnight 448885 by_kind {"catalog_event": 12301, "collector_event": 5, "market_event": 436579}
+lol 2026-09-11 records_after_midnight 400524 by_kind {"catalog_event": 10168, "market_event": 390356}
+lol 2026-09-14 records_after_midnight 380182 by_kind {"catalog_event": 7908, "market_event": 372274}
+lol 2026-10-01 records_after_midnight 692142 by_kind {"catalog_event": 1140, "collector_event": 5, "market_event": 690997}
