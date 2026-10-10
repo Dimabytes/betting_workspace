@@ -88,7 +88,36 @@
 - Тест (`tests/test_trader_book_guard.py`): плохая книга YES, `run_core_cycle` бросает → `gateway.cancel` получил все
   ордера обоих токенов, `place` не вызван, `_quoter` не видит исключения.
 
-### A5. Потерянный WS CANCELLATION
+### A5. Позиция без свежего fair: SELL на ask, а не отмена
+
+Источник: STEP-010 `live-a-audit-fixes`, разбор 2026-10-10. Риск «купил и не продаёт».
+
+- Сейчас при открытой позиции ядро снимает SELL и ничего не ставит в двух случаях:
+  1. Сигналы модели приходят, но каждый не проходит проверку якоря дольше 45 с (`EXIT_FEED_STALE_SECONDS`).
+     Fair протух → `_blocked("anchor")` (`src/strategy/quoting.py:816`). Так стало после STEP-010.
+     До него SELL висел по старому fair, который считался свежим, и мог стоять далеко от рынка.
+  2. Фид модели молчит 45 с: `_on_exit_feed_timeout` (`src/trader/match_worker.py:1079`) шлёт `signal=None`
+     → `_blocked("stale_signal")` (`quoting.py:801`). Так было задумано и до ветки («drop fair so quoting pulls the SELL»).
+  SELL возвращается, только когда придёт рабочий якорь или сигнал. В recovery (`sell_only`) уже иначе:
+  `_recovery_exit` → `decide_sell(fair=None)` → `_join_ask_sell` (`quoting.py:894`, `:522`, `:469`).
+- Частота: в аудите самая длинная серия провалов якоря 17.7 с. Молчание фида 45 с при открытой позиции не мерили.
+- Правка: в `_quote_v5_latch` (`quoting.py:791`) для обоих случаев: если позиция > 0, снять только BUY и поставить
+  SELL через `decide_sell(fair=None)`, как в recovery. Без позиции — `_blocked`, как сейчас. Около 10 строк.
+  Docstring `_on_exit_feed_timeout` поправить: он больше не снимает SELL, а переводит его на ask.
+- Цена выхода: SELL встаёт пассивно на лучший ask и не пересекает спред. Без fair бот может продать ниже
+  справедливой цены, если рынок вот-вот пойдёт вверх. Это плата за гарантированный выход.
+  Kill-гейт, `min_life`, `unconfirmed_hold` и settling живут внутри `decide_sell` и работают как в recovery.
+- Бэктест: ядро общее (`src/backtest/strategy.py` → `strategy.engine.step`), поэтому правка попадёт туда сама.
+  Сценарий в бэктесте реальный: те же записанные сигналы и книги, провалы якоря там тоже есть.
+  Золотые follow300 сдвинутся там, где fair протухает при открытой позиции; их перезаписывает B9.
+- B не задет: у two-sided нет latch.
+- Тесты: позиция есть, провалы якоря 46 с → BUY сняты, SELL на join ask. STEP-010 тесты
+  `test_failed_anchor_streak_pulls_the_frozen_fair_sell_past_exit_age` и
+  `test_stripped_book_anchor_failure_pulls_sell_c31_past_exit_age` переписать: на 46 с SELL переезжает на ask,
+  а не снимается. Фид молчит 46 с при позиции → SELL на ask. Без позиции → `_blocked`, как сейчас.
+  Пришёл рабочий якорь → SELL снова считается от fair.
+
+### A6. Потерянный WS CANCELLATION
 
 Отчёт: `livebugs-hold.md`, раздел «Потерянный CANCELLATION».
 
@@ -108,7 +137,7 @@
 - Тест (`tests/test_trader_unsettled_buy_recovery.py`): строка младше 60 с, ордера нет в книге, в леджере 0 → proof 0.
   В леджере 17.07 → proof 17.07, даже если `get_trades` пуст.
 
-### A6. Логи для разбора
+### A7. Логи для разбора
 
 Отчёт: `livebugs-other.md`, раздел 3.
 
@@ -123,7 +152,7 @@
 
 Проверка: после деплоя на одной карте B есть trace, строки `cancels_out` с причинами и `reprice_since_ns`.
 
-### A7. Merge: повтор сразу при устаревшем nonce relayer
+### A8. Merge: повтор сразу при устаревшем nonce relayer
 
 Проверено по логам VPS (`docker compose logs live_b`, 2026-10-08):
 - 9034882975 (`grid-3011821-m1`), merge через 72 с после порога. В 14:46:00.748 первая попытка упала:
@@ -246,12 +275,12 @@
 - `SIMULATOR-PLAN.md`: убрать устаревшие разделы внизу («Итог в трёх строках», «Правка в esports-trader (сделана,
   не закоммичена)», «Шаги до…»). Тейп по принту давно закоммичен (`4773d0b1`). Оставить ссылку на этот план.
 - Записать в SIMULATOR-PLAN.md находки по логам VPS (2026-10-10):
-  - merge 72 с — устаревший nonce relayer (шаг A7);
+  - merge 72 с — устаревший nonce relayer (шаг A8);
   - 15:06:35: live решил снять бид 0.26 в 35.373, на границе удержания. HTTP-отмена шла 670 мс (решение → ответ;
     за день p50 76, p90 134, p99 702 мс, 11,906 отмен B), ордер ушёл из книги в 35.853. Это хвост задержки, а не
     недостающая механика. В остальных 7 «спасениях» отмена шла 60–90 мс.
   - В `docker compose logs live_b` строка `trader core buy settled ... wait_ms` даёт время решения об отмене BUY
-    (`ts − wait_ms`), строка `buy gone` — время HTTP-ответа. Логи ротируются (5 × 10 MB), поэтому шаг A6 всё равно нужен.
+    (`ts − wait_ms`), строка `buy gone` — время HTTP-ответа. Логи ротируются (5 × 10 MB), поэтому шаг A7 всё равно нужен.
 - Удалить экспорт сессии: `prediction-market-backtesting/2026-10-09-203242-local-command-caveat…txt`.
   Экспорт в `betting_workspace` удалён 2026-10-10.
 - SIMULATOR-PLAN.md закоммичен (`e0dd1cb`). Скрипты `sim/` в git не идут: `investigations` в `.gitignore` по решению владельца.
