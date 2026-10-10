@@ -55,3 +55,18 @@
 
 ---
 2026-10-11 01:11 STEP-004 review: step review: no findings; comments review: 2 docstrings deleted in d8e1de0c, expire_fair reshape skipped (SignalUpdate(signal=None) is the shared event).
+
+## 2026-10-11 01:40 CEST - STEP-005
+
+- Wallet B writes `core_trace.jsonl` with `TwoSidedTraceHeader`: TwoSidedPolicy keys, `policy_sha`, and `"strategy": "two_sided"`. Follow300 `decode_header_row` is unchanged.
+- Event rows store raw `reprice_since_ns` next to `plan`. It is not in the digest.
+- `_durable_cancel` writes `cancels_out` after the sqlite commit and before HTTP: venue id, core id, cancel reason, `BuyCancelClock.started_ns` (null for a SELL). `SlimJournal` keeps the kind.
+- Commit `761c45ed6c07254151bd86cb0e877e310282b516` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - B inherits `MatchWorker._open_trace`. The old override returned None.
+  - `decode_header_row` refuses a B header. Strip, viewer, and dashboard only need `kind=="header"` plus the opened clock.
+  - `decision_ns` is null for every SELL. `BuyCancelClock` is BUY-only.
+  - A fake host that reaches `_durable_cancel` needs `engine.journal`. `open_buy_rig` uses `SlimJournal(..., enabled=False)`.
+  - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+
+---
