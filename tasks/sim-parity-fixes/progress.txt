@@ -54,3 +54,4 @@
   - Golden follow300 smoke stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
 
 ---
+2026-10-11 01:11 STEP-004 review: step review: no findings; comments review: 2 docstrings deleted in d8e1de0c, expire_fair reshape skipped (SignalUpdate(signal=None) is the shared event).
