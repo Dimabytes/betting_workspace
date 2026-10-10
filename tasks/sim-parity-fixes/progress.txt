@@ -25,3 +25,4 @@
   - Fake hosts built with `object.__new__(WalletHost)` that cancel a BUY need `_cancel_acked_at` and `_closed`.
 
 ---
+2026-10-11 00:05 STEP-002 review: step review: named-return finding fixed in fe6b713c; comments review: wake docstring deleted in fe6b713c, _bind_order_terminal docstring kept (external-dependency clause).
