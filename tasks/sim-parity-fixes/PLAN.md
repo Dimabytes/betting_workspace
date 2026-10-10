@@ -10,15 +10,15 @@
   (`latency.md`, `livebugs-hold.md`, `livebugs-other.md`, `port.md`, `scope.md`, `fw-fork.md`, `fw-crash.md`, `stratz.md`).
   Каждый шаг ниже ссылается на свой отчёт: там `file:line`, цифры и тесты.
 - Код:
-  - `esports-trader` `main`: 12 коммитов не запушены (`origin/main..main`).
+  - `esports-trader` `main`: всё запушено 2026-10-10 (`3d2394e1`), включая фиксы аудита live A.
   - `esports-trader-cadence`: worktree, ветка `two-sided-live-cadence`, не закоммичено. Цикл poly-maker, задержки HTTP, CONFIRMED, книга +10 мс.
-  - `esports-trader-live-a-audit-fixes`: ветка `live-a-audit-fixes`, задача `betting_workspace/tasks/live-a-audit-fixes/feature.json`. STEP-001..011 сделаны (HEAD `c8b7afc9`), в `main` не слита.
+  - Фиксы аудита live A (задача `betting_workspace/tasks/live-a-audit-fixes/feature.json`, STEP-001..011) уже в `main`.
   - `prediction-market-backtesting`: ветка `local-day-native`, локальные коммиты `df17b59`, `e2cfebb`, форка нет.
   - Код расследования (не в продукте): `.../2026-10-08-liveb-postmortem/sim/replica/` (`replica_repo.py`, `tape_align.py`).
 - Правила: `esports-trader/AGENTS.md`, `betting_workspace/AGENTS.md`. Не пушить без просьбы. poly-maker не трогать.
   `py_clob_client*` не трогать.
 
-Принцип: бэктест моделирует live **после** починки (ветка `live-a-audit-fixes` и часть A ниже), а не live 2026-10-08 с его багами.
+Принцип: бэктест моделирует live **после** починки (фиксы аудита live A в `main` и часть A ниже), а не live 2026-10-08 с его багами.
 Окна баговых удержаний из `holds.json` в продукт не переносятся.
 
 Порядок: сначала live (часть A), потому что ядро общее и правки размера и пыли сами попадут в бэктест.
@@ -26,7 +26,7 @@
 
 ## Часть A. Live
 
-База: `main` после слияния `live-a-audit-fixes`. Эти шаги трогают те же файлы (`wallet_host.py`, `unsettled_buy_recovery.py`, `lifecycle.py`, `host_resources.py`).
+База: `main`, фиксы аудита live A уже в нём. Эти шаги трогают те же файлы (`wallet_host.py`, `unsettled_buy_recovery.py`, `lifecycle.py`, `host_resources.py`).
 
 ### A1. Урезание размера py_clob_client
 
@@ -232,7 +232,7 @@
 
 ### B5. Strip своих ордеров как в live после STEP-007..009
 
-- `src/backtest/strip_own_book.py` и вид книги в адаптерах привести к `book_strip.py` ветки `live-a-audit-fixes`:
+- `src/backtest/strip_own_book.py` и вид книги в адаптерах привести к `book_strip.py` в `main` (STEP-007..009):
   ключ цены 0.0001; свой ордер вычитается и из зеркала на соседнем токене по `1 − price`; уровень с остатком-пылью не лучший.
 - Для архива B вычитается только B, включая его зеркало. A в книге B остаётся чужим.
 - Откуда разрыв: свои ордера сима в книгу данных Nautilus не попадают, ядро сима их и так не видит (`_snapshot_books`
@@ -289,7 +289,7 @@
 ## Push
 
 - `prediction-market-backtesting` — в свою приватную репу (B1).
-- `esports-trader` `main` (12 коммитов и всё из этого плана) — не пушить, пока владелец не скажет.
+- `esports-trader` `main` (всё из этого плана) — не пушить, пока владелец не скажет.
 
 ## Не делаем
 
