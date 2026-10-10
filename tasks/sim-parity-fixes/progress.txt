@@ -11,3 +11,4 @@
   - A sub-cent remainder can still rest in Nautilus after the core closes the BUY (`strategy.py` exact Decimal compare). Left for STEP-008/009.
 
 ---
+2026-10-10 23:23 STEP-001 review: step review: 3 findings (1 fixed in 95c431e3, docstring and HALF_SHARE_TICK skipped by implementer with reasons); comments review: findings, kept docstring under keep clauses.
