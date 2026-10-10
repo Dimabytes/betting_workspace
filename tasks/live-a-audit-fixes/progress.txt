@@ -1,0 +1,252 @@
+## 2026-10-10 12:30 - STEP-001
+
+- Live A diagnostics (`mode=live`, `strategy=follow300`) write schema v1 JSONL under `data/trader/wallet/diag/` from a background writer. `coverage.json` is the retention index. Read with `iter_diag_records`.
+- Kinds/stages: `venue` (call_start, call_end, http, io_error, io_cancelled, place_parse, cancel_parse), `health` (loop_lag, stall, sqlite, gc, resources, writer_gap), `event` (received, parsed, applied, ignored, command, terminal, core_outbox, core_applied, session_bound), `book` (strip, strip_use), `rest_proof` (scan), `diag` (process_start, process_stop, evicted).
+- ID chains: `command_id` place dispatch to result; `call_id` call_end to http, io_error, and place_parse; `in_seq` plus venue id for the user-stream terminal path; `strip_id` on strip and strip_use, joined to a core trace by `yes_ts_ns`; `stall_id` on stall and the following loop_lag.
+- Measurement (`scripts/measure_diag_overhead.py --seconds 20`, 8ms pace, start settings): arm B minus A books p99 +132us, sqlite p99 +138us, http p99 +152us, CPU +2.7 points. Arm C loop-lag p99 0.023ms. Drops 0. Diag-off `books_from_md` tight loop p99 9.6us versus the saved baseline 10.0us.
+- Production estimate from the local Oct 5-9 journal (107.7h): peak hour orders_out 411, user_order 936, user_trade 246. Three busy core traces: BookUpdate 25.1k, 23.5k, and 20.7k per hour. Heartbeat is every 5s and reconcile every 20s. Start limits kept (7 days, 3072MB, 64MB segments). The unpaced spin missed the CPU budget; `strip_use` is now written only when the strip fingerprint is new, and the mix is paced. That passed without raising caps.
+- The operator must confirm free space under `data/trader_live` before deploy.
+- Known gaps: positions raw body is unavailable (fork `httpx.AsyncClient`); `WalletCatalogStore` is untimed; dust `market_order` has no logical call; SQLite busy wait is folded into the statement that opens the write transaction; VPS free disk is unconfirmed.
+- Handoff: STEP-002 uses call_start/call_end, refused_closed, cancelled, and late http plus place_parse. STEP-003 uses not_buy_terminal with side=SELL. STEP-004 uses no_wait_row, the cancel insert, rest_proof/scan zero_kind, and proof apply. STEP-005 adds a book-guard stage. STEP-006 adds a qty compare. STEP-007/008/009 edit `book_strip.py`. STEP-010 adds anchor context. STEP-011 reads venue/http `/balance-allowance` and VenueCall("collateral").
+- **Learnings for future iterations:**
+  - Install only inside `open_wallet_host` after `Engine()`, and only for live follow300. Shared hooks stay installed for B and paper and emit nothing.
+  - `gateway._io` must run the copied context on the executor thread or HTTP records have no `call_id`.
+  - httpx 0.28 `response.elapsed` can raise after `read()`; the hook records 0.0 instead of dropping the row.
+  - `register_worker` reads `_yes` / `_no` only while diagnostics are on. Test fakes are SimpleNamespaces without those fields.
+  - `sqlite3._Parameters` exists in the type stubs and not at runtime.
+  - A worktree has no `.env`. `env_value` reads the repo `.env`. Oddin startup tests need `ODDIN_BRAND_TOKEN` there. Do not commit that file.
+
+## 2026-10-10 13:10 - STEP-001 cut
+
+- Replaced the diagnostics subsystem with stdlib logging (`84846fd4`). Whole step vs `6787bf3f`: 15 files, +1018/−111. JSONL via `QueueHandler` + `QueueListener` + `RotatingFileHandler` (gzip rotator, `backupCount` × `maxBytes`). Stall stacks come from `faulthandler.dump_traceback_later`, re-armed on the host loop.
+- Kept: redacted place/cancel/open_orders/trades bodies, one REST BUY scan (rows, reject reasons, matched ids, sums), user-stream received/parsed/applied/ignored via `super()._handle`, one book walk with a strip log, a stall file. Dropped: store, probes, record types, artifacts, coverage, eviction, GC/cgroup/CPU/RSS, the watchdog, command/outbox emits, and `scripts/measure_diag_overhead.py`.
+- Later steps cannot use `call_id`, `place_parse`, `strip_use`, or `coverage.json`. Those records are gone. A full queue increments a drop counter and does not raise. A diagnostics failure must not change trading.
+
+## 2026-10-10 13:20 - STEP-001 second review
+
+- `1ace90a2`. Book walk stops at the chosen foreign level, so a bad tail cannot change or raise the trading book. The JSON formatter keeps its own secret list through listener shutdown; `pk` and builder creds are registered. Whole step vs `6787bf3f`: 15 files, +1226/−110.
+- Also: HTTP query plus a request record, `run_id` / `wall_ns` / `mono_ns`, REST received-vs-found counts, stall.log capped at 1MB. Trade applied/ignored is not reconstructed. Seven-day file age is still only `backupCount`.
+
+---
+- 2026-10-10 STEP-001 review: step review (sol-xhigh) 10 findings + comments review (swe-high) 8 DELETE/11 MUST KILL; user cut the step to stdlib diagnostics; fresh sol-xhigh review 7 findings (2 P1) fixed in 1ace90a2. passes=true.
+
+## 2026-10-10 13:50 - STEP-002
+
+- Root cause: `_durable_place` was outside the latch and its shield. Reorder in `_install_runtime_seams` puts place and cancel journaling inside the shield.
+- Closed latch: no command row. Caller cancel: the late result is recorded and bound to the core. Map end: drain before `cancel_market`. Boot: `prepared` becomes `known_not_sent`. `dispatch_started` becomes `dispatched` / `unknown` / consumed only after cancel plus `fence_until`.
+- Diag lines `place_outcome` and `place_retired` carry `command_id`.
+- **Learnings for future iterations:**
+  - Keep the inventory guard above the latch. Its context variables must stay in the caller's context.
+  - Discovery `run()` fakes are `object.__new__(WalletHost)` with no sqlite store. They stub `_retire_unfinished_places`. A real host always has a store.
+  - `FakeWalletHost` owns a `ShutdownLatch` because `_quiesce` drains it.
+
+---
+
+## 2026-10-10 14:00 - STEP-002 fix
+
+- P1: `_quiesce` now requires the latch drain and the REST fence. A drain timeout takes `keep_quiet` and does not detach, even when REST is empty.
+- Comments review: no findings, nothing to change.
+- **Learnings for future iterations:**
+  - `ShutdownLatch.drain` returns False on timeout. Discarding that Boolean lets an empty REST snapshot look proven while a POST is still in flight.
+
+---
+- 2026-10-10 STEP-002 review: step review (sol-xhigh) 1 P1 (drain timeout declared proven) fixed in a5f55498; comments review (swe-high) clean. passes=true.
+
+## 2026-10-10 14:27 - STEP-003
+
+- `parse_cancellation` returns `OrderCancellation(venue_id, side)`. `_on_order_terminal` routes SELL first, and STEP-004 reworks the BUY branch below it.
+- A WS SELL cancel acks only a `live` core SELL via `note_cancel_result`. A `canceling` SELL stays with its REST answer, so the core-requested cancel cadence is unchanged.
+- Diag: `applied` / `ignored` with `kind="sell_cancel"`, `order_id`, and `reason="no_live_sell"` on ignore.
+- **Learnings for future iterations:**
+  - Seed a test SELL with `occupy_sell`. Without its record, `persist_core_snapshot` writes no binding and the restored order loses its venue id.
+  - The live check has to sit in front of `note_cancel_result`. That method wakes the session even when the core ignores the id.
+
+---
+
+## 2026-10-10 14:40 - STEP-003 fix
+
+- A fill after the venue cancel left an unbound 18.22 replacement in the exit slot, so the next plan sold nothing. That sell is retired with the existing undispatched path before the Wake, and the same cycle plans the remainder.
+- `applied` is logged only after `note_cancel_result` returns. A reverted persist emits no `applied` and does not wake.
+- **Learnings for future iterations:**
+  - The fill test and `core_now_ns` must share one clock. A stale callback clock skips the replacement and hides the gap.
+
+---
+- 2026-10-10 STEP-003 review: step review (sol-xhigh) 2 P2 + 1 P3, comments review 1 DELETE; all fixed in bd64ef9c (finish_cycle now retires a stale unbound SELL). passes=true.
+
+## 2026-10-10 15:25 - STEP-004
+
+- A terminal BUY proof with no row opens the row and proves it (`_open_unsettled_buy`). A row can now exist for a BUY that the core still holds; `BuySettled` drops it at CONFIRMED.
+- All proofs pass `_apply_unsettled_proofs`: a proof below the CONFIRMED sum is ignored (`below_confirmed`). A REST zero needs two consecutive reads (`first_zero`).
+- Diag: `applied` / `ignored` with `kind="buy_proof"`, `order_id`, `requested`, `matched`, `confirmed`, `reason` in (`no_owner`, `below_confirmed`, `first_zero`).
+- **Learnings for future iterations:**
+  - Status `MATCHED` is terminal even with `size_matched < original_size` (gap below 0.05). Cover against `size_matched`, not `original_size`. STEP-006 compares quantities with the same 0.005 tick and must not widen it.
+  - `object.__new__(WalletHost)` fakes that call `_reconcile_unsettled_buys` need `_rest_zero_ids`. The recovery `_host` sets it.
+
+---
+
+## 2026-10-10 15:33 - STEP-004 fix
+
+- P3: captured diagnostic events are a frozen `CapturedEvent` (`stage`, `fields`) instead of a bare tuple.
+- Skipped the comments-review delete of the test file's `# pyright:` line. Removing it fails strict basedpyright on private access and `object.__new__` fakes. The reviewer's config-wide alternative covers ~100 existing test files and is outside this step.
+- **Learnings for future iterations:**
+  - A two-field test record still counts as our own value. Use a frozen dataclass.
+
+---
+- 2026-10-10 STEP-004 review: step review (sol-xhigh) 1 P3 fixed in 21e3e890; comments review pyright header skipped (needed by basedpyright). Open for the user: 1 of 63 REST conflict stays held. passes=true.
+
+## 2026-10-10 16:08 - STEP-005
+
+- follow300 wraps `engine._recompute_locked`. A missing, empty, or crossed YES book runs the core with `books=None` and sends only `to_cancel` through `gateway.cancel`. two_sided is unchanged.
+- `quote_cycle` calls `run_core_cycle`. `book_guard` is logged only when a cancel is sent (`guard`, `block`, `reasons`, `order_ids`, `ok`).
+- **Learnings for future iterations:**
+  - `open_wallet_host` was already at the ruff complexity limit. The follow300 check is `_install_follow300_book_guard`.
+  - `books=None` cancels SELLs too. That is the existing `stale_book` policy, the same as a bad NO book.
+  - `set_markets` keeps earlier books via `setdefault`. Seed every market before writing levels.
+  - `test_late_fill_reduces_replacement_before_dispatch` already fails on 21e3e890. It is not this step.
+
+---
+
+## 2026-10-10 16:29 - STEP-005 fix
+
+- The late-fill failure is from `bd64ef9c`: `_forget_stale_unbound_sells` rejects the oversized unbound sell and the same-cycle wake places the reduced size. The next wake then sees that pending sell as occupying the exit and omits it, so a plan that was taken but not bound never dispatches the reduced replacement.
+- `finish_cycle` re-offers that sell from `_last_batch` when it is still pending, unbound, and sized to `share_floor(inventory)`. A bound sell is not repeated. STEP-003 still emits the reduced size on the first cycle.
+- Full suite without goldens: 3144 passed.
+- **Learnings for future iterations:**
+  - Same-cycle retirement and the late-fill test want the reduced sell on different cycles. Keep the first-cycle place, and repeat it only while it is still unsent.
+  - The earlier note that this test fails on `21e3e890` was wrong. It passes on `8788a147` and fails on `bd64ef9c`.
+
+---
+- 2026-10-10 STEP-005 review: step review PASS, comments review clean. Orchestrator bisected a STEP-003 regression (bd64ef9c broke test_late_fill_reduces_replacement_before_dispatch); fixed in de19a3e0; full suite 3144 passed. passes=true.
+
+## 2026-10-10 17:05 - revert core SELL special cases
+
+- `d7332da5` drops `_forget_stale_unbound_sells` and `_unsent_sell_places` from `finish_cycle`. Kept the post-commit `applied` log, the PlacedQuote helper, and the reverted-cancel test.
+- Cancel then partial fill: the first cycle places no SELL; the next places 0.82 x 13.22. Fill then cancel still places that size immediately, and the following cycle does not repeat it.
+- `test_late_fill_reduces_replacement_before_dispatch` was not edited. Full suite without goldens: 3144 passed.
+
+- 2026-10-10 STEP-003 follow-up: review-core-sell (sol-xhigh) found P1 duplicate-SELL risk in de19a3e0; user chose to revert the finish_cycle special cases (bd64ef9c core part, de19a3e0) in d7332da5 and accept a one-cycle delay after venue cancel + partial fill. Full suite 3144 passed.
+- 2026-10-10 review-all-005 (opus-xhigh, steps 1-5 together): no P1. User decisions: fix F1(a), F2, F6, F7, F8; keep F5 (STEP-004 also for B); F3 (boot retire runs once) and F4 (terminal before POST reply dropped) accepted as residuals.
+
+## 2026-10-10 17:48 - review-all-005 fixes
+
+- F1 (`12500c81`): `_durable_place` runs `note_place_result` / `write_quote` in `finally`, so an accepted place stays bound when `record_dispatch_results` raises and is not placed again.
+- F2 (`bf1c65ee`): the latch counts in-flight places per condition id. `_quiesce` waits only for this map. Cancels do not count.
+- F6 (`bb67f66e`): close logs `trader diag drops=%d`. `queue_drops()` is gone.
+- F7 (`bb67f66e`): a YES book missing one side is `one_sided`.
+- F8: boot retire uses `get_session` and skips `CoreSchemaError` (`12500c81`); diag limits are a frozen dataclass read from `diagnostics.toml` (`bb67f66e`); REST rejects are one `Counter` (`c5f3328a`); `_best_foreign` returns `None` when nothing is left (`c5f3328a`); the wake docstring no longer says the fork skips the core on a one-sided book (`bf1c65ee`).
+- F3, F4, F5 unchanged. `passes` unchanged.
+- Full suite without goldens: 3146 passed, 72 warnings, 2 subtests passed in 48.69 s. `git diff --shortstat d7332da5..HEAD`: 13 files changed, 222 insertions(+), 153 deletions(-).
+- Review of the fixes after review-all-005: sol found one P3 (leftover `_key_from_row`), comments review found one docstring sentence; fixed in `a3f46d70`. Second round opus-xhigh: no P1/P2, two P3 (flaky timing assert, `Counter` for in-flight places); fixed in `e76163b1`. `core_persistence.py` stays at 1001 lines. Full suite: 3146 passed.
+
+## 2026-10-10 18:41 - STEP-006
+
+- `StrategyState.share_residue` records the amount `_credit_sell_inventory` zeroes after a SELL. A larger SELL spends it. The trading drop is unchanged.
+- `_position_mismatch` accepts a store size from the core size up to the core size plus that residue plus half a tick, and still accepts a raw half-tick match. `share_qty_matches` compares raw sizes and treats two sub-tick sizes as equal.
+- The residue is on the checkpoint with a default. Schema stays 3. A mismatch logs `position_mismatch` with raw core, residue, and store.
+- Known limit: a missed BUY smaller than the residue plus 0.005 is not detected. The residue only grows within one map, by less than 0.01 per sub-tick exit.
+- Full suite without goldens: 3164 passed, 72 warnings in 30.46 s. `passes` unchanged.
+- **Learnings for future iterations:**
+  - `share_qty_matches` no longer treats 198.35 and 198.3567 as equal. That gap needs residue or it enters recovery.
+  - Restore a flat checkpoint, then set held inventory. `apply_checkpoint` forces `sell_only` when inventory is held and rungs are empty, and `_position_mismatch` skips a `sell_only` core.
+  - `msgspec.convert` fills a missing `share_residue` with `(0.0, 0.0)`. Do not bump `schema_version`.
+
+## 2026-10-10 18:53 - STEP-006 fix
+
+- `apply_recovery_verified` subtracts a positive inventory increase from `share_residue`. A failed SELL that comes back no longer leaves that dust in both the position and the residue. A verify that stays at zero keeps the residue.
+- Full suite without goldens: 3165 passed, 72 warnings in 36.95 s. `passes` unchanged.
+- **Learnings for future iterations:**
+  - Residue is added on MATCHED, before FAILED. Recovery has to spend it when those shares return, or the next exit counts them again.
+
+- STEP-006 review: sol P2 (failed SELL + recovery counted the residue twice and hid a 0.02 missed BUY) fixed in `871cd0e0`; comments review: one old test docstring deleted. Full suite 3165 passed. Second opus round runs after STEP-008.
+
+## 2026-10-10 19:13 - STEP-007
+
+- The live strip keys own size with `_price_key` (`round(price / 0.0001)`) instead of `price_cents`. One own order is subtracted only from the book level at that exact price. `price_cents` and the `QUOTE_GRID` import are gone from `signals.py`. The diag own note field is `key`.
+- On a sub-cent book the stripped bid is higher or the stripped ask is lower, and a 0.01 join can move one cent toward the touch. The two audited snapshots keep their rungs. A 0.01-tick market is unchanged. The backtest strip still uses 0.01.
+- Full suite without goldens: 3174 passed, 72 warnings, 2 subtests in 51.32 s. `passes` unchanged.
+- **Learnings for future iterations:**
+  - `_price_key` lives in `book_strip.py`. STEP-008 and STEP-009 edit that file. The mirror price is `_price_key(1.0 - price)`.
+  - Pin the strip clock in a core-plan test (`time.time` and `local_ts` both 1000.0, `now_ns` 1e9). A slow run otherwise can skip own orders as `accepted_after_snapshot`, and the old cent key would still pass.
+  - `math.nextafter(0.38, 1.0)` rounds to the same key as 0.38 (3800).
+
+---
+- STEP-007 review: sol PASS, no findings; comments review: no findings. Commit `7b979aec`, full suite 3174 passed.
+
+## 2026-10-10 19:37 - STEP-008
+
+- `_best_foreign` rounds `size - mine` to 6 decimals before the foreign-best test and returns that rounded size. A partial-fill residue no longer stays as the best level. The strip walk row adds `foreign` next to raw `left`.
+- Full suite without goldens: 3185 passed, 72 warnings, 2 subtests in 29.37 s. `passes` unchanged.
+- **Learnings for future iterations:**
+  - Round the remainder, not the inputs. One fill, several fills, and several own orders at one key all land in that subtraction.
+  - A real `0.000001` foreign size stays. A negative leftover from venue truncation already strips and still does.
+  - Pin the strip clock as in STEP-007. The SELL case needs `now_ns` past the 1 s min life and `last_buy_ns` far in the past, or the hold gates hide the reprice.
+
+---
+- STEP-008 review: sol PASS, no findings; comments review: no findings. Commit `148ca768`, full suite 3185 passed.
+- Second review round STEP-006..008 (opus-xhigh, e76163b1..148ca768): no P1/P2; P3 one-line `share_qty_matches` and rename to `_rebase_share_residue` fixed in `9a922151`; moving strip tests to a new file skipped. Full suite 3185 passed.
+
+## 2026-10-10 20:22 - STEP-009
+
+- `_own_qty` also subtracts an order on the other token and the other side, at `_price_key(1.0 - price)`. The diag note adds `mirror`. `_own_skip`, `_price_key`, and the 6-decimal remainder are unchanged.
+- seq 13967 YES bid is `0.51 × 73.43` and `book_p` is `0.525`. seq 7367 also cancels SELL c31 with `reprice`.
+- Full suite without goldens: 3199 passed, 72 warnings in 28.26 s. `passes` unchanged.
+- **Learnings for future iterations:**
+  - One order matches native or mirror for a given book side, never both. A native order and a mirrored order at the same key are two venue orders, so their sizes add.
+  - `_price_key` absorbs `1.0 - price` float error (`1.0 - 0.57` is `0.43000000000000005`, key 4300).
+  - A test book that is not the venue mirror will lose the complementary side. Move the fixture off the mirror price, or build both books through the same levels.
+  - Pin the strip clock per book. An accept between the YES stamp and the NO stamp strips only the later book.
+
+---
+
+## 2026-10-10 20:29 - STEP-009 fix
+
+- P3: `_mirrored_books` returns `_MirroredBooks`, and the expected tops are `_BookTop` with `bid`, `bid_size`, `ask`, `ask_size`. Production strip is unchanged.
+- Comments review: no findings.
+- Full suite without goldens: 3199 passed, 72 warnings in 26.33 s. `passes` unchanged.
+
+---
+- STEP-009 review: sol PASS with one P3 (named test fixture fields) fixed in `35f8b6d1`; comments review: no findings. Full suite 3199 passed. The xdist `PaperGateway requires paper=True` failure was a host-resources test leaking `polymaker.engine.ExecutionGateway`; the fix is `c8b7afc9`.
+
+## 2026-10-10 20:49 - STEP-010
+
+- Failed-anchor `_rebuild_latch` keeps the previous `fair_ts_ns`. With no previous latch it still uses the rejected signal time and `fair_valid=False`.
+- `LiveCore.apply` logs one `anchor` line when a new signal rebuilds the latch (`accepted`, `fair`, `fair_valid`, `fair_ts_ns`, `age_s`, `signal_ts_ns`, `book_p`, `anchor_p`). A re-anchor does not change `signal_ts_ns` and is not logged.
+- Tests: `tests/test_strategy_anchor_age.py` (5 items) and 4 items in `tests/test_trader_session_core.py`. seq 7367 setup is `_seq7367_state` / `_seq7367_books`. `_prime` uses `_signal_at`.
+- Commit `2f4629ab`. Full suite without goldens: 3208 passed, 72 warnings in 32.82 s. basedpyright 0 errors. `passes` unchanged.
+- **Learnings for future iterations:**
+  - Only `fair_ts_ns` moves. `signal_ts_ns` stays the new signal so `_sync_latch` still sees it as processed.
+  - A chain of failures with no prior latch keeps the first rejected time. Readers check `fair_valid` first, so that time gates nothing.
+  - The checkpoint has no latch. A restart starts at `latch=None`.
+  - B uses `TwoSidedPolicy` and never sets `state.latch`, so `_log_anchor` returns immediately.
+
+---
+- STEP-010 review: sol PASS, no findings; comments review: no findings. Commit `2f4629ab`, full suite 3208 passed. Residual: goldens (not run) can differ where a failed-anchor streak passes 45 s.
+
+## 2026-10-10 21:20 - STEP-011
+
+- Live `install_strict_rest` replaces `gateway.collateral_balance` with `parse_collateral_usdc`. The parser moved unchanged from `dashboard.balance` to `shared.utils.trading`. A bad reply is 0.0 and BUY stops with `no_cash`. One diag row `collateral` logs the raw reply and the USDC value.
+- Commit `68476a1f`. Full suite without goldens: 3215 passed, 72 warnings, 2 subtests passed in 30.29 s. basedpyright 0 errors. `passes` unchanged.
+- **Learnings for future iterations:**
+  - `trader` does not import `dashboard`. Shared parsers live in `src/shared`.
+  - Both live callers look up `gateway.collateral_balance` at call time, so the seam covers the cache snapshot and the B merge refresh.
+  - `install_strict_rest` returns immediately when `engine.paper` is true. Paper keeps the fork method.
+  - A decimal, nonfinite, missing, or non-dict reply is 0.0. `PairMerger` keeps the previous cache value when the new one is not above 0.
+
+## 2026-10-10 21:20 - STEP-011 release
+
+- Commit `68476a1ffc41d80f022e14f67dd59257127450b9`. Full suite: 3215 passed, 72 warnings, 2 subtests passed in 30.29 s. Release set: 642 passed, 8 warnings, 2 subtests passed in 4.87 s. basedpyright 0 errors, 0 warnings, 0 notes.
+- Versions: Python 3.13.2 (`.venv`), `py-clob-client-v2` 1.0.2, `poly-maker` fork `4f32103591c9582ccd012bdf10f77d86e5879444` (unchanged), branch base `6787bf3f`.
+- Not run: goldens (`tests/test_extraction_oracle.py`, `tests/test_follow300_replay.py`), backtests, simulator, VPS, deploy, restart.
+- Known limits: STEP-001 gaps (positions raw body not captured, VPS free disk unconfirmed, 7-day age is only `backupCount`); review-all-005 F3 (boot retire runs once) and F4 (terminal before the POST reply dropped) accepted; STEP-003 one-cycle delay after a venue cancel plus a partial fill (`d7332da5`); STEP-006 missed BUY smaller than residue plus 0.005 is not detected; STEP-007 a sub-cent book can move a 0.01 join one cent toward the touch, backtest strip still uses 0.01; STEP-009 xdist `PaperGateway requires paper=True` was a host-resources leak of `polymaker.engine.ExecutionGateway`, fixed in `c8b7afc9`; STEP-009 backtest `strip_own_book` does not strip the mirror; live and sim `book_p` differ where our complementary order is at the touch; STEP-009 also changes B: B's fair and band use books without B's own mirrored bids; STEP-010 goldens can differ where a failed-anchor streak passes 45 s; STEP-011 the reply format is confirmed: on 2026-10-10 the live dashboard read the same `/balance-allowance` reply with the same parser and showed $6027.60; a failed read blocks BUY until the next good read, a 309-to-4300 digit balance can raise `OverflowError`, and the frozen fork CLIs keep the old heuristic.
+
+---
+- STEP-011 review: sol PASS, no findings; comments review: no findings. Commit `68476a1f`, full suite 3215 passed, release set 642 passed.
+
+## 2026-10-10 21:36 - STEP-009..011 second review fix
+
+- F1: `_install_resource_fakes` snapshots `ExecutionGateway`, `construct_quotes`, and `reconcile` on `polymaker.engine` so monkeypatch restores them. `fake_close` still skips `WalletHost.close`.
+- F2 and F3: the STEP-011 release note now lists the mirror-strip gap in `strip_own_book` and that B's fair uses the stripped books.
+- Commit `c8b7afc9`. Full suite without goldens: 3215 passed, 72 warnings, 2 subtests passed in 27.13 s. Bad order (paper host test, then `test_trader_book_guard.py`): 15 passed. `passes` unchanged.
+
+---
+- Second review round STEP-009..011 (opus-xhigh, 9a922151..68476a1f): production code PASS; P2 test leak of fork globals fixed in `c8b7afc9`; P3 release-note gaps (backtest strip has no mirror, B gets the mirror strip) added to progress.txt. Full suite 3215 passed. All 11 steps pass.
