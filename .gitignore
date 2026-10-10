@@ -15,3 +15,6 @@ investigations/**/work/
 price-forecasts
 2026-10-01-dota-feature-retrain
 codex-session-*.md
+tasks/*/orchestrate/
+runs
+investigations
