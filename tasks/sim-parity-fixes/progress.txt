@@ -1,0 +1,13 @@
+## 2026-10-10 23:15 CEST - STEP-001
+
+- Signed size is `floor_to_signed_shares` in `src/shared/utils/trading.py`: `share_floor`, then the client's `floor(x * 100) / 100` until it stops changing. Used by `buy_share_quantity`, `_leg_target`, and `_sell_quantity`.
+- A BUY is partial only when `share_floor(submitted - filled) > 0.0`. A sub-cent remainder closes the order and frees the rung.
+- Commit `e5c3dceead76fdaf39dbe36e2f8d7a2a1bb62c3b` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - One `floor(share_floor(x) * 100) / 100` is not a client fixed point. 0.58 becomes 0.57, which the client signs as 0.56. Repeat round-down (at most 4 steps, at most 0.04 shares).
+  - Do not import `py_clob_client_v2` from `src/shared`. The test imports the real `round_down`.
+  - `share_floor` stays for comparisons. Whole-share `min_order_size` is already a fixed point.
+  - Golden follow300 smoke is expected to drift. STEP-014 rewrites it. This step ignores `tests/test_follow300_replay.py`.
+  - A sub-cent remainder can still rest in Nautilus after the core closes the BUY (`strategy.py` exact Decimal compare). Left for STEP-008/009.
+
+---
