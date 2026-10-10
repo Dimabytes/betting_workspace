@@ -1,0 +1,116 @@
+## 2026-10-10 15:00 CEST - STEP-001
+
+- Journal hour now steps forward inside append from the record's receivedAtUs, one hour at a time. Gzip runs on a queue outside the lock. An existing .gz is never replaced. The rotation loop rotates, then sleeps to the boundary of that same clock read.
+- **Learnings for future iterations:**
+  - Effect.callback installs an interrupt finalizer only when the register function takes the AbortSignal. A one-arg fake sleep hangs Fiber.interrupt.
+  - Logfmt level tokens are Warn and Info, not WARN and INFO.
+  - TestClock still cannot express an early wake. Keep the custom Clock.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-001 review: step review (sol-xhigh) PASS no findings; comments review (swe-high) PASS, 0 new comments; fix f252f96 removed leftover inline comments in openJournal.
+
+## 2026-10-10 15:36 CEST - STEP-002
+
+- Live rotation checks a trailing newline and the sha256 round trip. It no longer decodes lines. `decodeJournalLine` is one module-level decoder. Startup recovery drops a torn tail or an undecodable last line into `.jsonl.dropped`, then gzip of a stale partial uses the live path. `receivedAtUs` is stamped when the stream offers a frame.
+- **Learnings for future iterations:**
+  - Stale sweep must `recoverPartial` before `rotatePartialFile`. Rotation no longer returns first/last records.
+  - A bad line is fatal only when another complete line follows it. A bad last line is dropped.
+  - `receivedAtUsFromClock` is `currentTimeNanos / 1000`. `TestClock.setTime(ms)` stamps `ms * 1000`.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-002 review: step review (sol-xhigh) APPROVE no findings; comments review (swe-high) 0 new comments, 7 old DELETE; fix d48993e removed them.
+
+## 2026-10-10 16:07 CEST - STEP-003
+
+- Replay counts day-phase rows dropped by sameDate into diagnostics.rowsOutsideDate. Manifests always carry missingHours. A non-empty list is with_known_gaps (unless skips win) plus a WARN. Skipped candidate days log compaction skipped with a reason on every pass. A day without checkpoints/D-1.json fails seed.missing when an earlier archive day exists; the first day still starts cold.
+- **Learnings for future iterations:**
+  - rowsOutsideDate counts rows, so one mirrored trade is 2. Neighbor D+1/00 drops are not counted.
+  - missingHours is informational coverage of HH.jsonl.gz names, not a process gap. with_skips still wins.
+  - The seed guard checks existence only and runs before replay. A corrupt checkpoint still fails at stage=replay; the next day then fails seed.missing.
+  - Logfmt level token is Warn. Schema.decodeSync inside an Effect generator is a diagnostic message, not a warning.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-003 review: step review (sol-xhigh) PASS, 1 nonblocking test nit (skipped); comments review (swe-high) 0 new comments, 5 old JSDoc DELETE; fix 72cd6e9 removed them.
+
+## 2026-10-10 16:41 CEST - STEP-004
+
+- Boot sweep keeps chunks/<date> while the ledger has a commit whose fingerprint is outside both manifests' scans, or the ledger cannot be read. coveredTokens credits only tokens that could trade that day in the commit's own snapshot. matchForFill returns the next OrdersMatched after the fill, or null. Snapshots are written once per fingerprint and pruned when nothing references them.
+- **Learnings for future iterations:**
+  - Sweep takes ledger.commits. A missing or unreadable manifest still keeps the directory. Delete only when every commit fingerprint is already in provenance.scans.
+  - Old snapshots still have startAt: null. couldTradeDuring treats that as included, matching the scans that wrote those artifacts.
+  - A fill with no later OrdersMatched fails the chunk as unmatched. Do not bump ONCHAIN_DECODER_VERSION for that.
+  - Prune builds the referenced set from every ledger day before the first delete. A corrupt day fails the prune; runOnchainPass logs WARN and continues.
+  - Two brick paths stay open: a lost or corrupt onchain manifest, and a token whose window shrinks before publish then widens later. Both still credit a commit with no artifact. The owner chose the could-trade proxy over checking artifact files.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-004 review: step review (sol-xhigh) PASS no findings; comments review (swe-high) clean, 2 old doc DELETE; fix 9c9184e removed them. Two artifact.missing brick paths left open by plan.
+
+## 2026-10-10 17:15 CEST - STEP-005
+
+- Onchain tick joins a day's WS trade ids with onchain tx hashes after the pass, writes manifests/reconcile/<date>.json once, and adds a reconcile line to the Telegram pass. Five or more misses within 120s is a STALL window. No RPC. Existing reconcile files are not recomputed.
+- **Learnings for future iterations:**
+  - File lists come from the two manifests. An empty list is a typed empty subquery with hive_partitioning=false, because read_parquet of nothing fails and a glob would see stale partitions.
+  - Notify when reconciles.length > 0. The onchain day usually publishes on a different pass than WS compaction, so a reconcile-only pass would otherwise stay silent.
+  - A date with both manifests counts as one of the 7 attempts even when the join fails. A missing manifest does not.
+  - STEP-008: the 10 lost-hour-00 days will get STALL reconcile reports at the STEP-007 deploy, before recovery. After the STEP-008 recompaction, delete manifests/reconcile/<D>.json for those 10 dates so the next pass recomputes them. STEP-008 currently says to keep them.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+
+## 2026-10-10 17:27 CEST - STEP-005 fix
+
+- A failed read of manifests/onchain warns and skips that game. NotFound stays an empty list, with no warning. A failed stat of the reconcile file warns and skips that date, and does not publish over the existing bytes.
+- **Learnings for future iterations:**
+  - FileSystem.exists already returns false for NotFound. Only other exists failures are skips. readDirectory NotFound is the normal empty directory.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-005 review: step review (sol-xhigh) REQUEST_CHANGES P2 (FS errors treated as absence); comments review (swe-high) clean, 1 optional DELETE skipped; fix d87388f skips with WARN on non-NotFound errors + 3 tests.
+
+## 2026-10-10 17:55 CEST - STEP-006
+
+- journal-resplit cuts a lost hour 00 out of the tail of D-1/23 into a new D/00. Dry run only reports counts. A real run holds the compactor lock, checks that the two gunzip halves match the original, and keeps the original under .recovery.
+- **Learnings for future iterations:**
+  - Stream.take of the gunzip line stream did not fail. Head and tail republish byte for byte.
+  - writeJournal of a zero-byte partial throws WriteZero. The existence fixture writes one newline.
+  - catalog() wants a branded Microseconds. Brand with decodeSync outside the generator.
+  - The hour-15 sample dry run (no midnight tail) took 3.274s wall. Hash unchanged. Use that as the VPS scan-speed estimate.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+
+## 2026-10-10 18:06 CEST - STEP-006 fix
+
+- A real resplit now checks the files and scans under the compactor lock, then publishes in that same hold. A second run sees D/00 and stops. Dry run still takes no lock.
+- **Learnings for future iterations:**
+  - The lock only helps if the scan that chooses the cut is inside it. A scan from before acquire can republish an empty tail over a good hour 00.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-006 review: step review (sol-xhigh) REQUEST_CHANGES P1 (resplit inspection outside lock, concurrent run could overwrite D/00); comments review (swe-high) clean; fix 6490b6b moved inspection under .compactor.lock + regression test.
+
+## 2026-10-10 18:50 CEST - STEP-010
+
+- Shared `journalLines` for recover, replay, and resplit. Manifest keys decode with defaults. Date helpers live in timestamps. Reconcile skip is one helper. A failed gzip leaves the partial; restart publishes it.
+- **Learnings for future iterations:**
+  - Replay gunzip errors stay `read.gunzip` by stripping the `gunzip: <path>:` prefix off `journalLines`. Raw file errors stay `read.file`.
+  - `Effect.fn` pipeables receive the call arguments, so resplit temp cleanup closes over `source` and `target` there.
+  - `journal.test.ts` is 999 lines. The next journal test has to move or the file crosses 1000.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-010 review: step review (sol-xhigh) REQUEST_CHANGES, two P2 and one leftover JSDoc; comments review (swe-high) clean; fix 08fd7c7 one gunzip reader with a tagged file/gunzip error, one book-fold path, JSDoc removed.
+
+## 2026-10-10 19:03 CEST - STEP-010 fix
+
+- `journalLines` and `gunzipFile` share one gunzip stream. File and zlib failures are `JournalStreamError` stages, so replay no longer slices a `gunzip:` prefix. Book and price_change share one fold. The leftover `candidateDates` JSDoc is gone.
+- **Learnings for future iterations:**
+  - Replay maps `JournalStreamError.stage` to `read.gunzip` or `read.file`. The detail is the zlib or platform message, already without a path prefix.
+  - feature.json passes was left false. The orchestrator owns it.
+
+---
+STEP-010 (external review cleanup): step review (sol-xhigh) REQUEST_CHANGES 2xP2 (two gunzip pipelines + message-prefix parsing; duplicated book/price_change fold) + P3 JSDoc; comments review (swe-high) clean; fix 08fd7c7 one gunzipStream with tagged stage, one book-fold branch.
