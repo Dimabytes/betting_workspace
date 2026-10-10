@@ -252,10 +252,9 @@
     недостающая механика. В остальных 7 «спасениях» отмена шла 60–90 мс.
   - В `docker compose logs live_b` строка `trader core buy settled ... wait_ms` даёт время решения об отмене BUY
     (`ts − wait_ms`), строка `buy gone` — время HTTP-ответа. Логи ротируются (5 × 10 MB), поэтому шаг A6 всё равно нужен.
-- Удалить экспорт сессий: `betting_workspace/2026-10-09-234021-local-command-caveat…txt`,
-  `prediction-market-backtesting/2026-10-09-203242-local-command-caveat…txt`.
-- Закоммитить в `betting_workspace`: SIMULATOR-PLAN.md и скрипты `sim/analysis/`, `sim/replica/`, `sim/extra/`,
-  `sim/exec_replay/run_exec_fixed.py`, `sim/ids_*.txt`.
+- Удалить экспорт сессии: `prediction-market-backtesting/2026-10-09-203242-local-command-caveat…txt`.
+  Экспорт в `betting_workspace` удалён 2026-10-10.
+- SIMULATOR-PLAN.md закоммичен (`e0dd1cb`). Скрипты `sim/` в git не идут: `investigations` в `.gitignore` по решению владельца.
 - Worktree `esports-trader-cadence` удалить после B4 (всё нужное перенесено).
 
 ## Push
