@@ -137,3 +137,48 @@ STEP-010 (external review cleanup): step review (sol-xhigh) REQUEST_CHANGES 2xP2
   - `git fetch` from the agent shell fails with `Permission denied (publickey)`. Read the `origin/main` reflog to see the owner's last pull.
 
 ---
+
+## 2026-10-11 19:01 CEST - STEP-008
+
+- `compact-dota` and `compact-lol` stopped at 18:13:14 UTC on 2026-10-10. Both `.compactor.lock` directories were gone after the stop.
+- Dry runs of all 10 dates ran before the stop. `tailRecords` matched `lost-hour00-records.txt` for every date.
+- Real resplits: all 10 exit 0, each with a `verifiedSha256`. LoL ran in order 09-07, 09-10, 09-11, 09-14, 10-01.
+- Independent check: `zcat` line count of each `00.jsonl.gz` equals `lost-hour00-records.txt`. `zcat(23) + zcat(00)` has the same sha256 as `zcat(backup)` for all 10.
+- Backups: `/var/lib/polymarket-dota-archive/.recovery/20261010T181342Z/events/<D-1>/23.jsonl.gz` and `/var/lib/polymarket-lol-archive/.recovery/20261010T181633Z/events/<D-1>/23.jsonl.gz`.
+- 19 manifests moved to `<archiveRoot>/.prerecovery/20261010T182736Z/manifests/`. `checkpoints/` untouched.
+- `compact-*` started 18:28:01 UTC on 2026-10-10. Dota catch-up finished 05:29:21 UTC on 2026-10-11 (10 days, 11h01m). LoL finished 14:44:10 UTC (9 days, 20h16m). 0 `day compaction failed`, 0 `seed.missing`.
+- All 19 manifests: `status=complete`. LoL 09-09 is `quality=complete`, the other 18 are `with_known_gaps` from old mid-day rotation skips. No restored day lists `00` in `missingHours`.
+- Rows before -> after (`book_snapshot_full`, `trades`), `missingHours` now, `rowsOutsideDate` book/trades:
+  | dota 2026-08-14 | 11787097 -> 11787097 | 118364 -> 118364 | 01,06,10 | 18/0 |
+  | dota 2026-08-15 | 14932110 -> 15012014 | 130064 -> 130644 | 11,14 | 12/0 |
+  | dota 2026-09-03 | 3095964 -> 3095964 | 11936 -> 11936 | 06,15,17 | 64/0 |
+  | dota 2026-09-04 | 5213664 -> 5227724 | 12166 -> 12222 | 03,10,17 | 48/0 |
+  | dota 2026-09-14 | 8733734 -> 8733734 | 14984 -> 14984 | 08,19,21 | 4/0 |
+  | dota 2026-09-15 | 8852052 -> 8892626 | 13906 -> 13922 | 10 | 22/0 |
+  | dota 2026-09-19 | 12904159 -> 12904159 | 42342 -> 42342 | 02,13,21 | 20/0 |
+  | dota 2026-09-20 | 15335082 -> 17231408 | 53666 -> 53698 | 09,17 | 62/0 |
+  | dota 2026-09-22 | 18372297 -> 18372297 | 59430 -> 59430 | 03,11,16,22 | 50/0 |
+  | dota 2026-09-23 | 15764402 -> 15806704 | 48698 -> 48720 | 09,19,21 | 26/0 |
+  | lol 2026-09-06 | 32908291 -> 32908291 | 120696 -> 120696 | 07,09,17 | 4/0 |
+  | lol 2026-09-07 | 24127346 -> 24564826 | 44236 -> 44368 | 04,18,21 | 20/0 |
+  | lol 2026-09-09 | 25232690 -> 25232690 | 42250 -> 42250 | - | 44/0 |
+  | lol 2026-09-10 | 30242377 -> 31112588 | 44670 -> 45450 | 02,18,21 | 32/0 |
+  | lol 2026-09-11 | 15830550 -> 16604992 | 55300 -> 57492 | 08,18 | 100/0 |
+  | lol 2026-09-13 | 33652285 -> 33652285 | 95618 -> 95618 | 03,15,19 | 16/0 |
+  | lol 2026-09-14 | 17469706 -> 18214088 | 47592 -> 47654 | 17 | 44/0 |
+  | lol 2026-09-30 | 26029122 -> 26029122 | 64982 -> 64982 | 01,07,18 | 8/0 |
+  | lol 2026-10-01 | 26022510 -> 27400052 | 44828 -> 46766 | 14,22 | 120/0 |
+- Each D-1 kept its rows. Its journal records dropped by exactly the moved tail. Each rewritten `checkpoints/<D-1>.json` ends before D 00:00 (latest 23:59:59.982).
+- DuckDB on the new Parquet: every restored day starts at 00:00:00-00:00:05 for books and 00:00:00-00:00:26 for trades. Hour 00 row counts equal the row gain, plus 2-14 book rows that were there before.
+- Reconcile: only Dota 09-20, Dota 09-23 and LoL 10-01 had a report. Moved them to `<archiveRoot>/.prerecovery/20261010T182736Z/reconcile/`. LoL 10-01: unmatched 1010 -> 41, the 00:00:17-01:00:02 STALL window is gone. Dota 09-23: unmatched 35 -> 24. Dota 09-20: unmatched 1 -> 1 (530 onchain txs on the onchain start day).
+- `onchain`: 0 WARN/ERROR from the deploy to 2026-10-11 17:01 UTC. `catalogs/` holds 28 files.
+- 2026-10-10: `compact-dota` was restarted at 05:30 UTC and `compact-lol` at 14:44 UTC, because the catch-up ran past their 03:00 and 09:00 slots. Dota 10-10 done 06:42 UTC (`missingHours=02,05,11`, `rowsOutsideDate` 78/0). LoL 10-10 done 17:01 UTC (`missingHours=03,12`, `rowsOutsideDate` 17/0). Both checkpoints end before 2026-10-11 00:00.
+- Midnight 2026-10-11 rotation on the new code: `10-10/23.jsonl.gz` at 00:00:01 (Dota) and 00:00:05 (LoL), `10-11/00.jsonl.gz` at 01:00:01 and 01:00:02 UTC, `wakeLagMs` 0-2.
+- **Learnings for future iterations:**
+  - Compaction speed is about 75-90k journal records per minute per game, also with both games running. Use records, not days, to plan a catch-up.
+  - A catch-up that runs past `COMPACTION_HOUR_UTC` skips that day's slot. Restart `compact-<game>` after it ends, or the newest day waits one more day.
+  - With two compactors at once, each reached about 2.7 GiB RSS in my samples. MemAvailable never fell under 2 GiB, the lowest sample was 5.2 GiB.
+  - A day with an old mid-day rotation skip keeps that hour in `missingHours` after a recompaction. Its records are in the previous hour's file of the same day.
+  - A `git reset --hard origin/main` in betting_workspace drops unpushed agent commits. Push task records, or the next reset loses them.
+
+---
