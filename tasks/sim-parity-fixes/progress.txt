@@ -151,3 +151,17 @@
   - Not run: a full backtest, training, a data rebuild, a live start. Constants were not tuned toward the live p50 of 143 ms.
 
 2026-10-11 16:17 STEP-010 review: step review: no findings; comments review: 2 docstrings fixed in 74546402. Cadence worktree and branch removed by orchestrator with user approval; patch saved in orchestrate/work/impl-010/.
+
+## 2026-10-11 16:43 CEST - STEP-011
+
+- The archive strip matches live `books_from_md`: price key `round(price / 0.0001)`, the other token cut at `1 − price`, and a level kept only when `round(size − own, 6) > 0`. The kept size is that rounded value.
+- Commit `f1861a499c8627f6cd990c242753d758e13d3859` on esports-trader `main`. `passes` left false.
+- Named strip cases: 16 passed in 11.81s. `test_archive_entry3_bid066_strips_to_foreign` ran on local `data/trader/grid-3005975-m2` (`core_trace.jsonl.gz`). Readers: 274 passed in 10.21s. Full suite except the follow300 golden: 3319 passed, 0 failed, 2 subtests passed, pytest 28.64s. basedpyright: 0 errors.
+- **Learnings for future iterations:**
+  - `_apply_resting_op` still pops only at `left <= 1e-9`. A sub-cent remainder keeps cutting until a remove event. Upgrade path is `share_floor(left) <= 0.0`. Left out on purpose.
+  - `resting_by_token_at` uses the 0.0001 key and still ignores the mirror. Only tests call it.
+  - The tree-cache key hashes `strip_own_book.py`, so the next archive run re-strips. Do not delete `~/.cache/esports-trader/telonex-tree` without approval.
+  - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+  - Not run: a full backtest, training, a data rebuild, a live start.
+
+---
