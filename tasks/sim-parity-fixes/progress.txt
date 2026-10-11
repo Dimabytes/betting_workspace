@@ -116,3 +116,4 @@
   - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
 
 ---
+2026-10-11 11:24 STEP-008 review: step review: 2 P2 (cancel record at send, venue-time fair) fixed in ff2802d5; comments review: test docstring deleted, on_order_filled docstring kept.
