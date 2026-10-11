@@ -130,3 +130,4 @@
   - A follow300 book move does not reprice until the 250 ms reanchor. The harness clock reads 0, so the cycle-places test sets `timestamp_ns` to the cycle start. A partial-fill confirm at 7.25 s needs a fresh book (5 s stale limit) and `max_position_levels=4` (the fill's cost leaves no room for a new $100 clip under the default cap of 3).
   - Golden follow300, first timed run on this cycle: 4 min 6 s wall (`pytest` 244.86 s). 8 failed, 3 passed. Every failure is a golden assertion in `tests/test_follow300_replay.py:58`, no traceback. Expected until STEP-014.
   - Not run: a full backtest, the 143 ms smoke check, training, a data rebuild, a live start.
+2026-10-11 15:18 STEP-009 review: step review: P1 cycle cash reservation and P2 two-sided fixture fixed in 3b3c5393, P2 quote-loop owner skipped; comments review: findings fixed or kept per keep clauses.
