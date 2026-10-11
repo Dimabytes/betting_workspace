@@ -101,3 +101,18 @@
 
 ---
 2026-10-11 10:13 STEP-007 review: step review: no findings; comments review: findings fixed in 0d9b9775 (pyright blanket narrowed, narration dropped).
+
+## 2026-10-11 11:08 CEST - STEP-008
+
+- A late book fill is heard by the core at its WS print. `Fill.now_ns` is the print. The fill row and `fill_id` stay on the venue tick. A cancel of that order waits until the last unheard print. On-time fills are unchanged.
+- Commit `dadf79570eed1fb982e564f8aade73b8fad750fa` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - Floor `ts_event` to the µs (`venue_ns - venue_ns % NS_PER_US`) before the late-print lookup. Occurrence offsets are 0–999 ns.
+  - `fill_id` must use the venue tick. Two equal-size fills of one order can share a print (offsets 0 and 1).
+  - Pop `_unheard_fill_ns` with `.get` / `.pop`. Two notices of one order can share a print; `del` raises `KeyError` on map 9015175653.
+  - `_order_already_gone` stays False while a fill is unheard, or a core cancel frees the rung as `missing_live`.
+  - Known ceiling: the venue order rests until the print and can take an extra fill. Upgrade path is to send the venue cancel on time and defer only the core ack.
+  - STEP-009: add `USER_WS_DELAY_MS` on top of `now_ns` in both the on-time and the deferred path.
+  - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+
+---
