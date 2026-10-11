@@ -150,3 +150,4 @@
   - Nautilus logging inits once per process, so the smoke script is one map per process.
   - Not run: a full backtest, training, a data rebuild, a live start. Constants were not tuned toward the live p50 of 143 ms.
 
+2026-10-11 16:17 STEP-010 review: step review: no findings; comments review: 2 docstrings fixed in 74546402. Cadence worktree and branch removed by orchestrator with user approval; patch saved in orchestrate/work/impl-010/.
