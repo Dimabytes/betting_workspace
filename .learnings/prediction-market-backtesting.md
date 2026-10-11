@@ -3,19 +3,23 @@
 ## Setup
 
 - Project path: `../prediction-market-backtesting` (sibling of `betting_workspace/`)
-- Local source checkout of the NautilusTrader prediction-market backtesting library (`origin` is upstream: `evan-kolberg/prediction-market-backtesting`).
+- Checkout of the NautilusTrader prediction-market backtesting library. `origin` is our private repo `git@github.com:Dimabytes/prediction-market-backtesting.git`, branch `local-day-native`. `upstream` is `evan-kolberg/prediction-market-backtesting`, read-only: fetch only, no push, no PRs. Not a GitHub fork: GitHub has no private fork of a public repo.
+- New machine: `git clone git@github.com:Dimabytes/prediction-market-backtesting.git` next to `esports-trader` (default branch `local-day-native`), `git remote add upstream https://github.com/evan-kolberg/prediction-market-backtesting.git`, then `make backtest-install` from `esports-trader`.
 - Kept next to `esports-trader` so agents can read the library source instead of guessing from the installed package.
 - `esports-trader` consumes this stack as a package (Nautilus + this framework). This checkout is not our product.
 
 ## Stance
 
-Read-ONLY! Still. Two patches exist, both agreed with the owner on
-2026-10-09, on the local branch `local-day-native` on top of upstream
-`c76e77a`: `df17b59` (Rust diff of daily book files) and `e2cfebb` (book
-prices to raw with integers). Any further change to this repo needs the
-owner's explicit agreement first; do not add commits, even small ones, on
-your own.
+No commits without the owner's explicit agreement, even small ones. Two
+patches exist, both agreed with the owner on 2026-10-09, on `local-day-native`
+on top of upstream `c76e77a`: `df17b59` (Rust diff of daily book files) and
+`e2cfebb` (book prices to raw with integers). Both are on `origin`. Push only
+to `origin`, and only when the owner asks.
 
+- Pin: `esports-trader/Makefile` `BACKTEST_FRAMEWORK_COMMIT` is the full SHA of
+  the branch head (`e2cfebb2c393a772e9b336166dfc6909e02e14b2`).
+  `make backtest-install` refuses any other HEAD. A new framework commit moves
+  the pin in the same esports-trader change.
 - The branch must stay checked out: esports-trader runs the checkout through
   `PYTHONPATH=src:../prediction-market-backtesting`, so whatever branch is
   checked out is what every backtest executes. Check with
@@ -37,7 +41,10 @@ your own.
 Found and fixed 2026-10-09 with the owner's agreement. The fix is Rust: the
 compiled `prediction_market_extensions/_native_ext.cpython-313-darwin.so` is
 gitignored, so a checkout of the commit does nothing until the extension is
-rebuilt. Rebuild after any change under `crates/`:
+rebuilt. Rebuild after any change under `crates/` and on every new machine
+(Rust >= 1.93.1 from rustup): `make backtest-install` from `esports-trader`.
+It checks HEAD against the pin and runs `maturin develop --release`, which
+writes the `.so` into this checkout. To build a HEAD that is not pinned yet:
 `uvx --from "maturin>=1.12,<2" maturin build --release --manifest-path
 crates/python/Cargo.toml -i ../esports-trader/.venv/bin/python --out <dir>`,
 then unzip `prediction_market_extensions/_native_ext*.so` from the wheel into

@@ -71,3 +71,18 @@
 
 ---
 2026-10-11 01:56 STEP-005 review: step review: P1 journal failure blocking cancel fixed in 420b2ec3; comments review: no findings.
+
+## 2026-10-11 09:14 CEST - STEP-006
+
+- Private repo `https://github.com/Dimabytes/prediction-market-backtesting` is PRIVATE. Default branch `local-day-native`. Actions disabled (`enabled=false`).
+- Pushed `refs/heads/local-day-native` `e2cfebb2c393a772e9b336166dfc6909e02e14b2` and `refs/heads/v4.1-alpha` `c76e77af00ef53472a9da8f66dae7fdd2d3e5928`. `--tags` pushed nothing (0 tags).
+- Checkout: `origin` is `git@github.com:Dimabytes/prediction-market-backtesting.git`, `upstream` is evan-kolberg. No framework commits.
+- Session export `2026-10-09-203242-local-command-caveat…txt` was already gone.
+- Pin is `e2cfebb2c393a772e9b336166dfc6909e02e14b2` in esports-trader commit `8ea2e4ba2fd4828ef06518367ae63b7cc9c1a3f0`. `passes` left false.
+- `.so` SHA before and after `make backtest-install`: `15233bfcb05733e33e11523c087ba259cc499e277cbf288f2f1acb5a369e8a2c`. First install real 15.01s. mtime Oct 11 09:11:47 2026, 7821776 bytes.
+- **Learnings for future iterations:**
+  - 0 tags, so `git push origin --tags` is "Everything up-to-date".
+  - `maturin develop` writes the `.so` in-tree and adds an editable `python` dist to `.venv`. The next exact `uv sync --group backtest` removes that dist and leaves the `.so`.
+  - `GH_TOKEN="$(gh auth token --user Dimabytes)"` per `gh` command. Active account stayed `di-payflow`.
+
+---

@@ -10,7 +10,7 @@ Expected layout:
 ├─ esports-trader/                    # collect / train / backtest / live+paper trader
 ├─ poly-maker/                        # fork of a Polymarket maker bot
 ├─ polymarket-collector/              # TypeScript daemon that archives Dota 2 markets (runs on the VPS)
-└─ prediction-market-backtesting/     # local source checkout of the Nautilus backtesting library
+└─ prediction-market-backtesting/     # Nautilus backtesting library: our private repo, upstream read-only
 ```
 
 Five folders, four code projects. This workspace is agent instructions only.
@@ -31,6 +31,7 @@ Before any work on a sibling project (code, commands, tests, architecture) read 
 - All git operations (status, branch, pull, rebase, push, commit) run inside the sibling project repo you are changing.
 - work on `main` by default, unless the user says otherwise.
 - A git worktree of `esports-trader` is a second directory. Read `.learnings/worktree.md` before creating one or running a backtest from one. Sync its `.venv` once before sharded runs. Do not symlink `data/backtests`.
+- `../prediction-market-backtesting`: `origin` is our private `Dimabytes/prediction-market-backtesting`, `upstream` is `evan-kolberg/prediction-market-backtesting`. Never push to `upstream`, never open PRs there.
 
 ## poly-maker is frozen
 
