@@ -217,3 +217,21 @@
   - `pre-commit run --all-files` rewrites tracked run json that lacks a trailing newline. Those files are `exit-full-l1` and `exit-full-l2`.
   - Swap total was 4 GiB at the start and grew to 6 GiB. It never reached the 8 GiB stop. Disk stayed at 58–68 GiB free.
 
+## 2026-10-12 00:46 CEST - STEP-014 finish
+
+- LoL follow300 finished on the synced tape. `passes` left false. No code change.
+- C3 `028b0997c3a836c023c026df6621fe60428ea63a` points both LIVE links at `validation_join_delta02_x015_cut480_p45_sim-parity`. C4 `19c2d35fb03e5623411edb3231cb3181b0513759` drops the `rawfix` and `tapefix` run dirs (28 tracked files). C1 `079e397d` and C2 `3f158482` are unchanged.
+- Old LIVE: `dota_maker/LIVE -> validation_join_delta02_x015_cut480_p45_strip-fix2`, `lol_maker/LIVE -> validation_join_delta02_x015_cut480_p45_shared-20261005`. `LIVE_NOXP` still `validation_join_delta02_cut480_nw350_p35_oddin15-noxp`.
+- LoL run `data/backtests/lol_maker/validation_join_delta02_x015_cut480_p45_sim-parity`. `report_seeds --expected-seeds 3` exit 0. Terminations are only `empty_signal_tape` (15/19/21). No `PositionOpened`.
+- LoL vs LIVE (`shared-20261005`), shared 1619 maps, seeds 0-2. Buy shares seed0 1,831,837 → 2,144,579; seed1 1,821,246 → 2,158,597; seed2 1,835,903 → 2,153,275. PnL before rebate seed0 +39,335 → +15,922; seed1 +38,350 → +17,562; seed2 +39,092 → +12,707. With rebate seed0 +45,006 → +22,648; seed1 +43,964 → +24,338; seed2 +44,771 → +19,491. More shares, much lower PnL. Promoted anyway.
+- Dota numbers are the ones already recorded above (shared 865 maps, seeds 0 and 1). Dota vs tapefix was already saved before C4.
+- Wall: archive+seed0 20:13:54Z–21:17:58Z (exit 1 is the LIVE manifest compare). Seeds 1+2 together stopped at 21:19:23Z, swap used 8787/9216 MB. Seed 1 on 4 shards stopped at 21:38:59Z, swap used 12141/13312 MB, then resumed one shard at a time 21:40:52Z–22:14:22Z. Seed 2 on 4 shards 22:14:48Z–22:43:50Z, swap stayed about 4.5–5.8 GB. Report and compare about 20s.
+- `_logs/rawfix` and `_logs/tapefix` left on disk. extra-014 deletes only the two run dirs.
+- The 8 `exit-full-l1`/`l2` json files are still dirty (trailing newline only). Not committed.
+- Owner follow-up still open: `docs/as-is.md:94-96`, `docs/extraction-oracle.md:86`, `.learnings/onchain-tape-lag-20261009.md` (LIVE is no longer strip-fix2).
+- **Learnings for future iterations:**
+  - Eight `backtest.run` processes (two seeds, four shards) pushed swap past 8 GB in one minute. Four shards of one seed stayed near 6 GB when swap started near 4.5 GB.
+  - A killed shard keeps `results.parquet`. `--resume` one shard at a time finishes the seed.
+  - LoL seed1 `fills.parquet` is 4,000,873 bytes, under the 4096 KB hook.
+  - `end-of-file-fixer` rejects a promotion commit until the new run json has a trailing newline. Stage that fix and commit again. Do not amend.
+
