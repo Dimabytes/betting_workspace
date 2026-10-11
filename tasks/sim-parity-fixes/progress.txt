@@ -87,3 +87,16 @@
 
 ---
 2026-10-11 09:18 STEP-006 review: step review and comments review: no findings. Private repo Dimabytes/prediction-market-backtesting created, pushed to origin only.
+
+## 2026-10-11 09:58 CEST - STEP-007
+
+- A late print trades at the start of the last through run inside 500 ms; `timestamp_us` is the earliest tape time and `print_timestamp_us` is the earliest WS print. `LatePrints` (trade ns, print ns) is read back from the tree into `DotaMakerConfig.late_prints`. Nothing reads it until STEP-008.
+- Commit `709a9fe1f8467b6513ca02c0232da3e171ab05b2` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - Sweep side is `add_aggressor_side`, not the opposite of `maker_side`. A missing book day keeps the print (`TapeDay.book is None`).
+  - The tape runs only on an onchain cache miss. The key includes both tokens' book stamps, so a new book rewrites both tokens' onchain days and evicts `trade-ticks-v1` only.
+  - One-sided book days are `list<null>`. Cast to `TELONEX_BOOK_LEVELS` before reading prices.
+  - `late_prints` is required. `build_maker_config` passes empty prints; `TwoSidedCoreConfig` inherits the field.
+  - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+
+---
