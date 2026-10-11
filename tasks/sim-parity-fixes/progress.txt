@@ -182,3 +182,18 @@
   - Not run: a full backtest, training, a data rebuild, a live start.
 
 2026-10-11 17:28 STEP-012 review: step review: P3 merge alert tuple fixed in 056e868b; comments review: LoL priority comment fixed, 3 hook/ignore items skipped with reasons.
+
+## 2026-10-11 19:04 CEST - STEP-013
+
+- Investigation tools run on esports-trader `main` `056e868b` (framework `e2cfebb`). No C commit. `passes` left false.
+- Edited (gitignored): `live_net.py`, `journal_replay.py`, `run_exec_fixed.py`, `replica_repo.py`, `run_replica_repo.sh`, `run_extra.sh`, `SIMULATOR-PLAN.md`. Backup: `tasks/sim-parity-fixes/orchestrate/work/impl-013/backup/`.
+- Exec replay, 5 maps. Plain: 63 of 63, 0 live-only, sim-only 4 orders / 71.1 shares (old core: 6 / 105.2). Fixed: book cancel ends 4788, lost cancels 8, 0 live-only, 0 sim-only, 1048.4 shares, PnL −12.97 (same as `fixed4`; fill rows 84 vs 83).
+- `pc` 8 seeds, level 20, restart-only: 1278.2 ± 56.8 shares, PnL +0.57 ± 10.90, mk30 −5.45, mk300 −5.99. `fn` (level 300): 1128.0 ± 30.0, −6.59 ± 5.16, −9.96, −15.17. Live 1048.4, −12.97.
+- `xp` 8 seeds, no overlay, level 20: 8080.82 ± 124.11 shares, settle −68.87 ± 10.23, mk30 −12.28 ± 16.78, mk300 −1.97 ± 11.77. `xf`: 7560.10, −59.72, −17.03, −10.73. Live 7543.38, −95.42.
+- Wall: livenet 51s, exec core 514s, exec fixed 310s, compare 174s, pc1 342s, pc2–8 736s, pc summary 53s, xp1 753s, xp2–8 934s, xp summary 290s.
+- `PLAN.md` says `SIMULATOR-PLAN.md` was committed as `e0dd1cb`. No such commit. `investigations/` is gitignored. Left `PLAN.md` for the orchestrator.
+- Ceiling: the restart on 9034957701 is the only overlay. Exact-replay classes (`LiveSyncStrategy`, `LiveTimingMixin`, `draw_tail`) stay broken.
+- **Learnings for future iterations:**
+  - `_stamp_strategy` does not write `latency_seed`. `build_kernels` takes `latency_seed=args.signal_cadence_seed` (`run.py:2425`). The manifest field is `signal_cadence_seed`. Seed totals differed, so the draw reached the kernels.
+  - `ensemble_free.sh` still defaults `TAPE_BOOK_ALIGN=1` and `RUN_WITH=run_with_align.py`. Export `RUN_WITH=run_with.py` and the align patch is not loaded.
+  - `run_extra.sh` echoes `done` to the terminal. The log file is only the backtest stdout.
