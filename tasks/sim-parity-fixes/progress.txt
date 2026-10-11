@@ -197,3 +197,4 @@
   - `_stamp_strategy` does not write `latency_seed`. `build_kernels` takes `latency_seed=args.signal_cadence_seed` (`run.py:2425`). The manifest field is `signal_cadence_seed`. Seed totals differed, so the draw reached the kernels.
   - `ensemble_free.sh` still defaults `TAPE_BOOK_ALIGN=1` and `RUN_WITH=run_with_align.py`. Export `RUN_WITH=run_with.py` and the align patch is not loaded.
   - `run_extra.sh` echoes `done` to the terminal. The log file is only the backtest stdout.
+2026-10-11 19:13 STEP-013 review: step review: P3 repro commands added to SIMULATOR-PLAN.md; comments review: journal_replay docstring trimmed. Investigation files gitignored, backup in orchestrate/work/impl-013/backup/.
