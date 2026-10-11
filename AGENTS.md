@@ -40,3 +40,17 @@ Before any work on a sibling project (code, commands, tests, architecture) read 
 Do not change `poly-maker`. This is a ban, not a preference.
 
 - Do not edit files in `../poly-maker`.
+
+## Investigations
+
+One folder: `investigations/YYYY-MM-DD-<short-slug>/`.
+
+That is the only place for an audit, postmortem, gap check, or any one-off analysis. Do not create a new top-level directory for one. Do not start a new one in `reports/`, `.analysis/`, `docs/analysis/`, `artifacts/`, `runs/`, or under `docs/experiments/` in a sibling repo. Those names are gitignored.
+
+`investigations/` is gitignored. Do not `git add -f` it.
+
+Inside the folder, `report.md` is the writeup. Scripts, dumps, and databases go in `work/`.
+
+`.learnings/` is a short note a later session must follow. It is not the investigation.
+
+`tasks/<name>/` is a `feature.json` implementation. It is not an investigation. Herdr scratch for a task lives in `tasks/<name>/orchestrate/` and is gitignored. Do not name that folder `fleet`, `run`, or `herdr-series`.

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.13+, uv, NautilusTrader 1.226.0, the existing read-only `prediction-market-backtesting` checkout, pandas/Parquet, pytest, ruff, basedpyright.
 
-**Spec:** `betting_workspace/docs/analysis/2026-09-06-follow300-review.md`, especially the final decision, accounting definitions, and validity limits. The numerical decision must use the completed twelve-seed Dota Follow300 catalog, not its three-seed preview.
+**Spec:** `betting_workspace/investigations/2026-09-06-follow300-review.md`, especially the final decision, accounting definitions, and validity limits. The numerical decision must use the completed twelve-seed Dota Follow300 catalog, not its three-seed preview.
 
 **Decision basis:** All nine requested additional seeds finished successfully on 2026-09-06 at 09:35:31 UTC; all twelve Dota Follow300 catalogs contain 454 completed maps. Against B200, Follow300 improves mean net PnL from $625.40 to $956.33 for Dota and from $1773.80 to $3306.14 for LoL, with higher reserve-inclusive deposit requirements and worse absolute tail losses. Choose this as a practical backtest default, not as a claim of universal or statistically established superiority. Dota B100 retains the better net/deposit ratio. No live rollout is part of this decision.
 

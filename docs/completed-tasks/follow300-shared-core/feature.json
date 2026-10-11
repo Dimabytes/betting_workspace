@@ -3,7 +3,7 @@
   "relatedSources": [
     "../esports-trader/docs/superpowers/specs/2026-09-06-follow300-shared-core-design.md",
     "../esports-trader/AGENTS.md",
-    "docs/analysis/2026-09-06-follow300-review.md",
+    "investigations/2026-09-06-follow300-review.md",
     "../esports-trader/src/backtest/strategy.py",
     "../esports-trader/src/backtest/maker_orders.py",
     "../esports-trader/src/trader/session_quoting.py",
