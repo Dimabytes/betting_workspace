@@ -165,3 +165,4 @@
   - Not run: a full backtest, training, a data rebuild, a live start.
 
 ---
+2026-10-11 16:52 STEP-011 review: step review: no findings; comments review: test module docstring deleted in b9904591, keep-clause items left.
