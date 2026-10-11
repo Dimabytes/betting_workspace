@@ -100,3 +100,4 @@
   - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
 
 ---
+2026-10-11 10:13 STEP-007 review: step review: no findings; comments review: findings fixed in 0d9b9775 (pyright blanket narrowed, narration dropped).
