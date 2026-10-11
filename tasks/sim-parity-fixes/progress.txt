@@ -181,3 +181,4 @@
   - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
   - Not run: a full backtest, training, a data rebuild, a live start.
 
+2026-10-11 17:28 STEP-012 review: step review: P3 merge alert tuple fixed in 056e868b; comments review: LoL priority comment fixed, 3 hook/ignore items skipped with reasons.
