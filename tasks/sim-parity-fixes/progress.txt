@@ -131,3 +131,22 @@
   - Golden follow300, first timed run on this cycle: 4 min 6 s wall (`pytest` 244.86 s). 8 failed, 3 passed. Every failure is a golden assertion in `tests/test_follow300_replay.py:58`, no traceback. Expected until STEP-014.
   - Not run: a full backtest, the 143 ms smoke check, training, a data rebuild, a live start.
 2026-10-11 15:18 STEP-009 review: step review: P1 cycle cash reservation and P2 two-sided fixture fixed in 3b3c5393, P2 quote-loop owner skipped; comments review: findings fixed or kept per keep clauses.
+
+## 2026-10-11 16:10 CEST - STEP-010
+
+- Follow300 wakes the quoter on a signal alert and a kill-gate alert. A crossed or locked YES book reaches the core as `books=None` (`stale_book`, no places). Two-sided still skips that book. Place latency is drawn from `PLACE_LATENCY_MS`; the engine insert is 45 ms; a cancel is that draw minus 15 ms.
+- `ORDER_INSERT_LATENCY_MS`, `ORDER_CANCEL_LATENCY_MS`, `order_latency_ns`, `cancel_latency_ns`, and the 20 ms cancel floor are gone. `--buy-settle-ms` was already gone (STEP-009).
+- Commit `7817ade5a4047598ea0a728bf32c9cf5dfd777d5` on esports-trader `main`. `passes` left false.
+- Smoke, six Dota maps pooled (map 8837869969 had 17 no-fill cancels): no-fill n=356 p10=106.0 p50=106.0 p90=234.3 ms (min 39.4, max 634.8); filled n=40 p10=6837.6 p50=7215.7 p90=7294.8 ms (min 106.0, max 7516.6). Replay wall sum 150.4 s. `stale_book` blocks 682, 630 of them on 9007700576.
+- Outliers left as measured: 2 no-fill gaps under 90 ms and 9 over 300 ms; filled gaps 106, 106, and 4812.7 ms.
+- Archive ceiling: `--archives-only` rejects a non-default `--signal-cadence-seed`. Archive maps share seed 0 across validation seeds. Upgrade path is per-seed archives (drop the graft).
+- Worktree `../esports-trader-cadence` and branch `two-sided-live-cadence` are deferred to the orchestrator. Uncommitted diff and status are in `orchestrate/work/impl-010/`.
+- Golden check: pytest 276.31 s. 8 failed, 3 passed. Every failure is a golden assertion at `tests/test_follow300_replay.py:58`.
+- **Learnings for future iterations:**
+  - `QuoterCycle.cancel_latency_ns` stays. It is one cancel draw per cycle, not the deleted config field.
+  - The maker harness pins `draw_latency_ns` to the table floor (place 45 ms, cancel 30 ms). The cycle test patches the draw to 100 ms.
+  - A crossed YES with a cancel response between feed ticks now plans on `books=None`. Two-sided `_evaluate` still returns before that.
+  - An `_archive/` built before this step no longer matches the manifest. Seed runs then replay those maps.
+  - Nautilus logging inits once per process, so the smoke script is one map per process.
+  - Not run: a full backtest, training, a data rebuild, a live start. Constants were not tuned toward the live p50 of 143 ms.
+
