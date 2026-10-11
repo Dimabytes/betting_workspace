@@ -198,3 +198,22 @@
   - `ensemble_free.sh` still defaults `TAPE_BOOK_ALIGN=1` and `RUN_WITH=run_with_align.py`. Export `RUN_WITH=run_with.py` and the align patch is not loaded.
   - `run_extra.sh` echoes `done` to the terminal. The log file is only the backtest stdout.
 2026-10-11 19:13 STEP-013 review: step review: P3 repro commands added to SIMULATOR-PLAN.md; comments review: journal_replay docstring trimmed. Investigation files gitignored, backup in orchestrate/work/impl-013/backup/.
+
+## 2026-10-11 21:18 CEST - STEP-014
+
+- Stopped before promotion. LoL archive died in 3m49s. Not a Nautilus assert. `passes` left false.
+- C before the step: `056e868b7e8f95d13fa03db62a375eae53066d4f`. C1 `079e397ded17b692b207f24b120995a1843485ea` (path A, skip set deleted). C2 `3f1584828516f3de514695fbaa6ae78ea8e848d8` (smoke goldens). No C1b, C3, or C4.
+- Crash check 17:34:51Z–17:38:21Z. 30/30 listed maps exited 0 on seeds 0–2, including `8902431810` (ty-pari). `116566854547769589` (lol-edg-tes) exit 1, not an eligible card. No `PositionOpened`.
+- Goldens: capture 4:34. Inputs drift is `strategy_constants_sha256` only. `make test` with `PYTEST_N` unset: 3332 passed, 411.92s. basedpyright 0 errors. `pre_commit run --all-files` rewrote 8 old LoL `exit-full-l1`/`l2` json files (newline only). Left unstaged. Not reverted.
+- Dota `validation_join_delta02_x015_cut480_p45_sim-parity` seeds 0–2, wall 17:57:13Z–19:11:33Z. `run_seeds.sh` exit 1 is the expected manifest compare. `report_seeds --expected-seeds 3` exit 0. Terminations are all `empty_signal_tape` (6/7/5).
+- Dota vs LIVE (`strip-fix2`), shared 865 maps, seeds 0 and 1 only (LIVE has no seed 2). Buy shares seed0 1,136,141 → 1,216,577; seed1 1,134,811 → 1,214,193. PnL before rebate seed0 +33,269 → +34,646; seed1 +36,202 → +38,997. With rebate seed0 +36,805 → +38,448; seed1 +39,722 → +42,786.
+- Dota vs tapefix, seed 0, shared 868 maps. Buy shares 1,145,949 → 1,216,577. PnL before rebate +34,230 → +34,646. With rebate +37,793 → +38,448.
+- LoL archive: 198 `onchain_fills` days for 2026-10-01 and 0 `trades` days. Shards died on fills without prints (`117171782819993524`, `117171782819993525`, `117171782819993529`) and one missing trades parquet. Partial dir left: `data/backtests/lol_maker/validation_join_delta02_x015_cut480_p45_sim-parity/_archive/shard_*`.
+- LIVE unchanged: `dota_maker/LIVE -> validation_join_delta02_x015_cut480_p45_strip-fix2`, `lol_maker/LIVE -> validation_join_delta02_x015_cut480_p45_shared-20261005`. `LIVE_NOXP` not touched. `rawfix` and `tapefix` not deleted.
+- Owner follow-up: `docs/as-is.md:94-96` still describes the skip set (user edit at :104 blocked a partial commit). Also `docs/extraction-oracle.md:86` and `.learnings/onchain-tape-lag-20261009.md` (still says LIVE is strip-fix2).
+- **Learnings for future iterations:**
+  - A literal path in a zsh array is not removed by `nullglob`. Use the `(N)` qualifier.
+  - LoL has no `trades/asset_id=*/2026-10-01.parquet`. Dota has 62. The tape check in `telonex_local.py` refuses a fill day with no prints.
+  - `pre-commit run --all-files` rewrites tracked run json that lacks a trailing newline. Those files are `exit-full-l1` and `exit-full-l2`.
+  - Swap total was 4 GiB at the start and grew to 6 GiB. It never reached the 8 GiB stop. Disk stayed at 58–68 GiB free.
+
