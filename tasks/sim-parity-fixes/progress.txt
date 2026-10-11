@@ -117,3 +117,16 @@
 
 ---
 2026-10-11 11:24 STEP-008 review: step review: 2 P2 (cancel record at send, venue-time fair) fixed in ff2802d5; comments review: test docstring deleted, on_order_filled docstring kept.
+
+## 2026-10-11 14:56 CEST - STEP-009
+
+- Both products share one quote loop in `DotaMakerStrategy`. An event wakes it, it sleeps the debounce, then one cycle runs, and HTTP keeps it busy. `--buy-settle-ms` is already gone, so STEP-010's item for it is a no-op. Every fill is heard 15 ms after its print.
+- Commit `bce88989635a157739b563dffc5138238bc49986` on esports-trader `main`. `passes` left false.
+- **Learnings for future iterations:**
+  - The adapter-contract harness patches `RESPONSE_MS` and `USER_WS_DELAY_MS` to 0. Live `note_fill` uses the tape row's `now_ns`, and a 15 ms delay made `last_buy_ns` diverge. The driver still does not apply `BuySettled`, so a BUY rung stays `gone`. The 15 ms delay is covered by the follow300 tests.
+  - After a cycle sends its places, one `BudgetUpdate` refreshes cash. Live's quote budget already includes the new reserve. Without the refresh, two-sided parity cash was 8 USDC high on the settle row.
+  - `accept_live` leaves the quoter sleeping. A later cancel wake only sets dirty unless that debounce has been fired or the state is idle again. `run_cancel_response` sets a sleeping quoter back to idle first.
+  - `test_episode_survives_a_late_buy_fill_and_then_starts_a_new_one` pinned `CancelAck` freeing the rung. A filled BUY now stays `gone` until the heard fill plus `BUY_CONFIRM_MS`. The test applies `BuySettled` there.
+  - A follow300 book move does not reprice until the 250 ms reanchor. The harness clock reads 0, so the cycle-places test sets `timestamp_ns` to the cycle start. A partial-fill confirm at 7.25 s needs a fresh book (5 s stale limit) and `max_position_levels=4` (the fill's cost leaves no room for a new $100 clip under the default cap of 3).
+  - Golden follow300, first timed run on this cycle: 4 min 6 s wall (`pytest` 244.86 s). 8 failed, 3 passed. Every failure is a golden assertion in `tests/test_follow300_replay.py:58`, no traceback. Expected until STEP-014.
+  - Not run: a full backtest, the 143 ms smoke check, training, a data rebuild, a live start.
