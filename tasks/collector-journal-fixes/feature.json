@@ -251,7 +251,7 @@
         "Записать в `.learnings/polymarket-collector.md` (betting_workspace) короткую заметку о CLI `journal-resplit` и `manifests/reconcile/`; зафиксировать в progress.txt хэш, время рестарта и результаты проверок."
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -266,11 +266,11 @@
         "Перенести 19 манифестов в `<archiveRoot>/.prerecovery/<ts>/manifests/`: Dota 08-14, 08-15, 09-03, 09-04, 09-14, 09-15, 09-19, 09-20, 09-22, 09-23; LoL 09-06, 09-07, 09-09, 09-10, 09-11, 09-13, 09-14, 09-30, 10-01. `checkpoints/` не трогать.",
         "`docker compose up -d compact-dota compact-lol` → startup catch-up перекомпактит дни по возрастанию; дождаться 19 сообщений `compaction ok` (ориентир 1–1,5 ч на день, игры параллельно); ни одного `compaction failed`, ни одного `seed.missing`.",
         "Верификация по каждой паре: `manifests/<D>.json` — `status=complete`, `journal.files` содержит `00.jsonl.gz`, `diagnostics.missingHours` не содержит `\"00\"` (другие часы из старых пропущенных ротаций могут остаться, тогда `quality=with_known_gaps` допустим — записать фактический список); `manifests/<D-1>.json` — записать `rowsOutsideDate` в progress (это строки Parquet, а не записи журнала; обычный фон — десятки–сотни, порога нет); `checkpoints/<D-1>.json` — `lastOutputTimestampUs < D 00:00`; DuckDB на VPS (внутри образа или host-node): `min(timestamp_us)` для известного активного токена дня D попадает в 00:0x; строк `book_snapshot_full` и `trades` дня D стало больше, чем в старом манифесте из `.prerecovery/<ts>/manifests/` (строки и записи журнала — разные единицы, поэтому с `lost-hour00-records.txt` сравнивается только число записей в `00.jsonl.gz`).",
-        "Проверить, что `onchain` не пострадал: следующий `onchain pass` без новых ошибок. Сверка WS↔onchain читает WS-манифест, поэтому после перекомпакции перенести `manifests/reconcile/<D>.json` для 10 восстановленных дней D в `<archiveRoot>/.prerecovery/<ts>/reconcile/` (не удалять). Следующий проход `onchain` пересчитает их; в новых отчётах нет окна около 00:00–01:00, `STALL` для этих дат пропал.",
+        "Проверить, что `onchain` не пострадал: следующий `onchain pass` без новых ошибок. Сверка WS↔onchain читает WS-манифест, поэтому после перекомпакции перенести `manifests/reconcile/<D>.json` в `<archiveRoot>/.prerecovery/<ts>/reconcile/` (не удалять). Файл сверки есть только у трёх из 10 дней: Dota 09-20, Dota 09-23, LoL 10-01; остальные 7 раньше первого onchain-манифеста 2026-09-20, и сверки для них нет. Следующий проход `onchain` пересчитает эти три; у LoL 10-01 пропало окно 00:00:17–01:00:02 (970 промахов) и `STALL`, у Dota 09-20 и 09-23 окна около 00:00 не было и до восстановления.",
         "Зафиксировать в progress.txt: пути бэкапов, время начала/конца перекомпакции, таблицу `дата → строк до/после`."
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
