@@ -166,3 +166,18 @@
 
 ---
 2026-10-11 16:52 STEP-011 review: step review: no findings; comments review: test module docstring deleted in b9904591, keep-clause items left.
+
+## 2026-10-11 17:14 CEST - STEP-012
+
+- A two-sided merge starts when held cost is at least $130, at least 5 pairs are held, and the last heard fill is at least 7.25s old. Those pairs leave 3s later. One merge is in flight. Done wakes the quoter.
+- A two-sided run defaults to level_usdc 20, so the map cap is 9 × $20. `--level-usdc` still overrides. Follow300 stays 300.
+- Commit `512c3bf420933c7a17f46fd846d9e2a78c0f1b5c` on esports-trader `main`. `passes` left false.
+- Named tests: 3 passed in 7.17s. Two-sided core plus run CLI: 74 passed in 5.58s. Full suite except the follow300 golden: 3321 passed, 0 failed, 2 subtests passed, pytest 29.33s. basedpyright: 0 errors.
+- **Learnings for future iterations:**
+  - Resolve the $20 default in `resolve_level_usdc`, where `--level-usdc` is read. The kernel, the budget, and the manifest `layer_usdc` all see it. Setting 20 inside `build_two_sided_kernel` would leave the manifest at 300.
+  - The merge applies the pairs counted at the start. A fill during the 3s call does not join. The gate uses the heard fill (print + 15ms), the same clock as `_ack_venue_cancel`. No fills (`default=0`) still merges.
+  - Known ceiling: the call is a fixed 3s. Live CONFIRMED to merge p50 is 3.4-5.4s with a tail (failed relayer post, stale chain read, `_chain_lock`). Upgrade path is a draw from the measured merge-timing distribution.
+  - `MergeDelayMixin` on this class would add a second 3s and shadow `_on_merge_done`, so merges never apply. STEP-013 uses product code without those mixins. A `_merge_pairs` override that returns still turns merges off.
+  - Golden follow300 stays until STEP-014. This step ignores `tests/test_follow300_replay.py`.
+  - Not run: a full backtest, training, a data rebuild, a live start.
+
