@@ -18,11 +18,22 @@ for name in raw trader new_processed archive_index grid; do
 done
 ```
 
-`data/backtests` не ссылать. Прогон пишется в `data/backtests` этого worktree, рядом со своим `LIVE`. В `esports-trader/data/backtests` его не будет. Уйти в основной каталог прогон не удаляет. `git worktree remove` удаляет папку worktree вместе с прогоном.
+`data/backtests` в гите нет, кроме `market_terms.json`. Всю папку не ссылать. Прогон пишется в `data/backtests` этого worktree. В `esports-trader/data/backtests` его не будет. Уйти в основной каталог прогон не удаляет. `git worktree remove` удаляет папку worktree вместе с прогоном.
+
+`scripts/run_12_seeds.sh` сравнивает прогон с `data/backtests/<game>_maker/LIVE`. Ссылки на `LIVE` основного чекаута:
+
+```bash
+for link in dota_maker/LIVE dota_maker/LIVE_NOXP lol_maker/LIVE; do
+  mkdir -p "data/backtests/$(dirname $link)"
+  [ -e "data/backtests/$link" ] || ln -s "$PWD/$MAIN/data/backtests/$link" "data/backtests/$link"
+done
+```
 
 Датасеты (`data/new_processed`) в гите нет, и в этом worktree это ссылка на основной чекаут. Train их читает оттуда же. Пересборка датасета из worktree перезаписывает те же файлы. Модель (`data/new_model`, `data/lol/models`) в гите и это отдельная копия worktree: train публикует в неё, основной чекаут не трогает. `data/lol/processed` и `data/lol/raw` в гите нет и ссылкой не сделаны.
 
-`LIVE` в worktree — копия из гита. `quote_events.parquet` в гит не входит, он только в основном чекауте. Для `compare_backtests.py` он не нужен.
+`quote_events.parquet` для `compare_backtests.py` не нужен.
+
+Ветка без коммита `0094b4df` (12.10.2026) несёт старый `.gitignore`. В ней прогоны видны как untracked. Не делать там `git add -A`, пока ветка не взяла `main`.
 
 ## Кэш книг
 
