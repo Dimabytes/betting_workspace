@@ -84,6 +84,11 @@ the outputs sit in a host bind mount.
   a daily checkpoint and a manifest. Parquet is Telonex-compatible.
 - `market_id` in Parquet is the CTF `conditionId`, not the Gamma Market ID.
   `asset_id` is the full decimal CLOB token ID. Never turn a token ID into a number.
+- `onchain_fills` from 2026-09-18 (collector-decoded): `taker_asset_id` is the token
+  opposite the maker on every row (`src/onchain-decode.ts`), not the taker's token.
+  Up to 2026-09-17 (Telonex import) it meant the maker's token on a direct trade. Read
+  the side from `maker_asset_id` and `maker_side`; the backtest does
+  (`esports-trader/src/backtest/onchain_side.py`). Checked 2026-10-09.
 
 ## Discovery
 

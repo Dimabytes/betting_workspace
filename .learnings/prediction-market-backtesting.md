@@ -67,6 +67,13 @@ reads the engine's private queue maps:
 `investigations/2026-10-08-liveb-postmortem/SIMULATOR-PLAN.md`, section
 "Пункт 2", and `.../sim/queue_probe/`.
 
+## Cache trap for A/B runs of onchain code
+
+A tree-cache miss evicts the market's framework `trade-ticks-v1`; a hit does not.
+Switch the code back to a version whose tree files are cached, and the framework
+replays the ticks of the other version. Before each run of an A/B pair, delete
+`~/.cache/nautilus_trader/telonex/trade-ticks-v1` (about 300 MB, rebuilt on use).
+
 ## Before any change (only if the user asked)
 
 Read the upstream agent rules in this repo: `../prediction-market-backtesting/AGENTS.md`.
