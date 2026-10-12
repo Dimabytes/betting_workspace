@@ -88,6 +88,12 @@
       "model": "swe-2-max",
       "args": ["--permission-mode", "bypass"],
       "notes": "Devin CLI, SWE-2 Max. Web research, browser reverse engineering, Discord digging. Re-check its numbers. 15 min - 2.5 h."
+    },
+    "devin-opus-xhigh": {
+      "kind": "devin",
+      "model": "claude-opus-5-5-xhigh",
+      "args": ["--permission-mode", "bypass"],
+      "notes": "Devin CLI, Claude Opus 5.5 XHigh. feature-json: planner."
     }
   }
 }
