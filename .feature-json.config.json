@@ -10,7 +10,7 @@
     "instructions": []
   },
   "implement": {
-    "model": "grok-4.7-high",
+    "model": "grok",
     "instructions": []
   },
   "review": {
