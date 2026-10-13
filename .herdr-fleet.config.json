@@ -35,6 +35,18 @@
       "args": ["-c", "model_reasoning_effort=\"xhigh\"", "--approve-for-me"],
       "notes": "GPT-6.1-Sol, xhigh effort, default tier (= gpt-6.1-sol-xhigh). feature-json: step reviewer."
     },
+    "astra": {
+      "kind": "codex",
+      "model": "gpt-6-astra",
+      "args": ["-c", "model_reasoning_effort=\"high\"", "--approve-for-me"],
+      "notes": "GPT-6-Astra, high effort, default tier (= gpt-6-astra-high)."
+    },
+    "astra-xhigh": {
+      "kind": "codex",
+      "model": "gpt-6-astra",
+      "args": ["-c", "model_reasoning_effort=\"xhigh\"", "--approve-for-me"],
+      "notes": "GPT-6-Astra, xhigh effort, default tier (= gpt-6-astra-xhigh)."
+    },
     "grok": {
       "kind": "grok",
       "model": "grok-4.7",
