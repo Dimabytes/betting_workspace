@@ -50,13 +50,13 @@
     "grok": {
       "kind": "grok",
       "model": "grok-4.7",
-      "args": ["--effort", "high", "--permission-mode", "auto"],
+      "args": ["--effort", "high", "--always-approve"],
       "notes": "Grok CLI, Grok 4.7, high effort. feature-json: implementer. Protocols, endpoints, code reading, exact numbers. 15-30 min per deep task."
     },
     "grok-fast": {
       "kind": "grok",
       "model": "grok-4.7-build-fast",
-      "args": ["--effort", "high", "--permission-mode", "auto"],
+      "args": ["--effort", "high", "--always-approve"],
       "notes": "Grok CLI, Grok 4.7 Fast, high effort."
     },
     "opus-high": {
