@@ -1,0 +1,192 @@
+## 2026-10-13 23:57 CEST - STEP-001
+
+- Worktree `../esports-trader-exp`, branch `exp-part2` from main `cb04556b`. Symlinks for `data/{raw,trader,new_processed,archive_index,grid}` and the three LIVE backtest links. `data/backtests` stays local. `uv sync --group backtest` installed 155 packages.
+- `scripts/run_seeds.sh`: `TARGET` defaults to `--validation`, split with `read -r -a` into `TARGET_ARGS`, used in the unsharded seed, shard, merge, and archive invocations. Usage line mentions `TARGET`.
+- Commit `c05201b1e4ee85a64c1927269f6bba45e419576a` on `exp-part2`. `passes` left false.
+- Smoke: `SEEDS=1 SHARDS=1 TARGET="--since-match 9040578015"` (latest validation map). `seed0/summary.json` had `selected` 1 and `manifest.since_match` 9040578015. Script exit 1 was the LIVE compare (`validation_dataset_path` is the worktree path). Smoke dir and `_logs/target-smoke` deleted.
+- Checks: `bash -n` ok. `basedpyright` 0 errors. Pre-commit on the bash commit passed; the pyright hook skipped because no Python files were staged.
+- **Learnings for future iterations:**
+  - `run_seeds.sh` re-execs itself through `run_locked.py`. A `TARGET=...` prefix is already in the environment, so the child rebuilds `TARGET_ARGS`. The default is applied again in the child when `TARGET` is unset.
+  - Compare against LIVE from this worktree exits 1 on `validation_dataset_path` (and prints a `model_path` path diff) even when the parquet is the same file via symlink. Later compares need `--allow-drift`.
+  - One-map since-match anchor is match `9040578015` (`start_time` 1791744342). It is the only catalog match at or after that start.
+  - Do not `git add -A` in the worktree. Symlinks and backtest output are gitignored, but a wide add is still the wrong move.
+
+---
+STEP-001 orchestrator: passes=true without review (user decision); commit c05201b1 on exp-part2.
+
+## 2026-10-14 00:45 CEST - STEP-002
+
+- Worktree `../esports-trader-exp`, branch `exp-part2`. Three commits. `passes` left false.
+- A `11e9fd3c2db2513dbd9963c77126969c2c4ebe1e` grid-v1 kill waits keep the other side.
+- B `9549bb9ccb2ad834e3cc374f3e9635f87aa32e3e` post-table hold knob, default 0.
+- C `d6f4bb1c756a8ea9c82ad2413eb89d408239d14d` `--kill-hold-top2` stamps only when a top-2 hero of that side died.
+- Table `data/experiments/kill-top2/top2_deaths.parquet` (gitignored). maps 903, no_stratz 0, networth_per_minute_fallback_maps 0, deaths 51858, is_top2_share 0.293995, validation_max_deaths_over_stratz 0, empty_networth_per_minute_players 0.
+- Smoke knobs off, both maps match kg-base: 9026301227 engine_pnl -101.0390519499997, buy 85, sell 49. 8940266495 engine_pnl 2239.431179929999, buy 87, sell 15. Fix A did not move 8940266495.
+- Smoke knobs on, 9026301227 kg-top2: engine_pnl -90.54064426999958, buy 88, sell 52. Manifest hold 20.0, kill_gate_hold_top2_only true, kill_top2_sha256 af41dc79b592b4d3a6fe3fdcfef544f98f030c2c8708cfc2eee899a652c1c7f8. Parser errors exit 2. Smoke dirs deleted.
+- Checks: basedpyright 0 errors. Pre-commit on C passed. Targeted pytest 460 passed. `PYTEST_N=8 make test`: 18 failed, 3356 passed. All 18 are pre-existing: 13 host tests need `ODDIN_BRAND_TOKEN` (main fails the same 13 when token lookup is disabled), 2 LoL smokes lack `data/lol/processed/datasets/backtest_audit.parquet` in this worktree, and 3 Dota grid-v1 seed0 goldens already disagree with the October 12 LIVE tapes (8837869969 has 63 fills vs golden 52, 8911784562 differs at place_cancel[157], 8933879286 has 40 fills vs golden 32). Fix A changes some gate markers on those maps and is not the cause of the golden mismatch. Three archive dota seed0 smokes passed.
+- **Learnings for future iterations:**
+  - Top-2 series attach in `resolve_run_signals` after assembly. `_assemble_match_signals` writes zeros. `RawDeltaSignal.top2_deaths_*` default to 0.
+  - `kill_top2_path` is required on `build_run_manifest` and `manifest_for_selection`, after `archives_only`. Eight call sites share `exclusions={}, since_match=None, archives_only=False`.
+  - `--kill-hold-top2` is rejected unless `--game dota` and `--kill-post-table-hold-s > 0` and the file exists. Negative hold is rejected first by `_reject_negative`.
+  - Empty `networthPerMinute` would be networth 0 and a fallback map. The validation set had none.
+  - This worktree has no `data/lol` symlink. A red follow300 smoke then crashes in `_drift_note` on the missing audit parquet, which hides the tape line.
+  - Do not `git add -A`.
+
+---
+
+## 2026-10-14 01:09 CEST - STEP-002 fix
+
+- Review fixes on `exp-part2`. Commit `9786f9a217c462815434a542babe75da0312ceb4`. `passes` left false.
+- LoL grid-v1 kill gates stay one-sided. Dota still uses `live_next_kill_wait`. The top-2 loader checks int64 `death_index` before any cast. `tests/test_core_trace.py` is 986 lines.
+- Untracked `build_kill_top2.py` counts a networth-per-minute player while preparing the side, including a side with no deaths. The parquet was not rewritten.
+- Checks: basedpyright 0 errors. Pre-commit passed. Targeted pytest 461 passed.
+- **Learnings for future iterations:**
+  - The 18 `make test` failures in the STEP-002 entry are pre-existing. Do not attribute the three Dota seed0 golden mismatches to fix A.
+  - `exit_abs_delta` stays a `setdefault` of that trace's `min_abs_delta`. The other old-trace policy defaults live in `_POLICY_DEFAULTS_FOR_OLD_TRACES`.
+
+---
+STEP-002 orchestrator: reviews rev2 (sol-xhigh, 4 P2) + nc2 (swe-high, 13 comments) fixed in 9786f9a2; passes=true.
+
+## 2026-10-14 01:55 CEST - STEP-003
+
+- Worktree `../esports-trader-exp`, branch `exp-part2`. Commit `151e6c4385abb960f5fdc603ce15272eee800b88` on top of `9786f9a217c462815434a542babe75da0312ceb4`. `passes` left false. No training and no backtest.
+- Identity before and after: XP `2ad6c9ec8568068e535251b64b14dfa825d2927316e25a1581228d4a8f42482b`, no-XP `7822165088a5a6655ab0520414e1c06e7800e9bc03d7f30356d56409b3cd6486`.
+- STRATZ players: 195920 rows, 19592 maps, position null share 0.0417, start_time 2025-01-01 00:09:05 UTC through 2026-10-12 07:06:31 UTC.
+- `assign_roles.py`: anonymous wanted players 0. Training (16450 labelled players, 3290 sides): player 16008/16450 0.973131; pos1 3279/3290 0.996657; pos2 3287/3290 0.999088; pos3 3277/3290 0.996049; pos4 3081/3290 0.936474; pos5 3084/3290 0.937386; team 3072/3290 0.933739; core_support 16444/16450 0.999635. Validation (9030 players, 1806 sides): player 8873/9030 0.982614; pos1 1797/1806 0.995017; pos2 1793/1806 0.992802; pos3 1791/1806 0.991694; pos4 1745/1806 0.966224; pos5 1747/1806 0.967331; team 1729/1806 0.957364; core_support 9014/9030 0.998228. Both runs SHA256 `52186f1aff9dd6a722586ff30f5672c78b05cef5a138adc66ab46d47bd1f3246`. 25480 rows, 2548 maps, overlap 0.
+- `build_extras.py`: 2423901 rows, 2548 maps (2356489 second keys, 67412 minute-only keys). Networth mismatch second 0.0, minute 0.0. Deaths mismatch 0.0. NaN 0. `deaths.parquet` SHA256 `fe2fee075325841c2065f4f1af698f2e80fd8b4195e506b8ea33eeaa6b40304a`. `roles.parquet` SHA256 `90816fa877b3afcdd2b82871f5266db823f6ca3f60bfa7685cb13f02e1f8a759`.
+- Join check: `deaths join ok 32444 2347459` and `roles join ok 32444 2347459`.
+- Checks: basedpyright 0 errors. Pre-commit passed. Targeted pytest 381 passed. `PYTEST_N=8 make test`: 18 failed, 3371 passed. The 18 are the pre-existing host, LoL audit, and Dota seed0 golden failures from STEP-002.
+- **Learnings for future iterations:**
+  - Extra names are a trailing tail. `strip_extra_feature_columns` removes them. A name in the middle still fails `history_policy_for_columns` with "canonical". The backtest joins `extra_features.parquet` on the decision second for that tail only, and `match_id` never reaches the model.
+  - `require_extra_features` treats a missed key and a stored NaN the same way. Trainer keys are the train second and the validation second minus lag.
+  - `model_identity_sha256` hashes the table only when the file is present. The live research catalogs have no table, so their hashes stayed put.
+  - Role assignment uses the part-1 window `start_time >= start - 60*86400` and hero alpha 1.0. Wanted anonymous count was 0. Historical null accounts skip player history and still update hero history.
+  - Training-map accuracy was above the part-1 18775-map anchor. Every training and validation player in this set has a STRATZ position.
+  - Minute-key networth mismatch was 0 on this cache. The second-key check is the one that must stay 0.
+  - `tests/test_train_model.py` is 991 lines. Keep new cases from crossing 1000.
+  - Do not `git add -A`. The tables live under gitignored `data/experiments/`. The scripts live in the investigation folder.
+STEP-003 orchestrator: rev3 (sol-xhigh: P1 archive extras ahead of table, P2 role priors from running matches) skipped by implementer as out of scope; nc3 suppression fixed in 3518f50d; passes=true.
+
+## 2026-10-14 03:13 CEST - STEP-004
+
+- No commit. `passes` left false. Worktree `../esports-trader-exp`, branch `exp-part2`, head `3518f50d`. Scripts in the investigation `work/` folder.
+- Labels `data/experiments/short/validation_labels.parquet`: 2347459 rows. SHA256 `a026e367034d592290cb0740196369c1732071757826e50b148213c46033b4ab`. 30s lookup matched the stored label on every row. 60s self-join matched the lookup on every hit (found share 0.961515).
+- 60s NaN share all / ok / ok and second < 480: all rows 0.230687 / 0.134962 / 0.068651; before D 0.217847 / 0.134425 / 0.059457; after D 0.243518 / 0.135517 / 0.078528.
+- +30s join misses 50515. Of those, 22241 still have a stored 30s price (19415 ok), which is the probe's 22241. The other 28274 stored labels are NaN too.
+- short-h30-xp: fit/stop maps 356/90, rows 686022/146576, early-stop first 8929276426, trees 103-177 mean 125.80, identity `c79e8da035ee7174129c5f5e06753a51d5389af6c71a394ed1ce6f3833a57c15`, objective regression_l1, 40.3s, peak tree RSS 15.15 GiB.
+- short-h30-noxp: same split and rows, trees 54-111 mean 76.00, identity `ab7e2cb254f8aef02eb29b844be8eadce0eb04595ab41f9b85f497295169fc82`, 33.1s, peak tree RSS 15.40 GiB.
+- short-h60-xp: fit/stop maps 356/89, rows 672104/140527, early-stop first 8929365099, trees 74-184 mean 118.20, identity `0e6c1df1129a26e86f2e40cf012fd7d6782f7f94b8b918596d275442fa0c9c56`, 38.1s, peak tree RSS 15.51 GiB.
+- short-h60-noxp: same h60 split and rows, trees 54-117 mean 81.70, identity `cfe24a745af49abee6d7755ab68ea7f649c38c6d08d58a5b8819a9d1e81e5b62`, 33.3s, peak tree RSS 15.53 GiB.
+- Anchor in every `test_anchor.txt`: 8970886632. Five pre-D maps never entered a fit: no ok rows 8842807923 and 8852967216; ok but no 30s label 8839797269, 8852555586, 8852624581. h60 also drops 8852690357 (30s label present, 60s NaN).
+- F1 gain cents, test, whole map then M<480: xp h30 0.0477 [0.0411, 0.0544] / 0.0360 [0.0274, 0.0447]; xp h60 0.0903 [0.0788, 0.1016] / 0.0847 [0.0665, 0.1045]; noxp h30 0.0089 [0.0064, 0.0115] / 0.0094 [0.0054, 0.0135]; noxp h60 0.0432 [0.0352, 0.0511] / 0.0604 [0.0442, 0.0777].
+- F2 c and gain cents, same windows: xp h30 c 0.09, 0.0429 [0.0371, 0.0487] / 0.0284 [0.0218, 0.0353]; xp h60 c 0.25, 0.0409 [0.0321, 0.0496] / 0.0275 [0.0170, 0.0379]; noxp h30 c 0.00, 0.0089 [0.0064, 0.0115] / 0.0094 [0.0054, 0.0135]; noxp h60 c 0.20, 0.0113 [0.0060, 0.0167] / 0.0152 [0.0078, 0.0228].
+- F3 closed share and side*y cents: xp h30 closed 0.026044, closed h -0.7702 [-1.2626, -0.2950], closed 300 1.5440 [-0.3824, 3.4617], open h 0.8289 [0.7309, 0.9300], open 300 4.2580 [3.3110, 5.2130]. xp h60 closed 0.028656, closed h -0.3951 [-1.2099, 0.3980], closed 300 1.5323 [-0.4152, 3.5975], open h 1.3762 [1.1643, 1.5841], open 300 4.2662 [3.3229, 5.2167]. noxp h30 closed 0, no closed rows. noxp h60 closed 0.000139, closed h -5.1667 [-9.4000, 0.7500] n=6, closed 300 -10.1667 [-15.1667, -3.5000], open h 1.2450 [1.0386, 1.4635], open 300 4.1788 [3.2327, 5.0906].
+- |pred| p50/p90 cents on test M<480: xp h30 0.0887/0.8726, xp h60 0.3665/1.2712, noxp h30 0.0538/0.3144, noxp h60 0.2915/0.9431. Near-zero share on that window: 0.526911, 0.222381, 0.661849, 0.262380. Zero-label share there: h30 0.193007, h60 0.107169.
+- XP gates: research open share 0.386867 at 0.02 and 0.491733 at 0.015. h30 g/x 0.001438/0.000919. h60 g/x 0.005263/0.003768. Huber not needed.
+- Smoke map 9040578015, exit 0, total_engine_pnl 93.4649035499998, buy fills 20, sell fills 6. Manifest model_sha256 matched short-h30-xp. Smoke dir deleted.
+- Checks: ruff check and ruff format --check passed on the three scripts. basedpyright on the worktree: 0 errors. basedpyright on the scripts, with the script dir on extraPaths: 0 errors.
+- **Learnings for future iterations:**
+  - A +30s self-join miss count is larger than 22241. That 22241 is only the misses that still have a stored 30s price.
+  - Pre-D maps with no ok row, or no finite h label, leave the fit. h30 is 356/90 and h60 is 356/89.
+  - One short ensemble peaked near 15.5 GiB and finished in about 40s. Do not overlap a second training or a backtest.
+  - Map 9040578015 is not an Oddin map, so the smoke manifest hashes only short-h30-xp.
+  - Do not `git add` `data/new_model/experiments/short-*`.
+
+---
+STEP-004 orchestrator: rev4 (sol-xhigh) PASS, nc4 (swe-high) no findings; no repo commit (scripts + 4 short models + gates.json); passes=true.
+
+## 2026-10-14 04:37 CEST - STEP-005
+
+- Worktree `../esports-trader-exp`, branch `exp-part2`. Commit `451953b8c42e4ab38a8663b8a0ae8139ae5e291f`. `passes` left false.
+- BUY veto `short_veto_delta` and SELL hold `short_sell_hold_delta`, both default off. Backtest predicts the short model on the same decision rows. Five manifest keys. Knobs off keep the LIVE decisions.
+- Smoke 1–2, model loaded, knobs off. 9040578015 engine_pnl 454.7348856500001, buy 47, sell 23. 9010695310 engine_pnl 556.5801051300002, buy 89, sell 36. Both match LIVE seed0. The only parquet inequality is `merge_shares` and `merge_usdc` dtype (float 0.0 vs int 0).
+- Smoke 3–5, both deltas 0.005, horizon 30, shas `c79e8da0…` and `ab7e2cb2…`. short_horizon counts are cancel_request BUY / no_quote / cancel_request SELL.
+- 9040578015 short-smoke: engine_pnl 478.97460132999987, buy 46, sell 14, delta pnl +24.23971567999979, buy −1, sell −9. Counts 0 / 0 / 1.
+- 9010695310 short-smoke-oddin: engine_pnl 731.4929829599998, buy 89, sell 40, delta pnl +174.91287782999962, buy 0, sell +4. Counts 0 / 0 / 10.
+- 8987569122 short-smoke-v1: engine_pnl -279.67059887999983, buy 36, sell 10, delta pnl −8.910000000000082 vs LIVE −270.76059887999975, buy +1, sell −1. Counts 0 / 0 / 1.
+- Smoke dirs deleted. Listing matches the before listing (`_logs`, `LIVE`, `LIVE_NOXP`).
+- Checks: basedpyright 0 errors. Targeted pytest 632 passed, 5 failed (the known 3 Dota goldens and 2 LoL audit files). `make test` confirming run: 18 failed, 3398 passed. An earlier full run also failed `dota_9007700576` once; isolated replay matched the golden (14 fills, 519 events) and the second full run did not repeat it.
+- File sizes: `tests/test_core_trace.py` 990, `tests/test_kill_gate.py` 774, `tests/test_short_forecast.py` 320, `src/strategy/quoting.py` 976, `src/backtest/signals.py` 890.
+- **Learnings for future iterations:**
+  - Gap 1: `requote` must cancel when `buy_blocked` or `sell_blocked` is non-empty. A SELL-only hold never reaches the cancel if the check stays buy-only.
+  - Gap 2: `_reconcile_choice` keeps `short_horizon` as `held_reason`, same as `ownership_unresolved` and `position_open`.
+  - `short_held` is the label rule: a SELL cancel is `short_horizon` only when the token is in `exposure.short_held`. Otherwise it is `kill`.
+  - Kill wins: `short_held` is the short tokens minus the killer tokens. The same token held by both cancels as `kill`.
+  - A one-row `results.parquet` writes all-zero `merge_shares` and `merge_usdc` as int. The multi-map LIVE file stores them as float. Compare the decision columns.
+  - Do not `git add` `data/new_model/experiments/short-*`.
+
+---
+STEP-005 orchestrator: rev5 (sol-xhigh) APPROVE, nc5 (swe-high) 9 comment findings handled in 6022fec4; passes=true.
+
+## 2026-10-14 05:42 CEST - STEP-006
+
+- Worktree `../esports-trader-exp`, branch `exp-part2`. Commit `10d6b9a255a0c0e7221d21d62a14b5b68e20c2e0`. `passes` left false. Queue was not started.
+- Phase 0: `--since-match` seeds graft `_archive` when DONE exists. Targeted pytest 144 passed. basedpyright 0 errors. Pre-commit passed.
+- Control SHA256 match for `control-xp` and `control-noxp`. Trees match research (XP 64–96, no-XP 51–76). `e3-control` is not in the queue. Wall 73.44s and 70.34s.
+- E3 vs research XP mae 0.299455 dir 1.889728, no-XP mae 0.290906 dir 1.858300. e3-deaths-xp mae 0.300748 [0.220069, 0.386559] dir 1.917486 trees 59–82 id `c8d2bc0f98923f499e31e426faf67f544695f3895c7bcf748bfa817ae3b98007` 76.00s. e3-deaths-noxp mae 0.291347 [0.207655, 0.378285] dir 1.851018 trees 50–75 id `366ff601811251aa489f0f4059d6b0308cf4c27f467c18f8f9381c1b5cd135cb` 65.60s. e3-roles-xp mae 0.301608 [0.219630, 0.386399] dir 1.930534 trees 61–112 id `3bd19908ab7443a055de029353aefe38530cd9fc9c44610a8d517473b861c720` 93.32s. e3-roles-noxp mae 0.292473 [0.209826, 0.379489] dir 1.878853 trees 53–74 id `bbf58777fb5fa6c56a901817e6b7f83dec0b9f2796d8059e7ee4a7b994f2cc17` 76.86s. Extra SHA matches the source tables. Feature counts 85/74 and 128/117.
+- Availability: decisions 743575, maps 880, missing_roles 0, missing_deaths 0. Share all 0.032248 (maps_over 357, mean excess 4.675, max 216). grid_v1 0.000000 (522 maps). schedule_grid 0.139211 (261/261 maps, mean 5.605, max 216). schedule_oddin 0.011855 (96/97 maps, mean 1.207, max 62). Wall 190.18s.
+- No-change map 9038344101: engine_pnl -115.08105354000037, buy 58, sell 25, equal to LIVE seed0.
+- Smokes: hold 485.0746013299999 buy 46 sell 15 hold 20.0. top2 496.5933961899999 buy 45 sell 30, top2 sha `af41dc79…`. e3-roles oddin 358.1623234800004 buy 74 sell 25, by_dir noxp `bbf58777…`. e3-roles v1 -113.41054002999965 buy 35 sell 24, model_sha256 `3bd19908…`. e2b-h30 75.68059137999956 buy 46 sell 26, deltas 0.001438/0.000919, model `c79e8da0…`. Dirs deleted.
+- Hash: run 1 `resumed rows: 1`, mismatch count 0, `_archive/DONE` present, archive sha `af41dc79…`. Run 2 `does not match this run` for `kill_top2_sha256`, `matches still missing: 1`, seed sha `cfa7c986…`. Both `run_seeds.sh` exits were 1 from the LIVE compare. Dirs deleted.
+- DRY=1: exit 0, 14 `run_seeds.sh` lines, 51 compare lines. Anchor `8970886632`. E2b g/x 0.001438/0.000919 and 0.005263/0.003768. Expected queue about 8.3–8.5 h.
+- **Learnings for future iterations:**
+  - A `--since-match` seed reads `_archive` only when DONE exists. A changed `kill_top2_sha256` makes the seed replay the archive maps. The archive stage still skips on the DONE glob.
+  - `queue.sh` skips an item when every needed `seedN/summary.json` exists. A failed compare is `<file>.err` and is retried next start. `e1-base-seeds12` is one status row for seeds 1 and 2.
+  - `run_seeds.sh` exits 1 against LIVE because `validation_dataset_path` differs in this worktree. That exit is ignored.
+  - Six grid-v1 maps have no cadence decisions, so the availability frame has 880 maps. Missing extra keys on recorded decisions were 0.
+  - Do not `git add` `data/new_model/experiments/*` or the investigation scripts.
+
+---
+
+## 2026-10-14 06:32 CEST - STEP-006 fix
+
+- Reviews rev6 and nc6. `passes` left false. The real queue was not started.
+- Commit `9f4bedf24f96d32429699868700f4e60dda3ab21` drops the `load_seed_archive` docstring. Pre-commit ruff and basedpyright passed.
+- `queue.sh` now requires the exact run directory, a matching manifest, and `validate_catalog` plus `reject_short_catalog` before `ok` or a comparison. Unexpected `terminated_early` is `fail` and is not rerun. `empty_signal_tape` stays allowed. A changed hold, gate, model, top-2 file, or anchor is a mismatch and is not rerun.
+- Restart appends `ok` when the catalog is already valid and the latest status row is missing or `fail`. Comparisons also look at the paired baseline summary. `work/queue/inputs.sha256` refuses to resume if `queue.sh`, `queue_check.py`, or the queue inputs changed.
+- DRY=1 still prints 14 `run_seeds.sh` lines and 51 compare lines. Compare paths are the exact `validation_join_…` directories.
+- **Learnings for future iterations:**
+  - Do not treat `summary.json` alone as done. `report_seeds.py` runs after that file exists and rejects unexpected early terminations.
+  - E2b directory names include g/x (`delta001438_x000919`, `delta005263_x003768`). Other flag changes do not, so the manifest check is what blocks reuse.
+  - A failed comparison is `work/compare/<label>.err` next to `<label>.txt`.
+  - `queue_check.py` calls `os._exit` so a pyarrow thread-pool shutdown cannot stall the queue after a successful check.
+
+---
+STEP-006 orchestrator: rev6 (sol-xhigh: 2 P1 + 2 P2 in queue.sh) and nc6 (1 docstring) fixed (queue_check.py, commit 9f4bedf2); passes=true.
+
+## 2026-10-14 13:15 CEST - STEP-007
+
+- Worktree `../esports-trader-exp`, branch `exp-part2`, head `9f4bedf2`. No commit. `passes` left false.
+- Queue: 4-shard launch `2026-10-14T04:54:36Z` finished e1-base, e1-h20, e1-h10, and e1-h20top2-stratz (~35 min each). At user request the queue switched to 8 shards at `2026-10-14T07:20:30Z`. The first e3-deaths attempt (4 shards, start `2026-10-14T07:16:13Z`, ~4 min) was killed and moved to `data/backtests/dota_maker/_aborted-4sh-20261014/` and `queue/aborted-4sh/`. Per-map results do not depend on shard count (`MAX_MATCHES_PER_BATCH=1` at `run.py:240`, flat `ENGINE_STARTING_BALANCE` at `run.py:244-246`, per-map rng at `strategy.py:311`). 8-shard run `queue-exit 0` `2026-10-14T10:01:52Z`, wall 2 h 41 min. Latest status: 13/13 ok.
+- Arm-state fix: `queue_check.py` stored `model_path` as the relative `--model-dir` while `run.py` writes `expanduser().resolve()`. e3-deaths and e3-roles had finished seed 0 and were marked fail on that mismatch. The fix pins every `*_path` expectation the same way `run.py` writes it. The orchestrator moved `inputs.sha256` to `inputs.sha256.pre-armstate-fix`. The `2026-10-14T10:05Z` resume re-locked and appended ok for both arms with no new backtest. Backtest rerun: none. Failures that stayed: none.
+- Confirmation (seed-0 Δ net > 0 against `e1-base`): e1-h20 (+1983.88), e1-h20top2-stratz (+1844.09), e3-roles (+1695.22), e2a-buysell-h30 (+742.58), e2a-buysell-h60 (+583.29). Driver `2026-10-14T10:10:09Z`–`2026-10-14T11:10:12Z`, wall 1 h 00 min, `confirm-exit 0`. `e1-h20-seeds012`, `e1-h20top2-stratz-seeds012`, `e3-roles-seeds012`, `e2a-buysell-h30-seeds012`, `e2a-buysell-h60-seeds012`: ok. `RERUN` was empty. Phase 3 was not run.
+- Definitions: Δ net = `pnl with rebate` delta (candidate − base) on shared maps. p = pooled paired t / Wilcoxon over shared maps. Worst = `worst map (pre)` delta per seed (≥ 0 = not worse). Schedule maps graft the seed-0 archive, so schedule/grid deltas repeat on every seed.
+- Arms against `e1-base`:
+  - `e1-h20`: seeds 0,1,2; shared 877; Δ net +1983.88/-4451.12/-4176.11 (mean -2214.45); p t/W 0.3638/0.2230; grid_v1 (519) Δ net +997.35/-5437.65/-5162.64; schedule/grid (261) Δ net +986.53/+986.53/+986.53; worst +300.00/+0.00/+37.55.
+  - `e1-h10`: seeds 0; shared 880; Δ net -261.38 (mean -261.38); p t/W 0.9580/0.9550; grid_v1 (522) Δ net +382.91; schedule/grid (261) Δ net -644.29; worst -277.00.
+  - `e1-h20top2-stratz`: seeds 0,1,2; shared 877; Δ net +1844.09/-1408.42/-716.40 (mean -93.57); p t/W 0.9790/0.9070; grid_v1 (519) Δ net +2341.59/-910.93/-218.91; schedule/grid (261) Δ net -497.49/-497.49/-497.49; worst +0.00/+0.00/-76.08.
+  - `e3-deaths`: seeds 0; shared 880; Δ net -1146.54 (mean -1146.54); p t/W 0.6746/0.5115; grid_v1 (522) Δ net +765.37; schedule/grid (261) Δ net -1067.30; worst +0.00.
+  - `e3-roles`: seeds 0,1,2; shared 877; Δ net +1695.22/-3284.07/-5743.06 (mean -2443.97); p t/W 0.3528/0.9765; grid_v1 (519) Δ net +1684.14/-3295.16/-5754.14; schedule/grid (261) Δ net -986.37/-986.37/-986.37; worst +300.00/-67.99/+44.89.
+  - `e2a-buy-h30`: seeds 0; shared 432; Δ net -297.12 (mean -297.12); p t/W 0.4480/0.2254; grid_v1 (74) Δ net -33.09; schedule/grid (261) Δ net -264.04; worst +0.00.
+  - `e2a-buy-h60`: seeds 0; shared 432; Δ net -43.63 (mean -43.63); p t/W 0.9355/0.1757; grid_v1 (74) Δ net -2.83; schedule/grid (261) Δ net -42.80; worst +0.00.
+  - `e2a-buysell-h30`: seeds 0,1,2; shared 430; Δ net +742.58/+1085.15/+960.36 (mean +929.36); p t/W 0.4276/0.4333; grid_v1 (72) Δ net -316.34/+26.23/-98.56; schedule/grid (261) Δ net +606.21/+606.21/+606.21; worst +0.00/+0.00/+0.00.
+  - `e2a-buysell-h60`: seeds 0,1,2; shared 430; Δ net +583.29/+983.64/+988.06 (mean +851.66); p t/W 0.7178/0.0227; grid_v1 (72) Δ net -158.92/+241.43/+245.85; schedule/grid (261) Δ net -962.62/-962.62/-962.62; worst +3.82/+3.82/+3.82.
+  - `e2b-h30`: seeds 0; shared 432; Δ net -22755.70 (mean -22755.70); p t/W 0.0000/0.0000; grid_v1 (74) Δ net -1433.89; schedule/grid (261) Δ net -10279.28; worst +209.85.
+  - `e2b-h60`: seeds 0; shared 432; Δ net -16140.24 (mean -16140.24); p t/W 0.0001/0.0000; grid_v1 (74) Δ net -1411.58; schedule/grid (261) Δ net -7201.37; worst +413.52.
+- Pairs:
+  - `e1-h20top2-stratz` vs `e1-h20`: seeds 0,1,2; shared 877; Δ net -139.78/+3042.70/+3459.71 (mean +2120.87); p t/W 0.3175/0.2584; grid_v1 (519) Δ net +1344.24/+4526.72/+4943.73; schedule/grid (261) Δ net -1484.02/-1484.02/-1484.02; worst -300.00/+0.00/-113.63.
+  - `e3-roles` vs `e3-deaths`: seeds 0; shared 880; Δ net +2841.76 (mean +2841.76); p t/W 0.4036/0.8981; grid_v1 (522) Δ net +918.76; schedule/grid (261) Δ net +80.93; worst +300.00. Partner e3-deaths was not a seed-0 winner, so this pair stays on seed 0.
+  - `e2a-buysell-h30` vs `e2a-buy-h30`: seeds 0; shared 432; Δ net +1039.70 (mean +1039.70); p t/W 0.3805/0.3675; grid_v1 (74) Δ net -283.25; schedule/grid (261) Δ net +870.24; worst +0.00.
+  - `e2a-buysell-h60` vs `e2a-buy-h60`: seeds 0; shared 432; Δ net +626.91 (mean +626.91); p t/W 0.7917/0.0389; grid_v1 (74) Δ net -156.09; schedule/grid (261) Δ net -919.82; worst +3.82.
+- `e1-base` vs LIVE: whole set seeds 0,1,2; shared 877; Δ net +204.70/+993.69/-554.90 (mean +214.50); p t/W 0.6498/0.3000; worst +0.00/+0.00/+0.00. `--signal-mode schedule` (358 maps) identical. grid_v1 (519) seeds 0,1,2; Δ net +204.70/+993.69/-554.90 (mean +214.50); p t/W 0.6500/0.3000; worst +0.00/+0.00/+0.00 (effect of fix A). schedule/grid (261) seeds 0,1,2; Δ net +0.00/+0.00/+0.00 (mean +0.00); p identical; worst +0.00/+0.00/+0.00.
+- Arms that meet all four PLAN §11 checks on 3 seeds (Δ net > 0 on every seed, both p < 0.05, same sign in grid_v1 and schedule/grid, worst ≥ 0 on every seed): none. This is a mechanical check, not the keep/drop decision. `e2a-buysell-h30` and `e2a-buysell-h60` are positive on every seed with worst ≥ 0, and they miss both p < 0.05 and the cohort sign (grid_v1 and schedule/grid disagree). The other 3-seed arms are negative on seed 1 or seed 2.
+- Files: `$INV/work/queue/status.tsv`, `$INV/work/compare/*.txt`, `$INV/work/summary.tsv`.
+- **Learnings for future iterations:**
+  - 8-shard walls. All-map seed 0, archive included: e3-deaths 23 min, e3-roles 26 min. E2 seed 0, archive included: 13–18 min (e2b-h60 13, e2a-buy-h30 15, e2b-h30 15, e2a-buy-h60 16, e2a-buysell-h30 16, e2a-buysell-h60 18). Two extra seeds with the archive already present: all-map ~16 min for the pair (~8 min a seed) on e1-base, e1-h20, e1-h20top2-stratz, and e3-roles; E2 ~4–5 min for the pair on the two buysell arms. Confirm compare refresh after the last arm was 4 min. The 4-shard all-map seed 0 before the switch was ~35 min.
+  - A mismatch does not relaunch. A relative `model_path` fails the finished catalog and the next `queue.sh` still will not rerun it until the expectation uses the resolved path. Re-lock by moving `inputs.sha256` aside; the next start writes a new fingerprint. Do not delete the run dir.
+  - `confirm.sh` is `set -u`. A real launch must pass `DRY=` empty. An unset `DRY` exits before `require_lock`.
+  - 3-seed shared can be smaller than the seed-0 file (e1-h20 877 vs 880; buysell 430 vs 432). Schedule/grid deltas repeated on every seed of every 3-seed arm.
+  - Do not `git add` `data/new_model/experiments/*` or the investigation scripts.
+
+---
+- 2026-10-14 13:18 orchestrator: STEP-007 passes=true. User waived the review (runs only, no product code).
