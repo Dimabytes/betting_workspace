@@ -8,7 +8,7 @@ Read from SKILL.md when a reason/kind is unclear. Do not load this for a simple 
 ## Per-match files
 
 Host trees: `data/trader_live/<id>/` (live process), `data/trader_paper/<id>/`
-(paper process), plus the pre-rollout `data/live_paper/<id>/` tape. In-container
+(old paper process, removed 2026-10-17), plus the pre-rollout `data/live_paper/<id>/` tape. In-container
 the process still writes `data/trader/<match_id>/`.
 
 | File | Role |

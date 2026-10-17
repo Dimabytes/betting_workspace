@@ -1,11 +1,11 @@
 ---
 name: vps-trader
-description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, paper, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, rebate accrued since the last payout, why we are not selling, whether a restart is safe, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, feeds, books, halt, dust, or quoting. Do not restart unless asked.
+description: Inspect Dota 2 and LoL Polymarket trading on this VPS (live, collectors, onchain fills). Use when the user asks how a match is going, today's PnL, trader logs, why there were no bets, rebate accrued since the last payout, why we are not selling, whether a restart is safe, whether the daemon is healthy, to restart a trader after a pull or size change, or to look for bugs/suspicious behavior in matches, feeds, books, halt, dust, or quoting. Do not restart unless asked.
 ---
 
 # VPS trader
 
-This machine runs the live and paper traders. Read this before grepping the repo to rediscover log layout.
+This machine runs the live trader. Read this before grepping the repo to rediscover log layout.
 
 Answer first with the match, PnL, and whether anything is actually wrong. Then the evidence. Do not restart Docker, git pull, or edit config unless the user asked.
 
@@ -16,7 +16,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | What | Where |
 |---|---|
 | Live trader | `/root/work/esports-trader` service `live` (`WalletHost`, `--mode live`). Container `esports-trader-live-1`, host `data/trader_live` |
-| Paper trader | same compose, service `paper` (`--mode paper`). Container `esports-trader-paper-1`, host `data/trader_paper` |
+| Old paper tape | host `data/trader_paper`. The `paper` service was removed on 2026-10-17. Read-only history |
 | Pre-rollout tape | host `./data/live_paper` is the leftover pre-rollout tape. Read-only history; `--live` omits it. Do not delete |
 | Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain` |
 | Match archives (in-container) | `data/trader/<match_id>/` inside each trader |
@@ -43,7 +43,6 @@ Health:
 docker compose -f /root/work/esports-trader/compose.yaml ps
 docker compose -f /root/work/polymarket-collector/compose.yaml ps
 docker compose -f /root/work/esports-trader/compose.yaml logs --since 30m live
-docker compose -f /root/work/esports-trader/compose.yaml logs --since 30m paper
 ```
 
 Match / day summary (run this, do not re-parse JSONL by hand):
@@ -82,7 +81,7 @@ Read-only Streamlit dashboard: `make dashboard` in `/root/work/esports-trader`, 
 | Old Steam snapshots | `<match>/state.jsonl`, only maps traded on Steam before 2026-10-05. Do not dump it |
 | GRID / Oddin snapshots | `<match>/grid_state.jsonl` / `<match>/oddin_state.jsonl` |
 | Wallet-wide cash hole | `live.db` `fill_ledger`. Not per-match PnL. Open inventory looks like a cash loss |
-| Halt / 429 / Telegram | `docker compose logs --since 30m live` / `paper` |
+| Halt / 429 / Telegram | `docker compose logs --since 30m live` |
 | Settled day on Polymarket | `summarize.py --today` line `polymarket_today` (BUY/SELL/REDEEM/rebate + open marks) |
 | Rebate accrued since last payout | `summarize.py --rebate` (or `rebate_accrued` in `--today`) |
 
@@ -129,14 +128,13 @@ Read-only Streamlit dashboard: `make dashboard` in `/root/work/esports-trader`, 
 
 Run `summarize.py --restart-check` first. `restart_check SAFE` → restart is allowed. `restart_check UNSAFE ...` → quote the line and stop: a live map holding ≥5 shares (`position`) or still inside the buy window at `second < 480` (`in_window`) blocks a restart. `--live` alone is not the gate — a live map past 480 with a flat book is SAFE. Never `compose down`.
 
-Bind-mounted code/model: `restart` the process that loaded it. An `.env` change (modes, keys) needs `up -d --force-recreate live paper`, because `restart` does not re-interpolate the environment.
+Bind-mounted code/model: `restart` the process that loaded it. An `.env` change (modes, keys) needs `up -d --force-recreate live`, because `restart` does not re-interpolate the environment.
 
 From `/root/work/esports-trader`:
 
 ```bash
 docker compose restart live
 docker compose logs --since 2m live
-# or trader-paper
 ```
 
 Confirm production model names from `data/new_model/production/model.json` and `data/lol/models/production/model.json`, and clips from `config/trading.toml`. Size/risk/Python/model changes need this restart. Do not rebuild unless deps/Dockerfile/poly-maker changed.
@@ -177,51 +175,21 @@ Do not run `make test` / pytest while a map is live. Use `PYTEST_XDIST_AUTO_NUM_
 
 Separate compose. Five services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain`. `POLYMARKET_TAG_ID` is required on collect/compact (compose pins `"102366"` / `"65"`). `onchain` has no tag — it writes `parquet/onchain_fills` and `manifests/onchain/` into both archives. Discovery for quoting still reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting. Do not `compose down`. Image refresh is `docker compose build archive-dota` (no service named `archive`).
 
-## LoL deploy / verify / rollback (US-015 is done; kept for the rollback path)
+## LoL rollback
+
+The `paper` service was removed on 2026-10-17. To stop LoL, turn it off in `live` (collectors untouched):
 
 ```bash
 python3 /root/work/esports-trader/src/dashboard/summarize.py --live
 # If a Dota map is live, wait. Recreate detaches it.
 
-# In /root/work/esports-trader/.env (delete LIVE_TRADING entirely):
-# DOTA_TRADING_MODE=live
-# LOL_TRADING_MODE=paper
-# Compose already sets DOTA_ARCHIVE_ROOT to /archive/dota and LOL_ARCHIVE_ROOT to /archive/lol.
-
+# In /root/work/esports-trader/.env: LOL_TRADING_MODE=off
 cd /root/work/esports-trader
-docker compose up -d --force-recreate live paper
+docker compose up -d --force-recreate live
 # Do not: docker compose restart — it does not re-interpolate the environment.
+docker compose logs --since 5m live
+# trader assigned: mode=live games=dota
 ```
-
-Verify assignment and no live LoL CLOB:
-
-```bash
-docker compose -f /root/work/esports-trader/compose.yaml ps
-docker compose -f /root/work/esports-trader/compose.yaml logs --since 5m live
-docker compose -f /root/work/esports-trader/compose.yaml logs --since 5m paper
-# live:  trader assigned: mode=live games=dota,lol
-# paper: trader idle: mode=paper assigned=()
-# neither: LIVE_TRADING is removed
-
-docker compose -f /root/work/esports-trader/compose.yaml exec paper env | grep -E '^(PK|BROWSER_ADDRESS|LIVE_TRADING)=' || true
-# empty: paper has no wallet secrets
-
-# Paper session tape (host path after recreate):
-# data/trader_paper/<match>/session.jsonl  session_start.execution_mode == paper
-# PaperGateway fills are simulated; they are not CLOB. Absence of PK is the live-order gate.
-```
-
-Rollback LoL (collectors untouched):
-
-```bash
-# .env: LOL_TRADING_MODE=paper   # stay paper
-#    or LOL_TRADING_MODE=off     # trader-paper idles (assigned=())
-cd /root/work/esports-trader
-docker compose up -d --force-recreate live paper
-```
-
-Both games live: `LOL_TRADING_MODE=live` with Dota live. `live`
-gets `games=dota,lol`; `paper` idles (`assigned=()`).
 
 ## Chain balance logs
 
