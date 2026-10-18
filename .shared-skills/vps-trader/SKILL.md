@@ -18,7 +18,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Live trader | `/root/work/esports-trader` service `live` (`WalletHost`, `--mode live`). Container `esports-trader-live-1`, host `data/trader_live` |
 | Old paper tape | host `data/trader_paper`. The `paper` service was removed on 2026-10-17. Read-only history |
 | Pre-rollout tape | host `./data/live_paper` is the leftover pre-rollout tape. Read-only history; `--live` omits it. Do not delete |
-| Collectors | `/root/work/polymarket-collector` services `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain` |
+| Collectors | `/root/work/polymarket-collector` services `archive-dota`, `archive-lol`, `compact`, `onchain` |
 | Match archives (in-container) | `data/trader/<match_id>/` inside each trader |
 | Host state | `data/trader_live/`, `data/trader_paper/`, plus the leftover pre-rollout `data/live_paper` |
 | Wallet sqlite | in-container `data/trader/wallet/live.db` (real money). `paper.db` is paper mode, not the Polymarket live funder |
@@ -173,7 +173,7 @@ Do not run `make test` / pytest while a map is live. Use `PYTEST_XDIST_AUTO_NUM_
 
 ## Collector
 
-Separate compose. Five services: `archive-dota`, `compact-dota`, `archive-lol`, `compact-lol`, `onchain`. `POLYMARKET_TAG_ID` is required on collect/compact (compose pins `"102366"` / `"65"`). `onchain` has no tag — it writes `parquet/onchain_fills` and `manifests/onchain/` into both archives. Discovery for quoting still reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting. Do not `compose down`. Image refresh is `docker compose build archive-dota` (no service named `archive`).
+Separate compose. Four services: `archive-dota`, `archive-lol`, `compact`, `onchain`. `POLYMARKET_TAG_ID` is required on the two collect services only (compose pins `"102366"` / `"65"`). `compact` has no tag: it mounts both archives (`/data-dota`, `/data-lol`) and compacts Dota, then LoL, at 03:00 UTC. `onchain` has no tag — it writes `parquet/onchain_fills` and `manifests/onchain/` into both archives. Discovery for quoting still reads that game's `<archive>/metadata/markets/*.json`. If a trader is up but never starts sessions, check the archive for **that game** is running and sidecar mtimes are fresh (last 2h). Compact is offline parquet; it does not affect quoting. Do not `compose down`. Image refresh is `docker compose build archive-dota` (no service named `archive`).
 
 ## LoL rollback
 
