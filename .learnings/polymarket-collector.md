@@ -11,23 +11,24 @@
 
 ## Compose
 
-One binary, five services. Only `archive-dota` has `build: .`; the others share
+One binary, four services. Only `archive-dota` has `build: .`; the others share
 `image: polymarket-collector:latest`. There is no service named `archive`.
 
 | Service | Role | Host bind | `POLYMARKET_TAG_ID` |
 | --- | --- | --- | --- |
-| `archive-dota` | collect | `/var/lib/polymarket-dota-archive` | `"102366"` |
-| `compact-dota` | compact | `/var/lib/polymarket-dota-archive` | `"102366"` |
-| `archive-lol` | collect | `/var/lib/polymarket-lol-archive` | `"65"` |
-| `compact-lol` | compact | `/var/lib/polymarket-lol-archive` | `"65"` |
+| `archive-dota` | collect | `/var/lib/polymarket-dota-archive` → `/data` | `"102366"` |
+| `archive-lol` | collect | `/var/lib/polymarket-lol-archive` → `/data` | `"65"` |
+| `compact` | compact | Dota → `/data-dota`, LoL → `/data-lol` | none |
 | `onchain` | fills | both archives + `/var/lib/polymarket-onchain-state` | none |
 
-`POLYMARKET_TAG_ID` is required on collect/compact (no default). Empty/whitespace is rejected. Compose
-pins the tag per those services; do not set the tag only in `.env`. Compose also pins
-`COMPACTION_HOUR_UTC` (Dota 3, LoL 9) and `DUCKDB_MEMORY_LIMIT` (`1024MB`) on the two
-compact services; the memory limit is DuckDB `memory_limit` and is what keeps the
-LoL day compaction under about 2 GB RSS on the 16 GB VPS. In-container both
-roots are still `ARCHIVE_ROOT=/data`. Traders mount those host roots read-only at
+`POLYMARKET_TAG_ID` is required on collect only (no default). Empty/whitespace is rejected.
+Compose pins the tag per collect service; do not set the tag only in `.env`. The two
+collect services use `ARCHIVE_ROOT=/data`. `compact` has no tag and no `ARCHIVE_ROOT`:
+it reads `ARCHIVE_ROOT_DOTA=/data-dota` and `ARCHIVE_ROOT_LOL=/data-lol` and takes
+`game=` from that fixed list. At `COMPACTION_HOUR_UTC=3` it compacts Dota, then LoL, in
+one process; a failed day or scan of one game does not skip the other. Compose pins
+`DUCKDB_MEMORY_LIMIT` (`1536MB`) on `compact`; it is DuckDB `memory_limit` and keeps one
+day under about 2 GB RSS on the 16 GB VPS. Traders mount the host roots read-only at
 `/archive/dota` and `/archive/lol`. Compact is offline parquet; it does not affect
 quoting. `onchain` has no tag: it reads both games' `metadata/markets/*.json` and
 writes `parquet/onchain_fills` plus `manifests/onchain/<date>.json`. Import
@@ -36,7 +37,7 @@ refreshes the image via `docker compose build archive-dota`. `ONCHAIN_RPC_URL_*`
 and `ONCHAIN_START_DATE` stay in `.env` (never commit or echo the URLs).
 
 Each daemon holds its lock directory for its whole life: `archive-*` holds
-`.collector.lock`, `compact-*` holds `.compactor.lock`, `onchain` holds `.onchain.lock`.
+`.collector.lock`, `compact` holds `.compactor.lock` in both archive roots, `onchain` holds `.onchain.lock`.
 A present lock directory with a fresh mtime is the running service, not a running import.
 To see if an import runs, look for an `onchain-import` process or a `docker compose run` container.
 
@@ -51,7 +52,8 @@ When the midnight rotation was skipped, hour 00 of day D sits at the end of `eve
 - It publishes only if `gunzip(head) ++ gunzip(tail)` equals `gunzip(original)`.
 - The original goes to `<root>/.recovery/<ISO ts>/events/<D-1>/23.jsonl.gz`. `--backup-dir` overrides `<root>/.recovery/<ISO ts>`.
 - `--dry-run` only reports counts and takes no lock.
-- A real run takes `.compactor.lock`. `compact-<game>` holds it while it runs, so stop `compact-<game>` first.
+- A real run takes `.compactor.lock`. `compact` holds it in both roots while it runs, so stop `compact` first.
+  That pauses compaction of both games. Start it again with `docker compose up -d compact`.
 - It refuses if `events/<D>/00.jsonl.gz` or `00.jsonl.partial` exists, or if no record of D sits in the file.
   It also refuses if a tail record falls outside hour 00 of D.
 - After a resplit, recompact D-1 and D in date order. Move both manifests out of `manifests/`.
