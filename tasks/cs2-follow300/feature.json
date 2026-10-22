@@ -11,44 +11,44 @@
     "investigations/2026-10-17-cs2-cycle2/report.md",
     ".learnings/worktree.md",
     "AGENTS.md",
-    "../esports-trader-cs2/AGENTS.md",
-    "../esports-trader-cs2/Makefile",
-    "../esports-trader-cs2/docs/rebuild-order.md",
-    "../esports-trader-cs2/scripts/run_seeds.sh",
-    "../esports-trader-cs2/scripts/cs2/fetch_gamma.py",
-    "../esports-trader-cs2/scripts/cs2/fetch_grid_rounds.py",
-    "../esports-trader-cs2/scripts/cs2/fetch_bo3.py",
-    "../esports-trader-cs2/scripts/cs2/fetch_bo3_replays.py",
-    "../esports-trader-cs2/scripts/cs2/inspect_live.py",
-    "../esports-trader-cs2/scripts/cs2/record_live.py",
-    "../esports-trader-cs2/src/collect/s01_build_universe.py",
-    "../esports-trader-cs2/src/collect/s02_link_opendota.py",
-    "../esports-trader-cs2/src/collect/s03_merge_archive_links.py",
-    "../esports-trader-cs2/src/collect/s04_fetch_grid_starts.py",
-    "../esports-trader-cs2/src/collect/s05b_fetch_stratz_matches.py",
-    "../esports-trader-cs2/src/collect/s06_publish_catalog.py",
-    "../esports-trader-cs2/src/collect/s07_link_readiness.py",
-    "../esports-trader-cs2/src/shared/utils/team_names.py",
-    "../esports-trader-cs2/src/shared/utils/series_format.py",
-    "../esports-trader-cs2/src/shared/types/dataset.py",
-    "../esports-trader-cs2/src/shared/constants/dataset.py",
-    "../esports-trader-cs2/src/shared/utils/telonex_book.py",
-    "../esports-trader-cs2/src/shared/utils/gbm.py",
-    "../esports-trader-cs2/src/market_data/build_market_data.py",
-    "../esports-trader-cs2/src/prepare_dataset/prepare_dataset.py",
-    "../esports-trader-cs2/src/train_model/train_model.py",
-    "../esports-trader-cs2/src/lol/constants.py",
-    "../esports-trader-cs2/src/lol/02_fetch_telonex_books.py",
-    "../esports-trader-cs2/src/lol/06_train_model.py",
-    "../esports-trader-cs2/src/backtest/run.py",
-    "../esports-trader-cs2/src/backtest/lol_inputs.py",
-    "../esports-trader-cs2/src/backtest/signals.py",
-    "../esports-trader-cs2/src/backtest/strategy.py",
-    "../esports-trader-cs2/src/backtest/live_latency.py",
-    "../esports-trader-cs2/src/backtest/report_capital.py",
-    "../esports-trader-cs2/src/strategy/quoting.py",
-    "../esports-trader-cs2/src/shared/constants/strategy.py",
-    "../esports-trader-cs2/data/cs2/live/ (записи live GRID 17.10, 11 серий)"
+    "../esports-trader/AGENTS.md",
+    "../esports-trader/Makefile",
+    "../esports-trader/docs/rebuild-order.md",
+    "../esports-trader/scripts/run_seeds.sh",
+    "../esports-trader/scripts/cs2/fetch_gamma.py",
+    "../esports-trader/scripts/cs2/fetch_grid_rounds.py",
+    "../esports-trader/scripts/cs2/fetch_bo3.py",
+    "../esports-trader/scripts/cs2/fetch_bo3_replays.py",
+    "../esports-trader/scripts/cs2/inspect_live.py",
+    "../esports-trader/scripts/cs2/record_live.py",
+    "../esports-trader/src/collect/s01_build_universe.py",
+    "../esports-trader/src/collect/s02_link_opendota.py",
+    "../esports-trader/src/collect/s03_merge_archive_links.py",
+    "../esports-trader/src/collect/s04_fetch_grid_starts.py",
+    "../esports-trader/src/collect/s05b_fetch_stratz_matches.py",
+    "../esports-trader/src/collect/s06_publish_catalog.py",
+    "../esports-trader/src/collect/s07_link_readiness.py",
+    "../esports-trader/src/shared/utils/team_names.py",
+    "../esports-trader/src/shared/utils/series_format.py",
+    "../esports-trader/src/shared/types/dataset.py",
+    "../esports-trader/src/shared/constants/dataset.py",
+    "../esports-trader/src/shared/utils/telonex_book.py",
+    "../esports-trader/src/shared/utils/gbm.py",
+    "../esports-trader/src/market_data/build_market_data.py",
+    "../esports-trader/src/prepare_dataset/prepare_dataset.py",
+    "../esports-trader/src/train_model/train_model.py",
+    "../esports-trader/src/lol/constants.py",
+    "../esports-trader/src/lol/02_fetch_telonex_books.py",
+    "../esports-trader/src/lol/06_train_model.py",
+    "../esports-trader/src/backtest/run.py",
+    "../esports-trader/src/backtest/lol_inputs.py",
+    "../esports-trader/src/backtest/signals.py",
+    "../esports-trader/src/backtest/strategy.py",
+    "../esports-trader/src/backtest/live_latency.py",
+    "../esports-trader/src/backtest/report_capital.py",
+    "../esports-trader/src/strategy/quoting.py",
+    "../esports-trader/src/shared/constants/strategy.py",
+    "../esports-trader/data/cs2/live/ (записи live GRID 17.10, 11 серий)"
   ],
   "Functional Requirements Summary": [
     "FR-1: Пайплайн src/cs2/ s01–s11 по образцу Dota: каждый шаг читает только выход предыдущих, каталог data/cs2/catalog/match_catalog.parquet — главный вход для шагов после s06.",
@@ -76,8 +76,8 @@
     "Смена сторон в CS2: после раунда 12 и после 27 + 6k. После 24, 30, 36 смены нет (4 716 карт GRID, 535 с овертаймом). Правило «12, 24, 27, 30…» выкинуло бы 553 карты, новое — 23.",
     "Пауза в обучении: секунда заморозки с таймером ниже нуля; все секунды фазы 3 раундов 12, 24 и 24 + 3k. Пауза в бэктесте — те же секунды со сдвигом +1 с. Live-граница начала паузы в заморозке — кадр старта заморозки (таймер 20 с) + 20 с без кадра «115 с».",
     "Признак таймера: в фазе 0 — секунд с начала заморозки (при тактическом таймауте live видит 30 → 0, а реплей 20 → 0 → минус); в фазах 1–3 — показание таймера.",
-    "Работаем в worktree ../esports-trader-cs2, ветка cs2-signal. Каждый шаг — отдельный коммит. main, VPS и живая торговля не меняются. git push не делаем.",
-    "Данные CS2 лежат один раз в ../esports-trader/data/cs2/. В worktree data/cs2 — настоящая папка с симлинками, models/ — настоящая папка в гите ветки, как data/lol/models.",
+    "Работаем в ../esports-trader на main. Worktree esports-trader-cs2 (ветка cs2-signal) влит в main merge-коммитом 69ed8f7f и удалён 19.10.2026. Каждый шаг — отдельный коммит. VPS и живая торговля не меняются. git push не делаем.",
+    "Данные CS2 лежат в ../esports-trader/data/cs2/. data/cs2/models — в гите, как data/lol/models. Прогоны — в ../esports-trader/data/backtests/cs2_maker.",
     "Отчёты пилота и прогона — investigations/<дата старта пилота>-cs2-follow300/report.md (разделы «Пилот», «Полный прогон», «Итог»), скрипты и дампы — в work/. Ход работы — tasks/cs2-follow300/progress.txt."
   ],
   "Non-Goals (Out of Scope for V1)": [
@@ -109,7 +109,7 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -129,7 +129,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -150,7 +150,7 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -168,7 +168,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -189,7 +189,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -213,7 +213,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -232,7 +232,7 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -252,7 +252,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -271,7 +271,7 @@
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -292,7 +292,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -314,7 +314,7 @@
         "Typecheck passes"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -333,7 +333,7 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -355,7 +355,7 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -378,7 +378,7 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
@@ -401,7 +401,7 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "ticket": "",
       "designReference": []
     },
