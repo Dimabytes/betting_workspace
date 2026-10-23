@@ -11,7 +11,7 @@
 
 ## Compose
 
-One binary, four services. Only `archive-dota` has `build: .`; the others share
+One binary, five services. Only `archive-dota` has `build: .`; the others share
 `image: polymarket-collector:latest`. There is no service named `archive`.
 
 | Service | Role | Host bind | `POLYMARKET_TAG_ID` |
@@ -20,6 +20,7 @@ One binary, four services. Only `archive-dota` has `build: .`; the others share
 | `archive-lol` | collect | `/var/lib/polymarket-lol-archive` → `/data` | `"65"` |
 | `compact` | compact | Dota → `/data-dota`, LoL → `/data-lol` | none |
 | `onchain` | fills | both archives + `/var/lib/polymarket-onchain-state` | none |
+| `ship` | NAS push + prune | both archives + `/var/lib/polymarket-ship` → `/state` | none |
 
 `POLYMARKET_TAG_ID` is required on collect only (no default). Empty/whitespace is rejected.
 Compose pins the tag per collect service; do not set the tag only in `.env`. The two
@@ -37,7 +38,8 @@ refreshes the image via `docker compose build archive-dota`. `ONCHAIN_RPC_URL_*`
 and `ONCHAIN_START_DATE` stay in `.env` (never commit or echo the URLs).
 
 Each daemon holds its lock directory for its whole life: `archive-*` holds
-`.collector.lock`, `compact` holds `.compactor.lock` in both archive roots, `onchain` holds `.onchain.lock`.
+`.collector.lock`, `compact` holds `.compactor.lock` in both archive roots, `onchain` holds `.onchain.lock`,
+`ship` holds `.ship.lock` in both archive roots.
 A present lock directory with a fresh mtime is the running service, not a running import.
 To see if an import runs, look for an `onchain-import` process or a `docker compose run` container.
 
@@ -71,6 +73,40 @@ The `onchain` service, not compact, writes `manifests/reconcile/<date>.json` in 
   A line with stall windows starts with `STALL`.
 - The service never recomputes an existing file. To recompute after a recompaction, move the file out of `manifests/reconcile/`.
 - Both manifests must exist. Days before the first `manifests/onchain/<date>.json` (2026-09-20) get no reconcile report.
+
+## Ship to NAS and prune
+
+`ship` (`node dist/ship-main.js`) pushes closed days of both games to the NAS `pizza` over Tailscale with rsync + ssh.
+Contract: `docs/polymarket_dota_archive_contracts.md` §13.2. Runbook: `docs/docker-compose.md` "NAS ship service".
+
+- `SHIP_TARGET=ship@100.67.62.33` in `.env`. Use the IP: the container does not resolve MagicDNS names.
+- The NAS key runs `rrsync -wo -no-del`: it adds and overwrites files, never reads or deletes them.
+  You cannot list the NAS through this key. Check NAS contents on `pizza` itself.
+- On `pizza` the target is ZFS dataset `tank/polymarket` (`dota/`, `lol/`, `cs2/`). Sanoid takes one snapshot
+  a day and keeps 30. Restore a file from `/tank/polymarket/.zfs/snapshot/<snapshot>/<path>`.
+- A pass runs at start, then every `SHIP_INTERVAL_MINUTES` (60). A day is sha256-checked locally, pushed,
+  checksum-verified on the NAS, then receipted in `manifests/shipped/<date>.json` or `manifests/shipped/onchain/<date>.json`.
+- A receipt is live when its `manifestSha256` matches the current manifest bytes. A republished manifest ships the day again.
+- A pass logs `ship day ok` per day and nothing at its end. The prune result goes only to Telegram.
+- Telegram alerts, once a day each: NAS unreachable 24 h, manifests not listable, a closed day not shipped
+  48 h after it ended, an archive filesystem above 80% used.
+
+Prune is on since 2026-10-23 (`SHIP_PRUNE=true` in `.env`). It deletes on the VPS only files of a manifest
+with a live receipt whose sha256 and size still match.
+
+- Journal day D goes when receipts D and D−1 are live and D < today − `EVENTS_KEEP_DAYS` (default 14).
+- Parquet day D goes when its receipt is live and D < today − `PARQUET_KEEP_DAYS` (default 45).
+- `metadata/`, `manifests/`, `checkpoints/` stay on the VPS forever.
+- The first run freed 172 GB (310 → 138 GB used on `/`). Steady state is about 77 GB of archive.
+- A pruned journal day cannot be recompacted or resplit on the VPS. Copy its `events/<D>/` back from `pizza` first.
+- Do not move `ONCHAIN_START_DATE` back past today − 45 days, and do not delete reconcile files of such days,
+  until their `trades` parquet is back from the NAS. Reconcile of those days fails every pass and fills all 7 slots.
+- Legacy Telonex `onchain_fills` (days without `manifests/onchain/<date>.json`, everything before 2026-09-20)
+  have no receipt. `ship` never sent them and prune never deletes them: 3.6 GB stay on the VPS.
+- The live trader reads the journal 24 h back (`esports-trader/src/trader/book_prior.py`) and `metadata/`.
+  Backtests read books from the NAS. Both sit inside the prune windows.
+- If the NAS is lost: `book_snapshot_full`, `trades`, `onchain_fills` come back from Telonex (same format,
+  not byte-identical). The journal older than 14 days is gone; it is needed only to recompact.
 
 ## What it produces
 
