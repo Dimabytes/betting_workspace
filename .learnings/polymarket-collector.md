@@ -11,35 +11,41 @@
 
 ## Compose
 
-One binary, five services. Only `archive-dota` has `build: .`; the others share
+One binary, six services. Only `archive-dota` has `build: .`; the others share
 `image: polymarket-collector:latest`. There is no service named `archive`.
 
 | Service | Role | Host bind | `POLYMARKET_TAG_ID` |
 | --- | --- | --- | --- |
 | `archive-dota` | collect | `/var/lib/polymarket-dota-archive` → `/data` | `"102366"` |
 | `archive-lol` | collect | `/var/lib/polymarket-lol-archive` → `/data` | `"65"` |
-| `compact` | compact | Dota → `/data-dota`, LoL → `/data-lol` | none |
-| `onchain` | fills | both archives + `/var/lib/polymarket-onchain-state` | none |
-| `ship` | NAS push + prune | both archives + `/var/lib/polymarket-ship` → `/state` | none |
+| `archive-cs2` | collect | `/var/lib/polymarket-cs2-archive` → `/data` | `"100780"` |
+| `compact` | compact | Dota → `/data-dota`, LoL → `/data-lol`, CS2 → `/data-cs2` | none |
+| `onchain` | fills | all three archives + `/var/lib/polymarket-onchain-state` | none |
+| `ship` | NAS push + prune | all three archives + `/var/lib/polymarket-ship` → `/state` | none |
 
 `POLYMARKET_TAG_ID` is required on collect only (no default). Empty/whitespace is rejected.
-Compose pins the tag per collect service; do not set the tag only in `.env`. The two
+Compose pins the tag per collect service; do not set the tag only in `.env`. The three
 collect services use `ARCHIVE_ROOT=/data`. `compact` has no tag and no `ARCHIVE_ROOT`:
-it reads `ARCHIVE_ROOT_DOTA=/data-dota` and `ARCHIVE_ROOT_LOL=/data-lol` and takes
-`game=` from that fixed list. At `COMPACTION_HOUR_UTC=3` it compacts Dota, then LoL, in
+it reads `ARCHIVE_ROOT_DOTA=/data-dota`, `ARCHIVE_ROOT_LOL=/data-lol` and
+`ARCHIVE_ROOT_CS2=/data-cs2` and takes `game=` from that fixed list. At
+`COMPACTION_HOUR_UTC=3` it compacts Dota, then LoL, then CS2, in
 one process; a failed day or scan of one game does not skip the other. Compose pins
 `DUCKDB_MEMORY_LIMIT` (`1536MB`) on `compact`; it is DuckDB `memory_limit` and keeps one
 day under about 2 GB RSS on the 16 GB VPS. Traders mount the host roots read-only at
 `/archive/dota` and `/archive/lol`. Compact is offline parquet; it does not affect
-quoting. `onchain` has no tag: it reads both games' `metadata/markets/*.json` and
-writes `parquet/onchain_fills` plus `manifests/onchain/<date>.json`. Import
+quoting. `onchain` has no tag: it reads each game's `metadata/markets/*.json` and
+writes `parquet/onchain_fills` plus `manifests/onchain/<date>.json`. A pass walks
+Dota, then LoL, then CS2. `ONCHAIN_START_DATE_CS2=2026-10-23` is pinned in Compose,
+not `.env`. Dota and LoL keep `ONCHAIN_START_DATE`. CS2 takes part in an onchain day
+only from 2026-10-23 UTC; earlier days need no CS2 manifest and are not reopened.
+Import
 `accept` holds `.onchain.lock` — it must finish before `up -d onchain`. Build
 refreshes the image via `docker compose build archive-dota`. `ONCHAIN_RPC_URL_*`
 and `ONCHAIN_START_DATE` stay in `.env` (never commit or echo the URLs).
 
 Each daemon holds its lock directory for its whole life: `archive-*` holds
-`.collector.lock`, `compact` holds `.compactor.lock` in both archive roots, `onchain` holds `.onchain.lock`,
-`ship` holds `.ship.lock` in both archive roots.
+`.collector.lock`, `compact` holds `.compactor.lock` in every archive root, `onchain` holds `.onchain.lock`,
+`ship` holds `.ship.lock` in every archive root.
 A present lock directory with a fresh mtime is the running service, not a running import.
 To see if an import runs, look for an `onchain-import` process or a `docker compose run` container.
 
@@ -76,8 +82,10 @@ The `onchain` service, not compact, writes `manifests/reconcile/<date>.json` in 
 
 ## Ship to NAS and prune
 
-`ship` (`node dist/ship-main.js`) pushes closed days of both games to the NAS `pizza` over Tailscale with rsync + ssh.
+`ship` (`node dist/ship-main.js`) pushes closed days of Dota, LoL and CS2 to the NAS `pizza` over Tailscale with rsync + ssh.
 Contract: `docs/polymarket_dota_archive_contracts.md` §13.2. Runbook: `docs/docker-compose.md` "NAS ship service".
+`ship` owns new CS2 days on the NAS `cs2/` from the first `archive-cs2` day.
+`esports-trader` `src/cs2/s08_fetch_telonex_books.py` writes only days before that day, never a day `ship` sent or prune removed from the VPS.
 
 - `SHIP_TARGET=ship@100.67.62.33` in `.env`. Use the IP: the container does not resolve MagicDNS names.
 - The NAS key runs `rrsync -wo -no-del`: it adds and overwrites files, never reads or deletes them.
@@ -131,10 +139,10 @@ the outputs sit in a host bind mount.
 ## Discovery
 
 - Polls Gamma Events every 60 seconds with the service's `POLYMARKET_TAG_ID`,
-  `active=true`, `closed=false`. Dota is `102366`, LoL is `65`. There is no v1
+  `active=true`, `closed=false`. Dota is `102366`, LoL is `65`, CS2 is `100780`. There is no v1
   default tag.
 - Keeps two market kinds: `moneyline` + `Match Winner` (series) and
-  `child_moneyline` + `Game N Winner` (map).
+  `child_moneyline` + `Game N Winner` or `Map N Winner` (map). CS2 names map markets `Map N Winner`.
 - A missing Event in one poll is not a signal to drop the subscription. A token leaves the
   stream only after a durable terminal payload is written.
 - Any unseen `(sportsMarketType, groupItemTitle)` pair lands in the journal and the manifest.
