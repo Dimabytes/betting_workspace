@@ -20,3 +20,21 @@
 
 ---
 STEP-001 review (orchestrator): step review 1 MAJOR + 1 MINOR, comments review 19; implementer fixed in 63a7519, skipped 3 reshape extractions; yarn check 707 passed / 16 skipped (rrsync).
+
+## 2026-10-23 21:25 - STEP-002
+
+- Rolled out `63a7519` on sun. archive-cs2 started at 19:18:11Z, then compact/onchain/ship were recreated at 19:20:41Z. archive-dota and archive-lol kept their container ids.
+- Onchain: `ONCHAIN_START_DATE_CS2=2026-10-23`, pass `today=2026-10-23`, `lastFullDay=2026-10-22`, no outcomes, no RPC, no CS2 manifest. Dota/LoL 2026-10-22 manifests were not rewritten.
+- Collect has 1153 sidecars (740 map_winner). `gameLabel(100780)=cs2`. Image `yarn check`: 707 passed, 16 skipped.
+- Host ship test could not fail the LoL scan: the fixture wrote a file onto an existing `manifests` directory. It now removes the directory first. `src/ship.test.ts`: 7 passed.
+- Ship CS2 push failed: NAS `mkdir /tank/polymarket/cs2/metadata` permission denied. Dota and LoL did not fail. sun cannot ssh to pizza.
+- Markets closed before 19:18Z have no sidecar. In the latest 100 closed Gamma events, 20 events / 40 Map N Winner markets closed today before 18:52Z. Their 2026-10-23 fills stay out of the archive.
+- `docker compose config` was run on sun. Secrets were not recorded.
+
+- **Learnings for future iterations:**
+  - Start archive-cs2 and wait for sidecars before recreating onchain. The open UTC day is not published; the empty-catalog publish happens after midnight.
+  - The image build skips ship tests. Run `src/ship.test.ts` on a host that has rrsync. The three-root fixture must delete `manifests` before replacing it with a file.
+  - `tank/polymarket/cs2` is the Telonex tree and is not writable by the ship user. A CS2 receipt needs that fixed on pizza.
+  - A failed ship game does not stop the other games. Compact catch-up at 19:20Z compacted 0 days.
+
+---
