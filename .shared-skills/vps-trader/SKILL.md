@@ -64,7 +64,7 @@ python3 /root/work/esports-trader/src/dashboard/summarize.py --restart-check
 
 `--live` is open sessions in `trader_live` / `trader_paper` only: no `session_end`, no `final` (GRID often stores `winner: null`), no `execution_cleanup.json`, and a file written in the last 15 minutes. A restart or a feed that ends without a final leaves a session with no `session_end` forever. `--today` labels such a dead session `ORPHAN`, not `LIVE`. The pre-rollout `data/live_paper` tree is omitted (crash leftovers look LIVE there forever). The current map is still the newest `joined_at_utc` without a `final`, or the match id in the latest `session started` docker line without a matching `session finished`. On `--today`, a row with `final` is not labeled LIVE. Do not delete those leftover dirs; they are the tape.
 
-Read-only Streamlit dashboard: `make dashboard` in `/root/work/esports-trader`, then `ssh -L 8501:localhost:8501 sun` and open localhost:8501.
+Read-only Streamlit dashboard: compose service `dashboard` in `/root/work/esports-trader`, container `esports-trader-dashboard-1`, listening on `0.0.0.0:8501` so Tailscale can open it. `make dashboard` is `docker compose up -d dashboard`. Restart with `docker compose restart dashboard`. Rebuild only when deps or the Dockerfile change: `docker compose up -d --build dashboard`. Do not recreate `live` for a dashboard change.
 
 ## Which file answers what
 
