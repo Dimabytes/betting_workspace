@@ -36,5 +36,6 @@ STEP-001 review (orchestrator): step review 1 MAJOR + 1 MINOR, comments review 1
   - The image build skips ship tests. Run `src/ship.test.ts` on a host that has rrsync. The three-root fixture must delete `manifests` before replacing it with a file.
   - `tank/polymarket/cs2` is the Telonex tree and is not writable by the ship user. A CS2 receipt needs that fixed on pizza.
   - A failed ship game does not stop the other games. Compact catch-up at 19:20Z compacted 0 days.
+  - Host `yarn check` after the fixture fix: 723 passed, 0 skipped. The image build still skipped 16 ship/rsync tests.
 
 ---
