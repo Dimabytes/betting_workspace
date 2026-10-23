@@ -51,3 +51,11 @@
   native loader, the window trim and one loader worker change nothing in the
   results.
 
+
+## Shard count on the 32 GB MacBook (2026-10-19)
+
+- Dota, 888 maps, 11 shards: fine, free memory never below 44%.
+- LoL, full 1732 maps, 11 shards: the seed stage thrashed. Each seed shard holds
+  3-9 GB (lookups for its maps load at start), 11 of them ~62 GB, swap full at
+  21 GB, shards at 0% CPU. 7 shards ran at ~40% free memory.
+  Use `SHARDS=7` or fewer for a full LoL run; `--limit 200` on 6 shards is fine.
