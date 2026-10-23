@@ -16,7 +16,7 @@
   "review": {
     "model": "gpt-6.1-sol-xhigh",
     "instructions": [
-      "The comments review (feature-json-no-comments) is done by devin high (swe-2-high). Also a lot code already have comments. But it's not un excuse for a new code. New code should not have comments just because old one have. And if we refator function it's a good moment to remove comments. Fuck comments."
+      "The comments review (feature-json-no-comments) is done by sol high. Also a lot code already have comments. But it's not un excuse for a new code. New code should not have comments just because old one have. And if we refator function it's a good moment to remove comments. Fuck comments."
     ]
   }
 }
