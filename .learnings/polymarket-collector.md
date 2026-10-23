@@ -84,9 +84,7 @@ The `onchain` service, not compact, writes `manifests/reconcile/<date>.json` in 
 
 `ship` (`node dist/ship-main.js`) pushes closed days of Dota, LoL and CS2 to the NAS `pizza` over Tailscale with rsync + ssh.
 Contract: `docs/polymarket_dota_archive_contracts.md` §13.2. Runbook: `docs/docker-compose.md` "NAS ship service".
-`ship` owns new CS2 days on the NAS `cs2/` from the first `archive-cs2` day.
-`esports-trader` `src/cs2/s08_fetch_telonex_books.py` writes only days before that day, never a day `ship` sent or prune removed from the VPS.
-On 2026-10-23 the first CS2 push failed: the ship user cannot create `cs2/metadata` on `tank/polymarket` (permission denied). Dota and LoL were unaffected. The existing `cs2/` tree is the Telonex directory. sun has no shell on pizza, so the owner has to be fixed there before a CS2 receipt can exist.
+`ship` owns the NAS `cs2/` tree, the same as Dota and LoL. The Telonex parquet already there stays. The Mac share is read-only; `s08_fetch_telonex_books.py` does not write new CS2 days.
 
 - `SHIP_TARGET=ship@100.67.62.33` in `.env`. Use the IP: the container does not resolve MagicDNS names.
 - The NAS key runs `rrsync -wo -no-del`: it adds and overwrites files, never reads or deletes them.
