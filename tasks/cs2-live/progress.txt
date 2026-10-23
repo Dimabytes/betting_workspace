@@ -1,0 +1,22 @@
+## 2026-10-23 20:50 - STEP-001
+
+- archive-cs2 (tag 100780) and ARCHIVE_ROOT_CS2 on compact, onchain and ship. Map N Winner is map_winner.
+- CS2 onchain starts at ONCHAIN_START_DATE_CS2. takesPart drops that game from planning, coverage, conflicts, scan, publish and staging cleanup before the date.
+- yarn check: 60 files, 703 passed, 16 skipped. docker compose config not run (no local .env).
+
+- **Learnings for future iterations:**
+  - The start date sits on CatalogRoot. Compaction roots omit it. Import Dota/LoL omit it; only the CS2 import root carries ONCHAIN_START_DATE_CS2.
+  - Old CS2 sidecars still enter the catalog. takesPart has to run before could-trade, conflicts and publish, or a published Dota/LoL day reopens.
+  - A log capture of `game=` must allow digits. `cs2` is cut to `cs` by `[a-z]+`.
+  - Boot sweep reads manifests only for games that take part that day. A missing pre-boundary CS2 manifest would otherwise keep Dota/LoL chunk staging.
+
+---
+
+## 2026-10-23 21:06 - STEP-001 review fixes
+
+- A day's catalog is indexed only from games whose start date is on or before that day, and that catalog is the snapshot the scan commits.
+- Repair fails a manifest dated before the game's start. Reconcile skips that date.
+- Dropped narration comments in the functions this step touched. yarn check: 707 passed, 16 skipped.
+
+---
+STEP-001 review (orchestrator): step review 1 MAJOR + 1 MINOR, comments review 19; implementer fixed in 63a7519, skipped 3 reshape extractions; yarn check 707 passed / 16 skipped (rrsync).
