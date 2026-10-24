@@ -126,7 +126,7 @@ Read-only Streamlit dashboard: compose service `dashboard` in `/root/work/esport
 
 ## Restart (only when asked)
 
-Run `summarize.py --restart-check` first. `restart_check SAFE` → restart is allowed. `restart_check UNSAFE ...` → quote the line and stop: a live map holding ≥5 shares (`position`) or still inside the buy window at `second < 480` (`in_window`) blocks a restart. `--live` alone is not the gate — a live map past 480 with a flat book is SAFE. Never `compose down`.
+Run `summarize.py --restart-check` first. It prints one line for dota, one for lol, and one for cs2, then an overall line. The overall line is the gate. `restart_check SAFE` → restart is allowed. `restart_check UNSAFE` → quote the game lines and stop. Dota and LoL block on a live map holding ≥5 shares (`position`) or still inside the buy window at `second < 480` (`in_window`). A live Dota or LoL map past 480 with a flat book is SAFE on that game's line. CS2 blocks on any open map: `position` when it holds ≥5 shares, otherwise `map_open`, including a flat map past second 480. A `no_signal` open session blocks its game. `--live` alone is not the gate. Never `compose down`.
 
 Bind-mounted code/model: `restart` the process that loaded it. An `.env` change (modes, keys) needs `up -d --force-recreate live`, because `restart` does not re-interpolate the environment.
 

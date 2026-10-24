@@ -39,3 +39,256 @@ STEP-001 review (orchestrator): step review 1 MAJOR + 1 MINOR, comments review 1
   - Host `yarn check` after the fixture fix: 723 passed, 0 skipped. The image build still skipped 16 ship/rsync tests.
 
 ---
+
+## 2026-10-23 20:18 - STEP-003
+
+- Moved MOBA GRID fields off GameProfile onto frozen MobaGridFeed (level_xp, side texts, top_builder, services) behind GridFeedSpec and WidgetReducer.
+- Discovery, feed selection, GridLiveFeed, replay, archive, schedule, viewer, and the dashboard read sides and services through profile.feed.
+- GRID differential vs 6b108065: 24427 lines, different_lines 0. Commit 4c394706.
+- **Learnings for future iterations:**
+  - GameProfile.feed stays MobaGridFeed until STEP-009. Widening it to GridFeedSpec hits GridFold labels, grid_archive.summarize, and schedule._extract_grid (board, read_pinned_horn_iso).
+  - Do not import GameProfile from grid_feed.py. game_profile imports MobaGridFeed from there.
+  - GridFeedSpec.services is a read-only property. A plain protocol attribute is writable and rejects the frozen field.
+  - select_feed tests patch trader.grid_feed.probe_grid_delay. feed_selection no longer binds that name.
+  - top_builder is a dataclass field, not a method, so it is not bound.
+  - Port 8601 is the backtest inspect app. The dashboard check used 8611 and 8612.
+  - The match page is not a fragment. The first open can stay on "catalog still loading…" until a reload.
+  - Without exported DOTA/LOL archive roots and live.db, both trees show the same wallet OperationalError and incomplete scan.
+
+---
+
+## 2026-10-23 20:40 - STEP-003 review fixes
+
+- Comments review: deleted the narrating docstrings it flagged. Kept the pending-versus-unresolved contract on read_board_sides and the protocol docstrings it marked keep.
+- Skipped the four reshape demands. The step review had no findings, and those loops already show the behavior.
+- Commit 6c5f6ed0. ruff clean, basedpyright 0, targeted 645 passed, full suite 3587 passed, GRID differential still matches the baseline.
+- **Learnings for future iterations:**
+  - A comments pass treats every docstring inside a touched function as in scope, including tests whose body only changed a constructor call.
+  - Do not extract schedule or discovery helpers just to retire a docstring. The step review is the maintainability check.
+
+---
+STEP-003 review (orchestrator): step review no findings, comments review 27 → fixed in 6c5f6ed0 (4 reshapes skipped); make test 3587 passed, GRID diff 0 lines.
+
+## 2026-10-23 21:06 - STEP-004
+
+- Moved MOBA signal state out of MatchWorker into Follow300Signals behind SignalSource. Commit 7a3c3be3.
+- Fair, lags, prior, kill gate, board reaction, pause and finish stay on the old formulas. Signal differential vs 6c5f6ed0: 27514 lines, different_lines 0.
+- **Learnings for future iterations:**
+  - check_history runs before watchdog.consume. on_feed_event runs after the books gate. One method cannot do both.
+  - yes_is_radiant is an on_feed_event argument. _pin_feed_orientation sets it on the first tick, after construction.
+  - core_now_ns stays in match_worker.py. Six test files patch trader.match_worker.core_now_ns. The source takes now_ns.
+  - _quote_pm reads the clock once, before predict_fair. received_ns is that read. The harness clock is scripted, so the shift is invisible there.
+  - _tape records table deaths and history. The old tests seeded history only.
+  - test_upcoming_rows_from_sidecars fails in the last Berlin hour. _later_today clamps; the assertion expects NOW+3600. Untouched by this step.
+  - docs/experiments/oddin-board.md still names match_worker._on_kill_tick. It is not a caller.
+
+---
+
+## 2026-10-23 21:25 - STEP-004 review fixes
+
+- The queued signal and core clock are read after prediction again. Board derive keeps the earlier read. Commit 582e3621.
+- Dropped the narrating docstrings the comments review listed. Left the SignalSource contract docstrings.
+- **Learnings for future iterations:**
+  - A scripted differential clock cannot see a read that moves across the model call. Pin that with a model that advances the clock.
+  - test_upcoming_rows_from_sidecars still fails in the last Berlin hour. Not this step.
+  - test_seed0_map_replay failed once inside the 8-worker suite (fills 8 != 9) and passed 8/8 alone. The backtest does not import match_worker.
+
+---
+STEP-004 review (orchestrator): step review 1 MINOR (post-prediction clock) + comments 15 → fixed in 582e3621 (2 reshapes skipped); signal diff 0 lines; orchestrator make test 3601 passed, 1 failed = pre-existing test_upcoming_rows_from_sidecars (fails 23:00-00:00 Berlin); test_follow300_replay dota_9007700576 flaked once under xdist.
+
+
+## 2026-10-23 22:13 - STEP-005
+
+- Moved Follow300 catalogs, quote sides, model load, and signal construction behind StrategySpec. LiveCore takes QuoteSides. LeagueFilter replaces LolLeagueFilter. Commit e9f67ded.
+- Four gates match the 582e3621 baseline. Core replay 1102495 events, plan=wake=digest=0. GRID 24427 lines, different_lines 0. Model smoke diff empty. Signals 27514 lines, sha256 7b70dde6…c3445e.
+- make test 3606 passed. Targeted 718 passed. Goldens 21 passed. ruff clean. basedpyright 0.
+- **Learnings for future iterations:**
+  - Do not import Follow300Signals or model_server from game_profile. The cycle is model_server → bindings → collector_sidecars, and notify → trading_mode. load_archive_root takes the env name. ExecutionMode lives in session_types.
+  - Log the whitelist identity from shared.utils.league_whitelist. A trader.league_filter line breaks discovery tests that count one message on that logger.
+  - Live LoL text is now `lol league whitelist` and `lol event`. load_canonical_league_whitelist still logs `LoL` for the backtest.
+  - BUY_CUTOFF_SECOND_BY_GAME keeps a cs2 key at 480. follow300_policy(game="cs2") is the CS2 backtest path. STEP-009 changes that value.
+  - Patch trader.follow300_strategy.load_model. The profile binds LOL_LEAGUE_WHITELIST_PATH at import, so monkeypatching the module global does not reach LeagueFilter.
+  - The replay reads quote sides from GAME_PROFILES[header.game].strategy.quote_sides. Importing game_profile pulls lightgbm. The dashboard import smoke still passes.
+  - grep of .primary.profile_name hits follow300_strategy.py:44, the property body.
+
+---
+
+## 2026-10-23 22:28 - STEP-005 review fixes
+
+- Step review had no findings. Comments review: removed 57 narrating docstrings. Commit 235ab50e.
+- The trace fault test builds a TextIOWrapper that raises on the third write. The method-assign ignore is gone.
+- Skipped two reshapes. select_sidecars stays one loop. preview_block_reason stays a non-draining preview. The step review found no structural defect.
+- Rechecked: ruff clean, basedpyright 0, targeted 718 passed, make test 3606 passed, goldens 21 passed. Core, GRID, model smoke, and signals still match e9f67ded.
+- **Learnings for future iterations:**
+  - A comments pass flags every docstring in a touched function, including tests that only changed a constructor call. Delete those. Keep the protocol contracts it marks keep.
+  - Do not extract a decision type just to retire a docstring when the step review found nothing.
+  - CoreTrace already takes a TextIO. A faulting TextIOWrapper replaces assigning over handle.write.
+
+---
+STEP-005 review (orchestrator): step review no findings, comments review → fixed in 235ab50e (2 reshapes skipped); make test 3606 passed, core/GRID/signal/model gates equal.
+
+## 2026-10-23 23:06 - STEP-006
+
+- Moved RoundSignal to strategy.types, round sides to strategy/round_sides.py, and the closed-entry rule to cs2/round_rules.py. Cs2RoundModels loads both production models. The trace decodes RoundSignal and hashes a tuple of model dirs. Commit 9b98ded2.
+- Combined identity ModelReference 20261022T142007Z+20261022T142332Z / 2026-10-22T14:20:07Z+2026-10-22T14:23:32Z. Header sha 7eba748b…c5f607+a1fc1a12…8aca2c7.
+- Core replay vs STEP-005: 13 sessions, 1102495 events, plan=wake=digest=0, txt byte-equal. Model smoke diff empty. make test 3618 passed; the known xdist flake dota_9007700576 failed once and passed alone.
+- **Learnings for future iterations:**
+  - RoundModel has no name or trained_at. The combined ModelReference is the two validate_meta references joined with +.
+  - Follow300Strategy.build_signals must assert `not isinstance(model, Cs2RoundModels)`. A positive ModelServer check rejects FakeModelServer.
+  - ModelCatalogError is a ValueError. Catch it before the other ValueError, or a bad member becomes a contract error.
+  - model_file_sha of one directory is the old string. Two directories join with +.
+  - A partial RoundSignal fails the key set before field reads, so the error stays StrictJsonError.
+  - grep of cs2_round_sides still hits tests/__pycache__/test_cs2_round_sides*.pyc because the bytecode stores that filename. Source grep is empty. The test file stays named test_cs2_round_sides.py.
+
+## 2026-10-23 23:20 - STEP-006 review fixes
+
+- A round member whose booster features disagree with model.json is now a ModelContractError. Commit a2616d45. Shared check is require_member_features.
+- Moved the round-lot core replay to tests/test_core_trace_round.py. test_core_trace.py is 934 lines.
+- Deleted the narrating comments the comments review listed. Kept the two contract docstrings it marked keep.
+- make test 3620 passed. Targeted 370 passed. Core replay still 1102495 events, plan=wake=digest=0. Model smoke diff empty.
+- **Learnings for future iterations:**
+  - load_round_model used to trust model.json features and skip booster.feature_name. The MOBA loader does not.
+  - ModelCatalogError for "ensemble member features do not match model.json" must go through raise_for_catalog_error, or it becomes a plain ModelLoadError.
+  - Two pytest -n runs at once delete each other's xdist worker dirs. Rerun the suite alone.
+STEP-006 review (orchestrator): step review 1 MAJOR (member features vs catalog) + 1 MINOR (test file >1k lines), comments 17+ → fixed in a2616d45; make test 3620 passed. test_follow300_replay dota_9007700576 flaked again under xdist in the first STEP-006 run.
+
+## 2026-10-24 00:33 - STEP-007
+
+- Added the CS2 table parser, Cs2GridFeed, and Cs2FrameReducer. Board frames emit FeedEvent, RoundLiveTick, and terminal events. Dues are END+10, or freeze+2 for round 1 and half openers. A history loss stops later dues. Commit b3abbc27.
+- Tape map 3: 21 live ticks, 21 dues, 0 losses. R6 planted is false. GRID and signal differentials match the baseline.
+- **Learnings for future iterations:**
+  - FeedTick is the shared tick union. A list annotated FeedEvent | KillTick does not accept GridLiveFeed.ticks(). test_grid_feed.py grew by the FeedTick import. It is 1197 lines.
+  - GridLiveFeed.ticks was at the C901 limit. The gap yield lives in _socket_fault so the method stays under 10. The gap is not written to grid_state.jsonl.
+  - The finished board repeats. Tables after it still build the last round's facts. Dues stop. Round 21's facts are not inside a due.
+  - Board infoText is T/CT. Table Side is terrorists/counter-terrorists. team_a_ct comes from the board.
+  - note_feed_gap is a permanent ban for the map. A clean socket close does not call it. On this tape the 21:39:54 disconnect would have dropped dues 13-21.
+  - Cs2GridFeed is not in GAME_PROFILES. Patch trader.cs2_feed.probe_grid_board_delay. publish_delay 0 is a real probe result.
+  - datetime_to_ns can add a few nanoseconds. Millisecond formatting still matches the tape stamps.
+
+## 2026-10-24 00:52 - STEP-007 review fixes
+
+- A one-point score change on a 115 board is MISSED_ROUND, not an END. A drop in either team score is SCORE_ROLLBACK, including a same-total swap. Commit fc40850e.
+- Deleted the narrating docstrings the comments review listed. Side text and table-group name are Literals. Kept the five contract comments it marked keep.
+- make test 3667 passed. Targeted 575 passed. GRID and signal diffs still match. Tape still 21 dues, 0 losses.
+- **Learnings for future iterations:**
+  - END is only (1, 0) or (0, 1) on a board that is not the next live start. A 115 frame is never an END stamp.
+  - Compare each counter, not the sum. 1:0 to 0:1 does not change the sum.
+STEP-007 review (orchestrator): step review 2 MAJOR (score advance swallows live start; same-total rollback) + comments 10 → fixed in fc40850e; make test 3667 passed, GRID/signal diffs equal.
+
+## 2026-10-24 03:42 - STEP-008
+
+- RoundFacts stores final alive_a/alive_b. build_round_frame and predict_round_call turn completed facts plus RoundCallInputs into one raw frame and the last-row call. Commit 87b86244.
+- Renamed attach_streaks, fill_missing_pistol, build_match_kill_features, estimate_match_cash. Bodies unchanged. Offline sha still 8d6f38cd…4d8891.
+- Synthetic parity matches build_rounds on four histories. Tape map 3: 21 dues, synthetic m0 0.5 median predict 143 ms, R13 pred_delta -1e-4 and team_a_ct true.
+- make test 3677 passed. Targeted 122 passed. ruff clean. basedpyright 0.
+- **Learnings for future iterations:**
+  - build_round_frame does not call add_derived. predict_symmetric applies it to the row and the mirror. The parity test compares FEATURES after add_derived.
+  - decision_s on the live frame is a feature clock (end_s+9 regular, end_s+11 when the row opens a half, 10 for round 1). It is not due_ns. Do not print it as the call time.
+  - Opening rows use the previous round's final alive and keep late kills. Regular rows use seen alive and seen kills. A team kill can make final kills lower than seen; the live kill list clamps that gap at 0, same as _count_late_kills.
+  - The first phase-1 dataset row still looks 9 s back into freeze. The parity dataset writes the round loadout onto phase >= 1 so build_rounds stores it. Alive stays on the 10 s table delay.
+  - A tiny LightGBM leaf can be exactly 0 on BASE round 13. The pistol sign test uses a 3-9 round-13 history, where the same tiny model is not zero. The 12-5 case is round 18.
+  - grep of _match_kill_features also hits the new name build_match_kill_features. A word-boundary grep of the old names is empty.
+  - NaN m0 skips the boosters (known_cash_mask). That call is ~0.25 ms. A known m0 on this Mac is ~140 ms and would block the event loop. STEP-009 chooses inline or an executor.
+
+## 2026-10-24 03:56 - STEP-008 review fixes
+
+- A half-opening call now uses the previous round's final kill totals, including when the final count is below the seen count. A regular call still uses seen kills. Commit 6dd5df0f.
+- Removed four unused pyright exemptions in tests/test_cs2_rounds.py. Kept reportPrivateUsage for the tiny-model helpers.
+- make test 3681 passed. Targeted 126 passed. Offline sha unchanged. Tape feature lines unchanged.
+- **Learnings for future iterations:**
+  - The opener cutoff is later than the regular cutoff, so extra seen kills cannot be hidden from an opener by a clock. Emit the final totals for a round whose successor opens a half.
+  - max(0, final - seen) is still the late-kill count for a regular successor. It is not the opener's kill total.
+STEP-008 review (orchestrator): step review 1 MAJOR (half-opening kills on lower final count) + comments 4 pyright exemptions → fixed in 6dd5df0f; make test 3681 passed.
+
+## 2026-10-24 05:06 - STEP-009
+
+- Added RoundSignals and RoundStrategy. GAME_PROFILES now has cs2. Buys stay closed until a round call, then close again on the live start. Commit 4c91c9ab.
+- The call runs on one thread. call_ns is the core clock when m0 is read. A 600s feed timeout keeps CS2 dues through board silence. Dota and LoL diffs still match.
+- make test 3710 passed. ruff clean. basedpyright 0. GRID and signal diffs equal. Core replay 13 sessions, 1102495 events, plan=wake=digest=0.
+- **Learnings for future iterations:**
+  - preview_block_reason is stale_signal until a latch exists. fair appears once a fresh RoundSignal is in the core and allow_buy is false. The journal still writes no_edge for both.
+  - A round SELL waits out EXIT_SETTLE_SECONDS. The worker entry timeout is 3s in the fixture and 600s for CS2, so a 10s-old signal is still inside the CS2 entry window.
+  - assigned_games now requires CS2_TRADING_MODE. Local .env is off. Do not print it.
+  - archive_index treats cs2 as unsupported_game. UNIVERSE_GAMES stays dota and lol.
+  - Dashboard MOBA labels assert MobaGridFeed. A CS2 archive is not on the dashboard until STEP-011.
+  - GRID idle closes at 120s are unchanged. STEP-012 owns that.
+  - test_dota_map_config pins the committed profile names. cs2-map is in that set. read_template(BOTH) still loads only dota and lol.
+
+## 2026-10-24 05:32 - STEP-009 review fixes
+
+- A CS2 call that finishes after map close, history loss, or the live start of that round is ignored. The previous signal stays for sells. Commit 5f3cbecd.
+- A synthetic-market worker built from the real CS2 models starts with RoundSignals, buys closed, both model shas, and a 600s feed timeout. No orders. It does not open a wallet lock or probe GRID.
+- Removed 14 narrating docstrings. Kept the audit_identity orientation contract and the round-signal private-usage suppression.
+- make test 3714 passed. ruff clean. basedpyright 0. GRID and signal diffs equal. Core replay 13 sessions, 1102495 events, plan=wake=digest=0.
+STEP-009 review (orchestrator): step review 1 MAJOR (in-flight call after map close) + 1 MINOR (real-model host check) + comments 14 → fixed in 5f3cbecd; make test 3714 passed.
+
+## 2026-10-24 06:28 - STEP-010
+
+- Added `trader.replay_cs2_rounds` and `Cs2FrameReducer.rounds`. The CLI folds `grid.jsonl` on a virtual due clock and prints a round ledger. Commit `673f7be1`.
+- Map 3 has no Winner market, so all 21 tape calls are `nan_m0` with zero outputs. Facts, dues, and features match PLAN 2C. A labeled m0 of 0.5 is only in the test.
+- make test 3728 passed. ruff clean. basedpyright 0. GRID, signals, core replay, and the offline sha still match.
+- **Learnings for future iterations:**
+  - `if __name__` must sit after every helper. A mid-file guard calls `main` before `_read_target` exists.
+  - The lock board is paused (`ticking` false). A paused `ClockUpdate` evaluates before the new permissions land and builds the latch with `follow_book` already spent. The chain test sends one ticking scoreboard before the freeze so the call clock is not paused.
+  - `run_core_cycle` compares core inventory with the wallet store and drops a SELL the host store cannot see. The chain test writes the fill onto the test store and replaces `core._drop_sell`, because the fake host store has no `is_sell_frozen`.
+  - Map end `occurredAt` equals the R21 END stamp. The later receipt is `21:58:38.807Z`.
+  - NaN `m0` makes `RoundCallPrediction` unequal to itself. Compare the fields with a NaN check.
+  - `datetime_to_ns` stamps print with microseconds (`21:14:18.670000Z`). The PLAN seconds still match.
+
+## 2026-10-24 06:48 - STEP-010 review fixes
+
+- A due already ripe at its own receipt, or at a later marker, now fires instead of staying `tape_end`. Commit `f2164b98`.
+- `_M0Read` and `_ObservedCall` replace the new anonymous tuples.
+- make test 3731 passed. The real-tape ledger is byte-equal to the STEP-010 acceptance ledger. GRID, signals, core, and the offline sha still match.
+- **Learnings for future iterations:**
+  - Advance the virtual clock on markers too. Flush a due after the frame that installs it when that receipt is already at `call_ns`.
+  - A before-due prefix still ends as `tape_end`. Only a receipt at or past `call_ns` fires the call.
+STEP-010 review (orchestrator): step review 2 MINOR (due flush on virtual clock; named records), comments review no findings → fixed in f2164b98; make test 3731 passed.
+
+## 2026-10-24 07:30 - STEP-011
+
+- Dashboard shows CS2. Feed contract has side labels and read_board_pair. CS2 labels are Team A / Team B. The player table is a note. summarize.py --game accepts cs2. Commit ce009bfa.
+- make test 3736 passed. ruff clean. basedpyright 0. GRID and signal diffs still match f2164b98. Browser: base CS2 card asserts, head renders Team A and the note. Dota and LoL card text matches.
+- **Learnings for future iterations:**
+  - summarize.py must keep a literal game tuple. Importing GAME_PROFILES pulls lightgbm on the host.
+  - A 256 KB tail of the R13 window ends on two tables and hides the board. The browser fixture repeats the last scoreboard line.
+  - The CS2 header still prints NW +0 · XP +0. The trading row status is "entry allowed". ActiveRow.window is "entry until 1e+09s" and is not drawn.
+  - summarize.py --restart-check still uses BUY_CUTOFF_SECOND 480 for every game. An open CS2 map with no position at second >= 480 reads SAFE. STEP-012 must not trust that before a restart.
+  - Closed CS2 rows stay "payout not found" without a wallet. History still counts the fill.
+
+---
+
+## 2026-10-24 07:44 - STEP-011 review fixes
+
+- CS2 slate tests evaluate at Berlin noon, with sidecars at 13:00 the same day. Journal records in the summarize test are dict[str, object]. Commit c5ab3d3f.
+- make test 3736 passed. ruff clean. basedpyright 0. GRID and signal diffs still match.
+- **Learnings for future iterations:**
+  - A "later today" clamp of end-60 is in the past during Berlin's last minute. Pin the list clock and the sidecar start to the same noon.
+  - The app reads time.time() itself. Patch that clock in the AppTest, and leave the hub wall on the real clock so sidecar age stays fresh.
+
+---
+STEP-011 review (orchestrator): step review 2 MINOR (Berlin last-minute slate test; dict[str, Any]), comments review no findings → fixed in c5ab3d3f; make test 3736 passed. Stopped before STEP-012 (VPS rollout).
+
+## 2026-10-24 - FIX-001
+
+- A clean GRID close after 60s of silence on an unfinished map calls `note_feed_gap` and reconnects the same reducer. A shorter close still returns. Commit `39454a75`.
+- A CS2 gap no longer bans the map. It clears pre-gap samples and, when the loadout is not taken, waits for a new freeze-open frame. `HistoryLoss.FEED_GAP` is gone. Replay routes each post-lock disconnect through `note_feed_gap`. Commit `a291eb09`.
+- Map 3 ledger is unchanged: 21 dues, 0 losses, R12 complete (`bombDefused`, loadout 26200/30850), calls for R13–R21. sha256 `74ae0861…dbdfb22` before and after.
+- `--restart-check` prints dota, lol, and cs2, then an overall line. An open CS2 map is `position` or `map_open`. Commit `ab5827c6`. Skill commit `dfbbdab`.
+- Each commit: ruff clean, basedpyright 0, `python3 src/dashboard/summarize.py --self-check` → `self-check ok`, `PYTEST_N=8 make test` 3739 then 3744 passed. GRID 24427 and signals 27514 byte-equal to the STEP-011 baselines. Core replay 13 sessions, 1102495 events, plan=wake=digest=0.
+- **Learnings for future iterations:**
+  - The R2 pause disconnect is still inside freeze. The first table after it has `freeze_finished` false, so resetting `freeze_open_seen` does not drop the loadout.
+  - R12's loadout is already taken before 21:39:54. The lower post-gap loadout is ignored. A post-gap sample sits more than 1s before the final, so seen kills stay 2/5.
+  - `ticks` stays under the complexity limit by keeping the idle decision in `_note_idle_close`.
+  - Core replay's `started.txt` is a timestamp. Compare the 13 session files only.
+  - `summarize.py` still runs on system `python3`. The restart check does not import `game_profile`.
+
+## 2026-10-24 - FIX-001 review fixes
+
+- A gap after the score has moved now clears samples on every round that has not seen its final. A final already in hand keeps its samples. Commit `3ee82de2`.
+- The idle-close helper returns a frozen `_IdleRun`. The narrating module docstring is gone.
+- make test 3747 passed. ruff clean. basedpyright 0. GRID, signals, tape, and core still match the STEP-011 baselines.
+- **Learnings for future iterations:**
+  - The table is behind the scoreboard. `score + 1` is the live round, not the round whose final table has not arrived.
+  - A draft with `final` set has already seen the win frame. Those samples are the seen set. Do not clear them.
+FIX-001 review (orchestrator): step review 1 MAJOR (gap after score advance kept stale samples of the previous round) + 1 MINOR (anonymous tuple in test) + comments 1 → fixed in 3ee82de2; make test 3747 passed; GRID/signal/core/tape diffs equal.

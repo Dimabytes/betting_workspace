@@ -7,7 +7,9 @@
   },
   "plan": {
     "model": "opus-xhigh",
-    "instructions": []
+    "instructions": [
+      "The plan is text, not code. Do not write a prototype, a patch, a diff, or a scratch copy of the repo with the change applied, and do not test the change before it exists. Describe files, functions, signatures, test cases and verification commands in words and short snippets. Scratch scripts are allowed only to measure the unchanged code (baseline counts, hashes, timings, grep results)."
+    ]
   },
   "implement": {
     "model": "grok",
