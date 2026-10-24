@@ -292,3 +292,24 @@ STEP-011 review (orchestrator): step review 2 MINOR (Berlin last-minute slate te
   - The table is behind the scoreboard. `score + 1` is the live round, not the round whose final table has not arrived.
   - A draft with `final` set has already seen the win frame. Those samples are the seen set. Do not clear them.
 FIX-001 review (orchestrator): step review 1 MAJOR (gap after score advance kept stale samples of the previous round) + 1 MINOR (anonymous tuple in test) + comments 1 → fixed in 3ee82de2; make test 3747 passed; GRID/signal/core/tape diffs equal.
+
+## 2026-10-24 09:10 UTC - STEP-012
+
+- CS2 live is on in `live` since 08:41:46Z on esports-trader `95c48228`, clip $5. `trader assigned: mode=live games=dota,lol,cs2`, no startup block, CS2 trace sha `7eba748b…+a1fc1a12…`.
+- HEAD was a local docs merge (`537faa4a`, `ca5f81b`), not the expected `3ee82de2`/`49d68cf`. `git fetch` on sun fails with publickey. The user approved proceeding.
+- Pre-check found a blocker: GRID sends `mapName` `default-nuke`; the reducer raised `ValueError` on every PGL map. Fix `95c48228` shares `normalize_map_name` from `cs2.constants`. Not pushed.
+- Dashboard recreated with `up -d --no-build dashboard` (no `/archive/cs2` mount before). That also cleared the stale-module `players_note` AttributeError.
+- Suite on sun: 3711 passed, 28 failed (missing data and the unbuilt native loader), 9 skipped. ruff clean, basedpyright 0.
+- GRID idle: 301 s of silence, socket stayed open, no reconnect needed.
+- PGL: `gridSeriesId` null on 8 of 8, so no PGL map trades yet. Record-only `grid-3004005-m2` ran both services, lost round 1 (`missed_round`), made no call.
+- Report: `investigations/2026-10-23-cs2-live-validation/report.md` `## STEP-012`.
+- **Learnings for future iterations:**
+  - GRID PGL boards use `default-<map>`; other series send `cache`. Normalize before `CS2_MAP_CODES`.
+  - `docker compose restart` keeps old mounts and env. A compose change to a service needs `up -d --no-build <service>`.
+  - A Streamlit process that outlives a pull can mix old and new modules. Restart the dashboard after a pull that changes dashboard types.
+  - Discovery polls every 30 s (spacing ~34.6 s). GRID can publish a map board 40+ s into round 1. Then round 1 history is lost and the map gets no calls.
+  - Record-only sessions write only `grid_state.jsonl` and `match.json`: no journal, no core trace, invisible to `--live` and `--restart-check`.
+  - The full suite on sun cannot pass: backtest data and the Rust native loader are missing there. Run the touched test files plus the full suite, and list the data-only failures.
+  - Never copy `.env` into an investigation folder; it holds secrets.
+
+---
