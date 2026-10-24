@@ -87,11 +87,11 @@ Read-only Streamlit dashboard: compose service `dashboard` in `/root/work/esport
 
 ## PnL rules (strong)
 
-1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + merge + rebate`) plus open position marks. `MERGE` activity is cash in (collateral from a YES+NO merge), same sign as redeem. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs.
+1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + merge + rebate`) plus open position marks. `MERGE` activity is cash in (collateral from a YES+NO merge), same sign as redeem. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs. The dashboard headline "PnL today" is a different number: the Berlin-midnight sum of closed maps with fills (`net = realized + imv + rebate`), the same sum as that day's row in the daily history table. A map still running stays off both until it closes. The paid `MAKER_REBATE` is a separate dashboard line and is not added to that headline.
 2. Telegram `net` (`realized + imv + rebate`) is one map **when `session_end` exists**. `sum_net` on `--today` is only those maps. Maps without `session_end` can still settle on Polymarket. Never call telegram `sum_net` the day.
 3. `match.json` `final.pnl` is often `0.0` after flatten. Ignore it for "сколько заработали".
 4. Sqlite `SUM(cash_delta)` and `wallet_day` equity are inventory accounting, not exchange-settled day PnL. A leftover position looks like a cash loss in sqlite even after Polymarket `REDEEM`. Positions API / activity is source of truth for leftover size.
-5. Accrued rebate in `session.jsonl` is an estimate. The day number uses paid `MAKER_REBATE` from activity.
+5. Accrued rebate in `session.jsonl` is an estimate. `polymarket_today` includes the paid `MAKER_REBATE`. The dashboard headline does not: that payout is the previous day's rebate, shown on its own line.
 6. Leftover BUY is not a loss until you check **which token** (`yes` vs `no` on `--match` FILL lines), **who won**, and whether activity has a `REDEEM`. Buying NO while YES mid crashes is the other side; a winning leftover pays via redeem, not via SELL.
 7. On-chain USDC.e on the Safe can be 0. Cash sits in Polymarket CLOB. For exact USDC, tell the user to read the Polymarket UI. Do not quote sqlite or chain as the tradable balance.
 
