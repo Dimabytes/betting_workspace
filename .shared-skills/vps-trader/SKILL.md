@@ -58,7 +58,7 @@ python3 /root/work/esports-trader/src/dashboard/summarize.py --rebate
 python3 /root/work/esports-trader/src/dashboard/summarize.py --restart-check
 ```
 
-`--today` is Europe/Berlin (the user's UTC+2 clock). Record timestamps in files are UTC.
+`--today` is the Europe/Berlin calendar day, midnight to midnight. The dashboard trading day is separate: 03:00 to 03:00 Europe/Berlin, so the ~00:45 UTC rebate payout belongs to the previous day. Record timestamps in files are UTC.
 
 `--rebate` answers "сколько ребейта накопилось" directly: it finds the newest paid `MAKER_REBATE` in Polymarket activity (payout lands ~00:45 UTC daily) and sums the maker-fill rebate estimate in `session.jsonl` since that timestamp — live, legacy, and still-open maps included, paper excluded. It is also printed automatically at the end of `--today` as `rebate_accrued`. Never ask the user "since when" — the window is the last payout.
 
@@ -87,11 +87,11 @@ Read-only Streamlit dashboard: compose service `dashboard` in `/root/work/esport
 
 ## PnL rules (strong)
 
-1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + merge + rebate`) plus open position marks. `MERGE` activity is cash in (collateral from a YES+NO merge), same sign as redeem. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs. The dashboard headline "PnL today" is a different number: the Berlin-midnight sum of closed maps with fills (`net = realized + imv + rebate`), the same sum as that day's row in the daily history table. A map still running stays off both until it closes. The paid `MAKER_REBATE` is a separate dashboard line and is not added to that headline.
+1. For "сколько сегодня на Polymarket" read `polymarket_today pnl` from `summarize.py --today`. That is Berlin-day cash (`-buy + sell + redeem + merge + rebate`) plus open position marks. `MERGE` activity is cash in (collateral from a YES+NO merge), same sign as redeem. Say that number. Do not invent a second day total from telegram, sqlite, or leftover BUYs. The dashboard headline "PnL today" is a different number: the sum of closed maps with fills (`net = realized + imv + rebate`) for the trading day 03:00–03:00 Europe/Berlin, the same sum as that day's row in the daily history table and the chart. A close before 03:00 belongs to the previous day. A map still running stays off both until it closes. The paid `MAKER_REBATE` is not added to that headline. The line under it is realized, imv, and rebate for those same closed maps, and the three add up to the headline.
 2. Telegram `net` (`realized + imv + rebate`) is one map **when `session_end` exists**. `sum_net` on `--today` is only those maps. Maps without `session_end` can still settle on Polymarket. Never call telegram `sum_net` the day.
 3. `match.json` `final.pnl` is often `0.0` after flatten. Ignore it for "сколько заработали".
 4. Sqlite `SUM(cash_delta)` and `wallet_day` equity are inventory accounting, not exchange-settled day PnL. A leftover position looks like a cash loss in sqlite even after Polymarket `REDEEM`. Positions API / activity is source of truth for leftover size.
-5. Accrued rebate in `session.jsonl` is an estimate. `polymarket_today` includes the paid `MAKER_REBATE`. The dashboard headline does not: that payout is the previous day's rebate, shown on its own line.
+5. Accrued rebate in `session.jsonl` is an estimate. `polymarket_today` includes the paid `MAKER_REBATE`. The dashboard headline does not. Its rebate figure is the sum of the rebate column on the closed maps in that 03:00 trading day.
 6. Leftover BUY is not a loss until you check **which token** (`yes` vs `no` on `--match` FILL lines), **who won**, and whether activity has a `REDEEM`. Buying NO while YES mid crashes is the other side; a winning leftover pays via redeem, not via SELL.
 7. On-chain USDC.e on the Safe can be 0. Cash sits in Polymarket CLOB. For exact USDC, tell the user to read the Polymarket UI. Do not quote sqlite or chain as the tradable balance.
 
