@@ -2,7 +2,7 @@
   "project": "esports-trader",
   "relatedSources": [
     "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md",
-    "../esports-trader/docs/experiments/README.md",
+    "AGENTS.md",
     "../esports-trader/src/backtest/run.py",
     "../esports-trader/src/backtest/selection.py",
     "../esports-trader/src/backtest/lol_inputs.py",
@@ -18,7 +18,7 @@
     "FR-3: Ветка сигнала задаётся флагом бэктеста --series-branch line|line_x_c. Коэффициенты c — четыре числа из исследования, JSON рядом с моделью",
     "FR-4: --market series гоняет книгу серии на нерешающих картах BO3 (карты 1–2) и BO5 (карты 1–4) для Dota и LoL. --market по умолчанию map",
     "FR-5: Окно серии — от хорна до конца карты плюс 15 минут. После конца карты только SELL на лучшем ask. Остаток на конце окна оценивается по лучшему bid",
-    "FR-6: Отчёт docs/experiments/series-market.md по 3 seed на ветку: критерий успеха, выбор ветки по картам с 2026-08-01, сумма PnL серии и LIVE карты на тех же match id"
+    "FR-6: Отчёт investigations/2026-09-25-series-market/report.md по 3 seed на ветку: критерий успеха, выбор ветки по картам с 2026-08-01, сумма PnL серии и LIVE карты на тех же match id"
   ],
   "Resolved Questions": [
     "Ветку в бэктесте переключает --series-branch line|line_x_c. Константы ветки в series_link.py в этом срезе нет: live ещё нет.",
@@ -120,11 +120,11 @@
         "По одному каталогу за раз, scripts/run_seeds.sh (3 seed × 4 шарда): dota series-line --market series --series-branch line; dota series-line-x-c --series-branch line_x_c; то же для lol",
         "У каждого каталога есть seed0, seed1 и seed2",
         "scripts/compare_backtests.py попарно между ветками одной игры, с разрезом по времени",
-        "docs/experiments/series-market.md по правилам docs/experiments/README.md: на игру и ветку — net PnL с rebate, BUY-филы и markout 300 с, PnL на акцию, худшая карта, CVaR 5%, блокировки min_delta / wide_spread / anchor",
+        "investigations/2026-09-25-series-market/report.md по правилам AGENTS.md betting_workspace: на игру и ветку — net PnL с rebate, BUY-филы и markout 300 с, PnL на акцию, худшая карта, CVaR 5%, блокировки min_delta / wide_spread / anchor",
         "В том же отчёте сумма net PnL серии с rebate и net PnL LIVE карты на общих match id, отдельно по игре и ветке",
         "Ветка-победитель — та, у которой больше net PnL с rebate на картах с хорном с 2026-08-01",
         "Критерий по игре записан явно: средний по 3 seed net PnL с rebate > 0; markout BUY-филов серии через 300 с ≥ +1c; худшая карта не хуже −$154 (Dota) и −$180 (LoL)",
-        "Строка эксперимента добавлена в таблицу docs/experiments/README.md",
+        "Вердикт keep/drop и пути к артефактам записаны в том же investigations/2026-09-25-series-market/report.md; docs/experiments не создаётся и не обновляется",
         "Typecheck passes"
       ],
       "priority": 4,
@@ -132,7 +132,7 @@
       "ticket": "",
       "designReference": [
         "../esports-trader/docs/superpowers/specs/2026-09-25-series-market-design.md",
-        "../esports-trader/docs/experiments/README.md"
+        "AGENTS.md"
       ]
     }
   ]

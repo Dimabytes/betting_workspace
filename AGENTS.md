@@ -1,56 +1,38 @@
-## Workspace
+# Betting Workspace
 
-This repo is `betting_workspace` — the AI workspace (skills, learnings). It holds no product code. Sibling project repos are checked out next to `betting_workspace/`, not inside it. To work on one, go up one level and into the project (e.g. from this repo's root run `cd ../esports-trader`).
+Это рабочее пространство агентов: навыки, памятки по соседним репозиториям, задачи и исследования. Код продуктов находится в соседних каталогах.
 
-Expected layout:
-
-```
+```text
 <parent>/
-├─ betting_workspace/                 # this repo: .shared-skills/, .learnings/, AGENTS.md
-├─ esports-trader/                    # collect / train / backtest / live+paper trader
-├─ poly-maker/                        # fork of a Polymarket maker bot
-├─ polymarket-collector/              # TypeScript daemon that archives Dota 2 markets (runs on the VPS)
-└─ prediction-market-backtesting/     # Nautilus backtesting library: our private repo, upstream read-only
+├─ betting_workspace/                 # инструкции, .shared-skills/, .learnings/, tasks/, investigations/
+├─ esports-trader/                    # сбор, обучение, бэктест и live-трейдер: Dota 2, LoL, CS2
+├─ poly-maker/                        # замороженный форк Polymarket maker bot
+├─ polymarket-collector/              # архив рынков Dota 2, LoL и CS2 на VPS
+└─ prediction-market-backtesting/     # приватный Nautilus-фреймворк; upstream только для чтения
 ```
 
-Five folders, four code projects. This workspace is agent instructions only.
+## Project briefings
 
-Before any work on a sibling project (code, commands, tests, architecture) read the matching briefing (paths are relative to `betting_workspace/`):
+Before working on a sibling project, read its briefing. Paths are relative to this repo:
 
-`../esports-trader` -> `../esports-trader/AGENTS.md`
+- `../esports-trader` → `../esports-trader/AGENTS.md`.
+- `../poly-maker` → `.learnings/poly-maker.md`.
+- `../polymarket-collector` → `.learnings/polymarket-collector.md`.
+- `../prediction-market-backtesting` → `.learnings/prediction-market-backtesting.md`.
 
-`../poly-maker` -> `.learnings/poly-maker.md`
-
-`../polymarket-collector` -> `.learnings/polymarket-collector.md`
-
-`../prediction-market-backtesting` -> `.learnings/prediction-market-backtesting.md`
-
-## Git Rules
+## Git rules
 
 - Do not `git push` unless the user explicitly asks.
-- All git operations (status, branch, pull, rebase, push, commit) run inside the sibling project repo you are changing.
-- work on `main` by default, unless the user says otherwise.
-- A git worktree of `esports-trader` is a second directory. Read `.learnings/worktree.md` before creating one or running a backtest from one. Sync its `.venv` once before sharded runs. Do not symlink `data/backtests`.
-- `../prediction-market-backtesting`: `origin` is our private `Dimabytes/prediction-market-backtesting`, `upstream` is `evan-kolberg/prediction-market-backtesting`. Never push to `upstream`, never open PRs there.
+- Run git operations inside the repo being changed.
+- Work on `main` by default, unless the user says otherwise.
+- Before creating an esports-trader worktree or running a backtest from one, read `../esports-trader/docs/worktree.md`. Sync its `.venv` once before sharded runs. Do not symlink `data/backtests`.
+- `../prediction-market-backtesting`: `origin` is our private `Dimabytes/prediction-market-backtesting`; `upstream` is `evan-kolberg/prediction-market-backtesting`. Never push to `upstream` or open PRs there.
+- `../poly-maker` is frozen. Do not edit it. Both our fork and its upstream are read-only.
 
-## poly-maker is frozen
+## Documentation rules
 
-`../poly-maker` is our GitHub fork (`Dimabytes/poly-maker`) of `warproxxx/poly-maker`. Treat both as read-only.
-
-Do not change `poly-maker`. This is a ban, not a preference.
-
-- Do not edit files in `../poly-maker`.
-
-## Investigations
-
-One folder: `investigations/YYYY-MM-DD-<short-slug>/`.
-
-That is the only place for an audit, postmortem, gap check, or any one-off analysis. Do not create a new top-level directory for one. Do not start a new one in `reports/`, `.analysis/`, `docs/analysis/`, `artifacts/`, `runs/`, or under `docs/experiments/` in a sibling repo. Those names are gitignored.
-
-`investigations/` is gitignored. Do not `git add -f` it.
-
-Inside the folder, `report.md` is the writeup. Scripts, dumps, and databases go in `work/`.
-
-`.learnings/` is a short note a later session must follow. It is not the investigation.
-
-`tasks/<name>/` is a `feature.json` implementation. It is not an investigation. Herdr scratch for a task lives in `tasks/<name>/orchestrate/` and is gitignored. Do not name that folder `fleet`, `run`, or `herdr-series`.
+- Put every audit, postmortem, experiment report, keep/drop decision and other one-off analysis in `investigations/YYYY-MM-DD-<slug>/` in this repo. Do not create them in sibling repos or under `reports/`, `.analysis/`, `docs/analysis/`, `docs/experiments/`, `docs/superpowers/`, `artifacts/` or `runs/`.
+- Use `report.md` for the writeup and `work/` for scripts, dumps, databases and supporting files. `investigations/` is gitignored; never use `git add -f` on it.
+- Keep current esports-trader guides in `../esports-trader/docs/`. Keep only the context needed in every session in `AGENTS.md`; link to detailed procedures.
+- `.learnings/` contains briefings for the other sibling projects, not esports-trader reports. Propose useful additions or corrections to the user; create, edit, move or delete a learning only after explicit user approval. Do not update it automatically after a task or investigation.
+- `tasks/<name>/` holds a `feature.json` implementation. Herdr scratch belongs in `tasks/<name>/orchestrate/` (gitignored), never `fleet/`, `run/` or `herdr-series/`.
