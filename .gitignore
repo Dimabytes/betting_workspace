@@ -7,7 +7,9 @@ __pycache__/
 reports/
 docs/analysis/
 artifacts/
-investigations/
+investigations/*
+!investigations/2026-10-25-onchain-taker-fee-*/
+investigations/2026-10-25-onchain-taker-fee-*/work/
 codex-session-*.md
 price-forecasts
 tasks/*/orchestrate/
