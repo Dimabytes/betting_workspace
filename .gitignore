@@ -9,7 +9,8 @@ docs/analysis/
 artifacts/
 investigations/*
 !investigations/2026-10-25-onchain-taker-fee-*/
-investigations/2026-10-25-onchain-taker-fee-*/work/
+investigations/2026-10-25-onchain-taker-fee-*/work/*
+!investigations/2026-10-25-onchain-taker-fee-history/work/preview_fee_repair.py
 codex-session-*.md
 price-forecasts
 tasks/*/orchestrate/
