@@ -25,6 +25,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Engine journal | `wallet/engine_journal/live.jsonl` (fork noise, not the trade tape) |
 | Dota model | `data/new_model/production/` (bind-mounted read-only). `research/` is train/backtest |
 | LoL model | `data/lol/models/production/` |
+| CS2 models | `data/cs2/models/production/round`, `round_outcome`, `round_winner`. `research/` is backtest |
 | Size / risk | `config/trading.toml` `[profiles.dota-map]` / `[profiles.lol-map]`, `[risk]` |
 | Collector archives | `/var/lib/polymarket-dota-archive` → `/archive/dota`, `/var/lib/polymarket-lol-archive` → `/archive/lol` |
 | On-chain state | `/var/lib/polymarket-onchain-state` (ledger, import, `.onchain.lock`) |
@@ -138,7 +139,7 @@ docker compose restart live
 docker compose logs --since 2m live
 ```
 
-Confirm production model names from `data/new_model/production/model.json` and `data/lol/models/production/model.json`, and clips from `config/trading.toml`. Size/risk/Python/model changes need this restart. Do not rebuild unless deps/Dockerfile/poly-maker changed.
+Confirm production model names from `data/new_model/production/model.json`, `data/lol/models/production/model.json`, and `data/cs2/models/production/*/model.json`, and clips from `config/trading.toml`. Size/risk/Python/model changes need this restart. Do not rebuild unless deps/Dockerfile/poly-maker changed.
 
 ## Unsettled BUY reserve rollback
 
