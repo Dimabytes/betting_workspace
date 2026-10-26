@@ -170,7 +170,11 @@ Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map
 
 ## Tests on this VPS
 
-Do not run `make test` / pytest while a map is live. Use `PYTEST_XDIST_AUTO_NUM_WORKERS=1`. `/tmp` is tmpfs (RAM); pytest tmp goes to `/var/tmp/pytest-esports-trader`. If a test is killed, `rm -rf /var/tmp/pytest-esports-trader /tmp/pytest-of-root`.
+Tests may run during a live map. Before each run, inspect the host processes for other running test suites, including pytest workers and test runners in containers. If another run is active, wait for it to finish; do not start an overlapping run or stop someone else's tests. A sandbox-only process list is insufficient.
+
+Run one test process at a time. Leave `PYTEST_N` unset or set it to `0`, pass `-n 0` to pytest, and use `PYTEST_XDIST_AUTO_NUM_WORKERS=1` as a fallback. Do not use `-n auto` or multiple workers: eight workers exhausted memory and killed the trader. Prefer tests relevant to the change.
+
+`/tmp` is tmpfs (RAM); pytest tmp goes to `/var/tmp/pytest-esports-trader`. Remove abandoned pytest temp directories only after confirming that no test run is using them.
 
 ## Collector
 
