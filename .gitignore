@@ -11,6 +11,9 @@ investigations/*
 !investigations/2026-10-25-onchain-taker-fee-*/
 investigations/2026-10-25-onchain-taker-fee-*/work/*
 !investigations/2026-10-25-onchain-taker-fee-history/work/preview_fee_repair.py
+!investigations/2026-10-27-oddin-winner-backfill/
+investigations/2026-10-27-oddin-winner-backfill/work/*
+!investigations/2026-10-27-oddin-winner-backfill/work/backfill_oddin_winner.py
 codex-session-*.md
 price-forecasts
 tasks/*/orchestrate/
