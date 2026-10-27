@@ -18,6 +18,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from shared.utils.jsonl_io import open_maybe_gz, resolve_jsonl
 from trader.match_meta import _atomic_write_json, read_match_meta
 from trader.oddin_archive import iter_oddin_archive_records, summarize
 from trader.oddin_feed import winner_from_previous_maps
@@ -100,7 +101,7 @@ def next_map_winner(candidate: Candidate, index: dict[tuple[str, int], Path]) ->
     sibling = index.get((candidate.oddin_match_id, candidate.map_number + 1))
     if sibling is None:
         return None
-    archive_path = sibling / ODDIN_STATE_ARCHIVE_FILENAME
+    archive_path = resolve_jsonl(sibling / ODDIN_STATE_ARCHIVE_FILENAME)
     if not archive_path.exists():
         return None
     for record in iter_oddin_archive_records(archive_path):
@@ -118,11 +119,11 @@ def next_map_winner(candidate: Candidate, index: dict[tuple[str, int], Path]) ->
 
 
 def read_last_book_p_radiant(candidate: Candidate) -> float | None:
-    session_path = candidate.archive_dir / "session.jsonl"
+    session_path = resolve_jsonl(candidate.archive_dir / "session.jsonl")
     if not session_path.exists():
         return None
     last_yes_mid: float | None = None
-    with session_path.open(encoding="utf-8") as handle:
+    with open_maybe_gz(session_path) as handle:
         for line in handle:
             if '"kind":"signal"' not in line:
                 continue
