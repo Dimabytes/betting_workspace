@@ -30,7 +30,7 @@ Answer Dota vs LoL separately: process, state dir, model, gold-velocity, GRID-on
 | Collector archives | `/var/lib/polymarket-dota-archive` → `/archive/dota`, `/var/lib/polymarket-lol-archive` → `/archive/lol` |
 | On-chain state | `/var/lib/polymarket-onchain-state` (ledger, import, `.onchain.lock`) |
 
-`src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. Do not `--build` this checkout: there is no `.dockerignore`, so host `.env` can bake into the image.
+`src`, `config`, `data/new_model`, and `data/lol/models` are bind-mounted. A Python/TOML/model change needs `docker compose restart` of the process that loaded it, not `--build`. Rebuild only for Dockerfile, deps, or poly-maker. `Dockerfile.dockerignore` keeps `.env`, `data/` and `.git` out of the image. Before a rebuild, tag the running image for rollback: `docker tag esports-trader-live:latest esports-trader-live:before-<change>`. Then `docker compose build live` and `docker compose up -d live`: `restart` keeps the old image.
 
 WalletHost reads `trading.toml` and production models once at boot. A new match does not re-read them.
 
@@ -167,7 +167,7 @@ Steps 001–004 go out together, and only on a separate user command. This note 
 
 ## Size change
 
-Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale that profile (`q_max_usdc`, `merge_min_size`) and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. `merge_min_size` is the fork's inventory merge threshold, not the clip size.
+Clips live in `config/trading.toml` `[profiles.dota-map]` and `[profiles.lol-map]`, not `BASE_SIZE_USDC` in Python. Restart the process that loaded that profile. When asked to scale "лимиты тоже", scale `q_max_usdc` in that profile and remember `[risk]` USDC caps are derived from the **sum** of loaded clips. Merge is off: `wallet_host.py` replaces `engine._maybe_merge` with `skip_merge`. `merge_min_size` stays in the profile and triggers nothing.
 
 ## Tests on this VPS
 
